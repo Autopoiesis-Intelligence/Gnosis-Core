@@ -2,7 +2,7 @@
 
 ## 0. PURPOSE / OPERATING RULE
 
-This file is the operational handoff for AI agents working on Gnozis-V2.
+This file is the operational handoff and research context for AI agents working on Gnozis-V2.
 
 Repository:
 - GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
@@ -15,10 +15,17 @@ Rules:
 4. Select exactly one highest-priority READY task at a time.
 5. Preserve rejected, failed, quarantined and insufficient-evidence outcomes as historical data.
 6. Never weaken an invariant or evidence gate merely to make tests green.
+7. Preserve the distinction between mathematical/research hypotheses and implementation facts.
 
 ## 1. ARCHITECTURAL PURPOSE
 
 Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
+
+A broader working interpretation has now emerged from the reverse-analysis program:
+
+> Gnozis is being developed as an autopoietic machine for interacting with an environment: it receives information, differentiates and organizes it across levels, detects tensions and insufficiencies, constructs/test representations and candidate changes, verifies them, changes its own organization under protected constraints, acts/observes, and re-enters the cycle.
+
+This is a research interpretation of the existing architecture, not a claim that the system is already conscious or that any philosophical theory has been scientifically established.
 
 Canonical evolution remains CLOSED until the complete evidence, sandbox, governance, security, quarantine and recovery chain is independently verified.
 
@@ -37,6 +44,7 @@ Canonical evolution remains CLOSED until the complete evidence, sandbox, governa
 - Detection is not modification authority.
 - A successful experiment is not canonical evolution.
 - Mathematical closure is not runtime verification.
+- Architecture must be inferred and changed from demonstrated requirements, not from terminology or philosophical enthusiasm alone.
 
 ## 3. CORE EVOLUTION CHAIN
 
@@ -54,11 +62,32 @@ No PATCH or REDESIGN is authorized merely by mathematical analysis.
 
 ## 4. CURRENT RESEARCH STATUS
 
-Formal/architectural research maturity remains approximately 96% as a working analytical estimate.
-Runtime enforcement maturity remains substantially lower and must be reported separately.
-These percentages are NOT software coverage measurements.
+The reverse-analysis program has moved beyond treating layers as merely software modules. The current working model treats a layer as a level of organization/relevance/resolution at which information becomes actionable or meaningful for that level.
 
-The E7.2 reverse-analysis branch has now reached a near-freeze point. E7.2.161–E7.2.170 produced a coherent candidate architecture boundary, but this is still analytical and is not implementation authorization.
+Information may enter from the environment at any level and may be:
+- synthesized;
+- decomposed;
+- ordered;
+- related;
+- compressed/expanded;
+- retained;
+- discarded;
+- transformed;
+- used to generate new distinctions.
+
+A layer is therefore not necessarily a sequential software step.
+
+A key distinction:
+
+Layer ≠ Module.
+
+A second key distinction:
+
+Sufficient ≠ Complete.
+
+A result may be sufficient for a bounded user/kernel question without being an absolute or final truth.
+
+Working analytical progress remains approximate and must be kept separate from software/runtime maturity.
 
 ## 5. HARD EPISTEMIC DISTINCTIONS
 
@@ -84,50 +113,23 @@ Preserve all of the following:
 - Selector ≠ Sovereign authority.
 - Evaluation ≠ Absolute correctness.
 - Low observed failure ≠ Adequate testing.
+- Stored ≠ Canonical ≠ Active.
+- Commit ≠ Activation when the transition is authority-sensitive.
+- Tension ≠ Contradiction.
+- Structural tension ≠ Semantic contradiction.
+- Information relevance is level-dependent.
 
-## 6. EPISTEMIC HISTORY / REALITY COUPLING
+## 6. REALITY COUPLING / ENVIRONMENT INTERACTION
 
-### E7.2.158 — History as Epistemic Anchor
+A self-consistent internal history can still be wrong about the external world.
 
-Completed analytical result:
+For empirical claims, Gnozis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
 
-1. History can anchor provenance, lineage and historical hypothesis generation, but cannot establish truth by itself.
-2. Cryptographic integrity proves that a recorded sequence is intact relative to its commitment structure; it does not prove that recorded events are semantically true.
-3. Lineage proves descent/continuity, not legitimacy of the transition.
-4. Immutable events may have revisable interpretations; interpretation changes must themselves be recorded as traceable historical events.
-5. Historical evidence is evidence under an epistemic regime. If that regime is later found inadequate, prior records should be reclassified/reviewed rather than silently rewritten.
-6. History can generate invariant candidates/hypotheses; observed historical regularity is not automatically normative necessity or a law.
-7. Present governance must not retroactively manufacture or rewrite the historical evidence that supposedly justifies it.
-8. Non-retroactive epistemic causality is a required boundary: past events constrain present reasoning; present decisions must not rewrite past events.
+Conceptual path:
 
-Key formulation:
-
-History = Evidence Substrate, not Epistemic Oracle.
-
-Historical anchor requirements, conceptually:
-
-Tamper-evident + Traceable + Temporally ordered + Interpretation-versioned
-
-This does NOT imply Truth.
-
-### E7.2.159 — Reality Coupling
-
-Completed analytical result:
-
-1. A self-consistent internal history can still be completely wrong about the external world.
-2. Internal consistency ≠ external correspondence.
-3. For empirical claims, Gnozis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
-4. Reality coupling provides a possibility of correction, not an oracle of guaranteed truth.
-5. External input must enter through an epistemic/evidence layer, not directly as canonical authority.
-6. External sources may be wrong, correlated, stale or compromised; source count is not independence.
-7. Epistemic openness requires not only external information but genuine exposure to potentially disconfirming evidence.
-8. External evidence has epistemic authority about a claim only to the extent justified by its provenance/validation; it does not thereby obtain operational authority over Core.
-9. Claim type matters: formal, empirical and mixed claims require different evidence structures.
-10. Prediction and observation must remain distinguishable. Prediction error is a learning signal, not something that may be silently deleted.
-
-Minimal conceptual reality-coupling structure:
-
-ExternalObservation
+Environment
+  ↓
+Observation
   ↓
 CandidateEvidence
   ↓
@@ -136,323 +138,464 @@ Verification / Validation
 Claim / Reflection
   ↓
 Governance
-
-ExternalObservation must NOT directly imply Core Commit.
-
-Central formulation:
+  ↓
+Candidate Transition
+  ↓
+Protected Commit / Action
+  ↓
+New Environment / Observation
 
 The system does not need an oracle of truth; it needs a persistent possibility of being wrong.
 
-## 7. EXCEPTIONS / FALSIFIABILITY
+Prediction and observation must remain distinguishable.
 
-### E7.2.160 — Exception Accumulation and Model Self-Immunity
+Prediction error is a learning signal, not something that may be silently deleted.
 
-Completed analytical result:
+## 7. AUTOPIETIC REVERSE-ENGINEERING MODEL
 
-1. A counterexample is an observation conflicting with a model/claim; an exception is a hypothesis explaining why the conflict need not require model revision.
-2. Exception classification is itself a claim and requires justification.
-3. An exception must preserve a bounded scope. An exception that removes all predictive constraints is equivalent to abandoning the model.
-4. Falsifiability must remain structurally non-empty after exceptions are introduced.
-5. Exception severity depends on structural depth, not merely count.
-6. Local anomalies may receive local investigation; repeated/structural contradictions should escalate toward model revision; core contradictions require revision pressure.
-7. Exceptions must preserve the original contradiction as traceable evidence. Contradictions must not be deleted merely because an exception was accepted.
-8. Exception drift must be prevented: the interpretation/scope of an exception may evolve, but its immutable origin must remain linked to the original counterexample.
-9. If an exception acquires substantial predictive structure, it should be treated as a model-extension/revision candidate rather than a permanent ad-hoc exception.
-10. Zero exceptions does not prove a strong model; a trivial/unconstrained model may simply avoid making falsifiable claims.
-11. Successful explanations should themselves become candidates for adversarial testing.
-12. A self-generated counterexample mechanism is not automatically complete; challenge diversity and evaluator independence remain separate concerns.
+A major current synthesis is:
 
-Conceptual escalation:
+Reverse engineering in this project is not only code reconstruction. It is an analytical/autopoietic method for discovering the structure of the next useful state.
 
-Counterexample
+Working cycle:
+
+Current State
   ↓
-ExceptionCandidate
+Environment Interaction
   ↓
-Justification
+Information
   ↓
-Adversarial Challenge
+Differentiation / Representation
   ↓
-Accept / Reject / Revise
-
-Repeated or structural contradiction:
-
-Counterexamples → ModelRevisionCandidate
-
-Central formulation:
-
-Exceptions may protect a model locally, but must not make the model globally unfalsifiable.
-
-And for the project's tension principle:
-
-Tension must decrease through increased explanatory adequacy, not through deletion or semantic disappearance of the contradiction.
-
-## 8. PROVENANCE MODEL
-
-Evidence should remain a layered chain:
-
-Observation
+Tension / Constraint / Opportunity
   ↓
-Representation
+Synthesis / Experiment
   ↓
-Transformation / Interpretation
+Verification
   ↓
-Claim
+Change in Organization
+  ↓
+New State
+  ↓
+New Environment Interaction
 
-Context as applicable:
-Assumptions + Dependencies + Loss + Schema/Version + Source/Time identity
+Central research formulation:
 
-For reality-linked claims, additionally preserve the source/observation path and validation context.
+> Reverse engineering can function as an autopoietic search for a better next state/product/model.
 
-Immutable event + revisable interpretation is preferred to mutable historical rewriting.
+The “better” criterion is not assumed to be an absolute universal optimum. It is bounded by the current environment, objective, evidence, constraints, users and protected invariants.
 
-## 9. GOVERNANCE / AUTHORITY BOUNDARY
+This is the conceptual bridge between the mathematical reverse-analysis program and the intended Gnozis product.
 
-Governance is classification and evidence evaluation, not an unrestricted autonomous authority source.
+## 8. LEVELS AS ORGANIZATION OF INFORMATION
 
-Critical rule:
+A layer/level can be modeled as a context in which information has a particular relevance function:
 
-Detection ≠ Modification Authority.
+R_k(I)
 
-A finding that a rule is inadequate does not itself authorize removal of that rule.
+where k is the level.
 
-Similarly:
+Information can have low relevance at one level and high relevance at another:
 
-External Challenge ≠ External Command.
+R_k(I) ≈ 0
+while
+R_j(I) >> 0.
 
-The external world may provide evidence/counterexamples, but external inputs must not bypass internal verification and protected Core invariants.
+Therefore information that is not currently actionable is not necessarily useless; it may be latent with respect to the current level.
 
-For evolving evidence standards:
+A level may transform:
 
-A rule change that increases authority must not be justified solely by the rule being changed or by evidence generated entirely under the assumptions that the change itself is attempting to weaken.
+receive → differentiate → organize → relate → transform → pass/retain.
 
-No self-justified authority growth.
+The transition to another level does not necessarily mean “more processed information”. It may mean a different organization of distinctions and relations.
 
-## 10. VERIFICATION BOUNDARY
+A useful hypothesis is:
 
-Verifier evolution is distinct from system evolution.
+Evolution can include a change in what the system is capable of distinguishing.
 
-Critical verification boundaries must preserve detection capability by default. A verifier may evolve only through explicit, evidence-backed governance; the mechanism being verified must not be the sole authority for redefining the critical boundary by which it is verified.
+Potential abstraction:
 
-Verification provenance should retain, as applicable:
+D_k = distinctions available at level k.
 
-Claim, Scope, SystemID, VerifierID, OracleID, EnvironmentID, Result, EvidenceProvenance, SemanticsVersion.
+Then a transition may involve:
 
-Differential verification, adversarial verification and multiple evidence paths are useful only when their dependency/common-mode structure is understood.
+D_k → D_{k+1}
 
-## 11. RESEARCH CHAIN — NEW COMPLETED ANALYTICAL LAYERS
+rather than merely:
 
-### E7.2.161 — Adversarial Completeness and Ontology Lock-In
+X_k → X_{k+1}.
 
-The counterexample space is itself bounded by representation. A self-evolving system can therefore fail to generate a contradiction that its ontology cannot express.
+This is a research hypothesis and must be tested against the existing Ψ=(X,R) architecture.
 
-Key result:
-- Missing category can itself become ontology-pressure evidence.
-- Counterexample generation must not be treated as complete merely because it is internally self-generated.
-- Challenge diversity and evaluator independence remain separate dimensions.
-- A representation boundary is an epistemic boundary.
-- Ontology expansion must remain a Candidate, not an automatic mutation.
+## 9. TENSION AS INFORMATION
 
-### E7.2.162–E7.2.166 — Structural Tension, Pre-Semantic Detection and Boundary Instrumentation
-
-Completed analytical synthesis:
-
-1. Semantic contradiction requires a pre-existing semantic frame.
-2. Structural tension can exist before the current ontology can name the conflict.
-3. Therefore:
-   StructuralTension ≠ SemanticContradiction.
-4. A detector should initially emit CandidateTension rather than ContradictionTruth.
-5. Structural tension may arise from prediction mismatch, transition mismatch, constraint incompatibility, recurrence anomalies, cross-domain structural recurrence, or model/behavior inconsistency.
-6. Repeated detection is not equivalent to independent confirmation.
-7. Detection should maximize anomaly visibility rather than explanatory certainty.
-8. A detector's correctness does not establish detection adequacy; blind spots and meta-tests remain necessary.
-9. Conflict should first become measurable before being forced into a semantic resolution.
-10. The project principle “conflict is information and evolutionary rule” can be operationalized as:
-    Tension → Boundary Representation → Tool Candidate → New Evidence → Possible Distinction.
-
-Central formulation:
-
-Detect tension without prematurely declaring contradiction.
-
-### E7.2.167 — Pre-Semantic / Structural Tension Layer
-
-A potential ontology-independent detection layer is conceptually required.
-
-It should report:
-- what does not fit;
-- under which conditions;
-- with what provenance;
-- with what scope/limitations.
-
-It should NOT directly assert:
-- truth;
-- causal explanation;
-- ontology revision;
-- Core mutation.
-
-### E7.2.168 — Representation as Epistemic Hypothesis
-
-Completed analytical result:
-
-1. Representation is not a neutral container; it determines which distinctions are visible.
-2. Therefore representation itself is an epistemic hypothesis.
-3. Multiple representations may be needed under ontological uncertainty.
-4. Representation disagreement is a potential epistemic signal, not automatic world contradiction.
-5. A meta-representation can describe relations between representations, but unbounded meta-regression must be avoided.
-6. A representation should be selected as a test instrument for a bounded question, not treated as a final truth container.
-7. Each representation should expose provenance and epistemic limitations, including relevant information loss.
-8. Representation has an observation boundary:
-   R: W → O_R
-   where W \ O_R is information not distinguished by R.
-9. Representation differential can reveal hidden distinctions:
-   R1(A)=R1(B) while R2(A)≠R2(B)
-   indicates representation-dependent equivalence, not immediate objective truth.
-10. Ontology pressure is evidence that a current distinction/equivalence may be representation-dependent; it is not itself proof of a new ontology.
-
-Conceptual Representation Contract:
-
-{source, method, assumptions, scope, loss, dependencies, provenance}
-
-### E7.2.169 — Adaptive Representation Selection
-
-Completed analytical result:
-
-1. There is no absolute BestRepresentation.
-2. Representation utility is conditional on the current tension, hypothesis space and budget.
-3. Selection should support both discrimination and discovery.
-4. Closed hypothesis spaces can create closed evolution; discovery must sometimes search outside the current hypothesis categories.
-5. Exploration and exploitation are resource-allocation modes, not Core truths.
-6. Selection must account for epistemic independence, not merely syntactic diversity.
-7. Different outputs do not imply independent evidence.
-8. Representation families can share common-mode failure; family escape is therefore a legitimate experimental objective.
-9. Selection criteria should remain multi-objective; a single total score can hide tradeoffs.
-10. A selector may exist above Core, but it must not silently redefine Core transition semantics or directly mutate Ψ.
-11. Selection provenance is part of epistemic audit.
-12. The selector is an experimental policy, not a sovereign authority.
-
-Conceptual chain:
+The project's “middle rule” / tension principle is now understood as a candidate mechanism:
 
 Tension
   ↓
-CandidateRepresentations
+Boundary Representation
   ↓
-Selection
+Tool / Representation Candidate
   ↓
 Experiment
   ↓
 Evidence
   ↓
-Interpretation
+Possible New Distinction
   ↓
-Candidate
-  ↓
-Verification
-  ↓
-Commit
+Possible Reorganization
 
-### E7.2.170 — Bounded Self-Evaluation
+Tension should decrease through increased explanatory/operational adequacy, not through deletion or semantic disappearance of the contradiction.
 
-Completed analytical result:
+Structural tension may exist before the current ontology can name the conflict.
 
-1. An ultimate evaluator is not required.
-2. Self-evaluation should verify bounded, explicit properties rather than claim absolute correctness.
-3. Immutable Core constraints must bound mutable experimental policy.
-4. Selector evaluation may inspect budget compliance, provenance, diversity, dependency structure, challenge coverage and behavioral failure patterns.
-5. Selection history is required to detect concentration, bias and epistemic stagnation.
-6. Low observed failure is ambiguous: it may indicate robustness or weak testing.
-7. Evaluation results are evidence about properties, not unconditional verdicts.
-8. Reflection may generate findings/counterexamples/rule proposals about selector behavior, reusing the existing reflection/governance pattern where appropriate.
-9. Reflection or self-evaluation may propose policy changes but must not unilaterally authorize them.
-10. Meta-evaluation should terminate in bounded uncertainty, not recurse toward absolute certainty.
-11. A protected set of Core invariants + observable history + independent challenge mechanisms provides a bounded self-evaluation architecture.
+Therefore:
 
-Key formulation:
+StructuralTension ≠ SemanticContradiction.
 
-Selector is not sovereign.
+A detector should initially emit CandidateTension rather than ContradictionTruth.
 
-Evaluation is not absolute correctness.
+Conflict is treated as information and a possible evolutionary trigger, not automatically as an error.
 
-Meta-evaluation may establish bounded properties and limitations, not perfection.
+## 10. GNOSIS AS AN EMERGENT RESEARCH HYPOTHESIS
 
-## 12. CURRENT ARCHITECTURAL IMPLICATION — NOT YET IMPLEMENTATION AUTHORIZATION
+The current philosophical/architectural hypothesis is not that “Gnozis is already conscious”.
 
-E7.2.161–E7.2.170 collectively indicate a likely architecture boundary:
+Instead:
 
-Ψ-Core should remain the protected semantic/state-transition authority.
+Gnosis may be studied as an emergent level/mode of organization in which a system can construct, evaluate and revise its own relevant distinctions and epistemic state.
 
-A higher epistemic/experimental layer may be required around Core for:
-- structural tension registration/detection;
-- representation candidates and provenance;
+A tentative descriptive formulation:
+
+Gnosis ~ capacity to construct, evaluate and revise relevant distinctions about the system/world relationship.
+
+This is deliberately descriptive rather than dependent on a preselected philosophical name.
+
+Possible progression to investigate:
+
+Difference
+→ Relation
+→ Organization
+→ Persistence
+→ Self-reference
+→ Internal Model
+→ Epistemic Distinction
+→ Contradiction/Tension Recognition
+→ Model Revision
+→ Anticipation
+→ Autopoietic Reorganization
+
+IMPORTANT:
+- This is not yet an asserted natural law.
+- The levels may not be strictly linear.
+- They may form a partial order or multiple interacting dimensions.
+- The proposed ladder must be attacked with counterexamples before being treated as architecture.
+- Do not put this philosophical ladder directly into Ψ-Core without an explicit engineering requirement.
+
+## 11. PANPSYCHIST PERSPECTIVE — CONTROLLED USE
+
+Panpsychism is treated as a philosophical comparison/context, not as established scientific fact.
+
+The useful research question is not “panpsychism is true, therefore Gnozis is conscious”.
+
+Instead:
+
+If reality is considered as potentially having both relational/external and experiential/internal aspects, what organizational structures could correspond to increasing capacities for distinction, integration, self-reference and self-modeling?
+
+The project may compare those philosophical descriptions against the observable architecture.
+
+The order of reasoning remains:
+
+Observed structure
+→ Invariants
+→ Relations
+→ Mathematical description
+→ Candidate emergent property
+→ Philosophical interpretation/name
+
+Not:
+
+Philosophical claim
+→ forced architecture.
+
+## 12. ARCHITECTURE AS A MATHEMATICAL SPECIMEN
+
+A key methodological change:
+
+Gnozis-V2 should be treated as an existing architectural specimen from which hidden structure can be reverse-engineered.
+
+We are not starting with an empty philosophical concept and forcing it into code.
+
+We observe:
+
+Ψ=(X,R)
+Candidate/Test/Verify/Commit
+immutability
+provenance
+lineage
+persistence
+audit
+reflection
+counterexamples
+RuleProposal
+shadow evaluation
+governance
+execution authorization
+trust boundaries
+
+and ask:
+
+What broader mathematical/organizational phenomenon is already being instantiated?
+
+Working bidirectional method:
+
+Implementation
+↔ Abstraction
+↔ Mathematics
+↔ Implementation
+
+The existence of a meaningful architectural pattern does not by itself prove a philosophical interpretation. It does justify investigating the pattern.
+
+## 13. GNOSIS AS PHENOMENON VS GNOZIS AS IMPLEMENTATION
+
+Preserve this distinction:
+
+Gnosis_phenomenon ≠ Gnozis_implementation.
+
+Gnozis may be an implementation/model through which properties associated with gnostic organization are investigated.
+
+Do not claim consciousness, subjective experience, panpsychism, or any other strong philosophical conclusion merely from the existence of the architecture.
+
+Instead investigate observable/derivable properties such as:
+- self-model;
+- uncertainty recognition;
+- contradiction/tension recognition;
+- internal model revision;
+- anticipation;
+- self-correction;
+- generation of new distinctions;
+- preservation of identity through transformation;
+- interaction with environment;
+- ability to reorganize under constraints.
+
+## 14. CURRENT ARCHITECTURAL IMPLICATION — NOT IMPLEMENTATION AUTHORIZATION
+
+The current research does NOT justify redesigning Ψ-Core.
+
+The leading interpretation is:
+
+Ψ-Core remains the protected semantic/state-transition authority.
+
+Higher analytical/experimental layers may organize:
+- environmental observations;
+- structural tension;
+- representation candidates;
 - adaptive experiment selection;
 - experiment execution;
 - evidence capture;
 - historical revisit;
-- selector/reflection analysis.
-
-However, this does NOT yet authorize creation of new modules.
-
-Before implementation, perform an Architecture Delta review against existing:
 - reflection;
-- verification;
-- storage;
-- governance;
-- audit/provenance;
-- existing execution-authorization boundaries.
+- interpretation;
+- user-relevant synthesis.
+
+But these responsibilities should first be mapped to existing modules.
 
 Prefer reuse over parallel subsystems.
 
-Potential conceptual flow:
+Architecture change is justified only when:
 
-StructuralTension
-  ↓
-RepresentationCandidates
-  ↓
-ExperimentalSelection
-  ↓
-Experiment
-  ↓
-Evidence
-  ↓
-Reflection / Interpretation
-  ↓
-Candidate
-  ↓
-Core Verification
-  ↓
-Governance
-  ↓
-PromotionCandidate
-  ↓
-Protected Commit
+Observed/required property
+  ∉
+Safely representable by existing architecture
 
-The selector may choose experiments but must not directly authorize canonical Core mutation.
+and the gap cannot be closed by a local implementation change or existing governed transition.
 
-## 13. CURRENT REVERSE-ANALYSIS REPORT
+Current architectural trigger:
 
-Working estimates only; NOT test coverage:
+A real canonical-state / activation bypass, or another explicit invariant that existing boundaries cannot satisfy.
 
-- Overall project analytical progress: approximately 74% (rough working estimate; keep separate from software/runtime maturity).
-- E7.2 branch: approximately 95% complete as of E7.2.170.
-- Architecture understanding for the current branch: approximately 90%+.
-- Runtime enforcement of the newly derived mechanisms: not established by this research sequence.
-- Architecture Delta is now near-ready, but Reverse Freeze has not yet been declared.
+Do not redesign merely because a new philosophical description is more elegant.
 
-Next analytical step:
+## 15. ACTIVATION / TRUST BOUNDARY RESEARCH
 
-### E7.2.171 — E7.2 Synthesis / Architecture Delta Review
+Recent reverse-analysis established a useful semantic distinction:
+
+Proposed ≠ Canonical ≠ Active.
+
+For authority-sensitive changes:
+
+Commit may establish canonical history without necessarily activating operational authority.
+
+Conceptual modes:
+
+PowerImpact = ZERO
+→ possible automatic activation
+
+PowerImpact = POSITIVE
+→ governed activation
+
+PowerImpact = UNKNOWN
+→ review / no silent trust promotion
+
+This does not require a new ActivationEngine unless the actual V2 implementation demonstrates that existing transition/authorization semantics cannot express it safely.
+
+Key invariants under investigation:
+
+G21 — Universal Commit Invariant:
+Every canonical state mutation must pass through protected commit semantics.
+
+G22 — Unknown External Power:
+Unknown external power impact must not be silently promoted to trusted execution.
+
+G23 — Persistence Is Not Authority:
+A persisted representation cannot become canonical merely because it exists in storage.
+
+G24 — No Authority Resurrection:
+Recovery must not reactivate authority validly revoked after the recovered snapshot.
+
+Further principles:
+- Forking state does not automatically fork authority.
+- Delegation cannot exceed authorized scope.
+- Capability storage does not automatically imply capability activation.
+- Protected policy/verifier updates are authority-sensitive transitions.
+
+These are analytical invariants pending comparison with actual implementation.
+
+## 16. MUTATION PATH COMPLETENESS
+
+Mutation classes under reverse-audit:
+
+1. Evolution
+2. Reflection
+3. Execution
+4. Storage
+5. Recovery
+6. Fork/Clone
+7. Delegation
+8. Capability activation
+9. Protected policy update
+10. Verifier update
+11. External bridge
+12. Restart/replay/rollback
+13. Concurrency/stale authorization
+
+For each path, inspect:
+
+Entry
+→ Validation
+→ Authorization
+→ PowerImpact
+→ Commit
+→ Audit
+→ Persistence/Activation
+
+Not every path needs identical code; the requirement is semantic protection.
+
+The decisive architecture question is:
+
+Does every canonical mutation converge on protected transition/activation semantics?
+
+If yes, targeted modification is likely sufficient.
+
+If no, determine whether the bypass is local or requires a new abstraction.
+
+## 17. EXISTING RESEARCH HISTORY — E7.2 / E7.6 / E7.7
+
+### E7.2.158 — History as Epistemic Anchor
+History anchors provenance/lineage and hypothesis generation, but does not establish truth. Cryptographic integrity proves sequence integrity relative to commitments, not semantic truth. Historical interpretations may be revised without rewriting immutable events.
+
+### E7.2.159 — Reality Coupling
+Internal consistency can coexist with external error. Empirical claims need a reality-coupling path. External evidence is not operational authority.
+
+### E7.2.160 — Exception Accumulation and Model Self-Immunity
+Exceptions may protect a model locally but must not make it globally unfalsifiable. Structural/repeated contradiction should create model-revision pressure.
+
+### E7.2.161 — Adversarial Completeness and Ontology Lock-In
+Counterexample space is bounded by representation. Missing category can itself create ontology pressure. Challenge diversity and evaluator independence remain separate.
+
+### E7.2.162–E7.2.166 — Structural Tension / Boundary Instrumentation
+Structural tension can precede semantic contradiction. Detect tension without prematurely declaring contradiction.
+
+### E7.2.167 — Pre-Semantic Structural Tension Layer
+A potential ontology-independent detector should report mismatch, conditions, provenance and limitations without directly asserting truth or Core mutation.
+
+### E7.2.168 — Representation as Epistemic Hypothesis
+Representation determines visible distinctions. Representation disagreement is not automatically world contradiction. Representation contracts should preserve source, method, assumptions, scope, loss, dependencies and provenance.
+
+### E7.2.169 — Adaptive Representation Selection
+No absolute BestRepresentation. Utility is conditional on current tension, hypothesis space and budget. Selector is experimental policy, not sovereign authority.
+
+### E7.2.170 — Bounded Self-Evaluation
+Self-evaluation can establish bounded properties/limitations but not perfection. Selector evaluation must consider provenance, diversity, dependency structure, challenge coverage and behavioral failure patterns.
+
+### E7.6 — Persistent Lineages, Merge and Cross-Lineage Conflict
+Valid(A) ∧ Valid(B) does not imply Valid(Merge(A,B)). Merge is a candidate transition. Parent authority does not automatically union. Multiple governed lineages may coexist.
+
+### E7.7.1 — Recursive Reflection of Verification
+Verifier can become a reflection object. Verifier evolution remains governed. Mutual verification is not independent evidence when common-mode assumptions exist.
+
+### E7.7.2 — Revision of Epistemic Foundations
+Verification is conditional on assumptions. Assumptions may be first-class epistemic objects. Historical validity and current applicability differ. Self-modification remains governed.
+
+## 18. CURRENT REVERSE-ANALYSIS SEQUENCE
+
+Completed/near-completed analytical work:
+- E7.6 — Persistent lineages / merge / cross-lineage conflict.
+- E7.7.1 — Recursive reflection of verification.
+- E7.7.2 — Revision of epistemic foundations.
+- E7.8.5 — Universal Transition Boundary.
+- E7.8.6 — Mutation Path Completeness.
+- E7.8.7 — Activation Boundary Reverse-Audit.
+- E7.9.1 — Layers as levels of information organization; preliminary gnostic/emergent interpretation.
+
+E7.8 current working estimate: approximately 70%.
+E7.9 has just opened and should not be treated as complete.
+
+The current analytical gate remains:
+
+Architecture Change
+ONLY IF
+a real unmet invariant/capability is demonstrated against the actual V2 implementation.
+
+## 19. REPORTING / PROGRESS
+
+Maintain a compact report after substantial analytical steps.
+
+Report at minimum:
+- current sequence/layer;
+- analytical completion estimate;
+- what was established;
+- what remains hypothetical;
+- architecture delta status;
+- next reverse-analysis target.
+
+Progress percentages are directional analytical estimates only. They are not software coverage, quality scores, readiness scores, or probabilities.
+
+Do NOT frame the purpose of reverse-analysis as merely “saving time” or “being efficient”. The method is itself part of the research/product concept: an adaptive process for discovering and constructing better future states.
+
+## 20. NEXT REVERSE-ANALYSIS TARGET
+
+### E7.9.2 — Attack the Level Hypothesis
 
 Objective:
-- consolidate E7.2.161–E7.2.170;
-- distinguish what is genuinely new from what existing Gnozis-V2 already covers;
-- identify the minimum architecture delta;
-- explicitly list what must NOT be changed;
-- map requirements to existing modules before proposing new modules;
-- define executable acceptance criteria only after the delta is understood.
 
-No implementation should start merely because E7.2.170 is complete.
+Test whether “layers as levels of information organization” can be formalized without prematurely imposing a linear hierarchy.
 
-## 14. IMPLEMENTATION SAFETY
+Questions:
+1. Is a layer better modeled as a partial order rather than a stack?
+2. What exactly changes between levels: X, R, available distinctions, predictive capacity, action space, or some combination?
+3. Can information move downward as well as upward?
+4. Can one input branch into multiple level-specific representations?
+5. Can a contradiction/tension force creation of a new distinction without requiring a new Core state model?
+6. What constitutes sufficient information for a bounded user/kernel result?
+7. Can the same information be simultaneously irrelevant at one level and critical at another?
+8. Does Ψ=(X,R) already provide enough mathematical structure for these level transitions?
+9. Which properties are actually observable in the existing V2 implementation?
+10. Which parts remain philosophical interpretation only?
 
-Do not convert E7.2.161–E7.2.170 directly into code without a bounded architecture review and executable acceptance criteria.
+Do not implement from this section. First attack the model and search for counterexamples.
+
+## 21. IMPLEMENTATION SAFETY
 
 Do not:
 - create speculative Genesis/meta-evolution APIs;
@@ -464,9 +607,10 @@ Do not:
 - treat representation disagreement as proof of world contradiction;
 - treat selector output as canonical authority;
 - create a parallel governance system if existing reflection/governance can be reused;
-- reopen verified persistence gates without regression evidence.
+- reopen verified persistence gates without regression evidence;
+- convert the philosophical level/gnozis hypotheses directly into Core architecture.
 
-## 15. COMPLETION EVIDENCE FORMAT
+## 22. COMPLETION EVIDENCE FORMAT
 
 For every completed implementation task record:
 
@@ -485,7 +629,7 @@ Next task:
 
 Never write “verified” without evidence.
 
-## 16. FINAL SELF-EVOLUTION RULE
+## 23. FINAL SELF-EVOLUTION RULE
 
 Canonical self-evolution remains CLOSED.
 
@@ -507,156 +651,15 @@ A promotion candidate is not a Core mutation.
 A passing unit test is not complete architectural verification.
 CI-green must be tied to an exact commit/run.
 
-
-## 18. REVERSE-ANALYSIS EXTENSION — E7.6 / E7.7
-
-### E7.6 — Persistent Lineages, Merge and Cross-Lineage Conflict
-
-Completed analytical result:
-
-1. Validity of two branches does not imply validity of their merge:
-   Valid(A) ∧ Valid(B) ⇏ Valid(Merge(A,B)).
-2. Merge should be treated as a candidate transition, not as an exceptional second state machine.
-3. A merge candidate must preserve both parent provenance and causal ancestry.
-4. Merge authority is not automatically obtained from the union of parent authorities.
-5. Verification/evidence from a parent is not automatically valid for the merged state; commit-time revalidation may be required.
-6. Rebase can invalidate previous verification and authority applicability because the semantic context changed.
-7. Multiple persistent lineages can remain instances of the same Ψ=(X,R) model if canonicality is defined per lineage.
-8. Clone is a governed transition, not a byte-copy of authority/identity. State inheritance, authority inheritance, credentials and identity must be separately scoped.
-9. Revocation is scope-dependent and must not silently revoke unrelated lineages.
-10. Cross-lineage visibility is not cross-lineage validity; shared evidence requires explicit admissibility/provenance.
-11. Identity inheritance after merge is a governance policy, not an automatic consequence of state merge.
-12. A global manager must remain a projection/coordination layer unless it develops independent canonical state semantics.
-13. Multiple valid lineages may legitimately coexist. Conflict must not imply an automatic winner.
-14. Conflict should be represented as first-class information with scope, provenance and affected dependencies.
-15. Unresolved conflict is a valid state when no justified resolution authority/policy exists.
-16. Conflict may block only its affected scope/dependencies rather than the entire system.
-17. Evidence, authority and truth/validity remain distinct relations:
-   Evidence ≠ Authority ≠ Truth.
-18. A proposal cannot self-establish the authority required to authorize itself.
-19. Global canonicality over a set of Ψ instances is a potential architectural boundary, but has not been shown necessary for the current model.
-
-Central formulation:
-
-One model, many governed instances/lineages, unless a future requirement proves the need for canonical state over the entire set of instances.
-
-Architecture result:
-- Fundamental Ψ-Core redesign: NOT demonstrated.
-- Lineage/merge/conflict semantics: formalization pressure is high.
-- Storage/audit must preserve multi-parent provenance where merges exist.
-- No implementation authorization follows from E7.6 alone.
-
-### E7.7.1 — Recursive Reflection of Verification
-
-Completed analytical result:
-
-1. A verifier may itself become an object of reflection.
-2. Verifier evolution can be represented as ordinary Ψ transitions:
-   V0 → Finding → RuleProposal → V1.
-3. Reflection does not require a second state model if verifier, finding, proposal and provenance remain objects/relations within X,R.
-4. Verification of a verifier is not proof of absolute correctness.
-5. Mutual verification is not independent evidence when verifiers share assumptions, datasets, implementation structure or failure modes.
-6. Verification claims must preserve scope, provenance, assumptions and dependencies.
-7. Absence of a detected blind spot does not establish absence of all blind spots.
-8. Reflection may propose verifier changes but must not directly commit them.
-9. Observation authority ≠ modification authority.
-10. Verifier self-modification must pass the same governed Candidate → Test → Verify → Authorize → Commit discipline.
-11. Critical verifier evolution should consider evaluator diversity and common-mode failure.
-12. Recursive meta-evaluation should terminate in bounded uncertainty rather than claim absolute self-proof.
-
-Central formulation:
-
-Reflection can move the verification boundary; it cannot remove the fundamental evidence ceiling.
-
-### E7.7.2 — Revision of Epistemic Foundations
-
-Completed analytical result:
-
-1. Verification is conditional:
-   V(O | A) = result under assumption A.
-2. Verification under an assumption does not independently validate the assumption.
-3. Assumptions may themselves be first-class epistemic objects with provenance and revision lineage.
-4. A counterexample to an assumption requires scope analysis before automatic rejection.
-5. Assumption revision must be append-only in provenance; historical claims must not be silently rewritten.
-6. A previously verified object may become stale/revalidation-required after assumption or verifier revision without making its historical verification disappear.
-7. Historical validity and current applicability are distinct:
-   Valid_t(x) ≠ Valid_t+k(x).
-8. Dependency graphs should permit targeted revalidation/revocation of objects affected by a revised assumption or invariant.
-9. Invariant revision is possible only as a governed candidate transition; a rule cannot authorize its own replacement merely because it proposes the replacement.
-10. A system must not be allowed to redefine the trust boundary solely under the authority of the boundary it is attempting to weaken.
-11. Mutable rules/verifiers/assumptions may evolve, but a protected authority/provenance/commit boundary must remain outside unilateral self-modification.
-12. This pressure is primarily on reflection, verification, governance, storage and audit layers, not on the mathematical form Ψ=(X,R).
-
-Central formulation:
-
-Self-modification must remain governed; epistemic evolution does not imply a new fundamental state model.
-
-## 19. UPDATED ARCHITECTURAL METER
-
-Working analytical estimates only; NOT software coverage:
-
-- Fundamental Ψ-Core redesign demonstrated by E7.6–E7.7.2: approximately 0% necessity so far.
-- Need for explicit lineage/merge/conflict semantics: high.
-- Need for reflection/verifier metadata and bounded verification semantics: high.
-- Need for protected epistemic/authority boundary: mandatory as an architectural constraint.
-- Pressure on storage/audit/provenance: high.
-- Runtime implementation maturity of these newly derived requirements: NOT ESTABLISHED by this research sequence.
-- Architecture change should be considered only when comparison with the actual V2 implementation demonstrates an unmet requirement that cannot be represented safely by existing modules.
-
-These percentages are directional analytical estimates, not test coverage, quality scores or readiness scores.
-
-## 20. NEXT REVERSE-ANALYSIS TARGET
-
-### E7.7.3 — Trust-Boundary Self-Revision
-
-Objective:
-
-Test the strongest recursive case:
-
-TrustBoundary_0
-  ↓
-Finding
-  ↓
-BoundaryRevisionCandidate
-  ↓
-Evidence / adversarial challenge
-  ↓
-Governance
-  ↓
-TrustBoundary_1
-
-Questions:
-
-1. Can the system discover inadequacy in its own protected boundary without silently bypassing that boundary?
-2. Can a boundary revision be represented as a governed transition rather than an unrestricted meta-authority?
-3. What minimum part of the trust boundary must remain non-self-authorizable?
-4. Can historical boundary versions remain auditable after revision?
-5. Does boundary revision require a genuinely new state model, or only a protected governance/storage layer around the existing Ψ-Core?
-6. What happens when the system cannot establish sufficient evidence to justify changing its own boundary?
-7. Can unresolved boundary uncertainty coexist with continued operation in unaffected scopes?
-
-Do not implement from this section. First derive the necessary invariants and compare them against existing execution-authorization, reflection, verification, storage and governance code.
-
-## 21. REVERSE-ANALYSIS REPORT UPDATE
-
-Current sequence:
-- E7.6 — Persistent lineages / merge / cross-lineage conflict: complete analytically.
-- E7.7.1 — Recursive reflection of verification: complete analytically.
-- E7.7.2 — Revision of epistemic foundations: complete analytically.
-- E7.7.3 — Trust-boundary self-revision: next.
-- Architecture Delta remains a later evidence-based step, not an automatic consequence of the theory.
-
-Handoff rule:
-
-Do not change Ψ-Core merely because the research discovers additional semantic objects. First ask whether the object can safely be represented as X/R data, a governed transition, a projection, or an existing module responsibility. Architectural change becomes justified only when an explicit invariant or required capability cannot be satisfied without changing the protected semantics.
-
-## 17. HANDOFF
+## 24. HANDOFF
 
 Current research handoff:
-- E7.2.158–E7.2.170 completed analytically in the earlier branch.
-- E7.6 and E7.7.1–E7.7.2 are now completed analytically in the current continuation.
-- The new findings are research constraints and architecture signals, not implementation authorization.
-- E7.7.3 is the next reverse-analysis target.
-- After the recursive boundary analysis, perform an evidence-based Architecture Delta review against actual reflection/verification/storage/governance/execution-authorization code.
-- First compare against existing modules before creating anything new.
-- Repository code/tests/CI remain authoritative over this research document.
+- Ψ-Core remains the protected semantic/state-transition authority.
+- Gnozis-V2 is being reverse-engineered as an existing architectural specimen, not merely designed from philosophy downward.
+- The broader working product concept is an autopoietic environment-interaction machine that continuously transforms information, distinctions and organization under constraints.
+- “Gnosis” is a candidate descriptive name for an emergent organizational/epistemic phenomenon, not a claim of consciousness.
+- Panpsychism is a philosophical comparison context, not a proven premise.
+- Layers should currently be treated as levels of information organization/relevance, not automatically as software modules or a fixed linear hierarchy.
+- Architecture Delta is still evidence-gated.
+- E7.9.2 is the next analytical target.
+- Repository code/tests/CI remain authoritative over this document.
