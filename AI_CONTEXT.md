@@ -3070,3 +3070,119 @@ Until E7.2.2 is resolved:
 - do not reopen already verified persistence/reflection gates without concrete regression evidence.
 
 The next action is E7.2.4 Semantic Commit Point analysis, followed by a renewed repository-grounded mutation-path enumeration when the repository tree/evidence is coherent enough to support it.
+
+
+## 2026-09-20 AUTHORITATIVE REVERSE-ANALYSIS CHECKPOINT — E7.2.44 → E7.2.47
+
+This section records the continuation of the mathematical reverse-analysis after the repository-grounded commit-path/semantic-commit work. It is research/architecture context only, NOT runtime or CI verification. Repository code, tests and actual CI evidence remain authoritative.
+
+### E7.2.44 — Minimal Verification Basis and Test-Set Sufficiency
+
+- Test count is not verification coverage.
+- Test diversity is not verification-mechanism diversity.
+- Coverage redundancy is not necessarily epistemic redundancy; independent evidence may be valuable even when failure coverage overlaps.
+- Verification sufficiency is scope-relative: Claims + Scope + KnownFailureModel + DetectionModel.
+- A Minimal Sufficient Basis is not simply the smallest number of tests. It is the smallest justified structure of detection mechanisms for the declared scope, while retaining required discovery capability and relevant independence/redundancy.
+- Known failure coverage must be distinguished from failure-space discovery.
+- Exploration and verification are distinct: Exploration searches for unknowns; verification evaluates defined claims. Exploration may produce counterexamples that become verification targets.
+- Example coverage and property coverage are distinct; property-based verification still depends on generator/domain assumptions.
+- PASS/FAIL is a projection of richer evidence, not the complete verification state.
+- A self-created verification procedure remains a candidate until it crosses the applicable verification/governance boundary.
+- Critical verification architecture must not be weakened through the same ordinary evolution path that it is supposed to control.
+
+Central formulation:
+VerificationBasis = KnownCoverage + FailureDiscovery.
+
+### E7.2.45 — Verifier Evolution, Oracle Drift and Verification Self-Reference
+
+- A higher pass rate does not imply a better system; a lower pass rate can result from a stronger verifier discovering failures.
+- Verifier improvement must be evaluated by preserved/expanded detection capability, not by system pass rate.
+- Verifier evolution is distinct from system evolution.
+- Oracle changes can change results while the system remains unchanged; therefore OracleChange is a systemically significant change.
+- Verification self-consistency is not self-adequacy, and self-adequacy is not truth.
+- Critical verification boundaries should have a protected baseline or constitutional governance path; ordinary evolution must not silently weaken them.
+- Qualified monotonicity is preferable to absolute verifier immutability: critical detection capabilities are preserved by default, while justified changes require explicit governance.
+- Verifier identity, oracle identity, environment identity and acceptance semantics require provenance sufficient for historical interpretation.
+- Hash/integrity of a verifier does not prove verifier correctness.
+- Primary, shadow and adversarial verification paths may provide useful challenge diversity, but multiple paths are not automatically independent evidence.
+
+Central invariant:
+Verifier Non-Self-Authorization — the mechanism being verified must not be the sole authority for redefining the critical boundary by which it is verified.
+
+### E7.2.46 — Verification Observability, Measurement Invariance and Cross-Version Comparability
+
+- Observation change does not automatically identify system change.
+- Logging volume is not observability. Observability is the ability to distinguish competing explanations of an observed change.
+- A verification result is interpretable only relative to the identity, semantics and context of the measurement apparatus.
+- Cross-version comparison requires measurement invariance or an explicit comparability mapping for the relevant Claim and Scope.
+- Historical evidence is not automatically current evidence; it remains useful when its comparability conditions are established.
+- Differential verification can separate system and verifier dimensions:
+  [V0(S0), V0(S1); V1(S0), V1(S1)].
+- Differential verification does not by itself remove environment confounding.
+- Reproducibility is not validity; integrity is not validity; validity is not comparability.
+- PASS/FAIL is an interface projection, not a sufficient audit record.
+- Verification provenance should retain, as applicable: Claim, Scope, SystemID, VerifierID, OracleID, EnvironmentID, Result, EvidenceProvenance and SemanticsVersion.
+- Provenance requirements are claim/scope dependent.
+- No evolutionary attribution should be made without the relevant measurement context.
+
+Epistemic ladder:
+Observation -> Reproducibility -> Comparability -> Quantitative Comparability -> Causal Attribution.
+
+### E7.2.47 — Causal Attribution of Verification Changes
+
+- A changed verification result establishes an observation, not automatically its cause.
+- Verification failure is not automatically global system failure; it is a failure of a defined claim within a defined scope when the verifier semantics support that conclusion.
+- Regression detection is distinct from causal attribution.
+- Causal attribution requires stronger evidence than temporal association; useful levels are Temporal Association -> Reproducible Association -> Controlled Attribution -> Counterfactual Evidence -> Mechanistic Explanation.
+- Multiple simultaneous changes require change-set analysis; one counterexample does not imply one cause.
+- Interaction effects matter: individual changes can be safe while their combination causes failure.
+- Minimal causal sets may exist and may not be unique.
+- A repair that removes a failure does not by itself prove that the root mechanism was eliminated; masking and compensating effects must be considered.
+- Local repair verification and broader regression verification are distinct obligations.
+- AI-generated explanations are CauseHypotheses until supported by causal evidence; an AI explanation is not causal proof.
+- Reflection should distinguish FAIL -> CauseHypothesis -> CausalTest -> Evidence -> RuleProposal where a causal claim is required.
+- Evidence requirements should be proportional to the action: detection, localization, attribution, repair and governance need not require identical evidentiary strength.
+- Verifier-system co-adaptation is a distinct risk: mutual adaptation can preserve PASS while reducing independent verification power.
+
+Central invariant:
+Attribution requires measurement context.
+
+### Current E7.2 research chain
+
+E7.2.1 — mutation-path framing/boundary model completed.
+E7.2.2 — previously BLOCKED by insufficient/inconsistent repository-tree evidence; this remains a historical evidence limitation unless/until repository-grounded enumeration is explicitly revalidated.
+E7.2.3 — semantic convergence clarification completed.
+E7.2.4 — semantic commit-point analysis completed as a conceptual layer.
+E7.2.44 — minimal verification basis/test-set sufficiency completed.
+E7.2.45 — verifier evolution/oracle drift/self-reference completed.
+E7.2.46 — observability/measurement invariance/cross-version comparability completed.
+E7.2.47 — causal attribution of verification changes completed.
+
+No PATCH or REDESIGN is authorized merely by these findings.
+
+### Current analytical boundaries
+
+- Mathematical closure is not runtime verification.
+- A written test is not PASS until actually executed.
+- CI-green must be tied to an exact commit/run.
+- Historical audits remain historical unless revalidated against current HEAD.
+- Do not infer complete canonical mutation safety from persistence, audit-chain or storage evidence alone.
+- Do not infer system regression from a verification-result change until verifier/oracle/environment/claim/interpretation changes are accounted for.
+- Do not promote CauseHypothesis to causal fact without appropriate evidence.
+- Do not allow verifier evolution to silently weaken its own critical trust boundary.
+
+### Next reverse-analysis target
+
+E7.2.48 — Counterfactual Verification, Causal Minimality and Interaction Effects.
+
+Key questions:
+- What is the minimal change set necessary for a failure?
+- What is sufficient versus necessary for the observed failure?
+- How should interaction effects be represented?
+- When are two counterfactual states equivalent for a claim?
+- How can Gnozis distinguish a real causal mechanism from a correlated change or compensating repair?
+
+Method:
+Counterexample -> ChangeSet -> Ablation/Counterfactual -> Failure Reproduction -> Minimal Causal Set -> Mechanistic Evidence -> Governed RuleProposal.
+
+Status: research only; no implementation authorization.
