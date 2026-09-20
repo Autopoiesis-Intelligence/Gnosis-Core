@@ -58,7 +58,7 @@ Formal/architectural research maturity remains approximately 96% as a working an
 Runtime enforcement maturity remains substantially lower and must be reported separately.
 These percentages are NOT software coverage measurements.
 
-Previously verified persistence/reflection gates must not be reopened without concrete regression evidence.
+The E7.2 reverse-analysis branch has now reached a near-freeze point. E7.2.161–E7.2.170 produced a coherent candidate architecture boundary, but this is still analytical and is not implementation authorization.
 
 ## 5. HARD EPISTEMIC DISTINCTIONS
 
@@ -78,6 +78,12 @@ Preserve all of the following:
 - Explanation ≠ Causal proof.
 - History ≠ Truth.
 - Lineage proves descent, not legitimacy.
+- Repeated detection ≠ Independent evidence.
+- Representation disagreement ≠ World contradiction.
+- Representation agreement ≠ Truth.
+- Selector ≠ Sovereign authority.
+- Evaluation ≠ Absolute correctness.
+- Low observed failure ≠ Adequate testing.
 
 ## 6. EPISTEMIC HISTORY / REALITY COUPLING
 
@@ -228,59 +234,225 @@ Verifier evolution is distinct from system evolution.
 Critical verification boundaries must preserve detection capability by default. A verifier may evolve only through explicit, evidence-backed governance; the mechanism being verified must not be the sole authority for redefining the critical boundary by which it is verified.
 
 Verification provenance should retain, as applicable:
+
 Claim, Scope, SystemID, VerifierID, OracleID, EnvironmentID, Result, EvidenceProvenance, SemanticsVersion.
 
 Differential verification, adversarial verification and multiple evidence paths are useful only when their dependency/common-mode structure is understood.
 
-## 11. RESEARCH CHAIN — COMPLETED RECENT LAYERS
-
-E7.2.44 — minimal verification basis/test-set sufficiency.
-E7.2.45 — verifier evolution/oracle drift/self-reference.
-E7.2.46 — observability/measurement invariance/cross-version comparability.
-E7.2.47 — causal attribution of verification changes.
-E7.2.115 — experiment design under foundational uncertainty.
-E7.2.116 — interpretation independence.
-E7.2.117 — minimal epistemic representation.
-E7.2.158 — history as epistemic anchor.
-E7.2.159 — reality coupling.
-E7.2.160 — exception accumulation / falsifiability / model self-immunity.
-
-Intermediate E7.2 layers between these checkpoints remain part of the ongoing reverse-analysis record from prior context and should not be treated as implementation verification.
-
-## 12. CURRENT NEXT REVERSE-ANALYSIS TARGET
+## 11. RESEARCH CHAIN — NEW COMPLETED ANALYTICAL LAYERS
 
 ### E7.2.161 — Adversarial Completeness and Ontology Lock-In
 
-Key questions:
+The counterexample space is itself bounded by representation. A self-evolving system can therefore fail to generate a contradiction that its ontology cannot express.
 
-- Who/what controls the space of possible counterexamples?
-- Can a self-evolving system discover contradictions that its own ontology cannot represent?
-- How can counterexample generation avoid becoming a closed confirmation mechanism?
-- What forms of evaluator/challenge diversity are actually independent?
-- What is the minimal representation needed to detect an error outside the current model's categories?
-- When does a missing category itself become evidence of ontology failure?
+Key result:
+- Missing category can itself become ontology-pressure evidence.
+- Counterexample generation must not be treated as complete merely because it is internally self-generated.
+- Challenge diversity and evaluator independence remain separate dimensions.
+- A representation boundary is an epistemic boundary.
+- Ontology expansion must remain a Candidate, not an automatic mutation.
 
-Method:
+### E7.2.162–E7.2.166 — Structural Tension, Pre-Semantic Detection and Boundary Instrumentation
 
-Counterexample Space
-  ↓
-Representation Boundary
-  ↓
-Blind-Spot Analysis
-  ↓
-Independent Challenge Generation
-  ↓
-Ontology Expansion Candidate
-  ↓
-Adversarial Verification
-  ↓
-Governed Rule/Model Proposal
+Completed analytical synthesis:
 
-Status: RESEARCH ONLY; no implementation authorization.
+1. Semantic contradiction requires a pre-existing semantic frame.
+2. Structural tension can exist before the current ontology can name the conflict.
+3. Therefore:
+   StructuralTension ≠ SemanticContradiction.
+4. A detector should initially emit CandidateTension rather than ContradictionTruth.
+5. Structural tension may arise from prediction mismatch, transition mismatch, constraint incompatibility, recurrence anomalies, cross-domain structural recurrence, or model/behavior inconsistency.
+6. Repeated detection is not equivalent to independent confirmation.
+7. Detection should maximize anomaly visibility rather than explanatory certainty.
+8. A detector's correctness does not establish detection adequacy; blind spots and meta-tests remain necessary.
+9. Conflict should first become measurable before being forced into a semantic resolution.
+10. The project principle “conflict is information and evolutionary rule” can be operationalized as:
+    Tension → Boundary Representation → Tool Candidate → New Evidence → Possible Distinction.
 
-## 13. IMPLEMENTATION SAFETY
+Central formulation:
 
-Do not convert any of E7.2.158–E7.2.160 directly into code without a bounded architecture review and executable acceptance criteria.
+Detect tension without prematurely declaring contradiction.
+
+### E7.2.167 — Pre-Semantic / Structural Tension Layer
+
+A potential ontology-independent detection layer is conceptually required.
+
+It should report:
+- what does not fit;
+- under which conditions;
+- with what provenance;
+- with what scope/limitations.
+
+It should NOT directly assert:
+- truth;
+- causal explanation;
+- ontology revision;
+- Core mutation.
+
+### E7.2.168 — Representation as Epistemic Hypothesis
+
+Completed analytical result:
+
+1. Representation is not a neutral container; it determines which distinctions are visible.
+2. Therefore representation itself is an epistemic hypothesis.
+3. Multiple representations may be needed under ontological uncertainty.
+4. Representation disagreement is a potential epistemic signal, not automatic world contradiction.
+5. A meta-representation can describe relations between representations, but unbounded meta-regression must be avoided.
+6. A representation should be selected as a test instrument for a bounded question, not treated as a final truth container.
+7. Each representation should expose provenance and epistemic limitations, including relevant information loss.
+8. Representation has an observation boundary:
+   R: W → O_R
+   where W \ O_R is information not distinguished by R.
+9. Representation differential can reveal hidden distinctions:
+   R1(A)=R1(B) while R2(A)≠R2(B)
+   indicates representation-dependent equivalence, not immediate objective truth.
+10. Ontology pressure is evidence that a current distinction/equivalence may be representation-dependent; it is not itself proof of a new ontology.
+
+Conceptual Representation Contract:
+
+{source, method, assumptions, scope, loss, dependencies, provenance}
+
+### E7.2.169 — Adaptive Representation Selection
+
+Completed analytical result:
+
+1. There is no absolute BestRepresentation.
+2. Representation utility is conditional on the current tension, hypothesis space and budget.
+3. Selection should support both discrimination and discovery.
+4. Closed hypothesis spaces can create closed evolution; discovery must sometimes search outside the current hypothesis categories.
+5. Exploration and exploitation are resource-allocation modes, not Core truths.
+6. Selection must account for epistemic independence, not merely syntactic diversity.
+7. Different outputs do not imply independent evidence.
+8. Representation families can share common-mode failure; family escape is therefore a legitimate experimental objective.
+9. Selection criteria should remain multi-objective; a single total score can hide tradeoffs.
+10. A selector may exist above Core, but it must not silently redefine Core transition semantics or directly mutate Ψ.
+11. Selection provenance is part of epistemic audit.
+12. The selector is an experimental policy, not a sovereign authority.
+
+Conceptual chain:
+
+Tension
+  ↓
+CandidateRepresentations
+  ↓
+Selection
+  ↓
+Experiment
+  ↓
+Evidence
+  ↓
+Interpretation
+  ↓
+Candidate
+  ↓
+Verification
+  ↓
+Commit
+
+### E7.2.170 — Bounded Self-Evaluation
+
+Completed analytical result:
+
+1. An ultimate evaluator is not required.
+2. Self-evaluation should verify bounded, explicit properties rather than claim absolute correctness.
+3. Immutable Core constraints must bound mutable experimental policy.
+4. Selector evaluation may inspect budget compliance, provenance, diversity, dependency structure, challenge coverage and behavioral failure patterns.
+5. Selection history is required to detect concentration, bias and epistemic stagnation.
+6. Low observed failure is ambiguous: it may indicate robustness or weak testing.
+7. Evaluation results are evidence about properties, not unconditional verdicts.
+8. Reflection may generate findings/counterexamples/rule proposals about selector behavior, reusing the existing reflection/governance pattern where appropriate.
+9. Reflection or self-evaluation may propose policy changes but must not unilaterally authorize them.
+10. Meta-evaluation should terminate in bounded uncertainty, not recurse toward absolute certainty.
+11. A protected set of Core invariants + observable history + independent challenge mechanisms provides a bounded self-evaluation architecture.
+
+Key formulation:
+
+Selector is not sovereign.
+
+Evaluation is not absolute correctness.
+
+Meta-evaluation may establish bounded properties and limitations, not perfection.
+
+## 12. CURRENT ARCHITECTURAL IMPLICATION — NOT YET IMPLEMENTATION AUTHORIZATION
+
+E7.2.161–E7.2.170 collectively indicate a likely architecture boundary:
+
+Ψ-Core should remain the protected semantic/state-transition authority.
+
+A higher epistemic/experimental layer may be required around Core for:
+- structural tension registration/detection;
+- representation candidates and provenance;
+- adaptive experiment selection;
+- experiment execution;
+- evidence capture;
+- historical revisit;
+- selector/reflection analysis.
+
+However, this does NOT yet authorize creation of new modules.
+
+Before implementation, perform an Architecture Delta review against existing:
+- reflection;
+- verification;
+- storage;
+- governance;
+- audit/provenance;
+- existing execution-authorization boundaries.
+
+Prefer reuse over parallel subsystems.
+
+Potential conceptual flow:
+
+StructuralTension
+  ↓
+RepresentationCandidates
+  ↓
+ExperimentalSelection
+  ↓
+Experiment
+  ↓
+Evidence
+  ↓
+Reflection / Interpretation
+  ↓
+Candidate
+  ↓
+Core Verification
+  ↓
+Governance
+  ↓
+PromotionCandidate
+  ↓
+Protected Commit
+
+The selector may choose experiments but must not directly authorize canonical Core mutation.
+
+## 13. CURRENT REVERSE-ANALYSIS REPORT
+
+Working estimates only; NOT test coverage:
+
+- Overall project analytical progress: approximately 74% (rough working estimate; keep separate from software/runtime maturity).
+- E7.2 branch: approximately 95% complete as of E7.2.170.
+- Architecture understanding for the current branch: approximately 90%+.
+- Runtime enforcement of the newly derived mechanisms: not established by this research sequence.
+- Architecture Delta is now near-ready, but Reverse Freeze has not yet been declared.
+
+Next analytical step:
+
+### E7.2.171 — E7.2 Synthesis / Architecture Delta Review
+
+Objective:
+- consolidate E7.2.161–E7.2.170;
+- distinguish what is genuinely new from what existing Gnozis-V2 already covers;
+- identify the minimum architecture delta;
+- explicitly list what must NOT be changed;
+- map requirements to existing modules before proposing new modules;
+- define executable acceptance criteria only after the delta is understood.
+
+No implementation should start merely because E7.2.170 is complete.
+
+## 14. IMPLEMENTATION SAFETY
+
+Do not convert E7.2.161–E7.2.170 directly into code without a bounded architecture review and executable acceptance criteria.
 
 Do not:
 - create speculative Genesis/meta-evolution APIs;
@@ -289,9 +461,12 @@ Do not:
 - delete counterexamples from history;
 - claim falsifiability merely because tests exist;
 - claim reality correspondence from internal consistency or hash-chain integrity;
+- treat representation disagreement as proof of world contradiction;
+- treat selector output as canonical authority;
+- create a parallel governance system if existing reflection/governance can be reused;
 - reopen verified persistence gates without regression evidence.
 
-## 14. COMPLETION EVIDENCE FORMAT
+## 15. COMPLETION EVIDENCE FORMAT
 
 For every completed implementation task record:
 
@@ -310,7 +485,7 @@ Next task:
 
 Never write “verified” without evidence.
 
-## 15. FINAL SELF-EVOLUTION RULE
+## 16. FINAL SELF-EVOLUTION RULE
 
 Canonical self-evolution remains CLOSED.
 
@@ -332,10 +507,11 @@ A promotion candidate is not a Core mutation.
 A passing unit test is not complete architectural verification.
 CI-green must be tied to an exact commit/run.
 
-## 16. HANDOFF
+## 17. HANDOFF
 
 Current research handoff:
-- E7.2.160 completed analytically.
-- No implementation authorization follows from E7.2.158–E7.2.160.
-- Next target: E7.2.161 Adversarial Completeness and Ontology Lock-In.
+- E7.2.158–E7.2.170 completed analytically in the current reverse-analysis branch.
+- The new findings are research constraints and architecture signals, not implementation authorization.
+- E7.2.171 is the next target: E7.2 synthesis / Architecture Delta Review.
+- First compare against existing reflection/verification/storage/governance before creating anything new.
 - Repository code/tests/CI remain authoritative over this research document.
