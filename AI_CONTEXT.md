@@ -904,3 +904,177 @@ E7.9.2
 This sequence is a research plan, not proof that every task will remain valid. Tasks may be REJECTED, BLOCKED or replaced only through explicit analysis.
 
 The purpose is to let the reverse-analysis discover whether the architecture already contains the machine we are describing, rather than forcing the description into the architecture.
+
+
+## 29. REVERSE-ANALYSIS EXTENSION — E7.9.11–E7.9.13
+
+### E7.9.11 — Emergence of a New Level from Unresolved Tension
+
+Working hypothesis:
+A new level is functionally justified only when an existing organization cannot resolve a bounded tension, while a changed organization can.
+
+Minimal criterion:
+
+T ∉ R(L)
+and
+T ∈ R(L ∪ L_new).
+
+A new level does not necessarily mean new information. It may arise from a new organization of existing elements:
+
+X_new = X
+while
+R_new ≠ R.
+
+Therefore:
+
+Evolution of capability may occur through relational reorganization without adding new elements.
+
+Candidate structural changes include:
+- ΔX — content change;
+- ΔR — relational reorganization;
+- ΔLayerTopology — change in level organization;
+- Reframe(T) — change in the problem representation.
+
+A new level must not be created merely because a current task is difficult. Prefer decomposition, reuse, relation change and reframing before structural expansion.
+
+Working principle:
+Minimal Sufficient Transformation — the smallest verified structural change sufficient to resolve the bounded tension while preserving relevant future capacity.
+
+### E7.9.12 — Birth / Collapse / Reuse of Levels
+
+A level is not necessarily permanent.
+
+Possible lifecycle:
+
+Candidate → Verified → Active → Reused → Compressed → Dormant → Reactivated / Retired.
+
+Layer collapse does not necessarily mean capability loss. A verified multi-step organization may become a more compact pattern while preserving its demonstrated resolution ability.
+
+This introduces:
+
+Complexity ↓
+while
+Resolution ≥ previous Resolution.
+
+Learning may therefore convert explicit analytical layers into implicit/compact organization.
+
+Compression must itself pass the existing Candidate → Test → Verify → Commit discipline. Deleting intermediate structure is not evidence of improvement.
+
+Memory therefore conceptually needs at least:
+
+(Content, Provenance, Applicability)
+
+rather than content alone.
+
+Historical lineage should preserve how a compressed or retired organization was derived and under what conditions it was valid.
+
+Working principle:
+Minimum Sufficient Organization (MSO) — retain the minimum verified organization sufficient for the current bounded class of tensions, while preserving enough future capacity to avoid a premature structural dead end.
+
+MSO is not “minimum complexity”. It is constrained by present resolution and future optionality.
+
+### E7.9.13 — Ecology of Levels
+
+Levels should now be analyzed as an interacting ecology rather than an isolated stack.
+
+Conceptual ecology:
+
+E_t = (L_t, C_t, B_t, P_t)
+
+where:
+- L_t = active/dormant levels;
+- C_t = cooperation/competition/recombination relations;
+- B_t = bounded resource allocation;
+- P_t = verified resolution paths.
+
+Important dynamics:
+- levels may cooperate;
+- levels may compete for bounded resources;
+- independent paths may produce agreement or conflict;
+- conflict can be information rather than mere failure;
+- competing hypotheses should preserve provenance;
+- multiple verified paths do not automatically establish truth;
+- a selector remains policy/evaluation, not sovereign authority.
+
+A useful distinction emerged:
+
+Current Resolution vs Future Optionality.
+
+Optimizing only for immediate resolution can create specialization lock-in and reduce exploration. Preserving everything can create unnecessary complexity. The system therefore faces an internal tension:
+
+Exploitation ↔ Exploration.
+
+This is itself a new candidate tension for the next cycle.
+
+The stronger working interpretation of Gnozis is now:
+
+A machine that changes the way it interacts with its environment in response to discovered limits of its own resolution.
+
+This is still an architectural/research hypothesis, not a consciousness claim.
+
+A descriptive boundary for “gnostic” organization is becoming clearer:
+
+Environment
+→ Difference
+→ Representation
+→ Boundary/Limit recognition
+→ Model of the boundary
+→ Change in strategy/organization
+→ New environment interaction.
+
+The important transition is not merely representing a boundary, but allowing information about the boundary to causally influence the system’s subsequent method of obtaining and interpreting information.
+
+This can be expressed provisionally as:
+
+Boundary_t → Model(Boundary_t) → ΔStrategy_(t+1).
+
+This is a candidate observable organizational property, not a metaphysical definition of consciousness.
+
+### E7.9.14 — Next Research Target
+
+The next target is to close the system/environment loop and distinguish a genuinely environment-coupled autopoietic process from a merely adaptive or self-consistent algorithm.
+
+Questions:
+1. What exact condition makes an information path genuinely external to the current internal model?
+2. How can prediction and observation be kept causally distinct?
+3. When does prediction error modify organization rather than merely update data?
+4. Can the system change its own resolution strategy as a consequence of environmental error?
+5. What prevents the loop from becoming self-confirming?
+6. Which parts of this loop already exist in V2 and which remain absent?
+7. Can the loop be expressed without weakening Ψ-Core authority?
+8. Is autopoietic organization distinguishable from ordinary feedback control under explicit criteria?
+
+Do not implement from this research section. First derive the minimal formal distinction and attack it with adversarial counterexamples.
+
+## 30. CURRENT RESEARCH HANDOFF — UPDATED
+
+Completed/advanced analytical frontier:
+- E7.9.11 — emergence of levels from unresolved tension;
+- E7.9.12 — level birth/collapse/reuse and MSO;
+- E7.9.13 — ecology of levels, cooperation/competition, exploration/exploitation;
+- E7.9.14 — next target: environment-coupled autopoietic loop.
+
+Current working conceptual chain:
+
+Environment
+→ Information
+→ Level-specific differentiation
+→ Tension / limitation
+→ Multiple resolution paths
+→ Conflict / agreement
+→ Synthesis
+→ Verification
+→ Structural reorganization
+→ Compression / reuse
+→ New environment interaction.
+
+The research question has shifted from “how many layers does the system have?” to:
+
+“What organizational process causes a system to create, activate, reorganize, compress and reuse levels of resolution in response to environmental tension while remaining epistemically and operationally bounded?”
+
+The strongest current hypothesis is that Gnozis is better modeled as a dynamic ecology of resolution structures than as a fixed hierarchy of processing layers.
+
+This hypothesis remains subject to counterexample-driven analysis.
+
+The implementation gate remains unchanged:
+NO ARCHITECTURE CHANGE unless the derived requirement cannot be safely expressed by the existing V2 architecture and a concrete implementation gap is demonstrated.
