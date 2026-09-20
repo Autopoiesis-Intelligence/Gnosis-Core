@@ -2703,3 +2703,114 @@ Psi_t=(X,R)
 Do not implement speculative authority issuance yet. First enumerate every actual canonical State mutation point and caller, classify whether it mutates canonical Core or only local/shadow state, and prove whether each path converges on the existing authorization/commit boundary. Record any bypass as an explicit gap.
 
 Acceptance for this reverse stage: no claim of complete mutation safety until every canonical mutation path has been inspected and either proven gated or explicitly identified as a gap.
+
+
+## 2026-09-20 MATHEMATICAL REVERSE-CONTEXT — E5.13–E5.16
+
+This checkpoint records the reverse-analysis continuation. It is research context, not a new implementation/CI verification claim.
+
+### E5.13 — Evidence Sufficiency / Action Threshold
+
+- Evidence sufficiency is action-relative: evidence sufficient for one action may be insufficient for another.
+- `EvidenceSufficient` is distinct from `ActionAuthorized`.
+- Action authorization should be contract satisfaction, not a single confidence score.
+- Action requirements depend conceptually on impact, reversibility, blast radius, scope and authority.
+- Unknown does not always imply STOP: a robust/reversible low-risk action may remain admissible when it is safe across relevant possible states.
+- A fragile action whose admissibility depends on unresolved uncertainty requires further evidence.
+- Information-gathering actions can have decision relevance without being direct task actions.
+- Learning can expand or contract the permitted action envelope.
+- Capability != permission; permission is context-bound.
+- Delegation must not increase authority: delegated scope must remain within parent authority.
+- Authorization is incremental and action-specific; it does not become a permanent global permission.
+- Post-action outcome verification is required; execution success != systemic success.
+- Conceptual cycle: Evidence -> Sufficiency -> Preconditions -> Authority -> Authorization -> Execute -> Observe -> VerifyOutcome -> Recover/Commit.
+
+### E5.14 — Observation Governance / Measurement Bias / Blind Spots
+
+- Evidence has an upstream chain: Observation -> Measurement -> Processing -> Evidence.
+- Verification is bounded by the observation space; verification quality cannot compensate for observation inadequacy.
+- Verified within observation scope != globally verified.
+- NotObserved != NotPresent; absence of observation remains unknown unless separately established.
+- ObservationScope and known BlindSpots must be explicit epistemic metadata.
+- Hypothesis-driven measurement selection can create self-confirming loops; robust exploration requires confirmatory and exploratory observation modes.
+- Adversarial observation should search for counterexamples to the current hypothesis and to the observation process itself.
+- Observation itself becomes an object of verification; meta-verification must be bounded to avoid infinite regress.
+- Blind spots can become generators of evolution: BlindSpot -> ToolCandidate -> Observation -> Evidence.
+- Evidence multiplicity != evidence independence. Common source, method, model or assumption can create common-mode failure.
+- MeasurementCorrectness != MeasurementAdequacy; a perfectly measured proxy may still be the wrong property for the decision.
+- Metrics themselves can be gamed; verification pass rate or similar metrics are measurements, not truth.
+- Observation coverage must be risk-aware rather than merely volumetric.
+- Independent verification should differ in relevant failure modes, not merely implementation syntax.
+- Observation integrity is a structured property involving scope, adequacy, diversity, provenance, blind-spot awareness and adversarial pressure.
+- Failure localization should follow causal provenance backward from outcome to observation/evidence rather than blame the final decision layer by default.
+
+### E5.15 — Attention / Exploration Allocation / Epistemic Resource Governance
+
+- Epistemic resources are bounded: time, compute, experiments, external access and attention.
+- UnknownValue != DecisionRelevance. Action-blocking unknowns deserve explicit decision-context treatment.
+- Epistemic leverage concerns how one investigation may reduce multiple dependent uncertainties.
+- Maximum information gain != automatically optimal investigation.
+- Proxy evidence must retain its dependency strength and cannot silently substitute for direct evidence.
+- Structured exploration should use contradictions, blind spots, unexpected outcomes, failure clusters and boundary cases as attention signals.
+- Conflict is an exploration signal, not proof of truth; persistence alone does not establish truth because persistent bias can recur.
+- Attention must resist both fragmentation and lock-in; bounded commitment with explicit preemption conditions is preferable to arbitrary switching.
+- Epistemic debt is unresolved critical uncertainty carried forward into future decisions; it can shrink the action envelope without requiring a total shutdown.
+- Uncertainty can be a governance signal, but neither uncertainty inflation nor certainty inflation is acceptable.
+- Meta-actions such as CreateTool, ImproveObserver, GenerateCounterexample and ExpandCoverage can be legitimate autopoietic actions.
+- Self-created epistemic tools remain candidates and must pass normal test/verification/governance boundaries.
+- Changing the observer changes the observation space; observer/tool versions therefore require provenance and lineage.
+- Attention is a resource-allocation mechanism within the evolution loop, not merely a UI concept.
+- A recursive problem remains: the attention policy itself may be incomplete, so a bounded meta-governance boundary is required.
+
+### E5.16 — Invariants Under Self-Modification / Meta-Governance Boundary
+
+- Self-modification can be represented conceptually as (Ψ_t, M_t) -> (Ψ_{t+1}, M_{t+1}), where M is epistemic/governance machinery.
+- Self-improvement must not silently redefine its own success criteria or trust boundary.
+- Meta-invariants constrain evolution of the mechanisms that control evolution.
+- Immutable invariants != immutable implementation. Implementations may evolve while semantic contracts remain bounded and auditable.
+- Distinguish Core State Invariants from Meta-Governance Invariants.
+- Policy may evolve within a contract; policy must not silently rewrite the contract it is supposed to satisfy.
+- Higher-order constraints require stronger authorization because their dependency/blast radius is larger.
+- A system must not use newly granted authority as the sole proof that the authority should have been granted; this is authority circularity.
+- Independent validation is required for trust-boundary changes; independent means materially different relevant failure modes, not merely different code.
+- Self-modification itself can be treated as a candidate, but its evidence requirement should scale with blast radius and irreversibility.
+- Evolution must preserve epistemic continuity: historical claims/evidence remain traceable after verifier/observer changes.
+- Cryptographic integrity != semantic integrity; hash chains detect tampering but do not preserve the meaning of a versioned contract by themselves.
+- Semantic contracts and their versions should remain traceable alongside evidence/provenance.
+- Self-modification is bounded, not absolute.
+- Recovery of governance/verifier machinery must not depend entirely on the potentially faulty new version; an independent recovery path is required conceptually.
+- Failure near the meta-governance boundary is qualitatively different from a local implementation failure and may require containment, freeze or independent review rather than ordinary self-repair.
+- Restricted/degraded governance mode is preferable to an automatic binary RUN/STOP model where safe operation can continue without further self-modification.
+- Central result: the system may evolve its epistemic machinery, but the rules determining whether that evolution is admissible must not be freely rewritten by the same mechanism.
+
+### Current E5 reverse chain
+
+The reverse-analysis now has the following conceptual dependency chain:
+
+Attention
+-> Observation
+-> Evidence
+-> Sufficiency
+-> Authorization
+-> Self-Modification
+-> Meta-Governance
+
+The next research target is E5.17:
+
+Proof of Invariant Preservation Under Evolution.
+
+Key question:
+How can preservation of an invariant under self-modification be distinguished from another successful test, especially when the verifier itself is evolving?
+
+### E5 progress snapshot
+
+- E5.13: ~99% conceptual completion
+- E5.14: ~99% conceptual completion
+- E5.15: ~99% conceptual completion
+- E5.16: ~99% conceptual completion
+- E5 overall: ~98–99% conceptual completion
+- These are analytical working estimates, not software coverage or runtime verification.
+
+### Important boundary
+
+All E5.13–E5.16 findings are reverse-analysis findings. They MUST NOT be marked VERIFIED until supported by repository/runtime/CI evidence. They do not authorize implementation of speculative self-modification or autonomous authority issuance.
