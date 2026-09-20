@@ -3185,4 +3185,120 @@ Key questions:
 Method:
 Counterexample -> ChangeSet -> Ablation/Counterfactual -> Failure Reproduction -> Minimal Causal Set -> Mechanistic Evidence -> Governed RuleProposal.
 
+Status: research only; no implementation authorization.\n
+
+## 2026-09-20 AUTHORITATIVE REVERSE-ANALYSIS CHECKPOINT — E7.2.115 → E7.2.117
+
+This section records the continuation of the mathematical reverse-analysis after E7.2.47. It is research/architecture context only, NOT runtime or CI verification. Repository code, tests and actual CI evidence remain authoritative.
+
+### E7.2.115 — Experiment Design Under Foundational Uncertainty
+
+- A discriminating experiment is itself an epistemic object requiring provenance, dependency analysis, failure analysis and validation.
+- An experiment cannot be considered foundation-independent; its relevant assumptions must instead be exposed and bounded.
+- Foundational disagreement does not imply empirical discriminability. Competing foundations may be empirically equivalent within the available observation domain.
+- A model comparison must distinguish model divergence from observable divergence and from divergence that survives the observation channel.
+- A theoretically discriminating experiment may be practically non-discriminating because of noise, resolution, confounding or unknown initial conditions.
+- An observation channel can be an epistemic bottleneck: if H(O1)=H(O2), the current channel cannot distinguish the underlying observations.
+- Circularity cannot be assumed eliminated absolutely; critical circular dependencies must be detected, exposed and bounded.
+- Discriminating experiment design should minimize disputed assumptions and make interpretation dependencies explicit.
+- Raw observations must remain separable from interpretations so that future foundations can re-analyze the same evidence.
+- Failure of an experiment does not automatically validate a competing foundation; possible outcomes include support, non-discrimination, insufficient evidence, experiment invalidity or challenge to all current candidates.
+- An inconclusive experiment can still provide structural information about the limits of the current observation channel.
+
+Central formulation:
+A discriminating experiment should produce evidence whose interpretation differs predictably across competing models while minimizing foundation-dependent assumptions.
+
+### E7.2.116 — Interpretation Independence
+
+- Observation, representation, interpretation and claim are distinct epistemic layers.
+- Representation itself can encode assumptions; therefore representation provenance is part of evidence provenance.
+- Information lost by representation cannot be recovered by later reasoning.
+- A representation optimized for the current task may constrain future reinterpretation.
+- Cross-foundation comparison may require translation between representations; translation itself can introduce theory dependence.
+- A shared intermediate representation can reduce translation bias, but it is not automatically theory-neutral.
+- Lossy translation can selectively destroy information required by one candidate foundation and thereby distort model comparison.
+- Category boundaries, entity identity, temporal semantics and other representation choices can be epistemic assumptions.
+- Storage integrity does not imply epistemic adequacy; an immutable but inadequate representation remains inadequate.
+- Auditability does not imply truth.
+- Provenance should distinguish at least: what was observed, how it was represented, how it was interpreted, what claim was derived, and what assumptions/losses were active.
+- Interpretation must be replaceable without destroying the underlying evidence.
+- Historical evidence should survive replacement of the model that originally interpreted it.
+
+Central invariant:
+Historical evidence must remain sufficiently representationally independent from the interpretation that originally produced it to permit future reanalysis.
+
+### E7.2.117 — Minimal Epistemic Representation
+
+- Completely theory-free representation is not a practical target; the relevant target is minimum necessary semantic commitment.
+- A minimally committed representation records what happened as directly as practical without silently asserting why it happened.
+- Raw, derived and interpreted representations must remain distinguishable.
+- Every transformation should be traceable from source to result, including irreversible information loss where applicable.
+- Semantic summaries are epistemic transformations, not merely storage optimizations.
+- Current irrelevance does not imply future epistemic irrelevance.
+- When future value is unknowable, preserve structural epistemic optionality where resources permit.
+- Epistemic optionality is stronger than backup: future systems must remain able to ask materially different questions of retained evidence.
+- Schema evolution is part of epistemic provenance; silent schema migration is unsafe for epistemically significant data.
+- Persistence is storage/retrieval infrastructure, not an authority source and not an implicit semantic migration engine.
+- Representation adequacy is relative to the hypothesis space that must remain open; there is no universally minimal representation independent of scope.
+- Irreversible semantic compression is a potential foundational commitment and should expose what was discarded.
+- The Core formal model Ψ=(X,R) should not be confused with a metaphysical claim that reality itself has exactly that ontology. Semantic reinterpretation is not automatically a Core-invariant mutation.
+
+Conceptual representation tuple (not an implementation prescription):
+R = <Payload, Schema, Units, Source, Time, Transform, Loss>
+
+Central formulation:
+Minimal epistemic representation = minimum necessary semantic commitment + maximum practical future reinterpretability.
+
+### Cross-cutting implications for Gnozis memory/provenance
+
+Evidence should be treated as a layered provenance chain:
+
+Observation
+  ↓
+Representation
+  ↓
+Transformation / Interpretation
+  ↓
+Claim
+
+with explicit context as applicable:
+Assumptions + Dependencies + Loss + Schema/Version + Source/Time identity.
+
+Hard distinctions to preserve:
+- Evidence ≠ Representation ≠ Interpretation ≠ Claim.
+- Integrity ≠ Adequacy ≠ Truth ≠ Reinterpretability.
+- Raw observation ≠ interpreted evidence.
+- Immutable history ≠ correct interpretation.
+- Storage integrity ≠ epistemic adequacy.
+- Compression ≠ neutral storage optimization when distinctions are irreversibly discarded.
+- Persistence ≠ semantic authority.
+
+No implementation authorization follows from these findings. They are candidates for future memory/provenance requirements and must be converted into executable invariants only after bounded architectural review.
+
+### Current E7.2 research chain
+
+E7.2.44 — minimal verification basis/test-set sufficiency completed.
+E7.2.45 — verifier evolution/oracle drift/self-reference completed.
+E7.2.46 — observability/measurement invariance/cross-version comparability completed.
+E7.2.47 — causal attribution of verification changes completed.
+E7.2.115 — experiment design under foundational uncertainty completed.
+E7.2.116 — interpretation independence completed.
+E7.2.117 — minimal epistemic representation completed.
+
+No PATCH or REDESIGN is authorized merely by these findings.
+
+### Next reverse-analysis target
+
+E7.2.118 — Hypothesis-Space Preservation.
+
+Key questions:
+- What future reinterpretations must the system preserve under finite storage and computation?
+- How can a bounded hypothesis space be defined without silently selecting the current foundation as its filter?
+- What is the relationship between epistemic optionality, retention policy and future model diversity?
+- Which information losses are acceptable, reversible, or governance-significant?
+- How should Gnozis distinguish preservation of evidence from preservation of a particular ontology?
+
+Method:
+Hypothesis Space → Required Distinctions → Retention Constraints → Loss Analysis → Reinterpretability Test → Governance Boundary.
+
 Status: research only; no implementation authorization.
