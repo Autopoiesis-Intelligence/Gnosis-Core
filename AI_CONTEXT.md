@@ -16,6 +16,7 @@ Rules:
 5. Preserve rejected, failed, quarantined and insufficient-evidence outcomes as historical data.
 6. Never weaken an invariant or evidence gate merely to make tests green.
 7. Preserve the distinction between mathematical/research hypotheses and implementation facts.
+8. The task-list and analytical-message format in Sections 25–26 are CONSTANTS for this research workflow unless explicitly revised by a later architectural decision.
 
 ## 1. ARCHITECTURAL PURPOSE
 
@@ -663,3 +664,243 @@ Current research handoff:
 - Architecture Delta is still evidence-gated.
 - E7.9.2 is the next analytical target.
 - Repository code/tests/CI remain authoritative over this document.
+
+## 25. CONSTANT TASK REGISTRY FORMAT
+
+All future reverse-analysis work is organized as a task registry. Each task block is self-contained.
+
+Use exactly these fields:
+
+TASK-ID:
+BLOCK:
+STATUS: READY | ACTIVE | BLOCKED | DONE | REJECTED | HYPOTHESIS
+PRIORITY: P0 | P1 | P2 | P3
+DEPENDS_ON:
+OBJECTIVE:
+SCOPE:
+DO_NOT_CHANGE:
+QUESTIONS:
+METHOD:
+REQUIRED_EVIDENCE:
+ACCEPTANCE:
+AUDIT:
+NEXT:
+
+Rules:
+1. Only one task is ACTIVE at a time.
+2. The next ACTIVE task must be the highest-priority READY task whose dependencies are satisfied.
+3. A task may remain HYPOTHESIS when its purpose is analytical rather than implementation.
+4. DONE means the stated acceptance conditions were actually satisfied; it does not mean the underlying hypothesis is universally true.
+5. REJECTED is a valid result and must preserve the reason.
+6. BLOCKED must identify the missing dependency/evidence.
+7. P0 is reserved for a demonstrated architecture/security/trust blocker; philosophical novelty alone is never P0.
+8. P1 is the normal priority for the current reverse-analysis frontier.
+9. P2/P3 are deferred research or implementation-support tasks.
+10. Never silently rewrite a task's objective to make it pass.
+11. Every completed task must produce a concise analytical result and a NEXT task.
+12. The registry is a planning/control layer; it is not evidence of implementation.
+
+## 26. CONSTANT ANALYTICAL MESSAGE FORMAT
+
+Every substantial “Далее” reverse-analysis response must use this structure, in this order:
+
+### [TASK-ID] — [TITLE]
+
+**Status:** [STATUS]  
+**Priority:** [PRIORITY]  
+**Analytical progress:** [directional %]
+
+**1. Objective**
+- What exact question is being attacked.
+
+**2. Current model**
+- Minimal formal model required for the step.
+
+**3. Reverse-analysis**
+- Derive from the existing architecture/pattern.
+- Do not invent implementation facts.
+- Separate observed structure from hypothesis.
+
+**4. Counterexamples / failure modes**
+- Attempt to break the current model.
+- Identify missing distinctions, bypasses, contradictions, or scope limits.
+
+**5. Result**
+- What is established.
+- What remains hypothetical.
+- Whether the result changes the architectural interpretation.
+
+**6. Architecture Gate**
+One of:
+- NO CHANGE JUSTIFIED
+- LOCAL CHANGE POSSIBLE
+- ARCHITECTURE CHANGE INDICATED
+- BLOCKED / INSUFFICIENT EVIDENCE
+
+**7. Progress**
+- Current sequence completion estimate.
+- Overall research direction only when materially useful.
+
+**8. NEXT TASK**
+- Give the next TASK-ID and its objective.
+
+At the end of substantial steps, provide the next task block using the CONSTANT TASK REGISTRY FORMAT.
+
+Do not add “time saved” or efficiency framing unless the user explicitly asks for it. The reverse-analysis method is itself part of the Gnozis research/product concept.
+
+## 27. ACTIVE TASK REGISTRY — E7.9 FRONTIER
+
+### TASK-ID: E7.9.2
+BLOCK: Level Hypothesis
+STATUS: ACTIVE
+PRIORITY: P1
+DEPENDS_ON: E7.9.1
+OBJECTIVE: Attack the hypothesis that layers are levels of information organization/relevance rather than merely software modules.
+SCOPE: Formal structure of levels, partial orders, bidirectional movement, branching representations, sufficiency, distinctions, Ψ=(X,R) compatibility.
+DO_NOT_CHANGE: Ψ-Core; production architecture; existing trust boundaries.
+QUESTIONS: Is the level relation linear, partial, multidimensional, recursive, or context-dependent? What exactly changes at a level transition?
+METHOD: Counterexample-driven mathematical reverse-analysis from the existing architecture and previously established invariants.
+REQUIRED_EVIDENCE: Explicit definitions, counterexamples, transition cases, compatibility analysis with Ψ=(X,R).
+ACCEPTANCE: Produce a falsifiable level model or demonstrate why the current level hypothesis is under-specified/incorrect.
+AUDIT: No implementation changes until the model survives adversarial analysis.
+NEXT: E7.9.3 — Level Transition Algebra.
+
+### TASK-ID: E7.9.3
+BLOCK: Level Transition Algebra
+STATUS: READY
+PRIORITY: P1
+DEPENDS_ON: E7.9.2
+OBJECTIVE: Define what a transition between levels mathematically changes.
+SCOPE: X, R, distinction space D, information relevance R_k, representation maps, transition operators.
+DO_NOT_CHANGE: Core state semantics.
+QUESTIONS: Can level transitions be represented as transformations of relations, distinctions, observability, action space, or combinations?
+METHOD: Construct minimal formal operators and attack them with counterexamples.
+REQUIRED_EVIDENCE: Operator definitions and invariants.
+ACCEPTANCE: A transition model that does not require an unproven linear hierarchy.
+AUDIT: Check consistency with Ψ=(X,R) and existing transition semantics.
+NEXT: E7.9.4 — Information Sufficiency Boundary.
+
+### TASK-ID: E7.9.4
+BLOCK: Information Sufficiency Boundary
+STATUS: READY
+PRIORITY: P1
+DEPENDS_ON: E7.9.3
+OBJECTIVE: Formalize when information is sufficient for a bounded result without claiming completeness.
+SCOPE: Query Q, level k, sufficiency predicate, uncertainty, evidence scope, stopping/resume.
+DO_NOT_CHANGE: Verification truth claims.
+QUESTIONS: What is sufficient relative to user/kernel objective, evidence scope and risk?
+METHOD: Define conditional sufficiency and construct failure cases.
+REQUIRED_EVIDENCE: Explicit sufficiency predicate and counterexamples.
+ACCEPTANCE: Sufficient ≠ Complete becomes mathematically operational.
+AUDIT: Ensure no hidden “truth” assumption.
+NEXT: E7.9.5 — Cross-Level Information Flow.
+
+### TASK-ID: E7.9.5
+BLOCK: Cross-Level Information Flow
+STATUS: READY
+PRIORITY: P1
+DEPENDS_ON: E7.9.4
+OBJECTIVE: Determine how information can move upward, downward, branch and merge across levels.
+SCOPE: information routing, latent information, feedback, context-dependent relevance, representation branching.
+DO_NOT_CHANGE: Core authority.
+QUESTIONS: Can the same observation support different representations simultaneously? Can higher-level discoveries alter interpretation of lower-level information?
+METHOD: Graph/partial-order analysis and adversarial examples.
+REQUIRED_EVIDENCE: Flow rules and conflict cases.
+ACCEPTANCE: A non-linear information-flow model with explicit boundary conditions.
+AUDIT: Check for hidden second-state-model emergence.
+NEXT: E7.9.6 — Tension-to-Level Transition.
+
+### TASK-ID: E7.9.6
+BLOCK: Tension-to-Level Transition
+STATUS: READY
+PRIORITY: P1
+DEPENDS_ON: E7.9.5
+OBJECTIVE: Test whether unresolved structural tension can generate a new distinction or require a new level.
+SCOPE: tension, contradiction, representation limits, boundary tools, new distinctions, reorganization.
+DO_NOT_CHANGE: Treat tension as a trigger/candidate, not automatic mutation authority.
+QUESTIONS: When does tension merely require a new representation, and when does it indicate a genuine level transition?
+METHOD: Counterexample classification.
+REQUIRED_EVIDENCE: Distinct classes of tension and transition criteria.
+ACCEPTANCE: Clear separation between representation change, level change and Core mutation.
+AUDIT: Ensure no philosophical assumption is smuggled into architecture.
+NEXT: E7.9.7 — Emergent Gnosis Boundary.
+
+### TASK-ID: E7.9.7
+BLOCK: Emergent Gnosis Boundary
+STATUS: READY
+PRIORITY: P1
+DEPENDS_ON: E7.9.6
+OBJECTIVE: Determine whether the proposed gnostic phenomenon can be described as an observable organizational property rather than a metaphysical claim.
+SCOPE: self-reference, self-model, epistemic distinction, model revision, anticipation, autopoietic reorganization.
+DO_NOT_CHANGE: No consciousness claim; no direct Core redesign.
+QUESTIONS: What minimal properties are necessary/sufficient for the descriptive concept “gnosis”?
+METHOD: Necessary-condition / counterexample analysis.
+REQUIRED_EVIDENCE: Explicit candidate properties and falsifying cases.
+ACCEPTANCE: A descriptive boundary that can be tested independently of philosophical labels.
+AUDIT: Separate architecture facts, mathematical hypotheses and philosophical interpretations.
+NEXT: E7.9.8 — Environment Coupling Loop.
+
+### TASK-ID: E7.9.8
+BLOCK: Environment Coupling Loop
+STATUS: READY
+PRIORITY: P1
+DEPENDS_ON: E7.9.7
+OBJECTIVE: Formalize the closed interaction loop between system organization and environment.
+SCOPE: observation, prediction, action, feedback, error, reorganization, recurrence.
+DO_NOT_CHANGE: External inputs remain untrusted; no direct authority.
+QUESTIONS: What makes the loop genuinely coupled to the environment rather than self-generated?
+METHOD: Formal state/environment transition model with adversarial self-consistency cases.
+REQUIRED_EVIDENCE: Distinction between internally generated and externally coupled information.
+ACCEPTANCE: A model in which reality-coupling is explicit and falsifiable.
+AUDIT: Test for closed-world self-confirmation.
+NEXT: E7.9.9 — Autopoietic Search Criterion.
+
+### TASK-ID: E7.9.9
+BLOCK: Autopoietic Search Criterion
+STATUS: READY
+PRIORITY: P1
+DEPENDS_ON: E7.9.8
+OBJECTIVE: Define what “better next state/product/model” means without assuming a universal optimum.
+SCOPE: objective, environment, constraints, invariants, evidence, user result, tension reduction.
+DO_NOT_CHANGE: No global utility oracle.
+QUESTIONS: Can improvement be represented as bounded conditional adequacy?
+METHOD: Multi-objective/constraint formulation and counterexample search.
+REQUIRED_EVIDENCE: Conditional improvement relation.
+ACCEPTANCE: A criterion that can compare candidate next states without turning the selector into sovereign authority.
+AUDIT: Preserve governance and evidence boundaries.
+NEXT: E7.9.10 — Architecture Expression Test.
+
+### TASK-ID: E7.9.10
+BLOCK: Architecture Expression Test
+STATUS: READY
+PRIORITY: P0
+DEPENDS_ON: E7.9.9
+OBJECTIVE: Determine whether the combined mathematical model is already expressible by the existing V2 architecture.
+SCOPE: Ψ-Core, reflection, storage, execution authorization, governance, environment bridge, logs.
+DO_NOT_CHANGE: Do not redesign before concrete mismatch is demonstrated.
+QUESTIONS: Which derived properties are already represented? Which are absent? Which are merely undocumented?
+METHOD: Map each proven abstraction to actual implementation and evidence.
+REQUIRED_EVIDENCE: Code-level mapping, tests/CI where applicable, explicit gaps.
+ACCEPTANCE: Classify each gap as EXISTING / LOCAL IMPLEMENTATION GAP / ARCHITECTURAL GAP / HYPOTHESIS ONLY.
+AUDIT: Independent adversarial review before any architecture change.
+NEXT: If no architectural gap → implementation/task decomposition. If real architectural gap → dedicated architecture task.
+
+## 28. FINAL HANDOFF AFTER CONSTANT-FORMAT UPDATE
+
+The research workflow now has a fixed task-registry format and a fixed analytical-message format.
+
+The immediate path is:
+
+E7.9.2
+→ E7.9.3
+→ E7.9.4
+→ E7.9.5
+→ E7.9.6
+→ E7.9.7
+→ E7.9.8
+→ E7.9.9
+→ E7.9.10
+
+This sequence is a research plan, not proof that every task will remain valid. Tasks may be REJECTED, BLOCKED or replaced only through explicit analysis.
+
+The purpose is to let the reverse-analysis discover whether the architecture already contains the machine we are describing, rather than forcing the description into the architecture.
