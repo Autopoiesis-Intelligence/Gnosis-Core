@@ -2960,3 +2960,113 @@ No claim of complete mutation safety until every discovered canonical mutation p
 Earlier chat progression may have used E4.89/E5.x/E6.x numbering inconsistently. This checkpoint should be treated as the authoritative continuation point for the current reverse-analysis line:
 E5 conceptual closure -> E6 integrity/diagnostic closure -> E7 architecture gap extraction -> E7.2 commit-path extraction.
 
+## 2026-09-20 AUTHORITATIVE REVERSE-ANALYSIS CHECKPOINT — E7.2.2 → E7.2.4
+
+This section supersedes older research/task statements when they conflict. It records mathematical/repository-analysis context only; it is NOT runtime/CI verification.
+
+### Repository reality
+- Current main HEAD verified from GitHub: `6d12bfcd7459c046dc429a470e9b0a009d39a959`.
+- Latest commit: `docs: record E6.6 and E7.1 reverse-analysis context`.
+- The 2026-09-20 reverse-analysis continued after that documentation commit.
+- Repository code/tests/CI remain authoritative over analytical context.
+- No PATCH or REDESIGN is authorized merely by this checkpoint.
+
+### Research progression
+- E5.13–E5.16: conceptual closure around evidence sufficiency, observation governance, epistemic resource allocation, and meta-governance.
+- E6.6: invariant monitoring/self-diagnostic closure.
+- E7.1: claim → invariant → enforcement → evidence → scope extraction.
+- E7.2: canonical commit-path extraction.
+- E7.2.1: mutation-path framing and boundary model completed.
+- E7.2.2: BLOCKED because the available repository tree/evidence was insufficient or internally inconsistent for a complete canonical mutation-path enumeration. This is an evidence/repository-state block, not proof of a vulnerability.
+- Therefore PATCH=0 and REDESIGN=0 at this checkpoint.
+- Do not infer complete mutation safety while E7.2.2 remains unresolved.
+
+### Commit-path method
+Every discovered state-changing operation must be classified as exactly one of:
+1. canonical Core mutation;
+2. local/shadow/workspace mutation;
+3. persistence-only operation;
+4. recovery operation;
+5. non-mutating observation.
+
+For every canonical mutation path record:
+- mutation point;
+- caller(s);
+- input/state binding;
+- authorization boundary;
+- verification/evidence prerequisites;
+- commit adapter/boundary;
+- resulting durable state;
+- post-commit receipt/provenance;
+- whether an alternate bypass exists.
+
+A low-level writable primitive is not by itself a vulnerability. A bypass claim requires a reachable path that can mutate canonical state without the required boundary.
+
+### E7.2.3 — Semantic convergence question
+Before claiming that all mutation paths are safe, determine whether apparently different commit paths are semantically equivalent or merely converge at storage. Storage convergence is insufficient: the authorization, verification, provenance and evidence semantics must converge as well.
+
+Required distinction:
+- same storage target ≠ same trust boundary;
+- same resulting State ≠ same authorization semantics;
+- successful persistence ≠ valid canonical evolution.
+
+### E7.2.4 — Semantic Commit Point
+Next narrow research target:
+
+Define the exact semantic commit point of canonical evolution.
+
+A semantic commit point exists only where:
+- the candidate/proposed evolution is fixed;
+- required evidence is fixed and provenance-bound;
+- verification scope is explicit;
+- action-specific authority is established;
+- the intended parent state is bound;
+- the canonical mutation is atomic with respect to the accepted transition;
+- the resulting state can be reloaded and verified;
+- the resulting receipt/history is causally linked to the committed evolution.
+
+Key invariant:
+`CommitValid = StateValid ∧ EvidenceValid ∧ AuthorityValid ∧ ProvenanceValid ∧ Atomic`.
+
+Recovery invariant:
+`Stable ⇒ RuntimeHead = DurableHead`.
+
+Do not treat a database write, receipt creation, authorization boolean, or audit event in isolation as the semantic commit point.
+
+### Current analytical template
+Continue using:
+Candidate → Test → Verify → Authorize → Commit → ObserveOutcome → Recover/Verify
+
+and for architectural claims:
+Claim → Invariant → Enforcement → Evidence → Scope.
+
+Maintain the following hard distinctions:
+- Evidence ≠ Verification ≠ Authority.
+- Identity ≠ Authority.
+- Receipt ≠ Authorization.
+- Governance ≠ activation authority.
+- Persistence ≠ canonical authority.
+- Hash-chain integrity ≠ event truth.
+- TestPassed ≠ complete verification.
+- External knowledge enters as Candidate/Evidence, not inherited authority.
+- Delegation does not increase authority.
+
+### Progress snapshot
+- E5 conceptual line: ~98–99%.
+- E6.6: ~99% conceptual completion.
+- E7.1: ~99% conceptual completion.
+- E7.2.1: completed as analytical framing.
+- E7.2.2: BLOCKED by insufficient/inconsistent repository-tree evidence.
+- E7.2.3: analytical clarification completed.
+- E7.2.4: NEXT.
+- These percentages are analytical working estimates, not software coverage.
+
+### Governance / implementation rule
+Until E7.2.2 is resolved:
+- do not issue speculative authority APIs;
+- do not redesign the commit architecture;
+- do not claim complete canonical mutation safety;
+- do not convert mathematical closure into VERIFIED implementation status;
+- do not reopen already verified persistence/reflection gates without concrete regression evidence.
+
+The next action is E7.2.4 Semantic Commit Point analysis, followed by a renewed repository-grounded mutation-path enumeration when the repository tree/evidence is coherent enough to support it.
