@@ -507,11 +507,156 @@ A promotion candidate is not a Core mutation.
 A passing unit test is not complete architectural verification.
 CI-green must be tied to an exact commit/run.
 
+
+## 18. REVERSE-ANALYSIS EXTENSION — E7.6 / E7.7
+
+### E7.6 — Persistent Lineages, Merge and Cross-Lineage Conflict
+
+Completed analytical result:
+
+1. Validity of two branches does not imply validity of their merge:
+   Valid(A) ∧ Valid(B) ⇏ Valid(Merge(A,B)).
+2. Merge should be treated as a candidate transition, not as an exceptional second state machine.
+3. A merge candidate must preserve both parent provenance and causal ancestry.
+4. Merge authority is not automatically obtained from the union of parent authorities.
+5. Verification/evidence from a parent is not automatically valid for the merged state; commit-time revalidation may be required.
+6. Rebase can invalidate previous verification and authority applicability because the semantic context changed.
+7. Multiple persistent lineages can remain instances of the same Ψ=(X,R) model if canonicality is defined per lineage.
+8. Clone is a governed transition, not a byte-copy of authority/identity. State inheritance, authority inheritance, credentials and identity must be separately scoped.
+9. Revocation is scope-dependent and must not silently revoke unrelated lineages.
+10. Cross-lineage visibility is not cross-lineage validity; shared evidence requires explicit admissibility/provenance.
+11. Identity inheritance after merge is a governance policy, not an automatic consequence of state merge.
+12. A global manager must remain a projection/coordination layer unless it develops independent canonical state semantics.
+13. Multiple valid lineages may legitimately coexist. Conflict must not imply an automatic winner.
+14. Conflict should be represented as first-class information with scope, provenance and affected dependencies.
+15. Unresolved conflict is a valid state when no justified resolution authority/policy exists.
+16. Conflict may block only its affected scope/dependencies rather than the entire system.
+17. Evidence, authority and truth/validity remain distinct relations:
+   Evidence ≠ Authority ≠ Truth.
+18. A proposal cannot self-establish the authority required to authorize itself.
+19. Global canonicality over a set of Ψ instances is a potential architectural boundary, but has not been shown necessary for the current model.
+
+Central formulation:
+
+One model, many governed instances/lineages, unless a future requirement proves the need for canonical state over the entire set of instances.
+
+Architecture result:
+- Fundamental Ψ-Core redesign: NOT demonstrated.
+- Lineage/merge/conflict semantics: formalization pressure is high.
+- Storage/audit must preserve multi-parent provenance where merges exist.
+- No implementation authorization follows from E7.6 alone.
+
+### E7.7.1 — Recursive Reflection of Verification
+
+Completed analytical result:
+
+1. A verifier may itself become an object of reflection.
+2. Verifier evolution can be represented as ordinary Ψ transitions:
+   V0 → Finding → RuleProposal → V1.
+3. Reflection does not require a second state model if verifier, finding, proposal and provenance remain objects/relations within X,R.
+4. Verification of a verifier is not proof of absolute correctness.
+5. Mutual verification is not independent evidence when verifiers share assumptions, datasets, implementation structure or failure modes.
+6. Verification claims must preserve scope, provenance, assumptions and dependencies.
+7. Absence of a detected blind spot does not establish absence of all blind spots.
+8. Reflection may propose verifier changes but must not directly commit them.
+9. Observation authority ≠ modification authority.
+10. Verifier self-modification must pass the same governed Candidate → Test → Verify → Authorize → Commit discipline.
+11. Critical verifier evolution should consider evaluator diversity and common-mode failure.
+12. Recursive meta-evaluation should terminate in bounded uncertainty rather than claim absolute self-proof.
+
+Central formulation:
+
+Reflection can move the verification boundary; it cannot remove the fundamental evidence ceiling.
+
+### E7.7.2 — Revision of Epistemic Foundations
+
+Completed analytical result:
+
+1. Verification is conditional:
+   V(O | A) = result under assumption A.
+2. Verification under an assumption does not independently validate the assumption.
+3. Assumptions may themselves be first-class epistemic objects with provenance and revision lineage.
+4. A counterexample to an assumption requires scope analysis before automatic rejection.
+5. Assumption revision must be append-only in provenance; historical claims must not be silently rewritten.
+6. A previously verified object may become stale/revalidation-required after assumption or verifier revision without making its historical verification disappear.
+7. Historical validity and current applicability are distinct:
+   Valid_t(x) ≠ Valid_t+k(x).
+8. Dependency graphs should permit targeted revalidation/revocation of objects affected by a revised assumption or invariant.
+9. Invariant revision is possible only as a governed candidate transition; a rule cannot authorize its own replacement merely because it proposes the replacement.
+10. A system must not be allowed to redefine the trust boundary solely under the authority of the boundary it is attempting to weaken.
+11. Mutable rules/verifiers/assumptions may evolve, but a protected authority/provenance/commit boundary must remain outside unilateral self-modification.
+12. This pressure is primarily on reflection, verification, governance, storage and audit layers, not on the mathematical form Ψ=(X,R).
+
+Central formulation:
+
+Self-modification must remain governed; epistemic evolution does not imply a new fundamental state model.
+
+## 19. UPDATED ARCHITECTURAL METER
+
+Working analytical estimates only; NOT software coverage:
+
+- Fundamental Ψ-Core redesign demonstrated by E7.6–E7.7.2: approximately 0% necessity so far.
+- Need for explicit lineage/merge/conflict semantics: high.
+- Need for reflection/verifier metadata and bounded verification semantics: high.
+- Need for protected epistemic/authority boundary: mandatory as an architectural constraint.
+- Pressure on storage/audit/provenance: high.
+- Runtime implementation maturity of these newly derived requirements: NOT ESTABLISHED by this research sequence.
+- Architecture change should be considered only when comparison with the actual V2 implementation demonstrates an unmet requirement that cannot be represented safely by existing modules.
+
+These percentages are directional analytical estimates, not test coverage, quality scores or readiness scores.
+
+## 20. NEXT REVERSE-ANALYSIS TARGET
+
+### E7.7.3 — Trust-Boundary Self-Revision
+
+Objective:
+
+Test the strongest recursive case:
+
+TrustBoundary_0
+  ↓
+Finding
+  ↓
+BoundaryRevisionCandidate
+  ↓
+Evidence / adversarial challenge
+  ↓
+Governance
+  ↓
+TrustBoundary_1
+
+Questions:
+
+1. Can the system discover inadequacy in its own protected boundary without silently bypassing that boundary?
+2. Can a boundary revision be represented as a governed transition rather than an unrestricted meta-authority?
+3. What minimum part of the trust boundary must remain non-self-authorizable?
+4. Can historical boundary versions remain auditable after revision?
+5. Does boundary revision require a genuinely new state model, or only a protected governance/storage layer around the existing Ψ-Core?
+6. What happens when the system cannot establish sufficient evidence to justify changing its own boundary?
+7. Can unresolved boundary uncertainty coexist with continued operation in unaffected scopes?
+
+Do not implement from this section. First derive the necessary invariants and compare them against existing execution-authorization, reflection, verification, storage and governance code.
+
+## 21. REVERSE-ANALYSIS REPORT UPDATE
+
+Current sequence:
+- E7.6 — Persistent lineages / merge / cross-lineage conflict: complete analytically.
+- E7.7.1 — Recursive reflection of verification: complete analytically.
+- E7.7.2 — Revision of epistemic foundations: complete analytically.
+- E7.7.3 — Trust-boundary self-revision: next.
+- Architecture Delta remains a later evidence-based step, not an automatic consequence of the theory.
+
+Handoff rule:
+
+Do not change Ψ-Core merely because the research discovers additional semantic objects. First ask whether the object can safely be represented as X/R data, a governed transition, a projection, or an existing module responsibility. Architectural change becomes justified only when an explicit invariant or required capability cannot be satisfied without changing the protected semantics.
+
 ## 17. HANDOFF
 
 Current research handoff:
-- E7.2.158–E7.2.170 completed analytically in the current reverse-analysis branch.
+- E7.2.158–E7.2.170 completed analytically in the earlier branch.
+- E7.6 and E7.7.1–E7.7.2 are now completed analytically in the current continuation.
 - The new findings are research constraints and architecture signals, not implementation authorization.
-- E7.2.171 is the next target: E7.2 synthesis / Architecture Delta Review.
-- First compare against existing reflection/verification/storage/governance before creating anything new.
+- E7.7.3 is the next reverse-analysis target.
+- After the recursive boundary analysis, perform an evidence-based Architecture Delta review against actual reflection/verification/storage/governance/execution-authorization code.
+- First compare against existing modules before creating anything new.
 - Repository code/tests/CI remain authoritative over this research document.
