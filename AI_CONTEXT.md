@@ -2814,3 +2814,149 @@ How can preservation of an invariant under self-modification be distinguished fr
 ### Important boundary
 
 All E5.13–E5.16 findings are reverse-analysis findings. They MUST NOT be marked VERIFIED until supported by repository/runtime/CI evidence. They do not authorize implementation of speculative self-modification or autonomous authority issuance.
+
+
+## 2026-09-20 REVERSE-ANALYSIS CHECKPOINT — E6.6 / E7.1
+
+This checkpoint records the mathematical reverse-analysis continuation completed in the current work session. It is research/architecture context, NOT runtime or CI verification. Repository code, tests and actual CI evidence remain authoritative.
+
+### E6.6 — Invariant Monitoring & Self-Diagnostic Closure
+
+- Invariant preservation and invariant detection are distinct properties:
+  - Preservation: I(Ψ_t) -> I(Ψ_{t+1})
+  - Detection: ¬I(Ψ) -> Detect(¬I)
+- A monitor is not a verifier and neither is automatically a governance authority.
+- Diagnostic claims must be scope-bounded. Do not claim detection of all failures when only a defined invariant/scope is covered.
+- Finding != confirmed violation. A finding may require additional verification.
+- False positives and false negatives are distinct failure modes; response policy must account for both.
+- Diagnostic response can be separated into Observe, Record, Block and Recover; higher response levels require corresponding authority.
+- Hard-stop can block authority-bearing commit without requiring total system shutdown; quarantine/degraded operation is a valid conceptual mode.
+- Recovery is itself an authority-bearing operation and must not silently self-authorize.
+- Sentinel/observer may signal or enforce only within an explicitly granted scope.
+- Detect, Recommend and Execute are distinct capabilities. Detection must not silently imply execution authority.
+- Self-diagnostic closure is:
+  Violation -> Detection -> Evidence -> Classification -> GovernedResponse -> Audit.
+- Trusted base must remain small. Immutability of a trusted base does not by itself prove that the base is correct; bootstrap trust remains an explicit boundary.
+- External audits add evidence diversity but are not themselves authority. Different reviewers do not automatically imply independent evidence if they share the same assumptions/data.
+- Hash-chain/audit integrity proves tamper-evident history, not truth of the recorded event.
+- GapDetector produces evidence/findings; it does not automatically acquire patch or commit authority.
+- Self-created epistemic tools remain candidates and must pass the normal evidence/verification/governance boundaries.
+- Central invariant:
+  EvolutionIntegrity = State ∧ Authority ∧ Evidence ∧ Observation ∧ Provenance ∧ Governance ∧ Diagnostics.
+- This is an architectural invariant formulation, not a claim that the current implementation has already proven every component.
+
+### E7.1 — Architecture Gap Extraction
+
+The reverse-analysis now changes from primarily mathematical expansion to claim-to-code extraction.
+
+For every architectural claim use the structure:
+
+Claim -> Invariant -> Enforcement -> Evidence -> Scope.
+
+Five claim families:
+- C1 State
+- C2 Transition
+- C3 Authority
+- C4 Evidence
+- C5 Governance
+
+Gap classes:
+- Type A — Implementation gap: required capability is absent.
+- Type B — Enforcement/boundary gap: capability exists but can be bypassed or is not protected at the required boundary.
+- Type C — Evidence gap: implementation exists but sufficient executable/runtime/CI evidence is missing.
+- Type D — Semantic gap: code executes but its meaning does not satisfy the declared invariant.
+
+Important distinctions:
+- Implementation != Enforcement != Evidence != Semantics.
+- State integrity != Audit integrity.
+- Audit integrity != Event truth.
+- Verification != TestPassed.
+- Governance classification != activation authority.
+- Identity != Authority.
+- Receipt != Authorization.
+- ProvenanceID != EvolutionIdentity.
+- ContentID != StateID.
+- HashChain != ExternalTrustAnchor.
+
+### Current invariant families extracted for architectural verification
+
+1. Canonical Ψ model:
+   Ψ=(X,R) remains the single semantic source of canonical state. A second representation is acceptable only as a bounded adapter/cache that cannot become an independent source of truth.
+
+2. Deep immutability:
+   Committed canonical state must not expose reachable mutable paths that allow semantic mutation.
+
+3. Commit barrier:
+   Candidate/workspace/shadow state must not directly mutate canonical state before the required Test/Verify/Authorization/Commit boundaries.
+
+4. Authorization:
+   Canonical commit requires action-specific, context-bound authority; a boolean flag alone is not proof of legitimate authority.
+
+5. Verification:
+   Commit verification must be evidence-backed and scope/provenance aware; TestPassed is not automatically a complete verification claim.
+
+6. Provenance:
+   Every canonical evolution event must be traceable to the candidate, parent/proposed identities, evidence, authorization and resulting state as required by its contract.
+
+7. Audit:
+   Append-only/tamper-evident history protects historical integrity but does not establish truth of the event itself.
+
+8. Persistence/recovery:
+   Where persistence is part of the contract, recovery must reconstruct the canonical state/history consistently, including failure/crash semantics.
+
+9. Reflection:
+   Reflection may generate findings/proposals/candidates but must not silently self-authorize canonical mutation.
+
+10. Shadow evaluation:
+    Shadow state/evaluation remains non-canonical until all promotion gates are satisfied.
+
+11. Gap detection:
+    Detect/Recommend/Execute are separate capabilities. Gap detection alone must not imply patch or commit authority.
+
+12. External agents:
+    External AI/agents may supply candidates/evidence/proposals but do not inherit Core authority by default.
+
+13. Rule/meta evolution:
+    Changes to rules, verifiers or governance machinery are higher-order evolution and require explicit bounded authority and independent validation; the mechanism being changed must not be the sole proof that its own trust boundary should change.
+
+### Architecture status discipline
+
+No concrete PATCH or REDESIGN has been authorized by this reverse checkpoint merely from the above formulations.
+
+Current status of the extracted families:
+- KEEP/VERIFY first.
+- TEST where executable evidence is incomplete.
+- PATCH only after a concrete executable gap is demonstrated.
+- REDESIGN only when the invariant cannot be satisfied by a bounded correction.
+- UNRESOLVED when semantics/evidence are insufficient.
+
+### E7.2 — Next reverse target
+
+The next narrow task is:
+
+E7.2 — Commit Path Extraction.
+
+Required method:
+- Enumerate every actual canonical State mutation point and caller.
+- Classify each path as canonical mutation, local/shadow mutation, persistence-only operation, recovery operation, or non-mutating observation.
+- Determine whether each canonical mutation path converges on the existing authorization/commit boundary.
+- Identify any bypass as an explicit architectural gap.
+- Do not infer a vulnerability merely because a lower-level storage primitive is callable; demonstrate an actual reachable unauthorized canonical mutation path.
+- Do not implement speculative authority issuance while the mutation-path enumeration remains incomplete.
+
+Acceptance:
+No claim of complete mutation safety until every discovered canonical mutation path is inspected and either proven gated or explicitly identified as a gap.
+
+### Progress snapshot
+
+- Mathematical reverse: E5 is treated as approximately 98–99% conceptually complete for the current line of inquiry; this is an analytical estimate, not software coverage.
+- Architecture reverse: E6.6 completed as a conceptual layer; E7.1 completed as claim/invariant extraction.
+- Current phase: E7.2 — Commit Path Extraction.
+- Confirmed architectural patches from this checkpoint: 0.
+- Runtime/CI status: unchanged; do not convert these research findings into VERIFIED implementation claims without executable evidence.
+
+### Important continuity correction
+
+Earlier chat progression may have used E4.89/E5.x/E6.x numbering inconsistently. This checkpoint should be treated as the authoritative continuation point for the current reverse-analysis line:
+E5 conceptual closure -> E6 integrity/diagnostic closure -> E7 architecture gap extraction -> E7.2 commit-path extraction.
+
