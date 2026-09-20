@@ -1078,3 +1078,81 @@ This hypothesis remains subject to counterexample-driven analysis.
 
 The implementation gate remains unchanged:
 NO ARCHITECTURE CHANGE unless the derived requirement cannot be safely expressed by the existing V2 architecture and a concrete implementation gap is demonstrated.
+
+
+## 31. REVERSE-ANALYSIS EXTENSION — E7.9.15–E7.9.17
+
+### E7.9.15 — Ψ as carrier of epistemic reorganization
+
+Working result: epistemic reorganization can be represented as ordinary evolution of Ψ=(X,R), without introducing a second state model, provided provenance and verification remain explicit.
+
+Possible representation:
+- distinctions can be elements of X or relational structures in R;
+- boundaries can be represented as relations between a current organization and an unresolved tension;
+- strategies can be represented through relations between tensions and resolution paths;
+- hypotheses and verified relations must remain distinguishable by provenance/status.
+
+Core hypothesis:
+Epistemic learning ⊆ verified evolution(Ψ).
+
+Important constraint:
+Representation ≠ reality. The existence of a relation does not by itself establish its truth about the environment.
+
+### E7.9.16 — Self-model without a second state
+
+A functional self-model is provisionally defined as a structure of verifiable relations describing limitations/capabilities of the current organization and capable of causally participating in selection of a subsequent verified transition.
+
+Necessary distinction:
+- telemetry is not a self-model;
+- history alone is not a self-model;
+- a fixed rule is not necessarily a self-model;
+- self-description becomes functionally relevant when recognized information about the system's own boundary contributes to organizational change.
+
+Minimal chain:
+Ψ_t → observation → recognized limitation → self-model relation → candidate Ψ_(t+1) → verify → commit.
+
+Self-model must not become self-authority:
+Self-model → Candidate is allowed;
+Self-model → Commit without an independent verification boundary is not.
+
+Self-Reference Constraint:
+The system may model its own organization, but the mere existence of that model cannot be used as evidence of the model's truth.
+
+This yields a useful engineering distinction between external/environmental tension and self-model tension:
+T = T_world ∪ T_self.
+A world failure can reveal a self-model error, which can then motivate a strategy/organizational change.
+
+This remains an architectural/research hypothesis, not a consciousness claim.
+
+### E7.9.17 — Meta-self-model / recursive boundary
+
+Next adversarial frontier:
+Determine whether a self-model can detect its own error without requiring an infinite tower of meta-models.
+
+Questions:
+1. Can M_s detect its own error without M_s2?
+2. If M_s2 is required, where does recursion stop?
+3. Can sufficiency criteria replace infinite recursion?
+4. Can environmental feedback constrain recursive self-reference?
+5. Where is the boundary between self-model and provenance?
+6. Can the system represent Unknown(Self-Model), i.e. inability to reliably evaluate its own model?
+
+Working hypothesis:
+Unknown(Self-Model) may be more fundamental than a forced True(Self-Model), because epistemic limitation itself can be represented as a bounded state of knowledge without pretending to possess a proof.
+
+Do not implement from this research section. First attack the recursive boundary with minimal counterexamples and determine whether existing Ψ/Core semantics remain sufficient.
+
+## 32. CURRENT RESEARCH HANDOFF — UPDATED
+
+The current reverse-analysis frontier has moved from static layers toward a dynamic ecology of resolution structures coupled to the environment.
+
+Current chain:
+Environment → observation → distinction → tension/limitation → multiple resolution paths → verification → relational/structural reorganization → changed resolution capacity → new observation.
+
+Current strong hypothesis:
+Gnozis can be studied as a machine that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
+
+The research must remain counterexample-driven. Do not infer consciousness, sentience, or metaphysical panpsychism from the architecture. Panpsychism may be used as a philosophical comparison lens, while the engineering object remains observable organization, information provenance, verification, and causal reorganization.
+
+Architecture gate remains unchanged:
+NO ARCHITECTURE CHANGE unless a concrete implementation gap is demonstrated. Do not introduce a second state model merely to represent epistemic or self-referential phenomena if they can be expressed through Ψ=(X,R), provenance, and verified transitions.
