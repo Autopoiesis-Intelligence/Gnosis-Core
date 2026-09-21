@@ -1,4 +1,4 @@
-# Gnozis-V2 — Task Envelope Schema
+# Gnozis Core — Task Envelope Schema
 
 Status: architecture specification / no runtime implementation yet.
 
