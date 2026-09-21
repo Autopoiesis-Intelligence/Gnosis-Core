@@ -2494,3 +2494,22 @@ ENG-ARCH-001 has produced no demonstrated need for a Ψ-Core redesign. The domin
 6. Only then open invariant-delta analysis / Governance-Rollback work.
 
 Do not implement a new subsystem merely because an older audit document describes a gap that current source has already closed.
+
+## 2026-09-21 CONTINUITY ARCHITECTURE
+
+The Research Library is the machine-readable knowledge layer; Gnozis Core remains the minimal execution/verification layer. Research may inform Core only through an explicit knowledge interface and engineering admission path. Conversation history is non-canonical.
+
+Canonical interface: `docs/AI_KNOWLEDGE_INTERFACE.md`.
+
+Required session footer:
+```
+[PROGRESS]
+Research: <current node/range>
+Engineering: <active task>
+Core: <active phase>
+Done: <completed work>
+Evidence: <new evidence / pending>
+Next: <single next action>
+```
+
+Percentages are allowed only with an explicit reproducible denominator. Do not expand AI_CONTEXT into the research archive; store continuity in stable research IDs, task IDs, commits, tests, CI evidence and audit records.
