@@ -67,3 +67,26 @@ This is the exact commit used by the pilot reference. The current branch HEAD is
 R1.5.1: COMPLETE.
 
 The remaining R1.5 acceptance step is a navigation/reference audit: verify that a reviewer can resolve the Research Machine record from the pinned repository + record ID + source commit without requiring duplicated research content in V2.
+
+
+## R1.5.2 navigation/reference audit
+
+The pinned reference was independently resolved against the canonical repository:
+
+- repository: `Mikhail-Kucheriavyi-23/Gnozis`
+- record: `C-0004`
+- pinned commit: `7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c`
+- file: `archive/records/C-0004.yaml`
+- commit status: file added in the pinned commit
+- record source field: `AI_CONTEXT.md#140`, source commit `a596a3f5a9bfc420c72435ba359c3463c12a7a75`
+- research admissibility: `RESEARCH_ONLY`
+
+The audit found an important provenance distinction: the **record-introducing commit** and the **research source commit embedded inside the record** are different and must not be conflated.
+
+### Result
+
+R1.5.2: PASS.
+
+A reviewer can resolve the exact Research Machine record from repository + record ID + pinned source commit, while the record itself preserves its upstream source provenance separately.
+
+R1.5 pilot: COMPLETE.
