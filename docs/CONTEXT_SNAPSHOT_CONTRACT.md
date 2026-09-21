@@ -183,3 +183,27 @@ task_id → latest checkpoint → source_refs/research_ref → evidence_refs →
 ```
 
 Research references remain non-authoritative. A resumed terminal must not infer authority merely because a research record is present in the snapshot.
+
+
+## Snapshot vs Task Checkpoint boundary
+
+The two concepts are intentionally distinct:
+
+- **Task Checkpoint** is the durable, immutable workflow continuation record. It is the canonical persisted unit for task resume.
+- **Context Snapshot** is a portable reconstruction/view assembled for a connected product. It may be derived from the latest accepted checkpoint plus canonical evidence and repository identity.
+
+A Context Snapshot must not become a second durable task state machine. If both representations exist, the checkpoint remains authoritative for workflow continuation, while the snapshot is a transport/read model.
+
+Therefore:
+
+\`\`\`
+canonical persistence
+    ↓
+Task Checkpoint
+    ↓
+Context Snapshot
+    ↓
+connected terminal
+\`\`\`
+
+The snapshot may include Research Machine provenance through immutable \`source_refs\`, but it must not independently advance checkpoint sequence, alter acceptance state, or authorize Core execution.
