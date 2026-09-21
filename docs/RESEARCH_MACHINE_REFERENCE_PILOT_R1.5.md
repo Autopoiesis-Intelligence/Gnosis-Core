@@ -90,3 +90,7 @@ R1.5.2: PASS.
 A reviewer can resolve the exact Research Machine record from repository + record ID + pinned source commit, while the record itself preserves its upstream source provenance separately.
 
 R1.5 pilot: COMPLETE.
+
+## R1.7 pilot integration result
+
+The reference was attached to the real V2 `EVIDENCE_PROVENANCE_CONTRACT.md`. No runtime code, Core state model, or task repository semantics were changed. The first operational bridge therefore exists as document-level provenance metadata.
