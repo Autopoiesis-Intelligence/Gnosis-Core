@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from .governance import GovernanceDecision
 from gnosis.evolution.provenance import canonical_digest
-from gnosis.storage import load_state, persist_transition
+from gnosis.ports.repositories import EvolutionRepository, StateRepository
 
 
 @dataclass(frozen=True)
@@ -215,16 +215,36 @@ class ExecutionCommitResult:
     resulting_state_id: str
 
 
-class SQLiteExecutionCommitAdapter:
-    """Narrow persistence adapter: authorization is checked before durable mutation."""
+class ExecutionCommitAdapter:
+    """Narrow repository boundary: authorization is checked before durable mutation."""
 
-    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+    def __init__(self, evolution_repository: EvolutionRepository, state_repository: StateRepository):
+        self._evolution_repository = evolution_repository
+        self._state_repository = state_repository
+
+    def commit(
+        self,
+        instance: object,
+        candidate: object,
+        record: object,
+        request: ExecutionCommitRequest,
+        *,
+        actor: str,
+    ) -> ExecutionCommitResult:
         require_execution_commit(request)
         if str(request.provenance.evolution_identity) != request.evolution_identity:
             raise PermissionError("execution commit identity mismatch")
-        persist_transition(conn, instance, candidate, record, actor=actor)
-        resulting = load_state(conn, record.to_state_id)
+        self._evolution_repository.persist_transition(
+            instance,
+            candidate,
+            record,
+            actor=actor,
+        )
+        resulting = self._state_repository.load_state(record.to_state_id)
         if resulting.state_id != str(request.provenance.proposed_state_digest):
             raise PermissionError("persisted resulting state does not match authorized evolution")
         receipt = ExecutionReceipt.after_commit(request, resulting)
         return ExecutionCommitResult(receipt=receipt, resulting_state_id=resulting.state_id)
+
+
+SQLiteExecutionCommitAdapter = ExecutionCommitAdapter
