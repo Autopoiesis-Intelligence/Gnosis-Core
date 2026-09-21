@@ -1,0 +1,142 @@
+from __future__ import annotations
+
+import json
+import sqlite3
+from dataclasses import replace
+from typing import Any, Mapping
+
+from gnosis.storage.database import transaction
+
+from .handoff import ContextHandoff
+from .model import TaskContext
+
+CONTEXT_SCHEMA = """
+CREATE TABLE IF NOT EXISTS task_contexts (
+    context_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    task_id TEXT NOT NULL,
+    organization_scope TEXT,
+    user_scope TEXT NOT NULL,
+    objective TEXT NOT NULL,
+    current_task_state TEXT NOT NULL,
+    required_inputs TEXT NOT NULL,
+    context_references TEXT NOT NULL,
+    evidence_references TEXT NOT NULL,
+    implementation_state TEXT NOT NULL,
+    verification_state TEXT NOT NULL,
+    unresolved_findings TEXT NOT NULL,
+    next_permitted_action TEXT NOT NULL,
+    available_capabilities TEXT NOT NULL,
+    allowed_data_sources TEXT NOT NULL,
+    allowed_output_destinations TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    revision INTEGER NOT NULL CHECK(revision >= 0)
+);
+"""
+
+class ContextRevisionConflict(RuntimeError):
+    pass
+
+class ContextNotFound(KeyError):
+    pass
+
+def _json(value: tuple[Any, ...]) -> str:
+    return json.dumps(list(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+def _decode(value: str) -> tuple[Any, ...]:
+    decoded = json.loads(value)
+    if not isinstance(decoded, list):
+        raise ValueError("context collection must be a JSON list")
+    return tuple(decoded)
+
+class TaskContextRepository:
+    def __init__(self, conn: sqlite3.Connection):
+        self._conn = conn
+        self._conn.executescript(CONTEXT_SCHEMA)
+
+    def create_context(self, context: TaskContext) -> TaskContext:
+        self._validate(context)
+        with transaction(self._conn):
+            self._conn.execute(
+                """INSERT INTO task_contexts
+                (context_id,project_id,task_id,organization_scope,user_scope,objective,current_task_state,
+                 required_inputs,context_references,evidence_references,implementation_state,verification_state,
+                 unresolved_findings,next_permitted_action,available_capabilities,allowed_data_sources,
+                 allowed_output_destinations,created_at,updated_at,revision)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                self._params(context),
+            )
+        return context
+
+    def get_context(self, context_id: str) -> TaskContext:
+        row = self._conn.execute(
+            "SELECT * FROM task_contexts WHERE context_id=?", (context_id,)
+        ).fetchone()
+        if row is None:
+            raise ContextNotFound(context_id)
+        return self._from_row(row)
+
+    def update_context(self, context_id: str, expected_revision: int, patch: Mapping[str, Any]) -> TaskContext:
+        current = self.get_context(context_id)
+        if current.revision != expected_revision:
+            raise ContextRevisionConflict(
+                f"stale revision: expected {expected_revision}, current {current.revision}"
+            )
+        allowed = set(current.__dataclass_fields__) - {"context_id", "revision", "created_at"}
+        if set(patch) - allowed:
+            raise ValueError("patch contains immutable or unknown fields")
+        updated = replace(current, **dict(patch), revision=current.revision + 1)
+        self._validate(updated)
+        p = self._params(updated)
+        with transaction(self._conn):
+            result = self._conn.execute(
+                """UPDATE task_contexts SET project_id=?,task_id=?,organization_scope=?,
+                user_scope=?,objective=?,current_task_state=?,required_inputs=?,context_references=?,
+                evidence_references=?,implementation_state=?,verification_state=?,unresolved_findings=?,
+                next_permitted_action=?,available_capabilities=?,allowed_data_sources=?,
+                allowed_output_destinations=?,updated_at=?,revision=?
+                WHERE context_id=? AND revision=?""",
+                (p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9],p[10],p[11],p[12],
+                 p[13],p[14],p[15],p[16],p[18],p[19],context_id,expected_revision),
+            )
+            if result.rowcount != 1:
+                raise ContextRevisionConflict("stale revision")
+        return updated
+
+    def reconstruct_context(self, context_id: str) -> ContextHandoff:
+        return ContextHandoff.from_context(self.get_context(context_id))
+
+    @staticmethod
+    def _validate(context: TaskContext) -> None:
+        if not context.context_id or not context.project_id or not context.task_id:
+            raise ValueError("context identity fields are required")
+        if not context.user_scope:
+            raise ValueError("user_scope is required")
+        if context.revision < 0:
+            raise ValueError("revision must be non-negative")
+
+    @staticmethod
+    def _params(c: TaskContext) -> tuple[Any, ...]:
+        return (
+            c.context_id,c.project_id,c.task_id,c.organization_scope,c.user_scope,c.objective,
+            c.current_task_state,_json(c.required_inputs),_json(c.context_references),
+            _json(c.evidence_references),c.implementation_state,c.verification_state,
+            _json(c.unresolved_findings),c.next_permitted_action,_json(c.available_capabilities),
+            _json(c.allowed_data_sources),_json(c.allowed_output_destinations),
+            c.created_at,c.updated_at,c.revision,
+        )
+
+    @staticmethod
+    def _from_row(row: sqlite3.Row) -> TaskContext:
+        return TaskContext(
+            context_id=row["context_id"], project_id=row["project_id"], task_id=row["task_id"],
+            user_scope=row["user_scope"], objective=row["objective"], current_task_state=row["current_task_state"],
+            required_inputs=_decode(row["required_inputs"]), context_references=_decode(row["context_references"]),
+            evidence_references=_decode(row["evidence_references"]), implementation_state=row["implementation_state"],
+            verification_state=row["verification_state"], unresolved_findings=_decode(row["unresolved_findings"]),
+            next_permitted_action=row["next_permitted_action"], available_capabilities=_decode(row["available_capabilities"]),
+            allowed_data_sources=_decode(row["allowed_data_sources"]), allowed_output_destinations=_decode(row["allowed_output_destinations"]),
+            organization_scope=row["organization_scope"], created_at=row["created_at"],
+            updated_at=row["updated_at"], revision=row["revision"],
+        )
