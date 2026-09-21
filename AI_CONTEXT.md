@@ -2,7 +2,7 @@
 
 ## 0. PURPOSE / OPERATING RULE
 
-This file is the operational handoff and research context for AI agents working on Gnozis-V2.
+This file is the operational handoff and research context for AI agents working on Gnozis Core.
 
 Repository:
 - GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
@@ -21,9 +21,9 @@ Rules:
 
 ## 1. REPOSITORY ROLE
 
-Gnozis-V2 is the future canonical engineering Core foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
 
-V2 is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
+The Core is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
 
 The intended product lineage is:
 
@@ -272,7 +272,7 @@ Metaphysical interpretations, consciousness claims and panpsychist frameworks ar
 
 A key methodological change:
 
-Gnozis-V2 should be treated as an existing architectural specimen from which hidden structure can be reverse-engineered.
+Gnozis Core should be treated as an existing architectural specimen from which hidden structure can be reverse-engineered.
 
 We are not starting with an empty philosophical concept and forcing it into code.
 
@@ -310,11 +310,9 @@ The existence of a meaningful architectural pattern does not by itself prove a p
 
 Preserve this distinction:
 
-Gnosis_phenomenon ≠ Gnozis_implementation.
+Gnozis is an engineering implementation for studying knowledge formation, evidence, model revision and constrained evolution.
 
-Gnozis may be an implementation/model through which properties associated with gnostic organization are investigated.
-
-Do not claim consciousness, subjective experience, panpsychism, or any other strong philosophical conclusion merely from the existence of the architecture.
+Do not make metaphysical, consciousness or subjective-experience claims from the existence of the architecture.
 
 Instead investigate observable/derivable properties such as:
 - self-model;
