@@ -100,3 +100,12 @@ Organization-specific routing and access policy must be layered on top rather th
 This file is a contract only. It does not authorize any new database table, Core mutation, identity mechanism, connector, or agent behavior.
 
 Any implementation must be a separately scoped task and must preserve existing Core and Persistence boundaries.
+
+
+## Research Machine references
+
+A task may carry zero or more non-authoritative research references.
+
+The reference shape follows `RESEARCH_MACHINE_REFERENCE_CONTRACT_R1.4.md` and contains the repository, stable record ID, exact source commit, and explicit relation. These are provenance/context metadata only. They do not authorize execution, mutate Core state, replace evidence, or imply acceptance of a research record.
+
+This is an architecture extension only; the Task Envelope remains a contract and has no runtime implementation by this change.
