@@ -1,61 +1,63 @@
-# GNOSIS CORE — Engineering Foundation
+# GNOSIS CORE — Canonical Evolving Runtime
 
-## Canonical engineering base for Gnozis research kernels and user products
+## Role
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
+Gnozis-V2 is the canonical engineering and runtime Core of the Gnozis project.
 
-The older Gnozis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. V2 is not merely a replacement archive; it is the engineering foundation that receives research-derived requirements after they have been formalized and mapped to code.
+It is the working system that evolves through protected interaction with users, external information sources, agents, tools and its own governed analytical/evolutionary mechanisms.
 
-## Project relationship
+The repository remains the single canonical authority for Ψ=(X,R) state/evolution semantics.
 
-Gnozis — Research Library
-        ↓ discovered patterns / models / evidence
-Gnozis Core
-        ├── Specialized Research Kernels
-        └── Commercial User Versions
+## Two-repository model
 
-## Core rule
+Gnozis — Development Archive / Research Memory
+→ controlled engineering bridge
+→ Gnozis-V2 — canonical evolving Core
+→ runtime interaction / learning / governed evolution
 
-> Research can generate requirements; only implementation plus evidence establishes a Core capability.
+The archive can supply research, findings, tasks, audits and context. It cannot directly authorize Core mutation.
 
-## Current engineering foundation
+## Core responsibilities
 
-The Core currently contains the protected Ψ=(X,R) state/evolution model, deep immutability and invariants, Candidate/Test/Verify/Authorize/Commit semantics, deterministic selection where applicable, budgets and stop conditions, instances/forks/lineage, SQLite persistence and durable provenance, append-only audit events, reflection/counterexamples/RuleProposal lineage/shadow evaluation, and boundaries preventing reflection from directly activating Core changes.
+The Core retains:
 
-Exact status is governed by STATUS.md and current source/tests.
+- Ψ=(X,R) canonical state;
+- deep immutability and integrity;
+- protected transitions;
+- memory;
+- analysis;
+- reflection;
+- evolution;
+- verification;
+- governance;
+- authorization;
+- autopoiesis;
+- sandbox;
+- sentinel;
+- runtime coordination.
 
-## Research-to-product pipeline
+The sandbox remains inside the Core. Analytical layers and autopoiesis remain inside the Core. The Core may acquire additional internal tools when verified conditions require them.
 
-Research observation
-→ Pattern discovery
-→ Definition / formalization
-→ Falsifiable consequence
-→ Engineering gap
-→ Core implementation
-→ Tests / CI / runtime evidence
-→ Specialized kernel
-→ User / commercial product
+## External boundary
 
-A research idea is not considered unrealizable merely because it is not currently implemented. Feasibility is established by formalization, architecture mapping, constraints and evidence.
+External systems interact through protected ports and replaceable adapters.
 
-Conversely, conceptual or mathematical coherence is not proof of an implemented capability.
+Concrete persistence, network, model, device and vendor implementations must not become semantic Core authority.
 
-## What belongs in Core
+## Development loop
 
-The Core should contain reusable mechanisms fundamental across multiple future kernels and products: state semantics, protected transitions, verification, provenance, persistence semantics, governed evolution and other demonstrated foundational capabilities.
-
-Domain-specific behavior normally belongs above Core in a specialized kernel or product layer.
-
-## What does not enter Core automatically
-
-Research-only hypotheses, domain-specific user features, philosophical interpretations, experimental mechanisms without a demonstrated Core requirement, an AI/LLM inside Ψ-Core, and autonomous rule activation without the required governance boundary.
+Runtime observation / failure / finding
+→ Development Archive
+→ bounded engineering task
+→ verified Core change
+→ runtime observation
 
 ## Verification principle
 
 Documentation ≠ Source ≠ Test ≠ CI Evidence ≠ Runtime Evidence ≠ Audit.
 
-No capability should be described as verified solely because a document or test file exists.
+No capability is considered verified merely because a document, task or test file exists.
 
-## Development principle
+## Current migration
 
-> First discover the structure. Then formalize it. Then implement the smallest reusable mechanism. Then prove what it actually does.
+R1.9 architecture migration is incremental. Existing working mechanisms are mapped into the target structure before movement or deletion. No module is removed solely for naming or aesthetic reasons.
