@@ -1,5 +1,5 @@
 import pytest
-from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, SQLiteExecutionCommitAdapter, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
+from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, ExecutionCommitAdapter, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 
 
@@ -168,6 +168,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     from gnosis.evolution.provenance import build_provenance, canonical_digest
     from gnosis.instances.instance import Instance
     from gnosis.storage import connect
+    from gnosis.adapters.sqlite_persistence import SQLiteEvolutionRepository, SQLiteStateRepository
     conn = connect()
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
     from gnosis.storage import save_instance
@@ -192,7 +193,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
+    result = ExecutionCommitAdapter(SQLiteEvolutionRepository(conn), SQLiteStateRepository(conn)).commit(instance, candidate, record, request, actor="user-1")
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
@@ -210,7 +211,7 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
     with pytest.raises(PermissionError):
-        SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, ExecutionCommitRequest(
+        ExecutionCommitAdapter(SQLiteEvolutionRepository(conn), SQLiteStateRepository(conn)).commit(instance, candidate, record, ExecutionCommitRequest(
             ExecutionAuthorization("bad", False, "bad"),
             ExecutionIntentSnapshot("", "", "", "", "", "", ""),
             "bad", "bad", object()), actor="user-1")
