@@ -1,4 +1,4 @@
-# Gnozis-V2 — Capability Contract
+# Gnozis Core — Capability Contract
 
 ## Status
 
