@@ -1,5 +1,6 @@
 import pytest
-from gnosis.context import ContextRevisionConflict, TaskContext, TaskContextRepository
+from gnosis.adapters.sqlite_persistence import SQLiteTaskContextRepository
+from gnosis.context import ContextRevisionConflict, TaskContext
 from gnosis.storage.database import close, connect
 
 def make_context():
@@ -13,7 +14,7 @@ def make_context():
 def test_create_get_and_reconstruct():
     conn=connect()
     try:
-        repo=TaskContextRepository(conn)
+        repo=SQLiteTaskContextRepository(conn)
         repo.create_context(make_context())
         assert repo.get_context("ctx-1") == make_context()
         handoff=repo.reconstruct_context("ctx-1")
