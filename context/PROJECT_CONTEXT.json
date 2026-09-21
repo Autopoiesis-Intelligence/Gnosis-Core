@@ -29,7 +29,13 @@
     "cumulative_entry_point": "gnosis.reflection.reflect_and_persist(engine, conn)",
     "mode": "READ_ONLY",
     "input": "canonical Engine.history / TransitionRecord evidence plus persisted reflection history",
-    "output": ["ReflectionObservation", "Finding", "CounterexampleCandidate", "RuleProposal", "ProposalEvolution"],
+    "output": [
+      "ReflectionObservation",
+      "Finding",
+      "CounterexampleCandidate",
+      "RuleProposal",
+      "ProposalEvolution"
+    ],
     "authority": "NONE OVER CANONICAL CORE",
     "activation": "FORBIDDEN",
     "status": "IMPLEMENTED / UNVERIFIED"
@@ -37,11 +43,18 @@
   "architecture_tracks": {
     "track_a_user_continuity": {
       "status": "CONTRACT DEFINED / RUNTIME NOT IMPLEMENTED",
-      "contracts": ["docs/USER_ARCHITECTURE.md", "docs/CONTEXT_CONTRACT.md", "docs/CONTEXT_IMPLEMENTATION_TASK.md"]
+      "contracts": [
+        "docs/USER_ARCHITECTURE.md",
+        "docs/CONTEXT_CONTRACT.md",
+        "docs/CONTEXT_IMPLEMENTATION_TASK.md"
+      ]
     },
     "track_b_core_reflection": {
       "status": "CUMULATIVE R1 FOUNDATION IMPLEMENTED / UNVERIFIED",
-      "contracts": ["docs/CORE_REFLECTION_ROADMAP.md", "docs/CORE_REFLECTION_R1_TASK.md"]
+      "contracts": [
+        "docs/CORE_REFLECTION_ROADMAP.md",
+        "docs/CORE_REFLECTION_R1_TASK.md"
+      ]
     }
   },
   "reflection_roadmap": [
@@ -92,5 +105,18 @@
     "then define bounded Governance/Rollback",
     "do not activate or self-modify rules"
   ],
-  "rule": "Conversation history is non-canonical. Current source, reproducible tests/CI, accepted contracts and independent audit evidence outrank AI reports. Reflection may propose and evolve evidence-linked hypotheses, but has no activation authority over canonical Core."
+  "rule": "Conversation history is non-canonical. Current source, reproducible tests/CI, accepted contracts and independent audit evidence outrank AI reports. Reflection may propose and evolve evidence-linked hypotheses, but has no activation authority over canonical Core.",
+  "repository_role": "FUTURE_CANONICAL_CORE_FOUNDATION",
+  "research_source_repository": "Mikhail-Kucheriavyi-23/Gnozis",
+  "product_lineage": [
+    "Research Library",
+    "Canonical Gnozis Core",
+    "Specialized Research Kernel",
+    "User / Commercial Version"
+  ],
+  "notes": [
+    "Older Gnozis is the public research/information library.",
+    "V2 is the engineering Core foundation, not merely an archive replacement.",
+    "Research findings enter Core only through formalization, engineering mapping and evidence."
+  ]
 }
