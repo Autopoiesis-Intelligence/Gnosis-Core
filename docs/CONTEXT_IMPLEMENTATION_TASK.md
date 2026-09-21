@@ -278,3 +278,10 @@ What may be done next?
 ```
 
 without access to the previous AI conversation, while preserving all declared boundaries.
+
+
+## R1.8 boundary integration note
+
+If Context implementation stores research provenance, it MUST use opaque references equivalent to `research_refs`; it must not ingest or duplicate Research Machine record semantics. Task objective, scope, acceptance criteria, and evidence requirements remain independently defined by the Task contract.
+
+The Context layer may transport these references through reconstruction/handoff, but it must not resolve them into authority, auto-create Tasks from them, or authorize Core execution.
