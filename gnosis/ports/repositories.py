@@ -7,6 +7,10 @@ from gnosis.instances.instance import Instance
 
 
 class StateRepository(Protocol):
+    """Durable instance/state boundary; no SQL types leak through it."""
+
+    def save_instance(self, instance: Instance) -> None: ...
+    def load_instance(self, instance_id: str) -> Instance: ...
     def save_state(self, state: State) -> None: ...
     def load_state(self, state_id: str) -> State: ...
     def save_candidate(self, candidate: Candidate) -> None: ...
@@ -14,6 +18,8 @@ class StateRepository(Protocol):
 
 
 class EvolutionRepository(Protocol):
+    """Canonical transition/recovery semantics."""
+
     def persist_transition(
         self,
         instance: Instance,
@@ -33,6 +39,8 @@ class EvolutionRepository(Protocol):
 
 
 class AuditRepository(Protocol):
+    """Append-only evidence and integrity verification."""
+
     def append_audit(
         self,
         *,
