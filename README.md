@@ -1,8 +1,8 @@
-# GNOSIS-V2 — Core Foundation
+# GNOSIS CORE — Engineering Foundation
 
 ## Canonical engineering base for Gnozis research kernels and user products
 
-Gnozis-V2 is the new engineering line of the Gnozis project. It is being developed as the future canonical Core foundation: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
+Gnozis Core is the canonical engineering foundation of the Gnozis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
 The older Gnozis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. V2 is not merely a replacement archive; it is the engineering foundation that receives research-derived requirements after they have been formalized and mapped to code.
 
@@ -10,7 +10,7 @@ The older Gnozis repository is the project's Research Library. It contains histo
 
 Gnozis — Research Library
         ↓ discovered patterns / models / evidence
-Gnozis-V2 — Core Foundation
+Gnozis Core
         ├── Specialized Research Kernels
         └── Commercial User Versions
 
@@ -20,7 +20,7 @@ Gnozis-V2 — Core Foundation
 
 ## Current engineering foundation
 
-The V2 line currently contains the protected Ψ=(X,R) state/evolution model, deep immutability and invariants, Candidate/Test/Verify/Authorize/Commit semantics, deterministic selection where applicable, budgets and stop conditions, instances/forks/lineage, SQLite persistence and durable provenance, append-only audit events, reflection/counterexamples/RuleProposal lineage/shadow evaluation, and boundaries preventing reflection from directly activating Core changes.
+The Core currently contains the protected Ψ=(X,R) state/evolution model, deep immutability and invariants, Candidate/Test/Verify/Authorize/Commit semantics, deterministic selection where applicable, budgets and stop conditions, instances/forks/lineage, SQLite persistence and durable provenance, append-only audit events, reflection/counterexamples/RuleProposal lineage/shadow evaluation, and boundaries preventing reflection from directly activating Core changes.
 
 Exact status is governed by STATUS.md and current source/tests.
 
@@ -38,7 +38,7 @@ Research observation
 
 A research idea is not considered unrealizable merely because it is not currently implemented. Feasibility is established by formalization, architecture mapping, constraints and evidence.
 
-Conversely, philosophical or mathematical coherence is not proof of an implemented capability.
+Conversely, conceptual or mathematical coherence is not proof of an implemented capability.
 
 ## What belongs in Core
 
