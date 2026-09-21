@@ -1,10 +1,10 @@
-"""Read-only reflection gate over repository capabilities."""
+"""End-to-end read-only gate for canonical Core -> persistence -> reflection evidence."""
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
-from gnosis.ports.repositories import EvolutionRepository
+from gnosis.storage import recover_instance, verify_durable_graph
 
 from .diagnostic_artifact import build_artifact
 from .persistence import reflection_id
@@ -24,29 +24,26 @@ class ReflectionGateResult:
     reasons: tuple[str, ...] = ()
 
 
-def run_reflection_gate(
-    engine: Any,
-    repository: EvolutionRepository,
-    instance_id: str,
-    *,
-    minimum_repetitions: int = 2,
-) -> ReflectionGateResult:
-    """Verify durable reflection evidence without owning persistence."""
+def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, minimum_repetitions: int = 2) -> ReflectionGateResult:
+    """Verify that one canonical execution history reaches durable reflection evidence.
+
+    This function is observational only: it does not commit Core state, issue authority,
+    activate proposals, or modify rules/invariants.
+    """
     reasons: list[str] = []
     history = tuple(getattr(engine, "history", ()))
     if not history:
         reasons.append("canonical Core history is empty")
 
     try:
-        transition_count, _ = repository.verify_durable_graph()
+        verify_durable_graph(conn)
         durable_ok = True
     except Exception as exc:
-        transition_count = 0
         durable_ok = False
         reasons.append(f"durable graph verification failed: {type(exc).__name__}")
 
     try:
-        recovered = repository.recover_instance(instance_id)
+        recovered = recover_instance(conn, instance_id)
         recovery_state_id = recovered.engine.state.state_id
     except Exception as exc:
         recovery_state_id = ""
@@ -56,7 +53,7 @@ def run_reflection_gate(
         reasons.append("recovered state does not match canonical engine state")
 
     try:
-        cumulative = reflect_with_history(engine, repository, minimum_repetitions=minimum_repetitions)
+        cumulative = reflect_with_history(engine, conn, minimum_repetitions=minimum_repetitions)
         report = cumulative.current
         diagnostic = diagnose(history, minimum_repetitions=minimum_repetitions)
         artifact = build_artifact(diagnostic, artifact_id=reflection_id(report))
@@ -74,7 +71,7 @@ def run_reflection_gate(
     return ReflectionGateResult(
         passed=not reasons,
         instance_id=instance_id,
-        transition_count=transition_count if transition_count else len(history),
+        transition_count=len(history),
         durable_graph_verified=durable_ok,
         recovery_state_id=recovery_state_id,
         report_id=report_id,
