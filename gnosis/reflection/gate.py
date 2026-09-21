@@ -53,7 +53,7 @@ def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, minimum_rep
         reasons.append("recovered state does not match canonical engine state")
 
     try:
-        cumulative = reflect_with_history(engine, conn, minimum_repetitions=minimum_repetitions)
+        cumulative = reflect_with_history(engine, reflection_repository, evolution_memory_repository, minimum_repetitions=minimum_repetitions, instance_id=instance_id)
         report = cumulative.current
         diagnostic = diagnose(history, minimum_repetitions=minimum_repetitions)
         artifact = build_artifact(diagnostic, artifact_id=reflection_id(report))
