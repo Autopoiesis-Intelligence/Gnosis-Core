@@ -1,6 +1,6 @@
 {
   "schema": "gnozis.project-context/v5",
-  "context_id": "gnozis-v2-canonical-project",
+  "context_id": "gnozis-core-canonical-project",
   "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
   "branch": "main",
   "snapshot_of_canonical_source_head": "b97a3058233b6e47dea342f73bfd5606dc1e5cd8",
@@ -106,7 +106,7 @@
     "do not activate or self-modify rules"
   ],
   "rule": "Conversation history is non-canonical. Current source, reproducible tests/CI, accepted contracts and independent audit evidence outrank AI reports. Reflection may propose and evolve evidence-linked hypotheses, but has no activation authority over canonical Core.",
-  "repository_role": "FUTURE_CANONICAL_CORE_FOUNDATION",
+  "repository_role": "CANONICAL_CORE_FOUNDATION",
   "research_source_repository": "Mikhail-Kucheriavyi-23/Gnozis",
   "product_lineage": [
     "Research Library",
@@ -116,7 +116,7 @@
   ],
   "notes": [
     "Older Gnozis is the public research/information library.",
-    "V2 is the engineering Core foundation, not merely an archive replacement.",
+    "Core is the engineering Core foundation, not merely an archive replacement.",
     "Research findings enter Core only through formalization, engineering mapping and evidence."
   ]
 }
