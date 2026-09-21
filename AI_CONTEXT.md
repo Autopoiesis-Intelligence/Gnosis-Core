@@ -17,6 +17,7 @@ Rules:
 6. Never weaken an invariant or evidence gate merely to make tests green.
 7. Preserve the distinction between mathematical/research hypotheses and implementation facts.
 8. The task-list and analytical-message format in Sections 25–26 are CONSTANTS for this research workflow unless explicitly revised by a later architectural decision.
+9. Research descriptions may be maximally expressive. Descriptive/philosophical language is not itself a defect; it becomes engineering input only through explicit pattern extraction, definition change, formalization, falsifiable consequence, gap identification, implementation and evidence.
 
 ## 1. ARCHITECTURAL PURPOSE
 
@@ -2282,3 +2283,238 @@ REQUIRED_EVIDENCE: Explicit definitions, at least several incomparable cases, fa
 ACCEPTANCE: Either derive a bounded conditional preference relation or show that preference requires an additional explicit authority/objective boundary.
 AUDIT: No universal ranking; no hidden optimization objective; no implementation change from the hypothesis alone.
 NEXT: E7.9.61 — Incomparability and Partial-Order Evolution.
+
+## 40. RESEARCH → ENGINEERING TRANSLATION PRINCIPLE
+
+The reverse-analysis track is intentionally allowed to use maximally descriptive, mathematical, philosophical and analogical language. Such language is not classified as speculative merely because it is not yet code.
+
+The purpose of the research layer is to expose patterns that may be difficult to see from implementation-first terminology and to discover whether an existing definition is incomplete.
+
+The required translation path is:
+
+Observation
+→ Pattern
+→ Principle
+→ Definition / Definition Delta
+→ Formalization
+→ Falsifiable Consequence
+→ Concrete Gap
+→ Engineering Task
+→ Implementation
+→ Test / Runtime Evidence
+→ Audit
+→ Updated Model
+
+A research result may therefore legitimately change the interpretation of an existing architectural concept when it demonstrates a previously hidden distinction, relation, invariant, or capability requirement.
+
+Research does NOT automatically authorize implementation. The implementation gate remains:
+
+Research insight
+→ explicit requirement or falsifiable engineering consequence
+→ actual V2 mapping
+→ demonstrated gap
+→ task
+→ implementation
+→ evidence.
+
+The absence of current implementation must not be interpreted as proof of non-implementability. Feasibility is determined by formalization, constraints, architecture mapping and evidence.
+
+Conversely, an elegant interpretation must not be treated as a capability merely because it is mathematically or philosophically coherent.
+
+### Working rule
+
+Do not prematurely compress descriptive research into existing engineering vocabulary. First preserve the information needed to discover the pattern; then compress only after the resulting distinctions and constraints are understood.
+
+### Definition-change test
+
+Whenever reverse-analysis appears to reveal something new, ask:
+
+1. What existing definition does this challenge or extend?
+2. What distinction was previously invisible?
+3. What changes if the new definition is accepted?
+4. Can the change be expressed formally?
+5. What observable consequence follows?
+6. Does actual V2 code already express it?
+7. If not, is the gap local, architectural, or still hypothetical?
+
+This is the primary bridge from research to product engineering.
+
+## 41. ENGINEERING EXECUTION PLAN — CURRENT
+
+The project now runs on two coupled but distinct tracks:
+
+RESEARCH TRACK
+E7.x / reverse-analysis / mathematical exploration / pattern discovery
+
+ENGINEERING TRACK
+actual V2 code / tests / runtime / CI / persistence / identity / authorization / integration
+
+The tracks interact through explicit translation gates, not through automatic task generation.
+
+### Engineering priority order
+
+P0 — Evidence and architectural closure
+- Verify the current implementation against the actual repository, not documentation claims.
+- Resolve remaining canonical mutation/activation boundary gaps.
+- Establish exact evidence for persistence, recovery, audit integrity and identity semantics.
+- Verify that all authority-sensitive mutation paths converge on protected semantics.
+
+P1 — Core product execution loop
+- Candidate → Test → Verify → Authorize → Commit.
+- Reflection findings → counterexamples → RuleProposal → shadow evaluation → governance.
+- Environment/input boundary with provenance and trust separation.
+- Observable outcome capture and recovery verification.
+
+P1 — Persistent evolutionary memory
+- Preserve candidate/history/provenance/context/outcome distinctions.
+- Keep rejected, dormant, insufficient-evidence and invalid-under-invariant states distinguishable.
+- Prevent persistence from becoming authority.
+- Verify restart/recovery and stale-authority cases.
+
+P1 — Evidence and audit infrastructure
+- Append-only audit semantics.
+- Hash-chain integrity where specified.
+- Failure-injected transaction tests.
+- Duplicate/replay/recovery/security cases.
+- Explicit distinction between integrity, adequacy and truth.
+
+P2 — Environment-coupled inquiry
+- Observation/intervention distinction.
+- External evidence versus internally generated evidence.
+- Prediction versus observation.
+- Provenance of actions and outcomes.
+- Minimal sufficient inquiry as a candidate abstraction only after mapping to real modules.
+
+P2 — Resolution structures / tension handling
+- Determine whether structural tension already exists in current code.
+- Map tension → representation/probe/candidate without granting detection mutation authority.
+- Implement only concrete gaps revealed by the mapping.
+
+P2 — Evolutionary optionality / diversity
+- Test whether the existing candidate/population model actually requires dormant alternatives, functional diversity or loss-aware compression.
+- Do not create a DiversitySelector or possibility-space subsystem merely from E7.9 hypotheses.
+
+P3 — Advanced self-model / recursive organization
+- Test whether self-model information can participate in governed candidate generation.
+- Attack recursive verification and meta-self-model assumptions with counterexamples.
+- Preserve Ψ=(X,R) as the canonical Core model unless a demonstrated gap proves otherwise.
+
+### First engineering phase: Architecture Expression Test
+
+TASK-ID: ENG-ARCH-001
+BLOCK: Architecture Expression Test
+STATUS: READY
+PRIORITY: P0
+DEPENDS_ON: current code/test/CI inspection
+OBJECTIVE: Map the currently established research-derived requirements onto the actual V2 implementation and identify concrete gaps without redesigning prematurely.
+SCOPE: Ψ-Core, evolution, reflection, storage, persistence, recovery, audit, identity, execution authorization, environment bridge, logs, tests, CI.
+DO_NOT_CHANGE: Ψ-Core semantics, protected invariants, verification authority, governance boundaries.
+METHOD:
+1. Inspect actual modules and call paths.
+2. Enumerate canonical mutation paths.
+3. Trace Entry → Validation → Authorization → Commit → Audit → Persistence/Activation.
+4. Map each established requirement to existing code.
+5. Classify every finding as EXISTING / LOCAL GAP / ARCHITECTURAL GAP / RESEARCH ONLY.
+6. Convert only LOCAL GAP or demonstrated ARCHITECTURAL GAP findings into implementation tasks.
+7. Require executable evidence for completion.
+REQUIRED TESTS: Existing unit/integration tests plus targeted tests for every newly identified mutation or authority boundary.
+ACCEPTANCE: A code-level matrix exists showing where each established requirement is implemented, partially implemented, missing, or still hypothetical, with evidence references.
+AUDIT: Independent review before architectural redesign.
+NEXT: ENG-PERSIST-002, ENG-AUTH-003, ENG-ENV-004 according to actual gap findings.
+
+### Engineering task: Persistent Evolutionary Memory
+
+TASK-ID: ENG-PERSIST-002
+BLOCK: Persistent Evolutionary Memory
+STATUS: BLOCKED_UNTIL_ENG-ARCH-001
+PRIORITY: P1
+DEPENDS_ON: ENG-ARCH-001
+OBJECTIVE: Verify and complete persistence semantics for states, candidates, transitions, instances, audit events, lineage and recovery as required by the actual implementation.
+DO_NOT_CHANGE: Persistence must not become canonical authority; recovery must not resurrect revoked authority.
+REQUIRED TESTS: transaction failure injection, duplicate handling, restart/recovery, stale authorization, history integrity, no-secret persistence checks.
+ACCEPTANCE: Evidence-backed persistence/recovery behavior tied to exact CI/runtime results.
+
+### Engineering task: Authority / Activation Boundary
+
+TASK-ID: ENG-AUTH-003
+BLOCKED_UNTIL: ENG-ARCH-001
+PRIORITY: P0
+OBJECTIVE: Verify that every authority-sensitive mutation converges on protected authorization/commit semantics and that Proposed, Canonical and Active states cannot be confused.
+REQUIRED TESTS: unauthorized mutation, unknown PowerImpact, revoked capability recovery, fork/delegation scope, replay/stale authorization, concurrent decision cases where applicable.
+ACCEPTANCE: No demonstrated canonical or active mutation bypass remains within the tested scope.
+
+### Engineering task: Environment Coupling
+
+TASK-ID: ENG-ENV-004
+BLOCKED_UNTIL: ENG-ARCH-001
+PRIORITY: P1
+OBJECTIVE: Implement or complete only the minimum environment/input bridge required to distinguish external observation from internally generated evidence.
+DO_NOT_CHANGE: External data never directly authorizes Core mutation.
+REQUIRED TESTS: provenance, simulation-vs-observation separation, intervention ordering, malformed/untrusted input, replay and evidence-origin cases.
+ACCEPTANCE: The external coupling path is observable, bounded, provenance-bearing and incapable of bypassing protected Core authority.
+
+### Engineering task: Reflection-to-Governance Closure
+
+TASK-ID: ENG-REFLECT-005
+BLOCKED_UNTIL: ENG-ARCH-001
+PRIORITY: P1
+OBJECTIVE: Verify that findings/counterexamples can become RuleProposals and shadow evaluations without silently becoming active governance.
+REQUIRED TESTS: proposal rejection, shadow-evaluation failure, governance denial, replay, provenance and common-mode evidence cases.
+ACCEPTANCE: Reflection can generate governed candidates but cannot self-authorize canonical or active change.
+
+### Engineering completion rule
+
+A task is complete only when:
+
+Implementation
++ Targeted tests
++ Relevant regression tests
++ CI/runtime evidence
++ Audit of scope
+
+are all present.
+
+Documentation, mathematical elegance, passing a narrow unit test, or existence of a code path alone is insufficient evidence of completion.
+
+### Research-to-engineering conversion rule
+
+Any future E7.x result that appears implementation-relevant must create a bounded engineering candidate containing:
+
+SOURCE: exact research item
+PATTERN: discovered structure
+DEFINITION_DELTA: what changed
+REQUIREMENT: observable requirement
+CODE_MAPPING: current implementation location or UNKNOWN
+GAP: concrete mismatch or NONE
+TASK: smallest implementation/test task
+EVIDENCE: required proof
+AUTHORITY_IMPACT: ZERO / POSITIVE / UNKNOWN
+
+Only after this conversion may the result enter the engineering Task Registry.
+
+## 42. CURRENT DUAL-TRACK HANDOFF
+
+Research frontier:
+E7.9.60 — Direction of Evolution Without a Sovereign Objective
+→ E7.9.61 — Incomparability and Partial-Order Evolution
+
+Engineering frontier:
+ENG-ARCH-001 — Architecture Expression Test
+→ evidence-backed decomposition into persistence, authority, environment and reflection tasks.
+
+Priority rule:
+When research produces no demonstrated implementation gap, engineering continues independently on the highest-priority READY engineering task.
+
+When research demonstrates a concrete gap, the engineering registry may be updated with a bounded task and acceptance evidence.
+
+The two tracks therefore form a feedback loop:
+
+Research
+→ Pattern
+→ Requirement
+→ Engineering
+→ Evidence
+→ Revised understanding
+→ Research
+
+but neither track is allowed to masquerade as evidence for the other.
