@@ -19,6 +19,18 @@ Rules:
 8. The task-list and analytical-message format in Sections 25–26 are CONSTANTS for this research workflow unless explicitly revised by a later architectural decision.
 9. Research descriptions may be maximally expressive. Descriptive/philosophical language is not itself a defect; it becomes engineering input only through explicit pattern extraction, definition change, formalization, falsifiable consequence, gap identification, implementation and evidence.
 
+## 1. REPOSITORY ROLE
+
+Gnozis-V2 is the future canonical engineering Core foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+
+V2 is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
+
+The intended product lineage is:
+
+Research Library → Canonical Gnozis Core → Specialized Research Kernel → User / Commercial Version
+
+Core mechanisms should be reusable across multiple future kernels and products. Domain-specific functionality should normally remain above Core. Research language may be broad and descriptive; it becomes an engineering requirement only through an explicit research-to-engineering translation and evidence gate.
+
 ## 1. ARCHITECTURAL PURPOSE
 
 Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
