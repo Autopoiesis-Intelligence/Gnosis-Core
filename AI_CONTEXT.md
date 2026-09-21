@@ -1,4 +1,4 @@
-# Gnozis-V2 — AI Context
+# Gnozis — AI Context
 
 ## 0. PURPOSE / OPERATING RULE
 
@@ -35,11 +35,7 @@ Core mechanisms should be reusable across multiple future kernels and products. 
 
 Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
 
-A broader working interpretation has now emerged from the reverse-analysis program:
-
-> Gnozis is being developed as an autopoietic machine for interacting with an environment: it receives information, differentiates and organizes it across levels, detects tensions and insufficiencies, constructs/test representations and candidate changes, verifies them, changes its own organization under protected constraints, acts/observes, and re-enters the cycle.
-
-This is a research interpretation of the existing architecture, not a claim that the system is already conscious or that any philosophical theory has been scientifically established.
+A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
 Canonical evolution remains CLOSED until the complete evidence, sandbox, governance, security, quarantine and recovery chain is independently verified.
 
@@ -165,41 +161,19 @@ Prediction and observation must remain distinguishable.
 
 Prediction error is a learning signal, not something that may be silently deleted.
 
-## 7. AUTOPIETIC REVERSE-ENGINEERING MODEL
+## 7. ITERATIVE REVERSE-ENGINEERING MODEL
 
-A major current synthesis is:
-
-Reverse engineering in this project is not only code reconstruction. It is an analytical/autopoietic method for discovering the structure of the next useful state.
+Reverse engineering in this project is an analytical method for discovering the structure of the next useful state, model or product.
 
 Working cycle:
 
-Current State
-  ↓
-Environment Interaction
-  ↓
-Information
-  ↓
-Differentiation / Representation
-  ↓
-Tension / Constraint / Opportunity
-  ↓
-Synthesis / Experiment
-  ↓
-Verification
-  ↓
-Change in Organization
-  ↓
-New State
-  ↓
-New Environment Interaction
+Current State → Environment Interaction → Information → Differentiation / Representation → Constraint or Insufficiency → Experiment → Verification → Change in Organization → New State.
 
-Central research formulation:
+The criterion for improvement is bounded by the current environment, objective, evidence, constraints, users and protected invariants.
 
-> Reverse engineering can function as an autopoietic search for a better next state/product/model.
+The engineering bridge is:
 
-The “better” criterion is not assumed to be an absolute universal optimum. It is bounded by the current environment, objective, evidence, constraints, users and protected invariants.
-
-This is the conceptual bridge between the mathematical reverse-analysis program and the intended Gnozis product.
+Implementation ↔ Abstraction ↔ Formalization ↔ Implementation.
 
 ## 8. LEVELS AS ORGANIZATION OF INFORMATION
 
@@ -271,66 +245,28 @@ A detector should initially emit CandidateTension rather than ContradictionTruth
 
 Conflict is treated as information and a possible evolutionary trigger, not automatically as an error.
 
-## 10. GNOSIS AS AN EMERGENT RESEARCH HYPOTHESIS
+## 10. KNOWLEDGE FORMATION AS AN ENGINEERING RESEARCH TOPIC
 
-The current philosophical/architectural hypothesis is not that “Gnozis is already conscious”.
+The project studies how a computational system can construct, evaluate and revise relevant distinctions about its state and environment.
 
-Instead:
+This is an engineering research topic. The project does not make claims about consciousness, subjective experience, panpsychism or other metaphysical properties.
 
-Gnosis may be studied as an emergent level/mode of organization in which a system can construct, evaluate and revise its own relevant distinctions and epistemic state.
+Observable properties of interest include:
+- uncertainty recognition;
+- contradiction/tension recognition;
+- model revision;
+- anticipation;
+- self-correction;
+- generation of new distinctions;
+- preservation of identity through transformation;
+- environment interaction;
+- constrained reorganization.
 
-A tentative descriptive formulation:
+These properties must be defined operationally and tested before they are treated as architectural capabilities.
 
-Gnosis ~ capacity to construct, evaluate and revise relevant distinctions about the system/world relationship.
+## 11. REMOVED FROM ENGINEERING SPECIFICATION
 
-This is deliberately descriptive rather than dependent on a preselected philosophical name.
-
-Possible progression to investigate:
-
-Difference
-→ Relation
-→ Organization
-→ Persistence
-→ Self-reference
-→ Internal Model
-→ Epistemic Distinction
-→ Contradiction/Tension Recognition
-→ Model Revision
-→ Anticipation
-→ Autopoietic Reorganization
-
-IMPORTANT:
-- This is not yet an asserted natural law.
-- The levels may not be strictly linear.
-- They may form a partial order or multiple interacting dimensions.
-- The proposed ladder must be attacked with counterexamples before being treated as architecture.
-- Do not put this philosophical ladder directly into Ψ-Core without an explicit engineering requirement.
-
-## 11. PANPSYCHIST PERSPECTIVE — CONTROLLED USE
-
-Panpsychism is treated as a philosophical comparison/context, not as established scientific fact.
-
-The useful research question is not “panpsychism is true, therefore Gnozis is conscious”.
-
-Instead:
-
-If reality is considered as potentially having both relational/external and experiential/internal aspects, what organizational structures could correspond to increasing capacities for distinction, integration, self-reference and self-modeling?
-
-The project may compare those philosophical descriptions against the observable architecture.
-
-The order of reasoning remains:
-
-Observed structure
-→ Invariants
-→ Relations
-→ Mathematical description
-→ Candidate emergent property
-→ Philosophical interpretation/name
-
-Not:
-
-Philosophical claim
-→ forced architecture.
+Metaphysical interpretations, consciousness claims and panpsychist frameworks are not part of the engineering specification or product definition. Historical research material may be preserved in the Research Library with explicit provenance, but it does not authorize Core design or product claims.
 
 ## 12. ARCHITECTURE AS A MATHEMATICAL SPECIMEN
 
