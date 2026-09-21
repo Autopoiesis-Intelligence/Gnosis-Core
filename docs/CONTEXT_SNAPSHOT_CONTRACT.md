@@ -170,3 +170,16 @@ project
 ```
 
 This is the first practical interface for cross-terminal continuity.
+
+
+## Research Machine provenance continuity
+
+When a task carries Research Machine provenance, the canonical snapshot should preserve that provenance through `source_refs` (or an equivalent immutable reference set). The snapshot does not copy the Research Machine record as canonical state.
+
+Continuation therefore resolves:
+
+```
+task_id → latest checkpoint → source_refs/research_ref → evidence_refs → baseline → next permitted action
+```
+
+Research references remain non-authoritative. A resumed terminal must not infer authority merely because a research record is present in the snapshot.
