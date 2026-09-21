@@ -1,5 +1,5 @@
-"""Cross-product project-context recovery primitives."""
+from .handoff import ContextHandoff
+from .model import TaskContext
+from .repository import ContextNotFound, ContextRevisionConflict, TaskContextRepository
 
-from .snapshot import build_context_snapshot
-
-__all__ = ["build_context_snapshot"]
+__all__ = ["ContextHandoff", "TaskContext", "TaskContextRepository", "ContextNotFound", "ContextRevisionConflict"]
