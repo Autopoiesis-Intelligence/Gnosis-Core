@@ -108,4 +108,6 @@ A task may carry zero or more non-authoritative research references.
 
 The reference shape follows `RESEARCH_MACHINE_REFERENCE_CONTRACT_R1.4.md` and contains the repository, stable record ID, exact source commit, and explicit relation. These are provenance/context metadata only. They do not authorize execution, mutate Core state, replace evidence, or imply acceptance of a research record.
 
+A task-level reference is the canonical handoff point for research provenance. Proposal envelopes should normally inherit traceability through `task_id` and their own `source_context_snapshot` / `evidence_refs`, rather than duplicating the full Research Machine reference. A direct proposal-level research reference is only justified when the proposal is independently traceable to a specific research record and the task lineage alone is insufficient.
+
 This is an architecture extension only; the Task Envelope remains a contract and has no runtime implementation by this change.
