@@ -2518,3 +2518,33 @@ Research
 → Research
 
 but neither track is allowed to masquerade as evidence for the other.
+
+## 43. ENG-ARCH-001 FIRST REPOSITORY MAPPING RESULT
+
+Inspection performed against current main HEAD 657071f4c55c082ef5267e271c83e2dbe9dc26e1.
+
+### Findings
+
+1. Ψ-Core boundary: EXISTING by source/docs mapping. gnosis/core/* remains the semantic state/evolution layer; reflection is outside Core.
+2. Persistence: IMPLEMENTED / ACCEPTED in source and schema, but end-to-end runtime/CI evidence remains UNVERIFIED.
+3. Durable recovery: IMPLEMENTED in source through recover_instance() → verify_durable_graph() → load_instance(); runtime verification remains pending.
+4. Transition identity provenance: the current source already recomputes transition_id(record) inside verify_durable_graph() and rejects transition identity mismatch. Therefore the older GNV2-PERSIST-003 audit statement claiming that this recomputation was absent is stale relative to current source and must not be treated as a current gap without fresh reproduction.
+5. Reflection → proposal → shadow evaluation: IMPLEMENTED / UNVERIFIED by current source and tests; activation remains forbidden.
+6. Authority boundary: IMPLEMENTED as a fail-closed request/authorization/intent/commit boundary, but trusted owner-authority issuance is intentionally not implemented. Governance/activation/rollback remains MISSING by current project status.
+7. CI: workflow exists for Python 3.11/3.12 and runs pytest/cov on push/PR, but repository evidence inspected here does not establish a successful run for current HEAD. Therefore CI remains UNVERIFIED.
+8. Context synchronization: context/PROJECT_CONTEXT.json records canonical source head b97a305..., while current repository HEAD inspected for this mapping is 657071f.... This is a documentation/context freshness gap, not evidence of code failure.
+
+### Current engineering conclusion
+
+ENG-ARCH-001 has produced no demonstrated need for a Ψ-Core redesign. The dominant remaining gate is executable verification of the already implemented persistence/reflection/authority path, followed by correction of any failures found at runtime.
+
+### Immediate engineering sequence
+
+1. Obtain real pytest/CI evidence for current HEAD.
+2. Verify persistence recovery and adversarial provenance cases against current source.
+3. Verify reflection persistence + proposal lineage + shadow evaluation end-to-end.
+4. Re-audit authority/activation boundaries after runtime evidence.
+5. Refresh stale machine-readable context HEAD/status only after the evidence baseline is established.
+6. Only then open invariant-delta analysis / Governance-Rollback work.
+
+Do not implement a new subsystem merely because an older audit document describes a gap that current source has already closed.
