@@ -1,4 +1,4 @@
-# Gnozis-V2 — Connected Data Source Contract
+# Gnozis Core — Connected Data Source Contract
 
 ## Status
 
