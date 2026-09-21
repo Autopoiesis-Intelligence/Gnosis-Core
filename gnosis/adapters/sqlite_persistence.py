@@ -13,6 +13,7 @@ from gnosis.storage.repositories import (
     persist_transition,
     recover_instance,
     save_candidate,
+    save_instance,
     save_state,
     verify_audit_chain,
     verify_durable_graph,
@@ -22,6 +23,13 @@ from gnosis.storage.repositories import (
 class SQLiteStateRepository(StateRepository):
     def __init__(self, conn: sqlite3.Connection):
         self._conn = conn
+
+    def save_instance(self, instance: Instance) -> None:
+        save_instance(self._conn, instance)
+
+    def load_instance(self, instance_id: str) -> Instance:
+        from gnosis.storage.repositories import load_instance
+        return load_instance(self._conn, instance_id)
 
     def save_state(self, state: State) -> None:
         save_state(self._conn, state)
