@@ -1876,3 +1876,409 @@ Either derive a bounded P from Ψ=(X,R) and context, or demonstrate exactly whic
 Implementation gate remains unchanged:
 
 NO ARCHITECTURE CHANGE unless a concrete implementation gap is demonstrated against actual V2 code/tests/runtime evidence.
+
+
+## 36. REVERSE-ANALYSIS EXTENSION — E7.9.47–E7.9.50
+
+### E7.9.47 — Minimal Derivation of Possibility Space
+
+A research-level possibility space P is now treated as the set of future transitions/interactions that are relevantly possible under a bounded context.
+
+Do not identify P with the raw set of syntactically constructible states.
+
+Distinguish at least:
+- Syntactic possibility — representable/generated.
+- Structural possibility — compatible with the current organization.
+- Invariant-admissible possibility — not excluded by protected constraints.
+- Evidence-supported possibility — compatible with available evidence.
+- Environmentally realizable possibility — can actually occur under the relevant environment/intervention conditions.
+
+Therefore a useful decomposition is:
+
+P_syntax ⊇ P_structural ⊇ P_admissible
+
+while empirical/environmental realizability may impose an additional context-dependent filter.
+
+The central result is that P cannot in general be assumed to be a function of Ψ=(X,R) alone. Two identical internal states may face different external environments and therefore have different reachable interaction spaces.
+
+Working abstraction:
+
+P(Ψ,E,C,A)
+
+where:
+- Ψ = canonical internal state;
+- E = external/environmental context;
+- C = applicable constraints;
+- A = authorized action/capability boundary.
+
+This is an analytical model, NOT a second canonical Core state.
+
+### E7.9.48 — Possibility Space Is Not One Set
+
+A single undifferentiated P hides important epistemic distinctions.
+
+Use a layered research decomposition:
+
+P_rep = representable possibilities
+P_test = testable possibilities
+P_verified = verified/admissible transitions
+P_action = operationally executable possibilities
+P_real = environmentally realizable possibilities
+
+These sets need not coincide.
+
+For example:
+
+P_rep may be large,
+P_verified may be small,
+P_action may be smaller because of authority/safety,
+and P_real may differ because the environment constrains actual outcomes.
+
+This prevents the common collapse:
+
+Representable → True → Authorized → Executable.
+
+The correct direction remains:
+
+Represent
+→ Candidate
+→ Test
+→ Verify
+→ Authorize
+→ Execute/Commit
+
+with explicit evidence and provenance.
+
+### E7.9.49 — Possibility Contraction and the No-Unjustified-Collapse Invariant
+
+The reverse-analysis introduced a candidate fundamental invariant:
+
+No unacknowledged, unjustified, or unauthorized irreversible narrowing of relevant possibility space.
+
+For a transition T:
+
+Ω_t → Ω_(t+1)
+
+define conceptually:
+
+Δ⁻Ω(T) = Ω_t \ Ω_(t+1).
+
+Not every reduction is a defect. Legitimate contraction can occur when:
+- a candidate violates a protected invariant;
+- evidence establishes contextual invalidity;
+- authority/safety rules prohibit operational activation;
+- an explicit scope boundary makes a distinction irrelevant;
+- a verified equivalence permits compression.
+
+The requirement is that irreversible narrowing be:
+1. explicit;
+2. justified within scope;
+3. authorized at the appropriate boundary;
+4. traceable/provenanced;
+5. auditable for what was lost.
+
+This is stronger than “preserve all information” and weaker than “never discard anything”.
+
+### E7.9.50 — Collapse, Dormancy and Information Loss
+
+A candidate may be removed from active search without being treated as universally false.
+
+Distinguish:
+
+Active
+Dormant
+Rejected-under-context
+Insufficient-evidence
+Invalid-under-invariant
+Archived
+Destroyed
+
+In particular:
+
+Unsupported ≠ False
+Rejected ≠ Destroyed
+Dormant ≠ Canonical
+Stored ≠ Active
+Functional equivalence ≠ lineage equivalence
+
+A loss-aware abstraction may be valid if the system explicitly represents what distinction was compressed and under which scope.
+
+Working rule:
+
+No unacknowledged information loss.
+
+A compressed representation should not silently be presented as identity with the source if relevant distinctions were discarded.
+
+This is a candidate audit principle, not yet a production invariant.
+
+## 37. REVERSE-ANALYSIS EXTENSION — E7.9.51–E7.9.55
+
+### E7.9.51 — Diversity Is Not Cardinality
+
+The number of candidates is not by itself a measure of information diversity.
+
+100 highly correlated hypotheses may contain less useful diversity than 5 hypotheses with distinct generative mechanisms and distinguishable consequences.
+
+Therefore distinguish:
+Cardinality
+Structural diversity
+Functional diversity
+Generative/lineage diversity
+Verification diversity
+
+A working functional criterion is contextual:
+
+D(h_i,h_j | E) is meaningful when there exists a relevant environmental/observational condition under which the candidates have distinguishable consequences.
+
+Diversity is therefore relational and context-dependent.
+
+### E7.9.52 — Generative Diversity and Common-Mode Failure
+
+Two candidates may produce different outputs while sharing:
+- the same underlying assumptions;
+- the same representation;
+- the same evidence source;
+- the same evaluator;
+- the same failure mode.
+
+Therefore apparent diversity does not imply independent evidence.
+
+Lineage and dependency structure should remain available for auditing common-mode risk.
+
+Working principle:
+
+Surface diversity ≠ Generative diversity.
+
+And:
+
+Repeated detection ≠ Independent evidence.
+
+This extends earlier verification findings on correlated evidence and meta-test blindness.
+
+### E7.9.53 — Preservation of Live Distinctions
+
+Evolution should not merely select what survives. It should preserve enough structured diversity to avoid premature collapse of still-relevant alternatives.
+
+However, diversity preservation is subordinate to hard validity/safety constraints.
+
+Therefore:
+
+Admissibility → Diversity preservation
+
+rather than:
+
+Diversity → override verification.
+
+A false or unsafe candidate need not remain operationally active merely because it is unique.
+
+Epistemic retention and operational capability must remain separate.
+
+### E7.9.54 — Reversible and Loss-Aware Compression
+
+A system may compress several representations into one abstraction when an equivalence relation is justified for the active scope.
+
+For context C:
+
+h_i ~_C h_j
+
+may permit representation as an equivalence class [h]_C.
+
+But equivalence is typed:
+behavioral equivalence does not automatically imply lineage, verification or causal equivalence.
+
+A safe compression should preserve enough provenance to recover the relevant distinction if the scope changes, or explicitly record that recovery is impossible.
+
+Working principle:
+
+Compression is a semantic operation, not merely a storage optimization.
+
+### E7.9.55 — Evolution as Expansion, Differentiation and Collapse
+
+A preliminary evolutionary algebra has emerged:
+
+Expansion:
+One → Many
+
+Differentiation:
+A → A₁, A₂
+
+Collapse:
+A₁, A₂ → A
+
+All three operations require explicit provenance and bounded semantics.
+
+Meaningful evolution can occur through:
+ΔX ≠ 0, ΔR = 0
+ΔX = 0, ΔR ≠ 0
+ΔX ≠ 0, ΔR ≠ 0
+
+while:
+ΔX = 0, ΔR = 0
+
+is a no-op.
+
+Thus evolution is not necessarily “better state”; it may be a change in the structure of the state/possibility space.
+
+A deeper working formulation is:
+
+Evolution may improve the organization of what the system can distinguish, test, verify and safely change.
+
+This remains a research hypothesis until mapped to actual V2 behavior.
+
+## 38. REVERSE-ANALYSIS EXTENSION — E7.9.56–E7.9.60
+
+### E7.9.56 — Tension as a Driver Without a Global Objective
+
+If Gnozis is not given a universal objective such as MaximizeKnowledge or MaximizePossibility, a candidate source of directional movement is unresolved tension/insufficiency.
+
+Working cycle:
+
+Tension
+→ Identify boundary/insufficiency
+→ Generate distinction/tool/probe
+→ Test
+→ Evidence
+→ Verify
+→ Reorganize
+→ Re-enter environment
+
+The goal is not “minimize tension” as a scalar objective. Tension is a signal that current resolution may be insufficient.
+
+Therefore:
+
+Tension reduction ≠ universal optimization.
+
+### E7.9.57 — No Unjustified Collapse as a Cross-Level Principle
+
+The invariant refined during adversarial analysis is:
+
+No unacknowledged, unjustified, or unauthorized irreversible narrowing of relevant possibility space.
+
+It can potentially apply to:
+- hypotheses;
+- representations;
+- state alternatives;
+- evidence interpretations;
+- rules;
+- governance proposals;
+- operational capabilities.
+
+The same pattern may recur across levels, but recurrence does not prove a single universal implementation operator.
+
+### E7.9.58 — Explicit Irreversible Boundaries
+
+Any transition that irreversibly narrows a relevant possibility space should have an explicit boundary containing, as applicable:
+- scope;
+- evidence/reason;
+- authority;
+- provenance;
+- resulting loss/limitations;
+- auditability.
+
+This refines:
+
+Candidate ≠ Verified
+Verified ≠ Authorized
+Authorized ≠ Executed
+Representation ≠ Authority.
+
+An irreversible transition should never become authoritative merely because an intermediate representation exists.
+
+### E7.9.59 — Structural Self-Similarity: “As Above, So Below”
+
+The phrase “as above, so below” remains a structural/philosophical hypothesis only.
+
+A strict engineering formulation is:
+
+Similar transition structures may recur across abstraction levels while the objects, constraints, evidence and authority differ.
+
+For example:
+
+State:
+Candidate → Test → Verify → Commit
+
+Representation:
+Candidate → Test → Verify → Commit
+
+Rule:
+Candidate → Test → Verify → Governed Commit
+
+The recurrence may reveal a common organizational pattern, but analogy is not proof and does not justify collapsing all domains into one state model.
+
+### E7.9.60 — Next Frontier: Direction of Evolution Without a Sovereign Objective
+
+The next research question is now:
+
+If the system has no universal scalar objective and should not use a sovereign selector, what makes one transition preferable/necessary to another?
+
+Candidate ingredients:
+- unresolved tension;
+- bounded user/kernel objective;
+- hard constraints;
+- evidence;
+- environmental feedback;
+- preservation of relevant future optionality;
+- resource limits;
+- explicit authority.
+
+The task is to derive a conditional transition relation rather than a universal score.
+
+Target form:
+
+T₁ ≺_{C,E,O} T₂
+
+meaning “T₁ is conditionally preferable to T₂ under context C, environment E and objective O”, without implying universal superiority.
+
+The next analysis must attack whether such a relation can remain non-sovereign, reproducible and evidence-bounded.
+
+## 39. CURRENT REVERSE-ANALYSIS HANDOFF — E7.9.60
+
+The current integrated chain is:
+
+Environment
+→ Observation / Intervention
+→ Representation
+→ Difference / Distinction
+→ Tension / Limitation
+→ Blind-Spot / Failure Analysis
+→ Candidate Representations / Rules / Probes
+→ Discriminating Test
+→ Selection under explicit constraints
+→ Verification
+→ Governed Commit / Reorganization
+→ Compression / Reuse
+→ New Environment Interaction.
+
+The reverse-analysis has additionally established working research distinctions for:
+- possibility spaces;
+- irreversible narrowing;
+- diversity;
+- lineage/common-mode risk;
+- dormancy;
+- information loss;
+- expansion/differentiation/collapse;
+- tension as directional signal;
+- structural self-similarity across levels.
+
+These are research abstractions, not claims that every mechanism already exists in V2.
+
+Implementation gate remains unchanged:
+
+NO ARCHITECTURE CHANGE unless a concrete gap is demonstrated against actual V2 code/tests/runtime evidence.
+
+### Next task
+
+TASK-ID: E7.9.60
+BLOCK: Direction of Evolution Without a Sovereign Objective
+STATUS: ACTIVE
+PRIORITY: P1
+DEPENDS_ON: E7.9.55, E7.9.56, E7.9.57, E7.9.58
+OBJECTIVE: Determine whether conditional preference between transitions can be formalized without creating a hidden universal objective or sovereign selector.
+SCOPE: tension, bounded objectives, evidence, environment, constraints, optionality, resource limits, authority.
+DO_NOT_CHANGE: Ψ-Core; protected invariants; verification/governance authority.
+QUESTIONS: Can “preferable” be conditional and reproducible? When is a transition merely admissible versus actually required? Can incomparability remain a valid result?
+METHOD: Construct a partial-order/constraint model and attack it with counterexamples.
+REQUIRED_EVIDENCE: Explicit definitions, at least several incomparable cases, failure cases for scalar scoring.
+ACCEPTANCE: Either derive a bounded conditional preference relation or show that preference requires an additional explicit authority/objective boundary.
+AUDIT: No universal ranking; no hidden optimization objective; no implementation change from the hypothesis alone.
+NEXT: E7.9.61 — Incomparability and Partial-Order Evolution.
