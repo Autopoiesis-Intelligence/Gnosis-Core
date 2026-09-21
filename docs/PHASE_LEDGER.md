@@ -1,4 +1,4 @@
-# Gnozis-V2 — Phase Ledger
+# Gnozis Core — Phase Ledger
 
 This ledger is the durable continuation record for substantive project phases.
 
