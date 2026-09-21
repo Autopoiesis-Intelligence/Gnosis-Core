@@ -1,4 +1,4 @@
-# Gnozis-V2 — Architecture Implementation Sequencing
+# Gnozis Core — Architecture Implementation Sequencing
 
 ## Status
 
