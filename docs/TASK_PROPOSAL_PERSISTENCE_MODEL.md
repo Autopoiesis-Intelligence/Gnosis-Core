@@ -279,3 +279,16 @@ When implementation is explicitly authorized:
 ```
 
 Until step 1 is explicitly assigned, this document is architecture only.
+
+
+## Research Machine provenance boundary
+
+Research provenance belongs canonically to the Task layer. A Proposal inherits traceability through `task_id`, its baseline/source context, and `evidence_refs`. The full Research Machine reference should not be duplicated in every Proposal unless independent proposal-level traceability is required.
+
+This preserves the distinction:
+
+```
+Research Machine → Task provenance → Proposal lineage → Core transition
+```
+
+Research provenance remains non-authoritative throughout this chain.
