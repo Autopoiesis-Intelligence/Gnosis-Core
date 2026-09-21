@@ -1,8 +1,8 @@
-# Gnozis-V2 — Context Continuity Contract
+# Gnozis Core — Context Continuity Contract
 
 ## Purpose
 
-This contract defines the product-independent interface for restoring project context when a user connects to Gnozis-V2 from a different AI product, terminal, connector, or session.
+This contract defines the product-independent interface for restoring project context when a user connects to Gnozis Core from a different AI product, terminal, connector, or session.
 
 The contract is intentionally independent of Google Drive, GitHub, Claude, Manus, ChatGPT, Gemini, or any other provider.
 
