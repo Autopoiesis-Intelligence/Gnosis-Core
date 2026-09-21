@@ -1,8 +1,8 @@
 ## Repository role
 
-**GNOSIS-V2 = future canonical Core foundation.** The older Gnozis repository is the Research Library. V2 provides the reusable protected engineering layer from which specialized research kernels and commercial user versions will be built.
+**GNOSIS CORE = canonical engineering foundation.** The older Gnozis repository is the Research Library. Gnozis Core provides the reusable protected engineering layer from which specialized research kernels and commercial user versions will be built.
 
-# STATUS — GNOSIS 2.0
+# STATUS — GNOSIS CORE
 
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
