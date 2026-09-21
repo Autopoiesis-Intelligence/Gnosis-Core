@@ -22,12 +22,12 @@ The contract independently requires that evidence verification scope be explicit
 research_ref:
   repository: Mikhail-Kucheriavyi-23/Gnozis
   record_id: C-0004
-  source_commit: <exact commit containing C-0004>
+  source_commit: 7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c
   relation: TEST_RATIONALE
   note: Research rationale for distinguishing test validity from verification adequacy.
 ```
 
-The source commit placeholder is intentional until the exact historical commit containing the record is resolved from Git history. Do not substitute the current branch HEAD merely because the record exists there.
+The source commit placeholder is intentional The exact introducing commit was resolved from the file path history. The commit message is `archive: atomize test validity versus test adequacy`. The reference is intentionally pinned to that historical commit.
 
 ## Pilot acceptance criteria
 
