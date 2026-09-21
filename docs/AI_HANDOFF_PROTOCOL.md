@@ -1,8 +1,8 @@
-# Gnozis-V2 — AI Handoff & Continuation Protocol
+# Gnozis Core — AI Handoff & Continuation Protocol
 
 ## Purpose
 
-This document defines the canonical mechanism for attaching a new AI system to Gnozis-V2 at any project stage without relying on conversation history, a previous agent's memory, or undocumented assumptions.
+This document defines the canonical mechanism for attaching a new AI system to Gnozis Core at any project stage without relying on conversation history, a previous agent's memory, or undocumented assumptions.
 
 The repository is the durable project state. An AI session is replaceable.
 
