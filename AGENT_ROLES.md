@@ -1,4 +1,4 @@
-# Gnozis-V2 — AI Agent Roles and Authority
+# Gnozis Core — AI Agent Roles and Authority
 
 ## Operating principle
 
