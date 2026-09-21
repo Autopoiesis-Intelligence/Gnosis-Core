@@ -4,7 +4,7 @@ import sqlite3
 
 from gnosis.core import Candidate, State, TransitionRecord
 from gnosis.instances.instance import Instance
-from gnosis.ports.repositories import AuditRepository, EvolutionRepository, StateRepository
+from gnosis.ports.repositories import AuditRepository, EvolutionMemoryRepository, EvolutionRepository, ReflectionRepository, StateRepository
 from gnosis.storage.repositories import (
     append_audit,
     load_candidate,
@@ -17,6 +17,9 @@ from gnosis.storage.repositories import (
     save_state,
     verify_audit_chain,
     verify_durable_graph,
+    load_instance,
+    append_evolution_memory,
+    load_evolution_memory,
 )
 
 
@@ -76,6 +79,34 @@ class SQLiteEvolutionRepository(EvolutionRepository):
 
     def recover_instance(self, instance_id: str) -> Instance:
         return recover_instance(self._conn, instance_id)
+
+
+class SQLiteEvolutionMemoryRepository(EvolutionMemoryRepository):
+    def __init__(self, conn: sqlite3.Connection):
+        self._conn = conn
+
+    def append_evolution_memory(self, **kwargs):
+        return append_evolution_memory(self._conn, **kwargs)
+
+    def load_evolution_memory(self, instance_id: str, *, limit: int = 100):
+        return load_evolution_memory(self._conn, instance_id, limit=limit)
+
+
+class SQLiteReflectionRepository(ReflectionRepository):
+    def __init__(self, conn: sqlite3.Connection):
+        self._conn = conn
+
+    def save_reflection_report(self, report, *, created_at: str, shadow_assessments=()):
+        from gnosis.reflection.persistence import save_reflection_report
+        return save_reflection_report(self._conn, report, created_at=created_at, shadow_assessments=shadow_assessments)
+
+    def load_reflection_report(self, report_id: str):
+        from gnosis.reflection.persistence import load_reflection_report
+        return load_reflection_report(self._conn, report_id)
+
+    def list_reflection_reports(self):
+        from gnosis.reflection.persistence import list_reflection_reports
+        return list_reflection_reports(self._conn)
 
 
 class SQLiteAuditRepository(AuditRepository):
