@@ -51,3 +51,19 @@ The source commit placeholder is intentional The exact introducing commit was re
 ## Next action
 
 Resolve the exact source commit for C-0004, then add the reference to the pilot contract.
+
+## R1.5.1 provenance result
+
+Resolved from the GitHub path history of `archive/records/C-0004.yaml`:
+
+- introducing commit: `7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c`
+- commit message: `archive: atomize test validity versus test adequacy`
+- parent: `e802af42621b4ff3c18a31836d4f9c2cfcab2fa4`
+
+This is the exact commit used by the pilot reference. The current branch HEAD is not substituted for historical provenance.
+
+### Pilot status
+
+R1.5.1: COMPLETE.
+
+The remaining R1.5 acceptance step is a navigation/reference audit: verify that a reviewer can resolve the Research Machine record from the pinned repository + record ID + source commit without requiring duplicated research content in V2.
