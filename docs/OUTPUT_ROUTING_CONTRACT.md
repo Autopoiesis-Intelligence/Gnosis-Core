@@ -1,4 +1,4 @@
-# Gnozis-V2 — Output Routing Contract
+# Gnozis Core — Output Routing Contract
 
 ## Status
 
