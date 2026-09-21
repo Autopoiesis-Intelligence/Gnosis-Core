@@ -4,7 +4,7 @@ import sqlite3
 
 from gnosis.core import Candidate, State, TransitionRecord
 from gnosis.instances.instance import Instance
-from gnosis.ports.repositories import AuditRepository, EvolutionMemoryRepository, EvolutionRepository, ReflectionRepository, StateRepository
+from gnosis.ports.repositories import AuditRepository, EvolutionMemoryRepository, EvolutionRepository, ReflectionRepository, StateRepository, TaskContextRepositoryPort
 from gnosis.storage.repositories import (
     append_audit,
     load_candidate,
@@ -79,6 +79,24 @@ class SQLiteEvolutionRepository(EvolutionRepository):
 
     def recover_instance(self, instance_id: str) -> Instance:
         return recover_instance(self._conn, instance_id)
+
+
+class SQLiteTaskContextRepository(TaskContextRepositoryPort):
+    def __init__(self, conn: sqlite3.Connection):
+        from gnosis.context.repository import TaskContextRepository
+        self._delegate = TaskContextRepository(conn)
+
+    def create_context(self, context):
+        return self._delegate.create_context(context)
+
+    def get_context(self, context_id: str):
+        return self._delegate.get_context(context_id)
+
+    def update_context(self, context_id: str, expected_revision: int, patch: dict):
+        return self._delegate.update_context(context_id, expected_revision, patch)
+
+    def reconstruct_context(self, context_id: str):
+        return self._delegate.reconstruct_context(context_id)
 
 
 class SQLiteEvolutionMemoryRepository(EvolutionMemoryRepository):
