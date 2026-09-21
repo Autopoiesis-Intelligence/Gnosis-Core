@@ -126,3 +126,16 @@ Evidence is input to reasoning and verification. It must not directly mutate Ψ-
 ## 12. Acceptance principle
 
 Evidence/provenance is accepted only when an independent audit can reconstruct the origin, temporal status, verification state, and scope of material evidence without relying on an AI's narrative alone.
+
+
+## Research Machine provenance
+
+This contract is informed by Research Machine record `C-0004` for the distinction between test validity and verification adequacy. The research item is rationale only; it is not Core authority and does not replace the contract's independent verification requirements.
+
+```yaml
+research_ref:
+  repository: Mikhail-Kucheriavyi-23/Gnozis
+  record_id: C-0004
+  source_commit: 7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c
+  relation: TEST_RATIONALE
+```
