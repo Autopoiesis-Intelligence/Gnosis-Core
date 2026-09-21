@@ -2,6 +2,7 @@ import pytest
 
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
+from gnosis.adapters.sqlite_persistence import SQLiteEvolutionMemoryRepository, SQLiteEvolutionRepository, SQLiteReflectionRepository
 from gnosis.reflection.gate import run_reflection_gate
 from gnosis.storage import connect, save_instance, persist_transition
 
@@ -15,7 +16,13 @@ def test_reflection_gate_reaches_durable_read_only_evidence():
     record = instance.engine.step(candidate)
     persist_transition(conn, instance, candidate, record, actor="test")
 
-    result = run_reflection_gate(instance.engine, conn, instance.instance_id)
+    result = run_reflection_gate(
+        instance.engine,
+        SQLiteEvolutionRepository(conn),
+        SQLiteReflectionRepository(conn),
+        SQLiteEvolutionMemoryRepository(conn),
+        instance.instance_id,
+    )
 
     assert result.passed
     assert result.transition_count == 1
@@ -30,7 +37,13 @@ def test_reflection_gate_fails_closed_without_canonical_history():
     conn = connect()
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
     save_instance(conn, instance)
-    result = run_reflection_gate(instance.engine, conn, instance.instance_id)
+    result = run_reflection_gate(
+        instance.engine,
+        SQLiteEvolutionRepository(conn),
+        SQLiteReflectionRepository(conn),
+        SQLiteEvolutionMemoryRepository(conn),
+        instance.instance_id,
+    )
     assert not result.passed
     assert "canonical Core history is empty" in result.reasons
     conn.close()
