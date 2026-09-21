@@ -2513,3 +2513,93 @@ Next: <single next action>
 ```
 
 Percentages are allowed only with an explicit reproducible denominator. Do not expand AI_CONTEXT into the research archive; store continuity in stable research IDs, task IDs, commits, tests, CI evidence and audit records.
+
+
+## 2026-09-21 RESTRUCTURING HANDOFF — RESEARCH MACHINE / CORE
+
+The current engineering strategy is explicitly dual-track. The project is no longer required to complete an ever-expanding mathematical reverse-analysis before becoming operational. Established research results are now being materialized directly into repository architecture and working engineering tasks; reverse-analysis continues only where implementation exposes a concrete unresolved question or gap.
+
+### Architectural target
+
+The correct historical/research layer name is **Gnozis Research Machine**, not Archive.
+
+Conceptual separation:
+
+Gnozis Research Machine
+→ machine-readable research / knowledge / evidence / provenance
+→ explicit knowledge interface
+→ Gnozis Core
+
+Gnozis Core
+→ canonical engineering implementation
+→ Ψ-state / transitions / invariants / verification / persistence / governance / protected execution boundaries
+
+Research Machine is not a second Core and is not an authority source. Historical presence, evidence storage, summaries, lineage or research conclusions do not directly authorize Core mutation.
+
+### Purpose of restructuring
+
+The restructuring is itself product/engineering work. Its purpose is to move Gnozis from a research-heavy repository state toward a clean, working, auditable Core without losing the accumulated research history.
+
+The working translation loop is:
+
+Research
+→ Knowledge
+→ Engineering consequence
+→ Core requirement
+→ Bounded task
+→ Implementation
+→ Test / Runtime / CI evidence
+→ Audit
+→ Revised understanding
+
+Do not wait for completion of the entire E7.x mathematical program before implementing already sufficiently established architectural consequences.
+
+### Repository classification
+
+During restructuring, existing material is classified before physical movement:
+
+- KEEP IN V2 / CORE
+- MOVE TO RESEARCH MACHINE
+- REFERENCE FROM CORE
+- DUPLICATE
+- SUPERSEDED
+- UNKNOWN
+- INTERFACE / BRIDGE
+- TOOLING
+- TEST / EVIDENCE
+
+Do not perform blind bulk migration. Preserve provenance, status, uncertainty, rejected/failed material and source baselines.
+
+### Important correction
+
+A temporary archive/ foundation was created in Gnozis-V2 during the transition before this naming/model was fully restored. It is not the final architectural target. Do not continue populating it as a separate product subsystem. First reconcile it with the intended Gnozis Research Machine model and existing docs/AI_KNOWLEDGE_INTERFACE.md contract.
+
+### Current restructuring phase
+
+TASK-ID: RM-CORE-R1
+BLOCK: Research Machine / Core Boundary and Repository Inventory
+STATUS: ACTIVE
+PRIORITY: P0
+OBJECTIVE: Continue the previously started physical restructuring using the improved architectural understanding accumulated through reverse-analysis.
+SCOPE: actual repository tree, gnosis/, docs/, context/, logs/, diagnostic_corpus/, tests/, generated/historical material and the existing Research Knowledge Interface.
+DO_NOT_CHANGE: Ψ-Core semantics, protected invariants, verification authority, governance boundaries, or research meaning merely for organizational convenience.
+METHOD:
+1. Inspect actual current repository structure.
+2. Classify existing files/modules by responsibility.
+3. Identify historical/research material that should leave the active Core.
+4. Identify minimal information that must remain in Core for operational continuity.
+5. Identify explicit Research Machine ↔ Core interface requirements.
+6. Produce a concrete move/reference/delete/retain map before broad migration.
+7. Execute only bounded, reviewable structural changes.
+REQUIRED EVIDENCE: actual repository paths, current HEAD, commit-level changes, tests/CI where behavior can be affected.
+ACCEPTANCE: a reproducible repository map exists and each moved/retained area has an explicit architectural reason and provenance-preserving destination.
+AUDIT: structural audit before declaring the boundary complete.
+NEXT: first controlled migration/extraction from the inventory, then Core cleanliness verification.
+
+### Working principle for this phase
+
+The repository is now treated as an engineering specimen. We use reverse-analysis to identify necessary boundaries, then immediately test those boundaries against actual code and materialize them. If a research result has no demonstrated implementation consequence, it remains in the Research Machine and does not force Core redesign.
+
+### Session recovery anchor
+
+If this context must be reconstructed in a new session, resume from RM-CORE-R1, not from the beginning of E7.x. The immediate job is repository restructuring toward Gnozis Core + Gnozis Research Machine, using the existing AI Knowledge Interface and preserving the dual-track Research/Engineering workflow.
