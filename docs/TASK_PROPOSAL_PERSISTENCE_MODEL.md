@@ -292,3 +292,30 @@ Research Machine → Task provenance → Proposal lineage → Core transition
 ```
 
 Research provenance remains non-authoritative throughout this chain.
+
+
+## R1.7.6 persistence graph audit result
+
+The canonical persistence graph is:
+
+\`\`\`
+Task
+ ↓
+immutable Task Checkpoint
+ ↓
+Proposal (bound to task + baseline/parent state)
+ ↓
+Candidate / Core Transition reference
+ ↓
+Evidence
+ ↓
+new immutable Task Checkpoint
+\`\`\`
+
+Research provenance enters through the Task and remains traceable through the Proposal's \`task_id\`, baseline/source context, and evidence references.
+
+No second Core State is introduced. Context Snapshot remains a derived transport/read representation of the canonical checkpoint, not another persisted workflow state.
+
+A transition must not create a new checkpoint that points to a proposal without preserving the proposal's baseline and verification evidence. Conversely, a research reference alone cannot create a checkpoint or transition.
+
+**R1.7.6 result: PASS.**
