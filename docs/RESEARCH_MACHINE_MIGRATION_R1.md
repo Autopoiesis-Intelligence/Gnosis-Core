@@ -49,3 +49,22 @@ It already carries scenario and generation provenance, and its verification file
 2. Validate source hashes / baseline.
 3. Create a machine-readable Research Machine record.
 4. Only then perform physical extraction.
+
+
+## Reconciliation with the existing Research Machine
+
+The repository inventory revealed that the former Gnozis repository already contains a mature machine-readable research/evidence layer under its legacy archive/ path. That layer is semantically the **Gnozis Research Machine**: it has canonical record IDs, typed records (R/C/E/X/D/A/T), provenance, relations, evidence references, engineering consequences, admissibility states, and an explicit non-authoritative Core boundary.
+
+Therefore Gnozis-V2 must not invent a competing Archive schema or maintain a second historical-memory system.
+
+The temporary archive/ foundation previously created in V2 has been removed. The canonical Research Machine schema remains the existing schema in the research repository until the physical directory rename to research_machine/ is performed as a controlled repository-level migration.
+
+### Consequence for SELF-DIAGNOSTIC-0001
+
+The diagnostic corpus remains in V2 for now. Its expected-properties and verification gate are source material for a future Research Machine record, but the absence of generated runtime artifacts means the source does not yet contain a completed diagnostic result to migrate as verified evidence.
+
+The first migration therefore requires a record mapping against the **existing Research Machine v1 schema**, not the temporary V2 schema.
+
+### New rule
+
+There must be exactly one canonical Research Machine knowledge/evidence model for the project. Gnozis-V2 may contain operational references and bounded experiment generators, but it must not create a second archive/history ontology.
