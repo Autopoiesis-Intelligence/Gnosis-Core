@@ -38,6 +38,21 @@ class EvolutionRepository(Protocol):
     def recover_instance(self, instance_id: str) -> Instance: ...
 
 
+class ReflectionRepository(Protocol):
+    """Durable analytical evidence; never canonical Ψ state."""
+
+    def save_reflection_report(self, report: object, *, created_at: str, shadow_assessments: tuple[object, ...] = ()) -> str: ...
+    def load_reflection_report(self, report_id: str) -> dict: ...
+    def list_reflection_reports(self) -> tuple[dict, ...]: ...
+
+
+class EvolutionMemoryRepository(Protocol):
+    """Append-only endogenous evolution memory; observational evidence only."""
+
+    def append_evolution_memory(self, *, instance_id: str, candidate_id: str, transition_id: str, state_id: str, proposal_id: str | None, outcome: str, evidence: tuple[str, ...] | list[str], created_at: str | None = None) -> object: ...
+    def load_evolution_memory(self, instance_id: str, *, limit: int = 100) -> tuple[object, ...]: ...
+
+
 class AuditRepository(Protocol):
     """Append-only evidence and integrity verification."""
 
