@@ -5,6 +5,7 @@ import sqlite3
 from gnosis.core import Candidate, State, TransitionRecord
 from gnosis.instances.instance import Instance
 from gnosis.ports.repositories import AuditRepository, EvolutionMemoryRepository, EvolutionRepository, ReflectionRepository, StateRepository, TaskContextRepositoryPort
+from gnosis.storage.evolution_memory import append_evolution_memory, load_evolution_memory
 from gnosis.storage.repositories import (
     append_audit,
     load_candidate,
@@ -18,8 +19,6 @@ from gnosis.storage.repositories import (
     verify_audit_chain,
     verify_durable_graph,
     load_instance,
-    append_evolution_memory,
-    load_evolution_memory,
 )
 
 
