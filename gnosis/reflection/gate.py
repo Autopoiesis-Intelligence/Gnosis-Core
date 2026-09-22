@@ -40,7 +40,8 @@ def run_reflection_gate(
         reasons.append("canonical Core history is empty")
 
     try:
-        transition_count, _ = evolution_repository.verify_durable_graph()
+        evolution_repository.verify_durable_graph()
+        transition_count = len(evolution_repository.load_transition_records(instance_id))
         durable_ok = True
     except Exception as exc:
         transition_count = 0
