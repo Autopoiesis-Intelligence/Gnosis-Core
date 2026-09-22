@@ -33,3 +33,20 @@ def test_evolution_memory_is_append_only():
 def test_evolution_memory_rejects_unknown_outcome():
     conn=connect()
     with pytest.raises(ValueError): append_evolution_memory(conn,instance_id="i",candidate_id="c",transition_id="t",state_id="s",proposal_id=None,outcome="accepted-ish",evidence=())
+
+
+def test_evolution_memory_cannot_lie_about_persisted_transition():
+    conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
+    proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"memory-binding")
+    record=instance.engine.step(candidate)
+    from gnosis.storage.repositories import persist_transition
+    persist_transition(conn,instance,candidate,record,actor="test")
+    tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
+
+    with pytest.raises(Exception, match="outcome disagrees"):
+        append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
+            transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="rejected",evidence=("false",))
+
+    with pytest.raises(Exception, match="state mismatch"):
+        append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
+            transition_id=tid,state_id=instance.engine.state.state_id,proposal_id=None,outcome="accepted",evidence=("false",))
