@@ -230,3 +230,60 @@ def test_owner_approval_cannot_cross_bind_evolution():
     approval = OwnerApproval("approval-1", "p", "e")
     with pytest.raises(PermissionError, match="owner approval"):
         issue_execution_authorization(approval, request_provenance="p", evolution_identity="other")
+
+
+def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() -> None:
+    from gnosis.core import Candidate, State
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+
+    parent_state_id = instance.engine.state.state_id
+    candidate_a = Candidate(
+        parent_state_id, instance.engine.state.with_elements({"a": 2}), "candidate-a"
+    )
+    record_a = instance.engine.step(candidate_a)
+
+    observations = {"result": "ok"}
+    provenance = build_provenance(
+        candidate_id=candidate_a.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=candidate_a.proposed_state.state_id,
+        observations=observations,
+        proposed_state_content_id=candidate_a.proposed_state.content_id,
+        candidate_binding_digest=candidate_a.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    auth = ExecutionAuthorization(
+        provenance.provenance_id, True, provenance.evolution_identity
+    )
+    request = ExecutionCommitRequest(
+        auth,
+        ExecutionIntentSnapshot.from_provenance(provenance),
+        provenance.provenance_id,
+        provenance.evolution_identity,
+        provenance,
+    )
+
+    candidate_b = Candidate(
+        parent_state_id, instance.engine.state.with_elements({"a": 3}), "candidate-b"
+    )
+    record_b = instance.engine.step(candidate_b)
+
+    with pytest.raises(PermissionError, match="candidate"):
+        SQLiteExecutionCommitAdapter().commit(
+            conn, instance, candidate_b, record_b, request, actor="user-1"
+        )
+
+    assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    conn.close()
