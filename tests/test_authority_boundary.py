@@ -371,3 +371,30 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
     conn.close()
+
+
+def test_execution_candidate_binding_rejects_same_content_with_wrong_parent_digest():
+    from gnosis.reflection.authority import require_execution_candidate_binding
+    parent = State(elements={"a": 1})
+    proposed = parent.with_elements({"b": 2})
+    candidate = Candidate(parent.state_id, proposed, "binding-test", 1)
+    binding = candidate.binding_digest(parent.content_id)
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent.state_id,
+        parent_state_digest=parent.content_id,
+        proposed_state_digest=proposed.state_id,
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=binding,
+        observations={"ok": True},
+        evidence_digest=canonical_digest({"ok": True}),
+        evaluation_status="PASS",
+        shadow_status="NO_BEHAVIORAL_CHANGE",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+    )
+    request = _make_execution_commit_request(provenance)
+    record = TransitionRecord(parent.state_id, proposed.state_id, candidate.candidate_id, TestResult(True), True, "ok")
+    bad_candidate = Candidate(parent.state_id, proposed, "binding-test", 2)
+    with pytest.raises(PermissionError, match="execution candidate does not match authorized provenance"):
+        require_execution_candidate_binding(request, bad_candidate, record)
