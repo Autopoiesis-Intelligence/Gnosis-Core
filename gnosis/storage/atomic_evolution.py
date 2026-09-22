@@ -6,7 +6,7 @@ from gnosis.core.audit import EvolutionAuditRecord, make_audit_record
 from gnosis.core.provenance import EvidenceProvenance, canonical_digest
 from gnosis.core.durable_commit import DurableCommitResult
 from gnosis.core.types import TransitionRecord, TestResult
-from gnosis.core.transition_identity import transition_id, verify_transition_identity
+from gnosis.core.transition_identity import transition_id as canonical_transition_id
 
 def persist_evolution_with_evidence(conn: sqlite3.Connection, provenance: EvidenceProvenance, *,
     event_type: str, payload: Mapping[str, Any], transition_id: str,
@@ -15,7 +15,7 @@ def persist_evolution_with_evidence(conn: sqlite3.Connection, provenance: Eviden
     if canonical_digest(observations) != provenance.evidence_digest:
         raise ValueError("evidence digest does not match observations")
     record=TransitionRecord(from_state_id,to_state_id,provenance.candidate_id,TestResult(True,()),True,"accepted")
-    computed_transition_id=transition_id(record)
+    computed_transition_id=canonical_transition_id(record)
     if transition_id != computed_transition_id:
         raise ValueError("transition identity does not match canonical transition record")
     owns=not conn.in_transaction; sp="evolution_complete"
