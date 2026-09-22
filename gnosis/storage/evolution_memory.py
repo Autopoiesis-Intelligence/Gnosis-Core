@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 from typing import Any
-from .repositories import canonical_json, utc_now, StorageCorruptionError
+from .repositories import canonical_json, utc_now, StorageCorruptionError, load_transition_records
 
 @dataclass(frozen=True)
 class EvolutionMemoryRecord:
@@ -37,18 +37,15 @@ def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transi
 
     # Memory is evidence about a real persisted transition, not an independent
     # source of truth. Bind every identity/outcome field to that transition.
-    transition = conn.execute(
-        """SELECT instance_id,candidate_id,from_state_id,to_state_id,accepted
-           FROM transitions WHERE transition_id=?""",
-        (transition_id,),
-    ).fetchone()
+    transitions = {record.transition_id: record for record in load_transition_records(conn, instance_id)}
+    transition = transitions.get(transition_id)
     if transition is None:
         raise StorageCorruptionError("evolution memory references missing transition")
-    if transition[0] != instance_id or transition[1] != candidate_id:
+    if transition.candidate_id != candidate_id:
         raise StorageCorruptionError("evolution memory transition identity mismatch")
-    if state_id != transition[3]:
+    if state_id != transition.to_state_id:
         raise StorageCorruptionError("evolution memory state mismatch")
-    if outcome in {"accepted", "rejected"} and (outcome == "accepted") != bool(transition[4]):
+    if outcome in {"accepted", "rejected"} and (outcome == "accepted") != transition.accepted:
         raise StorageCorruptionError("evolution memory outcome disagrees with transition")
     evidence_tuple = tuple(str(x) for x in evidence)
     timestamp = created_at or utc_now()
@@ -79,20 +76,16 @@ def load_evolution_memory(conn, instance_id: str, *, limit: int = 100) -> tuple[
         if rec.memory_id != rec.digest:
             raise StorageCorruptionError("evolution memory digest mismatch")
 
-        # Read-side verification: persisted memory must still agree with the
-        # canonical transition after storage has been reopened or tampered.
-        transition = conn.execute(
-            """SELECT instance_id,candidate_id,to_state_id,accepted
-               FROM transitions WHERE transition_id=?""",
-            (rec.transition_id,),
-        ).fetchone()
+        # Read-side verification uses the canonical transition reconstruction path.
+        transitions = {record.transition_id: record for record in load_transition_records(conn, rec.instance_id)}
+        transition = transitions.get(rec.transition_id)
         if transition is None:
             raise StorageCorruptionError("evolution memory references missing transition")
-        if transition[0] != rec.instance_id or transition[1] != rec.candidate_id:
+        if transition.candidate_id != rec.candidate_id:
             raise StorageCorruptionError("evolution memory transition identity mismatch")
-        if transition[2] != rec.state_id:
+        if transition.to_state_id != rec.state_id:
             raise StorageCorruptionError("evolution memory state mismatch")
-        if rec.outcome in {"accepted", "rejected"} and (rec.outcome == "accepted") != bool(transition[3]):
+        if rec.outcome in {"accepted", "rejected"} and (rec.outcome == "accepted") != transition.accepted:
             raise StorageCorruptionError("evolution memory outcome disagrees with transition")
         records.append(rec)
     return tuple(records)
