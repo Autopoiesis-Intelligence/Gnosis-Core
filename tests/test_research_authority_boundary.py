@@ -44,6 +44,8 @@ def test_runtime_configuration_does_not_reference_external_research_paths():
     root = Path(__file__).resolve().parents[1]
     forbidden_fragments = ("GNOZIS_RESEARCH", "RESEARCH_REPO", "RESEARCH_PATH", "DEVELOPMENT_REPO")
     for path in root.rglob("*"):
+        if path == Path(__file__):
+            continue
         if not path.is_file() or ".git" in path.parts:
             continue
         try:
