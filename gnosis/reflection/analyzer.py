@@ -175,7 +175,7 @@ class ReflectionAnalyzer:
     def observe(self) -> tuple[ReflectionObservation, ...]:
         observations: list[ReflectionObservation] = []
         for index, transition in enumerate(self._transitions):
-            transition_id = f"transition:{index}:{transition.candidate_id}"
+            transition_id = transition.transition_id
             rule_id = transition.test_rule_id
             rule_version = 1
             observations.append(
