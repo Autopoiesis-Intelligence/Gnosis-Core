@@ -12,8 +12,12 @@ def load_transition(conn: sqlite3.Connection, stored_transition_id: str) -> Tran
     if row is None:
         raise KeyError(stored_transition_id)
     payload=json.loads(row[4])
+    columns={"from_state_id":row[2],"to_state_id":row[3],"candidate_id":row[1]}
+    for name in columns:
+        if payload.get(name) != columns[name]:
+            raise ValueError("persisted transition payload identity mismatch")
     record=TransitionRecord(
-        from_state_id=row[2], to_state_id=row[3], candidate_id=row[1],
+        from_state_id=payload["from_state_id"], to_state_id=payload["to_state_id"], candidate_id=payload["candidate_id"],
         test_result=TestResult(bool(payload["test_passed"]), tuple(payload.get("test_reasons",()))),
         accepted=bool(payload["accepted"]), reason=payload["reason"],
         test_rule_id=payload.get("test_rule_id"),
