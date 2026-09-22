@@ -33,3 +33,24 @@ def test_evolution_memory_is_append_only():
 def test_evolution_memory_rejects_unknown_outcome():
     conn=connect()
     with pytest.raises(ValueError): append_evolution_memory(conn,instance_id="i",candidate_id="c",transition_id="t",state_id="s",proposal_id=None,outcome="accepted-ish",evidence=())
+
+
+def test_evolution_memory_detects_evidence_tampering():
+    conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
+    proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"test")
+    record=instance.engine.step(candidate)
+    from gnosis.storage.repositories import persist_transition
+    persist_transition(conn,instance,candidate,record,actor="test")
+    tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
+    mem=append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("finding:1",))
+    conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?", ('["tampered"]', mem.memory_id)); conn.commit()
+    with pytest.raises(Exception, match="digest mismatch"):
+        load_evolution_memory(conn,instance.instance_id)
+
+
+def test_evolution_memory_detects_malformed_evidence():
+    conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
+    mem=append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id="c",transition_id="t",state_id="s",proposal_id=None,outcome="rejected",evidence=("x",))
+    conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?", ("not-json", mem.memory_id)); conn.commit()
+    with pytest.raises(Exception, match="malformed evolution memory evidence"):
+        load_evolution_memory(conn,instance.instance_id)
