@@ -71,7 +71,7 @@ def load_candidate(conn: sqlite3.Connection,candidate_id: str)->Candidate:
     if candidate.candidate_id!=candidate_id: raise StorageCorruptionError("candidate hash mismatch")
     return candidate
 def transition_id(record: TransitionRecord)->str:
-    raw=canonical_json({"candidate_id":record.candidate_id,"from":record.from_state_id,"to":record.to_state_id,"accepted":record.accepted,"reasons":record.test_result.reasons,"test_rule_id":record.test_rule_id}); return hashlib.sha256(raw.encode()).hexdigest()
+    return record.transition_id
 def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)->list[TransitionRecord]:
     query="SELECT candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions"
     params: tuple[Any,...]=()
