@@ -401,6 +401,18 @@ def append_evolution_audit(
 ) -> EvolutionAuditRecord:
     """Append exactly one record; prior audit records are never updated."""
     ensure_reflection_schema(conn)
+    if provenance_id:
+        provenance_row = conn.execute(
+            "SELECT execution_id, candidate_id, parent_state_digest, proposed_state_digest, evidence_digest "
+            "FROM evolution_provenance WHERE provenance_id = ?",
+            (provenance_id,),
+        ).fetchone()
+        if provenance_row is None:
+            raise ValueError("provenance_id not found for audit append")
+        expected = tuple(provenance_row)
+        supplied = (execution_id, candidate_id, parent_state_digest, proposed_state_digest, evidence_digest)
+        if supplied != expected:
+            raise ValueError("audit identity does not match canonical provenance")
     row = conn.execute(
         "SELECT sequence, record_digest FROM evolution_audit ORDER BY sequence DESC LIMIT 1"
     ).fetchone()
