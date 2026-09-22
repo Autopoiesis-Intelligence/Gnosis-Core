@@ -10,14 +10,19 @@ from gnosis.core.types import TransitionRecord
 from gnosis.core.transition_identity import transition_id as canonical_transition_id
 
 def persist_evolution_with_evidence(conn: sqlite3.Connection, provenance: EvidenceProvenance, *,
-    transition: TransitionRecord, event_type: str, payload: Mapping[str, Any],
+    transition: TransitionRecord | None = None, transition_id: str | None = None, event_type: str, payload: Mapping[str, Any],
     observations: Mapping[str, Any], failure_after: str | None = None) -> DurableCommitResult:
     if canonical_digest(observations) != provenance.evidence_digest:
         raise ValueError("evidence digest does not match observations")
     if transition.candidate_id != provenance.candidate_id:
         raise ValueError("transition candidate does not match provenance")
+    if transition is None:
+        raise ValueError("transition is required")
     persistable=PersistableTransition(transition)
-    transition_id=persistable.transition_id
+    derived_transition_id=persistable.transition_id
+    if transition_id is not None and transition_id != derived_transition_id:
+        raise ValueError("transition identity mismatch")
+    transition_id=derived_transition_id
     if not canonical_transition_id(transition) == transition_id:
         raise ValueError("transition identity derivation failed")
     owns=not conn.in_transaction; sp="evolution_complete"
