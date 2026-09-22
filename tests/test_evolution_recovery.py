@@ -156,3 +156,20 @@ def test_recovery_fails_closed_on_duplicate_provenance_audit_links():
     )
     assert not report.replay_valid
     assert "multiple audit records linked to provenance" in report.reasons
+
+
+def test_recovery_rejects_tampered_promotion_status_tuple():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    pid, observations, state = _persist(conn)
+    conn.execute(
+        "UPDATE evolution_provenance SET shadow_status='IMPROVED', governance_decision='APPROVE' "
+        "WHERE provenance_id=?",
+        (pid,),
+    )
+    report = recover_evolution_audit(
+        conn, provenance_id=pid, observations=observations, proposed_state=state
+    )
+    assert report.chain_valid is False
+    assert report.replay_valid is False
+    assert "provenance identity mismatch" in report.reasons or "evolution identity mismatch" in report.reasons
