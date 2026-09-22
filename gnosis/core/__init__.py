@@ -1,5 +1,11 @@
 from .budget import Budget, BudgetExhaustedError, DEFAULT_BUDGET
 from .evolution import Engine, GenerateFn, StopCondition
+from .execution_input import ExecutionInput, execution_input_from_state, verify_execution_input
+from .execution_identity import (
+    ExecutionIdentity,
+    execution_identity_from_input,
+    verify_execution_identity_from_input,
+)
 from .invariants import (
     DEFAULT_INVARIANTS,
     InvariantResult,
@@ -29,6 +35,12 @@ __all__ = [
     "Engine",
     "GenerateFn",
     "StopCondition",
+    "ExecutionInput",
+    "execution_input_from_state",
+    "verify_execution_input",
+    "ExecutionIdentity",
+    "execution_identity_from_input",
+    "verify_execution_identity_from_input",
     "DEFAULT_INVARIANTS",
     "InvariantResult",
     "all_pass",
