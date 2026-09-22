@@ -5,6 +5,7 @@ import hashlib
 import json
 from typing import Any
 from .repositories import canonical_json, utc_now, StorageCorruptionError, load_transition_records
+from .reflection_persistence import load_reflection_report
 
 @dataclass(frozen=True)
 class EvolutionMemoryRecord:
@@ -17,6 +18,7 @@ class EvolutionMemoryRecord:
     outcome: str
     evidence: tuple[str, ...]
     created_at: str
+    proposal_report_id: str | None = None
 
     @property
     def digest(self) -> str:
@@ -26,14 +28,25 @@ class EvolutionMemoryRecord:
             "state_id": self.state_id, "proposal_id": self.proposal_id,
             "outcome": self.outcome, "evidence": self.evidence,
             "created_at": self.created_at,
+            "proposal_report_id": self.proposal_report_id,
         }).encode()).hexdigest()
 
 
 def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transition_id: str,
                             state_id: str, proposal_id: str | None, outcome: str,
-                            evidence: tuple[str, ...] | list[str], created_at: str | None = None) -> EvolutionMemoryRecord:
+                            evidence: tuple[str, ...] | list[str], created_at: str | None = None,
+                            proposal_report_id: str | None = None) -> EvolutionMemoryRecord:
     if outcome not in {"accepted", "rejected", "inconclusive"}:
         raise ValueError("invalid evolution memory outcome")
+    if proposal_id is not None and proposal_report_id is None:
+        raise StorageCorruptionError("proposal provenance scope is required")
+    if proposal_id is None and proposal_report_id is not None:
+        raise StorageCorruptionError("proposal report scope requires proposal_id")
+    if proposal_id is not None:
+        report = load_reflection_report(conn, proposal_report_id)
+        proposals = tuple(report["payload"].get("proposals", ()))
+        if not any(item.get("proposal_id") == proposal_id for item in proposals if isinstance(item, dict)):
+            raise StorageCorruptionError("evolution memory references proposal outside report")
 
     # Memory is evidence about a real persisted transition, not an independent
     # source of truth. Bind every identity/outcome field to that transition.
@@ -51,12 +64,12 @@ def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transi
     timestamp = created_at or utc_now()
     raw = {"instance_id": instance_id, "candidate_id": candidate_id, "transition_id": transition_id,
            "state_id": state_id, "proposal_id": proposal_id, "outcome": outcome,
-           "evidence": evidence_tuple, "created_at": timestamp}
+           "evidence": evidence_tuple, "created_at": timestamp, "proposal_report_id": proposal_report_id}
     memory_id = hashlib.sha256(canonical_json(raw).encode()).hexdigest()
     record = EvolutionMemoryRecord(memory_id, instance_id, candidate_id, transition_id, state_id,
-                                   proposal_id, outcome, evidence_tuple, timestamp)
-    conn.execute("""INSERT INTO evolution_memory(memory_id,instance_id,candidate_id,transition_id,state_id,proposal_id,outcome,evidence,created_at)
-                    VALUES(?,?,?,?,?,?,?,?,?)
+                                   proposal_id, outcome, evidence_tuple, timestamp, proposal_report_id)
+    conn.execute("""INSERT INTO evolution_memory(memory_id,instance_id,candidate_id,transition_id,state_id,proposal_id,outcome,evidence,created_at,proposal_report_id)
+                    VALUES(?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(memory_id) DO NOTHING""",
                  (record.memory_id, record.instance_id, record.candidate_id, record.transition_id,
                   record.state_id, record.proposal_id, record.outcome, canonical_json(record.evidence), record.created_at))
@@ -66,15 +79,23 @@ def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transi
 def load_evolution_memory(conn, instance_id: str, *, limit: int = 100) -> tuple[EvolutionMemoryRecord, ...]:
     if limit < 1:
         raise ValueError("limit must be >= 1")
-    rows = conn.execute("""SELECT memory_id,instance_id,candidate_id,transition_id,state_id,proposal_id,outcome,evidence,created_at
+    rows = conn.execute("""SELECT memory_id,instance_id,candidate_id,transition_id,state_id,proposal_id,outcome,evidence,created_at,proposal_report_id
                           FROM evolution_memory WHERE instance_id=? ORDER BY created_at,memory_id LIMIT ?""", (instance_id, limit)).fetchall()
     records=[]
     for row in rows:
         try: evidence=tuple(json.loads(row[7]))
         except (TypeError, json.JSONDecodeError) as exc: raise StorageCorruptionError("malformed evolution memory evidence") from exc
-        rec=EvolutionMemoryRecord(*row[:7], evidence, row[8])
+        rec=EvolutionMemoryRecord(*row[:7], evidence, row[8], row[9])
         if rec.memory_id != rec.digest:
             raise StorageCorruptionError("evolution memory digest mismatch")
+
+        if rec.proposal_id is not None:
+            if rec.proposal_report_id is None:
+                raise StorageCorruptionError("proposal provenance scope is missing")
+            report = load_reflection_report(conn, rec.proposal_report_id)
+            proposals = tuple(report["payload"].get("proposals", ()))
+            if not any(item.get("proposal_id") == rec.proposal_id for item in proposals if isinstance(item, dict)):
+                raise StorageCorruptionError("evolution memory references proposal outside report")
 
         # Read-side verification uses the canonical transition reconstruction path.
         transitions = {record.transition_id: record for record in load_transition_records(conn, rec.instance_id)}
