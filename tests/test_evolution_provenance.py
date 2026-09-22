@@ -274,3 +274,29 @@ def test_state_content_identity_changes_with_content():
     a = State(elements={"x": 1})
     b = State(elements={"x": 2})
     assert a.content_id != b.content_id
+
+
+def test_list_evolution_provenance_candidate_scope_preserves_binding_digest() -> None:
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import ensure_reflection_schema, list_evolution_provenance, save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    ensure_reflection_schema(conn)
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:list",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    save_evolution_provenance(conn, p)
+    rows = list_evolution_provenance(conn, candidate_id=p.candidate_id)
+    assert rows[0]["candidate_binding_digest"] == p.candidate_binding_digest
+    conn.close()
