@@ -1,5 +1,5 @@
 from gnosis.core import Candidate, State
-from gnosis.evolution.replay import replay_complete, replay_evidence, replay_identity
+from gnosis.core.replay import replay_complete, replay_evidence, replay_identity
 from gnosis.core.sandbox import run_sandbox
 
 
@@ -108,15 +108,15 @@ def test_complete_replay_rejects_audit_provenance_and_digest_mismatch():
 
 
 def test_provenance_audit_crosscheck_detects_persisted_link_tampering():
-    from gnosis.evolution.audit import crosscheck_provenance_audit
-    from gnosis.evolution.provenance import EvidenceProvenance
+    from gnosis.core.audit import crosscheck_provenance_audit
+    from gnosis.core.provenance import EvidenceProvenance
     p = EvidenceProvenance(
         execution_id="e", candidate_id="c", parent_state_id="s",
         parent_state_digest="pd", proposed_state_digest="sd", evidence_digest="ed",
         evaluation_status="PASS", shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED", governance_decision="REVIEW",
     )
-    from gnosis.evolution.audit import make_audit_record
+    from gnosis.core.audit import make_audit_record
     a = make_audit_record(
         sequence=0, event_type="E", candidate_id="c", execution_id="e",
         provenance_id=p.provenance_id, parent_state_digest="pd",
