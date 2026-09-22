@@ -43,6 +43,6 @@ def test_corrupted_transition_audit_breaks_recovery(tmp_path):
     auth=AuthorizationPackage("auth:x",proposal.proposal_id,("e1",),(),"shadow:x","AUTHORIZED")
     persist_authorized_transition(conn,auth,proposal,instance,candidate,transition,actor="core")
     tid=transition_id(transition)
-    conn.execute("DELETE FROM audit_events WHERE transition_id=?",(tid,))
-    with pytest.raises(Exception,match="audit evidence"):
-        recover_instance(conn,instance.instance_id)
+    with pytest.raises(Exception,match="append-only"):
+        conn.execute("DELETE FROM audit_events WHERE transition_id=?",(tid,))
+    assert recover_instance(conn,instance.instance_id).engine.state.state_id==proposed.state_id
