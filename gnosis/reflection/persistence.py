@@ -401,8 +401,12 @@ def append_evolution_audit(
     evidence_digest: str = "",
     payload: dict[str, Any],
 ) -> EvolutionAuditRecord:
-    """Atomically append one immutable audit record with provenance binding."""
-    ensure_reflection_schema(conn)
+    """Atomically append one immutable audit record with provenance binding.
+
+    The reflection schema must already exist. Schema initialization is intentionally
+    excluded from this transaction because SQLite executescript() may implicitly
+    commit an outer transaction.
+    """
     owns_transaction = not conn.in_transaction
     savepoint = "audit_append_atomic"
     try:
