@@ -176,3 +176,41 @@ def test_append_evolution_audit_rollback_leaves_no_partial_record() -> None:
 
     assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 0
     conn.close()
+
+
+def test_append_audit_does_not_commit_outer_transaction() -> None:
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import append_evolution_audit, ensure_reflection_schema, save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    ensure_reflection_schema(conn)
+    p = build_provenance(
+        candidate_id="candidate:nested",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations={"x": 1},
+        evidence_digest=canonical_digest({"x": 1}),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    conn.execute("BEGIN IMMEDIATE")
+    save_evolution_provenance(conn, p)
+    append_evolution_audit(
+        conn,
+        event_type="PROVENANCE",
+        candidate_id=p.candidate_id,
+        execution_id=p.execution_id,
+        provenance_id=p.provenance_id,
+        parent_state_digest=p.parent_state_digest,
+        proposed_state_digest=p.proposed_state_digest,
+        evidence_digest=p.evidence_digest,
+        payload={"status": "RECORDED"},
+    )
+    conn.rollback()
+    assert conn.execute("SELECT count(*) FROM evolution_provenance").fetchone()[0] == 0
+    assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 0
+    conn.close()
