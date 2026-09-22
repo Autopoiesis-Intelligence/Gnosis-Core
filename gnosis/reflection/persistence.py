@@ -399,62 +399,73 @@ def append_evolution_audit(
     evidence_digest: str = "",
     payload: dict[str, Any],
 ) -> EvolutionAuditRecord:
-    """Append exactly one record; prior audit records are never updated."""
+    """Atomically append one immutable audit record with provenance binding."""
     ensure_reflection_schema(conn)
-    if provenance_id:
-        row_provenance = conn.execute(
-            """SELECT provenance_id,candidate_id,execution_id,parent_state_digest,
-                      proposed_state_digest,evidence_digest
-               FROM evolution_provenance WHERE provenance_id=?""",
-            (provenance_id,),
-        ).fetchone()
-        if row_provenance is None:
-            raise KeyError(provenance_id)
-        expected_link = (
-            provenance_id,
-            row_provenance[1],
-            row_provenance[2],
-            row_provenance[3],
-            row_provenance[4],
-            row_provenance[5],
-        )
-        supplied_link = (
-            provenance_id,
-            candidate_id,
-            execution_id,
-            parent_state_digest,
-            proposed_state_digest,
-            evidence_digest,
-        )
-        if supplied_link != expected_link:
-            raise RuntimeError("audit provenance binding mismatch")
+    owns_transaction = not conn.in_transaction
+    savepoint = "audit_append_atomic"
+    try:
+        if owns_transaction:
+            conn.execute("BEGIN IMMEDIATE")
+        else:
+            conn.execute(f"SAVEPOINT {savepoint}")
 
-    row = conn.execute(
-        "SELECT sequence, record_digest FROM evolution_audit ORDER BY sequence DESC LIMIT 1"
-    ).fetchone()
-    sequence = 0 if row is None else row[0] + 1
-    previous_digest = "" if row is None else row[1]
-    record = make_audit_record(
-        sequence=sequence,
-        event_type=event_type,
-        candidate_id=candidate_id,
-        execution_id=execution_id,
-        provenance_id=provenance_id,
-        parent_state_digest=parent_state_digest,
-        proposed_state_digest=proposed_state_digest,
-        evidence_digest=evidence_digest,
-        payload=payload,
-        previous_digest=previous_digest,
-    )
-    conn.execute(
-        """INSERT INTO evolution_audit
-        (sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
-        (record.sequence, record.event_type, record.candidate_id, record.execution_id, record.provenance_id,
-         record.parent_state_digest, record.proposed_state_digest, record.evidence_digest,
-         record.payload_digest, record.previous_digest, record.record_digest),
-    )
-    return record
+        if provenance_id:
+            row_provenance = conn.execute(
+                """SELECT provenance_id,candidate_id,execution_id,parent_state_digest,
+                          proposed_state_digest,evidence_digest
+                   FROM evolution_provenance WHERE provenance_id=?""",
+                (provenance_id,),
+            ).fetchone()
+            if row_provenance is None:
+                raise KeyError(provenance_id)
+            expected_link = (
+                provenance_id, row_provenance[1], row_provenance[2],
+                row_provenance[3], row_provenance[4], row_provenance[5],
+            )
+            supplied_link = (
+                provenance_id, candidate_id, execution_id,
+                parent_state_digest, proposed_state_digest, evidence_digest,
+            )
+            if supplied_link != expected_link:
+                raise RuntimeError("audit provenance binding mismatch")
+
+        row = conn.execute(
+            "SELECT sequence, record_digest FROM evolution_audit ORDER BY sequence DESC LIMIT 1"
+        ).fetchone()
+        sequence = 0 if row is None else row[0] + 1
+        previous_digest = "" if row is None else row[1]
+        record = make_audit_record(
+            sequence=sequence, event_type=event_type, candidate_id=candidate_id,
+            execution_id=execution_id, provenance_id=provenance_id,
+            parent_state_digest=parent_state_digest,
+            proposed_state_digest=proposed_state_digest,
+            evidence_digest=evidence_digest, payload=payload,
+            previous_digest=previous_digest,
+        )
+        conn.execute(
+            """INSERT INTO evolution_audit
+            (sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,
+             proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            (
+                record.sequence, record.event_type, record.candidate_id,
+                record.execution_id, record.provenance_id, record.parent_state_digest,
+                record.proposed_state_digest, record.evidence_digest,
+                record.payload_digest, record.previous_digest, record.record_digest,
+            ),
+        )
+        if owns_transaction:
+            conn.commit()
+        else:
+            conn.execute(f"RELEASE SAVEPOINT {savepoint}")
+        return record
+    except BaseException:
+        if owns_transaction:
+            conn.rollback()
+        else:
+            conn.execute(f"ROLLBACK TO SAVEPOINT {savepoint}")
+            conn.execute(f"RELEASE SAVEPOINT {savepoint}")
+        raise
 
 
 def list_evolution_audit(conn: sqlite3.Connection) -> tuple[EvolutionAuditRecord, ...]:
