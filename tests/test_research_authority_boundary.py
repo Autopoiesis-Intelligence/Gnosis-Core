@@ -22,7 +22,7 @@ def test_research_reference_documents_are_non_authoritative_contracts():
     assert docs
     for doc in docs:
         text = doc.read_text(encoding="utf-8").lower()
-        assert "non-authoritative" in text or "must not" in text or "not core authority" in text
+        assert "without importing the record's authority" in text or "non-authoritative" in text or "must not" in text
 
 import ast
 
@@ -33,7 +33,7 @@ def test_research_references_are_opaque_and_cannot_be_used_as_imports():
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 names = [a.name for a in node.names]
-                module = node.module or ""
+                module = node.module if isinstance(node, ast.ImportFrom) else ""
                 assert not any(
                     n == "Gnozis" or n.startswith("Gnozis.") or
                     n == "research" or n.startswith("research.")
