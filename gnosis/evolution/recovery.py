@@ -9,6 +9,7 @@ from ..core.types import State
 
 from .chain_verifier import verify_persisted_chain
 from gnosis.evidence.provenance import canonical_digest, EvidenceProvenance
+from gnosis.core.execution_input import execution_input_from_state
 from gnosis.evidence.recovery import classify_evolution_provenance, list_evolution_audit, list_evolution_provenance
 
 
@@ -28,6 +29,7 @@ def recover_evolution_audit(
     provenance_id: str | None = None,
     observations: dict[str, Any] | None = None,
     proposed_state: State | None = None,
+    parent_state: State | None = None,
 ) -> RecoveryReport:
     """Recover persisted evolution and fail closed unless its identity chain verifies."""
     records = list(list_evolution_audit(conn))
@@ -43,6 +45,8 @@ def recover_evolution_audit(
         return RecoveryReport(len(records), False, False, None, None, ("observations required for independent recovery verification",))
     if proposed_state is None:
         return RecoveryReport(len(records), False, False, None, None, ("proposed state required for content reconciliation",))
+    if parent_state is None:
+        return RecoveryReport(len(records), False, False, None, None, ("parent state required for execution input reconciliation",))
     result = verify_persisted_chain(
         provenance_rows[0],
         [record.__dict__ for record in records],
@@ -52,6 +56,12 @@ def recover_evolution_audit(
     expected_digest = provenance_row["evidence_digest"]
     actual_digest = canonical_digest(observations)
     persisted_identity = provenance_row.get("evolution_identity", "")
+    execution_input = execution_input_from_state(parent_state, "sandbox")
+    execution_binding_valid = execution_input.state_id == provenance_row["parent_state_id"] and execution_input.state_digest == provenance_row["parent_state_digest"]
+    if not execution_binding_valid:
+        reasons = ["recovery execution input binding mismatch"]
+    else:
+        reasons = list(result.reasons)
     provenance_class = classify_evolution_provenance(provenance_row)
     content_identity_valid = proposed_state.content_id == provenance_row.get("proposed_state_content_id", "")
     replay_valid = result.valid and actual_digest == expected_digest and provenance_class == "canonical" and content_identity_valid
@@ -76,7 +86,6 @@ def recover_evolution_audit(
         except (KeyError, TypeError, ValueError):
             identity_valid = False
     replay_valid = replay_valid and identity_valid
-    reasons = list(result.reasons)
     if actual_digest != expected_digest:
         reasons.append("recovery replay digest mismatch")
     if provenance_class != "canonical":
