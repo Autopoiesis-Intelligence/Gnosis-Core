@@ -1,6 +1,8 @@
 import pytest
 from gnosis.adapters.sqlite_persistence import SQLiteTaskContextRepository
 from gnosis.context import ContextRevisionConflict, TaskContext
+from gnosis.context.repository import TaskContextRepository
+from gnosis.storage.database import close, connect
 from gnosis.storage.database import close, connect
 
 def make_context():
