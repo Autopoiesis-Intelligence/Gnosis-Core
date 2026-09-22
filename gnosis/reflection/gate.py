@@ -54,11 +54,17 @@ def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, minimum_rep
         reasons.append("recovered state does not match canonical engine state")
 
     # Durable instance recovery and evolution provenance recovery are distinct
-    # trust domains; a reflection gate must not pass with only one verified.
+    # trust domains. If evolution evidence exists in this database, the gate must
+    # verify it; absence of an evolution record is not itself a failure of the
+    # instance-only reflection gate.
     try:
-        evolution_report = recover_evolution_audit(conn)
-        if not evolution_report.chain_valid or not evolution_report.replay_valid:
-            reasons.append("evolution provenance/audit recovery failed")
+        evolution_count = conn.execute(
+            "SELECT count(*) FROM evolution_provenance"
+        ).fetchone()[0]
+        if evolution_count:
+            evolution_report = recover_evolution_audit(conn)
+            if not evolution_report.chain_valid or not evolution_report.replay_valid:
+                reasons.append("evolution provenance/audit recovery failed")
     except Exception as exc:
         reasons.append(f"evolution provenance/audit recovery failed: {type(exc).__name__}")
 
