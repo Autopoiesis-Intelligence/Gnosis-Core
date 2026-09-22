@@ -16,7 +16,7 @@ def test_attribution_uses_only_recorded_provenance():
     rejected = state.with_elements({"n": -1})
     engine.test_fn = lambda _state, _candidate: False
     record = engine.step(Candidate(state.state_id, rejected, "test"))
-    transition_id = f"transition:0:{record.candidate_id}"
+    transition_id = record.transition_id
     result = attribute_rule(engine.history, (transition_id,))
     assert len(result) == 1
     assert result[0].rule_id == "rule:nonnegative"
