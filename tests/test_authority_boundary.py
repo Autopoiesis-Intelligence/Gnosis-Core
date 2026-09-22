@@ -293,3 +293,81 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
     conn.close()
+
+
+def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
+    from types import SimpleNamespace
+    from gnosis.core import Candidate, State, TestResult, TransitionRecord
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    parent_state_id = instance.engine.state.state_id
+
+    candidate_a = Candidate(
+        parent_state_id, instance.engine.state.with_elements({"a": 2}), "candidate-a"
+    )
+    observations = {"result": "ok"}
+    provenance_a = build_provenance(
+        candidate_id=candidate_a.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=candidate_a.proposed_state.state_id,
+        observations=observations,
+        proposed_state_content_id=candidate_a.proposed_state.content_id,
+        candidate_binding_digest=candidate_a.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+
+    candidate_b = Candidate(
+        parent_state_id, instance.engine.state.with_elements({"a": 3}), "candidate-b"
+    )
+    forged = SimpleNamespace(
+        execution_id=provenance_a.execution_id,
+        candidate_id=candidate_b.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=candidate_b.proposed_state.state_id,
+        evidence_digest=provenance_a.evidence_digest,
+        evaluation_status=provenance_a.evaluation_status,
+        shadow_status=provenance_a.shadow_status,
+        invariant_status=provenance_a.invariant_status,
+        governance_decision=provenance_a.governance_decision,
+        provenance_id=provenance_a.provenance_id,
+        proposed_state_content_id=candidate_b.proposed_state.content_id,
+        candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        evolution_identity=provenance_a.evolution_identity,
+    )
+    request = ExecutionCommitRequest(
+        ExecutionAuthorization(
+            provenance_a.provenance_id, True, provenance_a.evolution_identity
+        ),
+        ExecutionIntentSnapshot.from_provenance(forged),
+        provenance_a.provenance_id,
+        provenance_a.evolution_identity,
+        forged,
+    )
+    record_b = TransitionRecord(
+        from_state_id=parent_state_id,
+        to_state_id=candidate_b.proposed_state.state_id,
+        candidate_id=candidate_b.candidate_id,
+        test_result=TestResult(True, ("authorized-test",)),
+        accepted=True,
+        reason="committed",
+    )
+
+    with pytest.raises(PermissionError, match="canonical"):
+        SQLiteExecutionCommitAdapter().commit(
+            conn, instance, candidate_b, record_b, request, actor="user-1"
+        )
+
+    assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    conn.close()
