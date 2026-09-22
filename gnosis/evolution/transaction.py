@@ -5,8 +5,8 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Any
 
-from .audit import EvolutionAuditRecord, make_audit_record
-from .provenance import EvidenceProvenance, canonical_digest
+from gnosis.evidence.audit import EvolutionAuditRecord, make_audit_record
+from gnosis.evidence.provenance import EvidenceProvenance, canonical_digest
 
 
 
