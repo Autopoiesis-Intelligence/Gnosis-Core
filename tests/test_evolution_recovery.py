@@ -131,3 +131,28 @@ def test_recovery_rejects_tampered_proposed_state_content_identity():
     report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state)
     assert not report.replay_valid
     assert "evolution identity mismatch" in " ".join(report.reasons)
+
+
+def test_recovery_fails_closed_on_duplicate_provenance_audit_links():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    pid, observations, state = _persist(conn)
+    row = conn.execute(
+        """SELECT event_type,candidate_id,execution_id,provenance_id,parent_state_digest,
+                  proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest
+           FROM evolution_audit WHERE provenance_id=?""",
+        (pid,),
+    ).fetchone()
+    conn.execute(
+        """INSERT INTO evolution_audit
+           (sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,
+            proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+        (1, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
+         row[9], row[10], row[10]),
+    )
+    report = recover_evolution_audit(
+        conn, provenance_id=pid, observations=observations, proposed_state=state
+    )
+    assert not report.replay_valid
+    assert "multiple audit records linked to provenance" in report.reasons
