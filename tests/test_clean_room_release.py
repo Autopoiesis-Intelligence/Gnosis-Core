@@ -39,3 +39,21 @@ def test_end_to_end_persistence_recovery_and_diagnostic_path_is_canonical():
     assert (root / "diagnostic.json").exists()
     assert (root / "transitions.json").exists()
     assert (root / "metadata.json").exists()
+
+
+def test_release_workflow_has_unique_required_test_modules():
+    workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "self-diagnostic.yml").read_text(encoding="utf-8")
+    run_line = next(line for line in workflow.splitlines() if line.strip().startswith("run: pytest"))
+    modules = run_line.split("pytest -q", 1)[1].split()
+    assert len(modules) == len(set(modules))
+    required = {
+        "tests/test_execution_input.py",
+        "tests/test_execution_identity.py",
+        "tests/test_research_authority_boundary.py",
+        "tests/test_recovery_clean_room.py",
+        "tests/test_clean_room_release.py",
+        "tests/test_diagnostic_execution.py",
+        "tests/test_persistence_crash_reopen.py",
+        "tests/test_transition_replay_idempotency.py",
+    }
+    assert required.issubset(modules)
