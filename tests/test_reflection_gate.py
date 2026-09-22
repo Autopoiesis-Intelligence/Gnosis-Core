@@ -37,12 +37,16 @@ def test_reflection_gate_fails_closed_without_canonical_history():
 
 
 def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
-    import sqlite3
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    proposed = instance.engine.state.with_elements({"a": 2})
+    candidate = Candidate(instance.engine.state.state_id, proposed, "test")
+    record = instance.engine.step(candidate)
+    persist_transition(conn, instance, candidate, record, actor="test")
+
     from gnosis.evolution.provenance import build_provenance, canonical_digest
     from gnosis.reflection.persistence import append_evolution_audit, ensure_reflection_schema, save_evolution_provenance
-
-    # Build a normal gate fixture first, then invalidate the evolution domain.
-    conn = sqlite3.connect(":memory:")
     ensure_reflection_schema(conn)
     observations = {"status": "PASS"}
     p = build_provenance(
@@ -61,4 +65,8 @@ def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
         evidence_digest=p.evidence_digest, payload={"status": "PASS"},
     )
     conn.execute("UPDATE evolution_audit SET evidence_digest='tampered'")
+
+    result = run_reflection_gate(instance.engine, conn, instance.instance_id)
+    assert not result.passed
+    assert "evolution provenance/audit recovery failed" in result.reasons
     conn.close()
