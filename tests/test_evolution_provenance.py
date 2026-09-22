@@ -328,3 +328,20 @@ def test_classify_evolution_provenance_rejects_forged_nonempty_identity() -> Non
     row["evolution_identity"] = "evolution:forged"
     assert classify_evolution_provenance(row) == "malformed"
     conn.close()
+
+
+def test_promotion_gate_rejects_mismatched_required_evidence_digest():
+    from gnosis.evolution.promotion import evaluate_promotion_gate, make_promotion_candidate
+    candidate = make_promotion_candidate(
+        candidate_id="candidate:evidence-mismatch",
+        evidence_digest="digest:actual",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+    )
+    gate = evaluate_promotion_gate(
+        candidate, provenance_valid=True, required_evidence=("digest:other",)
+    )
+    assert gate.eligible is False
+    assert "candidate evidence digest is not in required evidence" in gate.reasons
