@@ -9,14 +9,14 @@ def make(result=None):
     return c,result,t
 
 def test_test_result_binding_valid():
-    c,r,t=make(); verify_test_transition_binding(c,r,t,compute_compute_test_result_digest(r))
+    c,r,t=make(); verify_test_transition_binding(c,r,t,compute_test_result_digest(r))
 
 def test_failing_result_is_rejected():
     c,r,t=make(TestResult(False,("failure",)))
     assert t.accepted is False
-    verify_test_transition_binding(c,r,t,compute_compute_test_result_digest(r))
+    verify_test_transition_binding(c,r,t,compute_test_result_digest(r))
 
 def test_result_tamper_is_detected():
     c,r,t=make(); verify_test_transition_binding(c,r,t,compute_test_result_digest(r))
     with pytest.raises(ValueError,match="test result mismatch"):
-        verify_test_transition_binding(c,TestResult(True,("tampered",)),t,compute_compute_test_result_digest(r))
+        verify_test_transition_binding(c,TestResult(True,("tampered",)),t,compute_test_result_digest(r))
