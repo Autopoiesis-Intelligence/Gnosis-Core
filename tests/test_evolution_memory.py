@@ -92,3 +92,18 @@ def test_evolution_memory_rejects_cross_instance_transition_rebinding():
                  (b.instance_id,new_id,mem.memory_id))
     with pytest.raises(Exception, match="transition identity mismatch"):
         load_evolution_memory(conn,b.instance_id)
+
+
+def test_evolution_memory_rejects_tampered_transition_identity_on_reload():
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    candidate, record = _transition(instance, "next")
+    append_evolution_memory(
+        conn, instance_id=instance.instance_id, candidate_id=candidate.candidate_id,
+        transition_id=record.transition_id, state_id=record.to_state_id,
+        proposal_id=None, outcome="accepted", evidence=("ok",),
+    )
+    conn.execute("UPDATE transitions SET test_rule_id=? WHERE transition_id=?", ("tampered", record.transition_id))
+    with pytest.raises(StorageCorruptionError, match="transition identity mismatch"):
+        load_evolution_memory(conn, instance.instance_id)
