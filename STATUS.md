@@ -220,3 +220,27 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 ## Immediate next step
 
 **End-to-end verification of the reflection foundation and persistence** is required. After that, the next architectural runtime step is **invariant-delta analysis for shadow evaluations**, followed by bounded Governance/Rollback. Autonomous rule activation remains prohibited.
+
+
+## 2026-09-22 RELEASE FREEZE — FINAL 2-REPOSITORY ARCHITECTURE
+
+Release-freeze checkpoint for the restructuring line.
+
+- Branch: `architecture/restructure-r1-9`
+- Verified HEAD: `2754f1e2691718f41589d2efc9948ab99d992bdd`
+- Final 2-repository architecture: **100%**
+- CI on exact HEAD: Python 3.11 **PASS**; Python 3.12 **PASS**
+- Release gate: **PASS**
+- TestResult canonical digest binding: verified
+- Transition identity/recovery/tamper detection: verified
+- Atomic persistence/rollback: verified
+- Audit append-only boundary: verified
+- ExecutionInput / ExecutionIdentity contract: verified
+
+This 100% refers to the defined **Final 2-repository architecture release scope**. It does not imply that future tracks (Research Machine extraction, User Continuity, Memory, endogenous rule generation, or future governance work) are complete.
+
+### Freeze rule
+No architectural expansion is accepted into this release line without a new Task Block, implementation, tests, and CI evidence. Future work starts as a separate release/task scope.
+
+### Next task
+**RELEASE-R2: Research Machine / Core boundary finalization** — reconcile the existing research material with the intended Gnozis Research Machine model, preserve provenance, and keep the Core boundary explicit. No Ψ-Core semantic changes are permitted merely for repository organization.
