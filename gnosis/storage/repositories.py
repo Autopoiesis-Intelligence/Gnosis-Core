@@ -139,7 +139,16 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                 if transition_id(record)!=t[0]: raise StorageCorruptionError("transition identity mismatch")
                 if t[4] and t[2]!=expected: raise StorageCorruptionError("broken accepted transition continuity")
                 if t[4]: expected=t[3]
-                if conn.execute("SELECT 1 FROM audit_events WHERE transition_id=? AND resource=?",(t[0],row[0])).fetchone() is None: raise StorageCorruptionError("transition lacks audit evidence")
+                audit = conn.execute(
+                    "SELECT action,resource,result,transition_id FROM audit_events WHERE transition_id=? AND resource=?",
+                    (t[0], row[0]),
+                ).fetchone()
+                if audit is None:
+                    raise StorageCorruptionError("transition lacks audit evidence")
+                expected_action = "transition.commit" if t[4] else "transition.reject"
+                expected_result = "accepted" if t[4] else "rejected"
+                if audit[0] != expected_action or audit[2] != expected_result or audit[3] != t[0]:
+                    raise StorageCorruptionError("audit/transition semantic mismatch")
     return chain
 
 def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
