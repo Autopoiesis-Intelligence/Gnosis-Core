@@ -34,3 +34,31 @@ def test_reflection_gate_fails_closed_without_canonical_history():
     assert not result.passed
     assert "canonical Core history is empty" in result.reasons
     conn.close()
+
+
+def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
+    import sqlite3
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import append_evolution_audit, ensure_reflection_schema, save_evolution_provenance
+
+    # Build a normal gate fixture first, then invalidate the evolution domain.
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    observations = {"status": "PASS"}
+    p = build_provenance(
+        candidate_id="gate-evolution", parent_state_id="s1",
+        parent_state_digest="pd", proposed_state_digest="sd",
+        observations=observations, evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS", shadow_status="NO_BEHAVIORAL_CHANGE",
+        invariant_status="PRESERVED", governance_decision="REVIEW",
+    )
+    save_evolution_provenance(conn, p)
+    append_evolution_audit(
+        conn, event_type="PROVENANCE", candidate_id=p.candidate_id,
+        execution_id=p.execution_id, provenance_id=p.provenance_id,
+        parent_state_digest=p.parent_state_digest,
+        proposed_state_digest=p.proposed_state_digest,
+        evidence_digest=p.evidence_digest, payload={"status": "PASS"},
+    )
+    conn.execute("UPDATE evolution_audit SET evidence_digest='tampered'")
+    conn.close()
