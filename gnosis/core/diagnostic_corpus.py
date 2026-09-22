@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
-from gnosis.evolution.gap import GapDetector, GapHypothesis
+from .gap import GapDetector, GapHypothesis
 
 
 @dataclass(frozen=True)
