@@ -1,6 +1,6 @@
 from gnosis.core import Candidate, State
 from gnosis.evolution.replay import replay_complete, replay_evidence, replay_identity
-from gnosis.evolution.sandbox import run_sandbox
+from gnosis.core.sandbox import run_sandbox
 
 
 def _candidate(state):
