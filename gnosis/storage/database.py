@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 GENESIS_HASH = "0" * 64
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -42,15 +42,18 @@ def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
             version = int(stored[0])
             if version == 3:
                 conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
-                # Existing v3 databases are structurally compatible; v4 adds evolution_memory.
-                columns = {
-                    row[1]
-                    for row in conn.execute("PRAGMA table_info(transitions)")
-                }
+                # Existing v3 databases are structurally compatible; v4/v5 add evolution memory and proposal provenance scope.
+                columns = {row[1] for row in conn.execute("PRAGMA table_info(transitions)")}
                 if "test_rule_id" not in columns:
-                    conn.execute(
-                        "ALTER TABLE transitions ADD COLUMN test_rule_id TEXT NOT NULL DEFAULT 'test-rule:unspecified'"
-                    )
+                    conn.execute("ALTER TABLE transitions ADD COLUMN test_rule_id TEXT NOT NULL DEFAULT 'test-rule:unspecified'")
+                memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
+                if memory_columns and "proposal_report_id" not in memory_columns:
+                    conn.execute("ALTER TABLE evolution_memory ADD COLUMN proposal_report_id TEXT")
+            elif version == 4:
+                conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
+                memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
+                if memory_columns and "proposal_report_id" not in memory_columns:
+                    conn.execute("ALTER TABLE evolution_memory ADD COLUMN proposal_report_id TEXT")
             elif version != SCHEMA_VERSION:
                 conn.close()
                 raise RuntimeError(
