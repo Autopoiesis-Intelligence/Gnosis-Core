@@ -95,3 +95,40 @@ def test_recovery_detects_persisted_audit_tampering():
     ok, reasons = verify_audit_chain(list(audits))
     assert not ok
     assert "record digest mismatch at 0" in reasons
+
+
+def test_append_evolution_audit_rejects_mismatched_provenance_binding() -> None:
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import append_evolution_audit, ensure_reflection_schema, save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    ensure_reflection_schema(conn)
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:audit",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    save_evolution_provenance(conn, p)
+    with pytest.raises(RuntimeError, match="audit provenance binding mismatch"):
+        append_evolution_audit(
+            conn,
+            event_type="PROVENANCE",
+            candidate_id="candidate:other",
+            execution_id=p.execution_id,
+            provenance_id=p.provenance_id,
+            parent_state_digest=p.parent_state_digest,
+            proposed_state_digest=p.proposed_state_digest,
+            evidence_digest=p.evidence_digest,
+            payload={"status": "tampered"},
+        )
+    assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 0
+    conn.close()
