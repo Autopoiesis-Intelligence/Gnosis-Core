@@ -69,3 +69,26 @@ def test_load_evolution_memory_rechecks_transition_semantics_after_tamper():
                  (instance.engine.state.state_id,tid))
     with pytest.raises(Exception, match="state mismatch"):
         load_evolution_memory(conn,instance.instance_id)
+
+
+def test_evolution_memory_rejects_cross_instance_transition_rebinding():
+    conn=connect()
+    a=Instance.create_root("a", State(elements={"a":1}))
+    b=Instance.create_root("b", State(elements={"b":1}))
+    save_instance(conn,a); save_instance(conn,b)
+    proposed=a.engine.state.with_elements({"x":2})
+    candidate=Candidate(a.engine.state.state_id,proposed,"cross-instance")
+    record=a.engine.step(candidate)
+    from gnosis.storage.repositories import persist_transition
+    persist_transition(conn,a,candidate,record,actor="test")
+    tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
+    mem=append_evolution_memory(conn,instance_id=a.instance_id,candidate_id=candidate.candidate_id,
+        transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("ok",))
+    raw={"instance_id":b.instance_id,"candidate_id":mem.candidate_id,"transition_id":mem.transition_id,
+         "state_id":mem.state_id,"proposal_id":mem.proposal_id,"outcome":mem.outcome,
+         "evidence":mem.evidence,"created_at":mem.created_at}
+    new_id=__import__("hashlib").sha256(__import__("gnosis.storage.repositories",fromlist=["canonical_json"]).canonical_json(raw).encode()).hexdigest()
+    conn.execute("UPDATE evolution_memory SET instance_id=?, memory_id=? WHERE memory_id=?",
+                 (b.instance_id,new_id,mem.memory_id))
+    with pytest.raises(Exception, match="transition identity mismatch"):
+        load_evolution_memory(conn,b.instance_id)
