@@ -151,3 +151,52 @@ def test_reflection_provenance_rejects_proposal_with_foreign_finding_evidence():
     )
     with pytest.raises(ValueError, match="proposal/finding evidence provenance mismatch"):
         validate_reflection_provenance(report)
+
+
+def test_reflection_provenance_rejects_counterexample_for_unknown_finding():
+    from gnosis.reflection.analyzer import CounterexampleCandidate, ReflectionReport, validate_reflection_provenance
+    candidate = CounterexampleCandidate(
+        candidate_id="counterexample:finding:foreign",
+        finding_id="finding:foreign",
+        method="replay",
+        success_condition="x",
+        evidence_refs=("transition:1:c1",),
+    )
+    with pytest.raises(ValueError, match="counterexample references unknown finding"):
+        validate_reflection_provenance(ReflectionReport(counterexamples=(candidate,)))
+
+
+def test_reflection_provenance_rejects_counterexample_with_foreign_evidence():
+    from gnosis.reflection.analyzer import (
+        CounterexampleCandidate, Finding, ReflectionObservation, ReflectionReport,
+        validate_reflection_provenance,
+    )
+    observation = ReflectionObservation(
+        observation_id="observation:1",
+        transition_id="transition:1:c1",
+        kind="rejection_reason",
+        value="bad",
+        evidence_ref="transition:1:c1",
+    )
+    finding = Finding(
+        finding_id="finding:1",
+        claim="x",
+        observation_ids=("observation:1",),
+        evidence_refs=("transition:1:c1",),
+        reproducibility=2,
+        falsification_condition="x",
+    )
+    candidate = CounterexampleCandidate(
+        candidate_id="counterexample:finding:1",
+        finding_id="finding:1",
+        method="replay",
+        success_condition="x",
+        evidence_refs=("transition:foreign:c9",),
+    )
+    report = ReflectionReport(
+        observations=(observation,),
+        findings=(finding,),
+        counterexamples=(candidate,),
+    )
+    with pytest.raises(ValueError, match="counterexample/finding evidence provenance mismatch"):
+        validate_reflection_provenance(report)
