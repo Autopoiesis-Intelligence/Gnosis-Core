@@ -112,8 +112,9 @@ def load_instance(conn: sqlite3.Connection,instance_id: str)->Instance:
 def recover_instance(conn: sqlite3.Connection,instance_id: str)->Instance: verify_durable_graph(conn); return load_instance(conn,instance_id)
 def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
     chain=verify_audit_chain(conn)
-    for row in conn.execute("SELECT instance_id,root_state_id,current_state_id,parent_instance_id,generation FROM instances"):
+    for row in conn.execute("SELECT instance_id,root_state_id,current_state_id,parent_instance_id,generation,budget_total,budget_spent FROM instances"):
         load_state(conn,row[1]);
+        if row[6] > row[5]: raise StorageCorruptionError("instance budget spent exceeds total")
         if conn.execute("SELECT 1 FROM audit_events WHERE action='instance.create' AND resource=?",(row[0],)).fetchone() is None: raise StorageCorruptionError("instance lacks creation audit evidence")
         transitions=list(conn.execute("SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted FROM transitions WHERE instance_id=? ORDER BY created_at,transition_id",(row[0],)))
         if row[3] is None and row[4]!=0: raise StorageCorruptionError("invalid root generation")
