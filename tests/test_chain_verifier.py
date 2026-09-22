@@ -67,3 +67,58 @@ def test_persisted_provenance_carries_canonical_evolution_identity():
     pid = save_evolution_provenance(conn, p)
     row = load_evolution_provenance(conn, pid)
     assert row["evolution_identity"] == p.evolution_identity
+
+
+def test_verify_persisted_chain_rejects_duplicate_audit_links() -> None:
+    from gnosis.evolution.audit import make_audit_record
+    from gnosis.evolution.chain_verifier import verify_persisted_chain
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:duplicate-audit",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    a0 = make_audit_record(
+        sequence=0, event_type="PROVENANCE", candidate_id=p.candidate_id,
+        execution_id=p.execution_id, provenance_id=p.provenance_id,
+        parent_state_digest=p.parent_state_digest,
+        proposed_state_digest=p.proposed_state_digest,
+        evidence_digest=p.evidence_digest, payload={"status": "RECORDED"},
+    )
+    a1 = make_audit_record(
+        sequence=1, event_type="PROVENANCE", candidate_id=p.candidate_id,
+        execution_id=p.execution_id, provenance_id=p.provenance_id,
+        parent_state_digest=p.parent_state_digest,
+        proposed_state_digest=p.proposed_state_digest,
+        evidence_digest=p.evidence_digest, payload={"status": "DUPLICATE"},
+        previous_digest=a0.record_digest,
+    )
+    row = {
+        "provenance_id": p.provenance_id,
+        "execution_id": p.execution_id,
+        "candidate_id": p.candidate_id,
+        "parent_state_id": p.parent_state_id,
+        "parent_state_digest": p.parent_state_digest,
+        "proposed_state_digest": p.proposed_state_digest,
+        "evidence_digest": p.evidence_digest,
+        "evolution_identity": p.evolution_identity,
+        "proposed_state_content_id": p.proposed_state_content_id,
+        "candidate_binding_digest": p.candidate_binding_digest,
+        "evaluation_status": p.evaluation_status,
+        "shadow_status": p.shadow_status,
+        "invariant_status": p.invariant_status,
+        "governance_decision": p.governance_decision,
+        "status": p.status,
+    }
+    result = verify_persisted_chain(row, [a0.__dict__, a1.__dict__], observations=observations)
+    assert not result.valid
+    assert "multiple audit records linked to provenance" in result.reasons
