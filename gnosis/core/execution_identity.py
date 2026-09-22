@@ -20,13 +20,14 @@ class ExecutionIdentity:
 
 def execution_identity(
     check: CheckIdentity,
-    input_value: object,
+    execution_input: ExecutionInput,
     context: object,
     result: TestResult,
 ) -> ExecutionIdentity:
+    """Create identity only from the canonical ExecutionInput contract."""
     return ExecutionIdentity(
         check.check_digest,
-        _stable_hash(input_value),
+        execution_input.digest,
         _stable_hash(context),
         _stable_hash({"passed": result.passed, "reasons": tuple(result.reasons)}),
     )
@@ -55,11 +56,11 @@ def execution_identity_from_input(
 def verify_execution_identity(
     identity: ExecutionIdentity,
     check: CheckIdentity,
-    input_value: object,
+    execution_input: ExecutionInput,
     context: object,
     result: TestResult,
 ) -> bool:
-    return identity == execution_identity(check, input_value, context, result)
+    return identity == execution_identity(check, execution_input, context, result)
 
 
 def verify_execution_identity_from_input(
