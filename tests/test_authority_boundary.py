@@ -274,8 +274,9 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         provenance,
     )
 
+    candidate_b_parent_id = instance.engine.state.state_id
     candidate_b = Candidate(
-        parent_state_id, instance.engine.state.with_elements({"a": 3}), "candidate-b"
+        candidate_b_parent_id, instance.engine.state.with_elements({"a": 3}), "candidate-b"
     )
     record_b = instance.engine.step(candidate_b)
 
