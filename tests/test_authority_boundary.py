@@ -398,3 +398,31 @@ def test_execution_candidate_binding_rejects_same_content_with_wrong_parent_dige
     bad_candidate = Candidate(parent.state_id, proposed, "binding-test", 2)
     with pytest.raises(PermissionError, match="execution candidate does not match authorized provenance"):
         require_execution_candidate_binding(request, bad_candidate, record)
+
+
+def test_execution_receipt_rejects_tampered_resulting_state_digest():
+    parent = State(elements={"a": 1})
+    proposed = parent.with_elements({"b": 2})
+    candidate = Candidate(parent.state_id, proposed, "receipt-test", 1)
+    provenance = _provenance_for(candidate, parent, proposed)
+    auth = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+        approval_id="approval-1",
+    )
+    snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
+    request = ExecutionCommitRequest(
+        auth, snapshot, provenance.provenance_id,
+        provenance.evolution_identity, provenance,
+    )
+    receipt = ExecutionReceipt(
+        execution_id=provenance.execution_id,
+        provenance_id=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        parent_state_digest=provenance.parent_state_digest,
+        resulting_state_digest="tampered-state",
+        candidate_binding_digest=provenance.candidate_binding_digest,
+    )
+    with pytest.raises(PermissionError, match="execution receipt does not match committed evolution"):
+        require_execution_receipt(receipt, request)
