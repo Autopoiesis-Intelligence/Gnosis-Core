@@ -6,6 +6,7 @@ from typing import Any, Mapping
 
 from gnosis.evidence.audit import crosscheck_provenance_audit
 from gnosis.evidence.provenance import EvidenceProvenance, canonical_digest, crosscheck_provenance, execution_id, verify_evidence_digest
+from gnosis.core.execution_input import execution_input_from_state
 from gnosis.core.sandbox import SandboxExecution
 
 
@@ -20,10 +21,16 @@ class ReplayResult:
 def replay_evidence(
     execution: SandboxExecution,
     observations: Mapping[str, Any],
+    *,
+    state=None,
 ) -> ReplayResult:
     """Recompute evidence identity without executing or activating anything."""
     actual = canonical_digest(observations)
     reasons: list[str] = []
+    if state is not None and execution.execution_input_digest:
+        expected_input = execution_input_from_state(state, "sandbox")
+        if expected_input.digest != execution.execution_input_digest:
+            reasons.append("execution input binding mismatch")
     if actual != execution.evidence_digest:
         reasons.append("evidence digest mismatch")
     if not verify_evidence_digest(observations, execution.evidence_digest):
