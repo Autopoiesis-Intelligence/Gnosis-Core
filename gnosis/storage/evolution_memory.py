@@ -5,7 +5,7 @@ import hashlib
 import json
 from typing import Any
 from .repositories import canonical_json, utc_now, StorageCorruptionError, load_transition_records
-from .reflection_persistence import load_reflection_report
+from gnosis.reflection.persistence import load_reflection_report
 
 @dataclass(frozen=True)
 class EvolutionMemoryRecord:
