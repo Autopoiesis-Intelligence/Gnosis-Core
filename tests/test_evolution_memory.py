@@ -50,3 +50,22 @@ def test_evolution_memory_cannot_lie_about_persisted_transition():
     with pytest.raises(Exception, match="state mismatch"):
         append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
             transition_id=tid,state_id=instance.engine.state.state_id,proposal_id=None,outcome="accepted",evidence=("false",))
+
+
+def test_load_evolution_memory_rechecks_transition_semantics_after_tamper():
+    conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
+    proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"read-binding")
+    record=instance.engine.step(candidate)
+    persist_transition(conn,instance,candidate,record,actor="test")
+    tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
+    mem=append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
+        transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("ok",))
+
+    conn.execute("UPDATE transitions SET accepted=0 WHERE transition_id=?",(tid,))
+    with pytest.raises(Exception, match="outcome disagrees"):
+        load_evolution_memory(conn,instance.instance_id)
+
+    conn.execute("UPDATE transitions SET accepted=1,to_state_id=? WHERE transition_id=?",
+                 (instance.engine.state.state_id,tid))
+    with pytest.raises(Exception, match="state mismatch"):
+        load_evolution_memory(conn,instance.instance_id)
