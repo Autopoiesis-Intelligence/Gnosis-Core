@@ -6,8 +6,9 @@ import hashlib
 import json
 
 from gnosis.core.check_identity import CheckIdentity
-from gnosis.core.execution_input import ExecutionInput
-from gnosis.core.types import TestResult, _stable_hash
+from gnosis.core.execution_input import ExecutionInput, execution_input_from_state
+from gnosis.core.types import State, TestResult, _stable_hash
+from gnosis.core.state_identity import state_digest
 
 
 @dataclass(frozen=True)
@@ -73,3 +74,27 @@ def verify_execution_identity_from_input(
     return identity == execution_identity_from_input(
         check, execution_input, context, result
     )
+
+
+def verify_execution_contract(
+    identity: ExecutionIdentity,
+    check: CheckIdentity,
+    execution_input: ExecutionInput,
+    state: State,
+    context: object,
+    result: TestResult,
+) -> bool:
+    """Verify the complete canonical execution binding, including the concrete State.
+
+    The ExecutionIdentity cannot be trusted merely because its input_digest is
+    internally consistent: the supplied State must independently reconstruct the
+    exact ExecutionInput that the identity commits to.
+    """
+    if state.state_id != execution_input.state_id:
+        return False
+    if state_digest(state) != execution_input.state_digest:
+        return False
+    expected_input = execution_input_from_state(state, execution_input.input_type)
+    if expected_input != execution_input:
+        return False
+    return verify_execution_identity(identity, check, execution_input, context, result)
