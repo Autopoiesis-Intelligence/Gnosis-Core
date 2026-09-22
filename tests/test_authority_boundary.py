@@ -203,6 +203,7 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
     from gnosis.core import Candidate, State
     from gnosis.instances.instance import Instance
     from gnosis.storage import connect, load_instance, save_instance
+    from gnosis.adapters.sqlite_persistence import SQLiteEvolutionRepository, SQLiteStateRepository
     conn = connect()
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
     initial_state_id = instance.engine.state.state_id
