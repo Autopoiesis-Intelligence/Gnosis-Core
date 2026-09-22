@@ -2,22 +2,24 @@
 from __future__ import annotations
 import json, sqlite3
 from typing import Any, Mapping
-from gnosis.core.audit import EvolutionAuditRecord, make_audit_record
+from gnosis.core.audit import make_audit_record
 from gnosis.core.provenance import EvidenceProvenance, canonical_digest
 from gnosis.core.durable_commit import DurableCommitResult
-from gnosis.core.types import TransitionRecord, TestResult
+from gnosis.core.persistable_transition import PersistableTransition
+from gnosis.core.types import TransitionRecord
 from gnosis.core.transition_identity import transition_id as canonical_transition_id
 
 def persist_evolution_with_evidence(conn: sqlite3.Connection, provenance: EvidenceProvenance, *,
-    event_type: str, payload: Mapping[str, Any], transition_id: str,
-    observations: Mapping[str, Any], from_state_id: str, to_state_id: str,
-    failure_after: str | None = None) -> DurableCommitResult:
+    transition: TransitionRecord, event_type: str, payload: Mapping[str, Any],
+    observations: Mapping[str, Any], failure_after: str | None = None) -> DurableCommitResult:
     if canonical_digest(observations) != provenance.evidence_digest:
         raise ValueError("evidence digest does not match observations")
-    record=TransitionRecord(from_state_id,to_state_id,provenance.candidate_id,TestResult(True,()),True,"accepted")
-    computed_transition_id=canonical_transition_id(record)
-    if transition_id != computed_transition_id:
-        raise ValueError("transition identity does not match canonical transition record")
+    if transition.candidate_id != provenance.candidate_id:
+        raise ValueError("transition candidate does not match provenance")
+    persistable=PersistableTransition(transition)
+    transition_id=persistable.transition_id
+    if not canonical_transition_id(transition) == transition_id:
+        raise ValueError("transition identity derivation failed")
     owns=not conn.in_transaction; sp="evolution_complete"
     try:
         if owns: conn.execute("BEGIN IMMEDIATE")
@@ -31,10 +33,10 @@ def persist_evolution_with_evidence(conn: sqlite3.Connection, provenance: Eviden
         row=conn.execute("SELECT evidence_digest,observations,transition_id FROM evolution_evidence WHERE evidence_id=?",(evidence_id,)).fetchone()
         if row is None or row!=(provenance.evidence_digest,obs_json,transition_id): raise RuntimeError("evidence verification failed")
         conn.execute("INSERT INTO evolution_transitions VALUES(?,?,?,?,?,?,?,?)",
-            (transition_id,provenance.candidate_id,from_state_id,to_state_id,provenance.provenance_id,"",provenance.evidence_digest,payload_json))
+            (transition_id,transition.candidate_id,transition.from_state_id,transition.to_state_id,provenance.provenance_id,"",provenance.evidence_digest,json.dumps(dict(persistable.payload()),sort_keys=True,separators=(",",":"),default=str)))
         if failure_after=="transition": raise RuntimeError("injected failure: transition")
-        existing=conn.execute("SELECT provenance_id FROM evolution_provenance WHERE provenance_id=?",(provenance.provenance_id,)).fetchone()
-        if existing is not None: raise RuntimeError("conflicting replay for existing provenance")
+        if conn.execute("SELECT provenance_id FROM evolution_provenance WHERE provenance_id=?",(provenance.provenance_id,)).fetchone() is not None:
+            raise RuntimeError("conflicting replay for existing provenance")
         row=conn.execute("SELECT sequence,record_digest FROM evolution_audit ORDER BY sequence DESC LIMIT 1").fetchone()
         seq=0 if row is None else row[0]+1; prev="" if row is None else row[1]
         record=make_audit_record(sequence=seq,event_type=event_type,candidate_id=provenance.candidate_id,execution_id=provenance.execution_id,provenance_id=provenance.provenance_id,parent_state_digest=provenance.parent_state_digest,proposed_state_digest=provenance.proposed_state_digest,evidence_digest=provenance.evidence_digest,payload=dict(payload),previous_digest=prev)
