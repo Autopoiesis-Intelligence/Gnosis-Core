@@ -10,6 +10,7 @@ from .counterexample import CounterexampleEngine
 from .history import HistoricalFinding, ReflectionHistorySummary, summarize_reflection_history, unresolved_findings
 from .memory_evidence import EvolutionEvidence, project_evolution_memory
 from .persistence import reflection_id
+from .runtime_impl import reflect
 
 
 @dataclass(frozen=True)
