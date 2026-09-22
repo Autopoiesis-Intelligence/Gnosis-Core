@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from typing import Any
+import sqlite3
 
 from gnosis.ports.repositories import EvolutionMemoryRepository, ReflectionRepository
 from .analyzer import ReflectionAnalyzer, ReflectionReport
@@ -24,11 +25,15 @@ class CumulativeReflectionReport:
 def reflect_with_history(
     engine: Any,
     reflection_repository: ReflectionRepository,
-    evolution_memory_repository: EvolutionMemoryRepository,
+    evolution_memory_repository: EvolutionMemoryRepository | Any,
     *,
     minimum_repetitions: int = 2,
     instance_id: str | None = None,
 ) -> CumulativeReflectionReport:
+    if isinstance(reflection_repository, sqlite3.Connection):
+        from gnosis.adapters.sqlite_persistence import SQLiteReflectionRepository, SQLiteEvolutionMemoryRepository
+        reflection_repository = SQLiteReflectionRepository(reflection_repository)
+        evolution_memory_repository = SQLiteEvolutionMemoryRepository(reflection_repository._conn)
     previous = reflection_repository.list_reflection_reports()
     history = summarize_reflection_history(previous)
     recurring = unresolved_findings(previous)
