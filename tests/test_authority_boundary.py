@@ -164,7 +164,7 @@ def test_execution_receipt_rejects_unproven_result_content():
 
 
 def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
-    from gnosis.core import Candidate, State
+    from gnosis.core import Candidate, State, TestResult, TransitionRecord
     from gnosis.evolution.provenance import build_provenance, canonical_digest
     from gnosis.instances.instance import Instance
     from gnosis.storage import connect
@@ -246,7 +246,6 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
     candidate_a = Candidate(
         parent_state_id, instance.engine.state.with_elements({"a": 2}), "candidate-a"
     )
-    record_a = instance.engine.step(candidate_a)
 
     observations = {"result": "ok"}
     provenance = build_provenance(
@@ -274,11 +273,17 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         provenance,
     )
 
-    candidate_b_parent_id = instance.engine.state.state_id
     candidate_b = Candidate(
-        candidate_b_parent_id, instance.engine.state.with_elements({"a": 3}), "candidate-b"
+        parent_state_id, instance.engine.state.with_elements({"a": 3}), "candidate-b"
     )
-    record_b = instance.engine.step(candidate_b)
+    record_b = TransitionRecord(
+        from_state_id=parent_state_id,
+        to_state_id=candidate_b.proposed_state.state_id,
+        candidate_id=candidate_b.candidate_id,
+        test_result=TestResult(passed=True, reasons=("authorized-test",)),
+        accepted=True,
+        reason="committed",
+    )
 
     with pytest.raises(PermissionError, match="candidate"):
         SQLiteExecutionCommitAdapter().commit(
