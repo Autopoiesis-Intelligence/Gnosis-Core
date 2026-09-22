@@ -46,7 +46,7 @@ def validate_counterexample_result(
             raise ValueError("not-run counterexample cannot contain evidence")
         return
     transition_refs = {
-        f"transition:{index}:{record.candidate_id}": record
+        record.transition_id: record
         for index, record in enumerate(transitions)
     }
     for ref in result.evidence_refs:
@@ -91,7 +91,7 @@ class CounterexampleEngine:
 
         if accepted:
             refs = tuple(
-                f"transition:{index}:{record.candidate_id}"
+                record.transition_id
                 for index, record in accepted
             )
             return CounterexampleResult(
