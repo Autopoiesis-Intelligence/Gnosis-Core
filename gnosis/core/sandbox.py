@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 
 from gnosis.core.types import Candidate, State
+from gnosis.core.execution_input import execution_input_from_state, verify_execution_input
 
 ObservationFn = Callable[[State, Candidate], Mapping[str, Any]]
 
@@ -40,6 +41,7 @@ class SandboxExecution:
     status: str
     evidence_digest: str
     observations: Mapping[str, Any]
+    execution_input_digest: str = ""
 
 
 @dataclass(frozen=True)
@@ -115,6 +117,7 @@ def run_sandbox(
                 "TIMEOUT",
                 _digest(observations),
                 observations,
+                execution_input_from_state(state, "sandbox").digest,
             ),
             False,
         )
@@ -139,6 +142,7 @@ def run_sandbox(
                 "FAILED",
                 _digest(observations),
                 observations,
+                execution_input_from_state(state, "sandbox").digest,
             ),
             False,
         )
