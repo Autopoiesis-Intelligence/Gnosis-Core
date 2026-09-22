@@ -34,6 +34,22 @@ def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transi
                             evidence: tuple[str, ...] | list[str], created_at: str | None = None) -> EvolutionMemoryRecord:
     if outcome not in {"accepted", "rejected", "inconclusive"}:
         raise ValueError("invalid evolution memory outcome")
+
+    # Memory is evidence about a real persisted transition, not an independent
+    # source of truth. Bind every identity/outcome field to that transition.
+    transition = conn.execute(
+        """SELECT instance_id,candidate_id,from_state_id,to_state_id,accepted
+           FROM transitions WHERE transition_id=?""",
+        (transition_id,),
+    ).fetchone()
+    if transition is None:
+        raise StorageCorruptionError("evolution memory references missing transition")
+    if transition[0] != instance_id or transition[1] != candidate_id:
+        raise StorageCorruptionError("evolution memory transition identity mismatch")
+    if state_id != transition[3]:
+        raise StorageCorruptionError("evolution memory state mismatch")
+    if outcome in {"accepted", "rejected"} and (outcome == "accepted") != bool(transition[4]):
+        raise StorageCorruptionError("evolution memory outcome disagrees with transition")
     evidence_tuple = tuple(str(x) for x in evidence)
     timestamp = created_at or utc_now()
     raw = {"instance_id": instance_id, "candidate_id": candidate_id, "transition_id": transition_id,
