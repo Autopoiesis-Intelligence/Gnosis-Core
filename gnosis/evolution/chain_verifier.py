@@ -85,7 +85,12 @@ def verify_persisted_chain(
     else:
         audit_ok, audit_reasons = verify_audit_chain(list(audits))
         reasons.extend(audit_reasons)
+        # A provenance chain must be represented by exactly one canonical audit
+        # event. Additional events are allowed in the global audit log, but only
+        # the event linked to this provenance may be used as its durable record.
         matching = [a for a in audits if a.provenance_id == provenance.provenance_id]
+        if len(matching) > 1:
+            reasons.append("multiple audit records linked to provenance")
         if not matching:
             reasons.append("audit provenance link missing")
         else:
