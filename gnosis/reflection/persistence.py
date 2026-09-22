@@ -67,6 +67,8 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             previous_digest TEXT NOT NULL,
             record_digest TEXT NOT NULL UNIQUE
         );
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_evolution_audit_sequence
+            ON evolution_audit(sequence);
         CREATE INDEX IF NOT EXISTS idx_evolution_audit_candidate
             ON evolution_audit(candidate_id);
 
