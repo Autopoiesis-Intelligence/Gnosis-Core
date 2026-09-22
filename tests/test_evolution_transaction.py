@@ -139,3 +139,66 @@ def test_evolution_transaction_conflicting_replay_fails_without_new_audit_record
         persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "CHANGED"})
     assert conn.execute("SELECT count(*) FROM evolution_provenance").fetchone()[0] == 1
     assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 1
+
+
+def test_save_evolution_provenance_rejects_conflicting_same_id() -> None:
+    from dataclasses import replace
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:replay",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        proposed_state_content_id="content:1",
+        candidate_binding_digest="binding:1",
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    save_evolution_provenance(conn, p)
+    conflicting = replace(p, proposed_state_content_id="content:tampered")
+    with pytest.raises(RuntimeError, match="conflicting provenance replay"):
+        save_evolution_provenance(conn, conflicting)
+    conn.close()
+
+
+def test_crosscheck_stored_provenance_includes_binding_fields() -> None:
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import crosscheck_stored_provenance, save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:stored",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        proposed_state_content_id="content:1",
+        candidate_binding_digest="binding:1",
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    save_evolution_provenance(conn, p)
+    report = crosscheck_stored_provenance(conn, p.provenance_id, observations=observations)
+    assert report.valid
+    conn.execute(
+        "UPDATE evolution_provenance SET candidate_binding_digest=? WHERE provenance_id=?",
+        ("binding:tampered", p.provenance_id),
+    )
+    report = crosscheck_stored_provenance(conn, p.provenance_id, observations=observations)
+    assert not report.valid
+    assert "candidate_binding_digest mismatch" in report.reasons
+    conn.close()
