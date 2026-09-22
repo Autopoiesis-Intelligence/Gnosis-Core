@@ -60,6 +60,7 @@ def recover_evolution_audit(
         reasons = list(result.reasons)
         if not execution_binding_valid:
             reasons.append("recovery execution input binding mismatch")
+            replay_valid = False
     else:
         reasons = list(result.reasons)
     provenance_class = classify_evolution_provenance(provenance_row)
