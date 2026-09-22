@@ -56,3 +56,37 @@ def test_runtime_reflection_executes_counterexample_stage_without_mutating_histo
 
     assert report.counterexample_results[0].status == "INCONCLUSIVE"
     assert engine.history == history
+
+
+def test_counterexample_result_rejects_foreign_candidate():
+    from gnosis.reflection.counterexample import CounterexampleResult, validate_counterexample_result
+    history=(_record(0, False, "c1", "repeated failure"),)
+    analyzer=ReflectionAnalyzer(history)
+    report=analyzer.analyze()
+    finding, candidate = report.findings[0], report.counterexamples[0]
+    result=CounterexampleResult(
+        candidate_id="counterexample:foreign",
+        finding_id=finding.finding_id,
+        status="INCONCLUSIVE",
+        evidence_refs=finding.evidence_refs,
+        explanation="x",
+    )
+    with pytest.raises(ValueError, match="counterexample result/candidate identity mismatch"):
+        validate_counterexample_result(finding,candidate,result,history)
+
+
+def test_counterexample_result_rejects_nonaccepted_refuted_evidence():
+    from gnosis.reflection.counterexample import CounterexampleResult, validate_counterexample_result
+    history=(_record(0, False, "c1", "repeated failure"),)
+    analyzer=ReflectionAnalyzer(history)
+    report=analyzer.analyze()
+    finding, candidate = report.findings[0], report.counterexamples[0]
+    result=CounterexampleResult(
+        candidate_id=candidate.candidate_id,
+        finding_id=finding.finding_id,
+        status="REFUTED",
+        evidence_refs=("transition:0:c1",),
+        explanation="tampered",
+    )
+    with pytest.raises(ValueError, match="refuted counterexample evidence"):
+        validate_counterexample_result(finding,candidate,result,history)
