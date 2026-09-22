@@ -278,6 +278,25 @@ def test_a09_root_atomicity_rolls_back_failed_root_transaction(monkeypatch):
     assert conn.execute("SELECT count(*) FROM states").fetchone()[0] == 0
 
 
+
+
+def test_a30_atomicity_rolls_back_after_audit_before_commit(monkeypatch):
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"root": 0}))
+    candidate = Candidate(instance.engine.state.state_id, instance.engine.state.with_elements({"x": 1}), "atomicity")
+    record = instance.engine.step(candidate)
+    original_state_id = instance.engine.state.state_id
+
+    def fail_commit(*args, **kwargs):
+        raise RuntimeError("injected failure before commit")
+
+    monkeypatch.setattr(conn, "commit", fail_commit)
+    with pytest.raises(RuntimeError, match="injected failure before commit"):
+        persist_transition(conn, instance, candidate, record, actor="u")
+    conn.rollback()
+    assert recover_instance(conn, instance.instance_id).engine.state.state_id == original_state_id
+
+
 def test_a13_process_exit_after_commit_reopens_valid_database(tmp_path):
     path = tmp_path / "crash.sqlite"
     script = """
