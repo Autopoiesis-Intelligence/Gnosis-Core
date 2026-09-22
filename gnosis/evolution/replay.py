@@ -4,8 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
-from .audit import crosscheck_provenance_audit
-from .provenance import EvidenceProvenance, canonical_digest, crosscheck_provenance, execution_id, verify_evidence_digest
+from gnosis.evidence.audit import crosscheck_provenance_audit
+from gnosis.evidence.provenance import EvidenceProvenance, canonical_digest, crosscheck_provenance, execution_id, verify_evidence_digest
 from .sandbox import SandboxExecution
 
 
