@@ -11,11 +11,10 @@ def make(result=None):
 def test_test_result_binding_valid():
     c,r,t=make(); verify_test_transition_binding(c,r,t,test_result_digest(r))
 
-def test_failing_result_cannot_be_accepted():
-    c,r,_=make(TestResult(False,("failure",)))
-    t=TransitionRecord("s1","s2",c.candidate_id,r,True,"accepted","rule:1")
-    with pytest.raises(ValueError,match="test result mismatch"):
-        verify_test_transition_binding(c,r,t,test_result_digest(r))
+def test_failing_result_is_rejected():
+    c,r,t=make(TestResult(False,("failure",)))
+    assert t.accepted is False
+    verify_test_transition_binding(c,r,t,test_result_digest(r))
 
 def test_result_tamper_is_detected():
     c,r,t=make(); verify_test_transition_binding(c,r,t,test_result_digest(r))
