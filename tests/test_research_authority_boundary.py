@@ -39,3 +39,15 @@ def test_research_references_are_opaque_and_cannot_be_used_as_imports():
                     n == "research" or n.startswith("research.")
                     for n in names + ([module] if module else [])
                 ), path
+
+def test_runtime_configuration_does_not_reference_external_research_paths():
+    root = Path(__file__).resolve().parents[1]
+    forbidden_fragments = ("GNOZIS_RESEARCH", "RESEARCH_REPO", "RESEARCH_PATH", "DEVELOPMENT_REPO")
+    for path in root.rglob("*"):
+        if not path.is_file() or ".git" in path.parts:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        assert not any(fragment in text for fragment in forbidden_fragments), path
