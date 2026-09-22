@@ -121,38 +121,37 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
         load_state(conn,row[1]);
         if row[6] > row[5]: raise StorageCorruptionError("instance budget spent exceeds total")
         if conn.execute("SELECT 1 FROM audit_events WHERE action='instance.create' AND resource=?",(row[0],)).fetchone() is None: raise StorageCorruptionError("instance lacks creation audit evidence")
-        transitions=list(conn.execute("SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted FROM transitions WHERE instance_id=? ORDER BY created_at,transition_id",(row[0],)))
+        transitions=load_transition_records(conn, row[0])
         if row[3] is None and row[4]!=0: raise StorageCorruptionError("invalid root generation")
         if row[3] is not None:
             parent=conn.execute("SELECT generation FROM instances WHERE instance_id=?",(row[3],)).fetchone()
             if parent is None or row[4]!=parent[0]+1: raise StorageCorruptionError("invalid fork lineage")
         if not transitions and row[2]!=row[1]: raise StorageCorruptionError("current head lacks transition provenance")
         if transitions:
-            accepted=[t for t in transitions if t[4]]
+            accepted=[t for t in transitions if t.accepted]
             if not accepted and row[2]!=row[1]: raise StorageCorruptionError("current head lacks transition provenance")
-            if accepted and accepted[-1][3]!=row[2]: raise StorageCorruptionError("current head lacks accepted transition provenance")
+            if accepted and accepted[-1].to_state_id!=row[2]: raise StorageCorruptionError("current head lacks accepted transition provenance")
             expected=row[1]
-            for t in transitions:
-                # Validate both sides of the transition. load_candidate() verifies
-                # the proposed state; the source state must also be independently
-                # reloaded so a tampered parent payload cannot hide behind a
-                # matching state_id string.
-                load_state(conn, t[2])
-                cand=load_candidate(conn,t[1])
-                if cand.parent_state_id!=t[2] or cand.proposed_state.state_id!=t[3]: raise StorageCorruptionError("transition/candidate mismatch")
-                record=TransitionRecord(from_state_id=t[2],to_state_id=t[3],candidate_id=t[1],test_result=TestResult(passed=bool(t[4]),reasons=tuple(json.loads(conn.execute("SELECT reasons FROM transitions WHERE transition_id=?",(t[0],)).fetchone()[0]))),accepted=bool(t[4]),reason=("committed" if t[4] else "rejected"),test_rule_id=conn.execute("SELECT test_rule_id FROM transitions WHERE transition_id=?",(t[0],)).fetchone()[0])
-                if transition_id(record)!=t[0]: raise StorageCorruptionError("transition identity mismatch")
-                if t[4] and t[2]!=expected: raise StorageCorruptionError("broken accepted transition continuity")
-                if t[4]: expected=t[3]
+            for record in transitions:
+                # load_transition_records() is the single reconstruction/identity
+                # path; verification adds graph-specific state/candidate/audit checks.
+                load_state(conn, record.from_state_id)
+                cand=load_candidate(conn,record.candidate_id)
+                if cand.parent_state_id!=record.from_state_id or cand.proposed_state.state_id!=record.to_state_id:
+                    raise StorageCorruptionError("transition/candidate mismatch")
+                if record.accepted and record.from_state_id!=expected:
+                    raise StorageCorruptionError("broken accepted transition continuity")
+                if record.accepted:
+                    expected=record.to_state_id
                 audit = conn.execute(
                     "SELECT action,resource,result,transition_id FROM audit_events WHERE transition_id=? AND resource=?",
-                    (t[0], row[0]),
+                    (record.transition_id, row[0]),
                 ).fetchone()
                 if audit is None:
                     raise StorageCorruptionError("transition lacks audit evidence")
-                expected_action = "transition.commit" if t[4] else "transition.reject"
-                expected_result = "accepted" if t[4] else "rejected"
-                if audit[0] != expected_action or audit[2] != expected_result or audit[3] != t[0]:
+                expected_action = "transition.commit" if record.accepted else "transition.reject"
+                expected_result = "accepted" if record.accepted else "rejected"
+                if audit[0] != expected_action or audit[2] != expected_result or audit[3] != record.transition_id:
                     raise StorageCorruptionError("audit/transition semantic mismatch")
     return chain
 
