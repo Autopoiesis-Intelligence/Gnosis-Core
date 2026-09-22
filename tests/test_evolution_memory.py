@@ -3,6 +3,8 @@ import pytest
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.storage import append_evolution_memory, connect, load_evolution_memory, save_instance
+from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
+from gnosis.reflection.persistence import save_reflection_report
 
 
 def test_evolution_memory_round_trip_and_digest():
@@ -12,7 +14,9 @@ def test_evolution_memory_round_trip_and_digest():
     from gnosis.storage.repositories import persist_transition
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
-    mem=append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,transition_id=tid,state_id=proposed.state_id,proposal_id="proposal:1",outcome="accepted",evidence=("finding:1","observation:1"))
+    proposal = RuleProposal("proposal:1", "finding:1", "test-rule:v1", "hypothesis", (tid,), "effect", "risk", "test")
+    report_id = save_reflection_report(conn, ReflectionReport(proposals=(proposal,)), created_at="2026-09-23T00:00:00+00:00")
+    mem=append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,transition_id=tid,state_id=proposed.state_id,proposal_id="proposal:1",proposal_report_id=report_id,outcome="accepted",evidence=("finding:1","observation:1"))
     loaded=load_evolution_memory(conn,instance.instance_id)
     assert loaded==(mem,)
     assert mem.digest==mem.memory_id
@@ -86,7 +90,7 @@ def test_evolution_memory_rejects_cross_instance_transition_rebinding():
         transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("ok",))
     raw={"instance_id":b.instance_id,"candidate_id":mem.candidate_id,"transition_id":mem.transition_id,
          "state_id":mem.state_id,"proposal_id":mem.proposal_id,"outcome":mem.outcome,
-         "evidence":mem.evidence,"created_at":mem.created_at}
+         "evidence":mem.evidence,"created_at":mem.created_at,"proposal_report_id":mem.proposal_report_id}
     new_id=__import__("hashlib").sha256(__import__("gnosis.storage.repositories",fromlist=["canonical_json"]).canonical_json(raw).encode()).hexdigest()
     conn.execute("UPDATE evolution_memory SET instance_id=?, memory_id=? WHERE memory_id=?",
                  (b.instance_id,new_id,mem.memory_id))
@@ -98,7 +102,11 @@ def test_evolution_memory_rejects_tampered_transition_identity_on_reload():
     conn = connect()
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
-    candidate, record = _transition(instance, "next")
+    proposed = instance.engine.state.with_elements({"next": 2})
+    candidate = Candidate(instance.engine.state.state_id, proposed, "next")
+    record = instance.engine.step(candidate)
+    from gnosis.storage.repositories import persist_transition
+    persist_transition(conn, instance, candidate, record, actor="test")
     append_evolution_memory(
         conn, instance_id=instance.instance_id, candidate_id=candidate.candidate_id,
         transition_id=record.transition_id, state_id=record.to_state_id,
