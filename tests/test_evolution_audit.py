@@ -155,17 +155,12 @@ def test_append_evolution_audit_rollback_leaves_no_partial_record() -> None:
         governance_decision="ALLOW",
     )
     save_evolution_provenance(conn, p)
+    conn.execute(
+        """CREATE TRIGGER fail_audit_insert BEFORE INSERT ON evolution_audit
+           BEGIN SELECT RAISE(ABORT, 'injected audit write failure'); END"""
+    )
 
-    original_execute = conn.execute
-    calls = {"audit_insert": 0}
-    def fail_on_audit_insert(sql, *args):
-        if isinstance(sql, str) and "INSERT INTO evolution_audit" in sql:
-            calls["audit_insert"] += 1
-            raise RuntimeError("injected audit write failure")
-        return original_execute(sql, *args)
-
-    conn.execute = fail_on_audit_insert  # type: ignore[method-assign]
-    with pytest.raises(RuntimeError, match="injected audit write failure"):
+    with pytest.raises(sqlite3.IntegrityError, match="injected audit write failure"):
         append_evolution_audit(
             conn,
             event_type="PROVENANCE",
@@ -177,7 +172,6 @@ def test_append_evolution_audit_rollback_leaves_no_partial_record() -> None:
             evidence_digest=p.evidence_digest,
             payload={"status": "RECORDED"},
         )
-    conn.execute = original_execute  # type: ignore[method-assign]
-    assert calls["audit_insert"] == 1
+
     assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 0
     conn.close()
