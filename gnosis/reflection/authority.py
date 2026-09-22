@@ -151,6 +151,25 @@ class ExecutionCommitRequest:
     provenance: object
 
 
+def _canonical_evolution_identity(provenance: object) -> str:
+    """Recompute the identity instead of trusting a caller-supplied property."""
+    return "evolution:" + canonical_digest({
+        "candidate_id": str(provenance.candidate_id),
+        "execution_id": str(provenance.execution_id),
+        "parent_state_id": str(provenance.parent_state_id),
+        "parent_state_digest": str(provenance.parent_state_digest),
+        "proposed_state_digest": str(provenance.proposed_state_digest),
+        "proposed_state_content_id": str(provenance.proposed_state_content_id),
+        "candidate_binding_digest": str(provenance.candidate_binding_digest),
+        "evidence_digest": str(provenance.evidence_digest),
+        "evaluation_status": str(provenance.evaluation_status),
+        "shadow_status": str(provenance.shadow_status),
+        "invariant_status": str(provenance.invariant_status),
+        "governance_decision": str(provenance.governance_decision),
+        "provenance_id": str(provenance.provenance_id),
+    })
+
+
 def require_execution_commit(request: ExecutionCommitRequest) -> None:
     """Fail closed unless authorization, identity and freshness all agree."""
     require_execution_authorization(
@@ -160,6 +179,8 @@ def require_execution_commit(request: ExecutionCommitRequest) -> None:
     )
     if request.authorization.evolution_identity != request.intent_snapshot.evolution_identity:
         raise PermissionError("execution commit identity mismatch")
+    if _canonical_evolution_identity(request.provenance) != request.evolution_identity:
+        raise PermissionError("execution provenance identity is not canonical")
     require_execution_intent_snapshot(request.intent_snapshot, request.provenance)
 
 
