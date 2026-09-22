@@ -59,6 +59,10 @@ class EvidenceProvenance:
                 raise TypeError("unsupported EvidenceProvenance positional arity")
         else:
             values = dict(kwargs)
+        if "provenance_id" in values:
+            values["_provenance_id_override"] = values.pop("provenance_id")
+        if "evolution_identity" in values:
+            values["_evolution_identity_override"] = values.pop("evolution_identity")
         defaults = {
             "status": "RECORDED",
             "proposed_state_content_id": "",
