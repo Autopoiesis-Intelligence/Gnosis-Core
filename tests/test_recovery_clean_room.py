@@ -9,7 +9,7 @@ def test_recovery_module_has_no_research_or_development_imports():
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 names = [a.name for a in node.names]
-                module = node.module or ""
+                module = node.module if isinstance(node, ast.ImportFrom) else ""
                 assert not any(
                     n == "research" or n.startswith("research.") or
                     n == "development" or n.startswith("development.") or
