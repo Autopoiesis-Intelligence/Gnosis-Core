@@ -70,6 +70,17 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_evolution_audit_candidate
             ON evolution_audit(candidate_id);
 
+        CREATE TABLE IF NOT EXISTS evolution_evidence (
+            evidence_id TEXT PRIMARY KEY,
+            execution_id TEXT NOT NULL UNIQUE,
+            transition_id TEXT NOT NULL,
+            evidence_digest TEXT NOT NULL,
+            observations TEXT NOT NULL,
+            created_payload TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_evolution_evidence_digest
+            ON evolution_evidence(evidence_digest);
+
         CREATE TABLE IF NOT EXISTS evolution_provenance (
             provenance_id TEXT PRIMARY KEY,
             execution_id TEXT NOT NULL,
