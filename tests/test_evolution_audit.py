@@ -132,3 +132,52 @@ def test_append_evolution_audit_rejects_mismatched_provenance_binding() -> None:
         )
     assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 0
     conn.close()
+
+
+def test_append_evolution_audit_rollback_leaves_no_partial_record() -> None:
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import append_evolution_audit, ensure_reflection_schema, save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    ensure_reflection_schema(conn)
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:atomic",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    save_evolution_provenance(conn, p)
+
+    original_execute = conn.execute
+    calls = {"audit_insert": 0}
+    def fail_on_audit_insert(sql, *args):
+        if isinstance(sql, str) and "INSERT INTO evolution_audit" in sql:
+            calls["audit_insert"] += 1
+            raise RuntimeError("injected audit write failure")
+        return original_execute(sql, *args)
+
+    conn.execute = fail_on_audit_insert  # type: ignore[method-assign]
+    with pytest.raises(RuntimeError, match="injected audit write failure"):
+        append_evolution_audit(
+            conn,
+            event_type="PROVENANCE",
+            candidate_id=p.candidate_id,
+            execution_id=p.execution_id,
+            provenance_id=p.provenance_id,
+            parent_state_digest=p.parent_state_digest,
+            proposed_state_digest=p.proposed_state_digest,
+            evidence_digest=p.evidence_digest,
+            payload={"status": "RECORDED"},
+        )
+    conn.execute = original_execute  # type: ignore[method-assign]
+    assert calls["audit_insert"] == 1
+    assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 0
+    conn.close()
