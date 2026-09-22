@@ -35,47 +35,47 @@ class EvidenceProvenance:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         fields = (
-            "execution_id", "candidate_id", "parent_state_id", "parent_state_digest",
-            "proposed_state_digest", "evidence_digest", "evaluation_status",
-            "shadow_status", "invariant_status", "governance_decision", "status",
+            "provenance_id", "execution_id", "candidate_id", "parent_state_id",
+            "parent_state_digest", "proposed_state_digest", "evidence_digest",
+            "evaluation_status", "shadow_status", "invariant_status",
+            "governance_decision", "status", "evolution_identity",
             "proposed_state_content_id", "candidate_binding_digest",
         )
         if args:
             if len(args) == 15:
-                values = dict(zip(
-                    ("_provenance_id_override", "execution_id", "candidate_id",
-                     "parent_state_id", "parent_state_digest", "proposed_state_digest",
-                     "evidence_digest", "evaluation_status", "shadow_status",
-                     "invariant_status", "governance_decision", "status",
-                     "_evolution_identity_override", "proposed_state_content_id",
-                     "candidate_binding_digest"),
-                    args,
-                ))
-            elif len(args) <= 13:
-                if kwargs:
-                    raise TypeError("cannot mix positional and keyword arguments")
                 values = dict(zip(fields, args))
+            elif len(args) <= 13:
+                legacy = (
+                    "execution_id", "candidate_id", "parent_state_id", "parent_state_digest",
+                    "proposed_state_digest", "evidence_digest", "evaluation_status",
+                    "shadow_status", "invariant_status", "governance_decision", "status",
+                    "proposed_state_content_id", "candidate_binding_digest",
+                )
+                values = dict(zip(legacy, args))
             else:
                 raise TypeError("unsupported EvidenceProvenance positional arity")
         else:
             values = dict(kwargs)
-        if "provenance_id" in values:
-            values["_provenance_id_override"] = values.pop("provenance_id")
-        if "evolution_identity" in values:
-            values["_evolution_identity_override"] = values.pop("evolution_identity")
-        defaults = {
-            "status": "RECORDED",
-            "proposed_state_content_id": "",
-            "candidate_binding_digest": "",
-            "_provenance_id_override": "",
-            "_evolution_identity_override": "",
-        }
+        defaults = {"provenance_id":"","evolution_identity":"","status":"RECORDED",
+                    "proposed_state_content_id":"","candidate_binding_digest":""}
         values = {**defaults, **values}
-        for name in fields:
+        required = (
+            "execution_id","candidate_id","parent_state_id","parent_state_digest",
+            "proposed_state_digest","evidence_digest","evaluation_status",
+            "shadow_status","invariant_status","governance_decision",
+        )
+        for name in required:
             if name not in values:
                 raise TypeError(f"missing required argument: {name}")
-        for name, value in values.items():
-            object.__setattr__(self, name, value)
+        object.__setattr__(self, "_provenance_id_override", values["provenance_id"])
+        object.__setattr__(self, "_evolution_identity_override", values["evolution_identity"])
+        for name in (
+            "execution_id","candidate_id","parent_state_id","parent_state_digest",
+            "proposed_state_digest","evidence_digest","evaluation_status",
+            "shadow_status","invariant_status","governance_decision","status",
+            "proposed_state_content_id","candidate_binding_digest",
+        ):
+            object.__setattr__(self, name, values[name])
 
     @property
     def evolution_identity(self) -> str:
