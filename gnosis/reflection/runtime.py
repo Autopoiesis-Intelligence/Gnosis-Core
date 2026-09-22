@@ -24,8 +24,8 @@ class CumulativeReflectionReport:
 
 def reflect_with_history(
     engine: Any,
-    reflection_repository: ReflectionRepository,
-    evolution_memory_repository: EvolutionMemoryRepository | Any,
+    reflection_repository: ReflectionRepository | Any,
+    evolution_memory_repository: EvolutionMemoryRepository | Any = None,
     *,
     minimum_repetitions: int = 2,
     instance_id: str | None = None,
@@ -34,6 +34,8 @@ def reflect_with_history(
         from gnosis.adapters.sqlite_persistence import SQLiteReflectionRepository, SQLiteEvolutionMemoryRepository
         reflection_repository = SQLiteReflectionRepository(reflection_repository)
         evolution_memory_repository = SQLiteEvolutionMemoryRepository(reflection_repository._conn)
+    if evolution_memory_repository is None:
+        evolution_memory_repository = reflection_repository
     previous = reflection_repository.list_reflection_reports()
     history = summarize_reflection_history(previous)
     recurring = unresolved_findings(previous)
