@@ -73,16 +73,21 @@ def load_candidate(conn: sqlite3.Connection,candidate_id: str)->Candidate:
 def transition_id(record: TransitionRecord)->str:
     return record.transition_id
 def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)->list[TransitionRecord]:
-    query="SELECT candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions"
+    query="SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions"
     params: tuple[Any,...]=()
     if instance_id is not None: query += " WHERE instance_id=?"; params=(instance_id,)
     query += " ORDER BY created_at,transition_id"
     records=[]
     for row in conn.execute(query,params):
-        try: reasons=tuple(json.loads(row[4]))
+        try: reasons=tuple(json.loads(row[5]))
         except (TypeError,json.JSONDecodeError) as exc: raise StorageCorruptionError("malformed transition reasons") from exc
-        result=TestResult(passed=bool(row[3]),reasons=reasons)
-        records.append(TransitionRecord(from_state_id=row[1],to_state_id=row[2],candidate_id=row[0],test_result=result,accepted=bool(row[3]),reason=("committed" if row[3] else "rejected: "+"; ".join(reasons)),test_rule_id=row[5]))
+        if not isinstance(reasons, tuple) or not all(isinstance(reason, str) for reason in reasons):
+            raise StorageCorruptionError("invalid transition reasons")
+        result=TestResult(passed=bool(row[4]),reasons=reasons)
+        record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=row[1],test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6])
+        if record.transition_id != row[0]:
+            raise StorageCorruptionError("transition identity mismatch")
+        records.append(record)
     return records
 
 def _audit_hash(event: dict[str,Any])->str: return hashlib.sha256(canonical_json(event).encode()).hexdigest()
