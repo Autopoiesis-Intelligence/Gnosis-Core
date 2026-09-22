@@ -196,7 +196,7 @@ def load_counterexample_for_report(
 
 def validate_reloaded_counterexample_evidence(result: CounterexampleResult, transitions: Sequence[Any]) -> None:
     """Cross-check persisted result evidence against canonical TransitionRecord history."""
-    refs = {f"transition:{i}:{record.candidate_id}": record for i, record in enumerate(transitions)}
+    refs = {record.transition_id: record for record in transitions}
     if result.status == "REFUTED":
         for ref in result.evidence_refs:
             record = refs.get(ref)
