@@ -54,14 +54,13 @@ def recover_evolution_audit(
     expected_digest = provenance_row["evidence_digest"]
     actual_digest = canonical_digest(observations)
     persisted_identity = provenance_row.get("evolution_identity", "")
+    execution_binding_valid = True
     if parent_state is not None:
         execution_input = execution_input_from_state(parent_state, "sandbox")
         execution_binding_valid = (execution_input.state_id == provenance_row["parent_state_id"] and execution_input.state_digest == provenance_row["parent_state_digest"])
         reasons = list(result.reasons)
         if not execution_binding_valid:
             reasons.append("recovery execution input binding mismatch")
-            replay_valid = False
-            # CI gate anchor: this branch must make replay invalid.
     else:
         reasons = list(result.reasons)
     provenance_class = classify_evolution_provenance(provenance_row)
@@ -87,7 +86,7 @@ def recover_evolution_audit(
             identity_valid = recovered_provenance.evolution_identity == persisted_identity
         except (KeyError, TypeError, ValueError):
             identity_valid = False
-    replay_valid = replay_valid and identity_valid
+    replay_valid = replay_valid and identity_valid and execution_binding_valid
     if actual_digest != expected_digest:
         reasons.append("recovery replay digest mismatch")
     if provenance_class != "canonical":
