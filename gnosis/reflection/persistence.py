@@ -259,8 +259,28 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
     provenance_id = provenance.provenance_id
     evolution_identity = provenance.evolution_identity
     payload = _json(provenance)
+    existing = conn.execute(
+        """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,
+                  proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,
+                  candidate_binding_digest,evaluation_status,shadow_status,invariant_status,
+                  governance_decision,status
+           FROM evolution_provenance WHERE provenance_id=?""",
+        (provenance_id,),
+    ).fetchone()
+    expected = (
+        provenance_id, provenance.execution_id, provenance.candidate_id, provenance.parent_state_id,
+        provenance.parent_state_digest, provenance.proposed_state_digest, provenance.evidence_digest,
+        evolution_identity, provenance.proposed_state_content_id, provenance.candidate_binding_digest,
+        provenance.evaluation_status, provenance.shadow_status, provenance.invariant_status,
+        provenance.governance_decision, provenance.status,
+    )
+    if existing is not None:
+        if tuple(existing) != expected:
+            raise RuntimeError("conflicting provenance replay")
+        return provenance_id
+
     conn.execute(
-        """INSERT OR IGNORE INTO evolution_provenance
+        """INSERT INTO evolution_provenance
         (provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,
          evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
@@ -346,6 +366,8 @@ def crosscheck_stored_provenance(
         invariant_status=row["invariant_status"],
         governance_decision=row["governance_decision"],
         status=row["status"],
+        proposed_state_content_id=row["proposed_state_content_id"],
+        candidate_binding_digest=row.get("candidate_binding_digest", ""),
     )
     return crosscheck_provenance(
         provenance=provenance,
@@ -360,6 +382,8 @@ def crosscheck_stored_provenance(
         shadow_status=row["shadow_status"],
         invariant_status=row["invariant_status"],
         governance_decision=row["governance_decision"],
+        proposed_state_content_id=row["proposed_state_content_id"],
+        candidate_binding_digest=row.get("candidate_binding_digest", ""),
     )
 
 
