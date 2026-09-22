@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .analyzer import ReflectionAnalyzer, ReflectionReport
-from .counterexample import CounterexampleEngine
+from .counterexample import CounterexampleEngine, validate_counterexample_result
 from .history import HistoricalFinding, ReflectionHistorySummary, summarize_reflection_history, unresolved_findings
 from .persistence import list_reflection_reports, reflection_id, save_reflection_report
 from .memory_evidence import EvolutionEvidence, project_evolution_memory
@@ -37,6 +37,8 @@ def reflect(engine: Any, minimum_repetitions: int = 2) -> ReflectionReport:
         challenger.challenge(finding, candidate)
         for finding, candidate in zip(report.findings, report.counterexamples)
     )
+    for finding, candidate, result in zip(report.findings, report.counterexamples, results):
+        validate_counterexample_result(finding, candidate, result, engine.history)
     return replace(report, counterexample_results=results)
 
 
