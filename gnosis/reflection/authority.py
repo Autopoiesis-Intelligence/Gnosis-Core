@@ -163,6 +163,44 @@ def require_execution_commit(request: ExecutionCommitRequest) -> None:
     require_execution_intent_snapshot(request.intent_snapshot, request.provenance)
 
 
+def require_execution_candidate_binding(
+    request: ExecutionCommitRequest,
+    candidate: object,
+    record: object,
+) -> None:
+    """Bind the actually committed candidate and transition to the authorized provenance."""
+    p = request.provenance
+    candidate_id = str(getattr(candidate, "candidate_id", ""))
+    if candidate_id != str(p.candidate_id):
+        raise PermissionError("execution candidate does not match authorized provenance")
+
+    parent_state_id = str(getattr(candidate, "parent_state_id", ""))
+    if parent_state_id != str(p.parent_state_id):
+        raise PermissionError("execution candidate parent does not match authorized provenance")
+
+    parent_state_digest = str(p.parent_state_digest)
+    binding_digest_fn = getattr(candidate, "binding_digest", None)
+    if not callable(binding_digest_fn):
+        raise PermissionError("execution candidate has no binding digest")
+    if str(binding_digest_fn(parent_state_digest)) != str(p.candidate_binding_digest):
+        raise PermissionError("execution candidate binding does not match authorized provenance")
+
+    proposed_state = getattr(candidate, "proposed_state", None)
+    if proposed_state is None:
+        raise PermissionError("execution candidate has no proposed state")
+    if str(getattr(proposed_state, "state_id", "")) != str(p.proposed_state_digest):
+        raise PermissionError("execution candidate result does not match authorized evolution")
+    if str(getattr(proposed_state, "content_id", "")) != str(p.proposed_state_content_id):
+        raise PermissionError("execution candidate content does not match authorized evolution")
+
+    if str(getattr(record, "candidate_id", "")) != candidate_id:
+        raise PermissionError("transition record candidate does not match execution candidate")
+    if str(getattr(record, "from_state_id", "")) != parent_state_id:
+        raise PermissionError("transition record parent does not match execution candidate")
+    if str(getattr(record, "to_state_id", "")) != str(p.proposed_state_digest):
+        raise PermissionError("transition record result does not match authorized evolution")
+
+
 @dataclass(frozen=True)
 class ExecutionReceipt:
     """Immutable evidence produced only after a caller supplies a committed result digest."""
@@ -220,6 +258,7 @@ class SQLiteExecutionCommitAdapter:
 
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
         require_execution_commit(request)
+        require_execution_candidate_binding(request, candidate, record)
         if str(request.provenance.evolution_identity) != request.evolution_identity:
             raise PermissionError("execution commit identity mismatch")
         persist_transition(conn, instance, candidate, record, actor=actor)
