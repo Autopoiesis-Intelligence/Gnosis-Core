@@ -197,7 +197,6 @@ DiagnosticEvidence is intentionally distinct from EvolutionMemoryRecord:
 memory records describe durable evolutionary history, while this object
 describes a bounded diagnostic observation and its verification lifecycle.
 """
-from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Mapping
