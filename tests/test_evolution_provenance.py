@@ -300,3 +300,31 @@ def test_list_evolution_provenance_candidate_scope_preserves_binding_digest() ->
     rows = list_evolution_provenance(conn, candidate_id=p.candidate_id)
     assert rows[0]["candidate_binding_digest"] == p.candidate_binding_digest
     conn.close()
+
+
+def test_classify_evolution_provenance_rejects_forged_nonempty_identity() -> None:
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import classify_evolution_provenance, ensure_reflection_schema, list_evolution_provenance, save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    ensure_reflection_schema(conn)
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:classify",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    save_evolution_provenance(conn, p)
+    row = list_evolution_provenance(conn)[0]
+    assert classify_evolution_provenance(row) == "canonical"
+    row["evolution_identity"] = "evolution:forged"
+    assert classify_evolution_provenance(row) == "malformed"
+    conn.close()
