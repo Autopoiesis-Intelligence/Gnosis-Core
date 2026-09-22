@@ -21,6 +21,38 @@ class CounterexampleResult:
     status: str
     evidence_refs: tuple[str, ...]
     explanation: str
+    finding_id: str = ""
+
+
+def validate_counterexample_result(
+    finding: Finding,
+    candidate: CounterexampleCandidate,
+    result: CounterexampleResult,
+    transitions: Sequence[TransitionRecord],
+) -> None:
+    """Validate a counterexample result against the finding and canonical history."""
+    if result.finding_id != finding.finding_id:
+        raise ValueError("counterexample result/finding identity mismatch")
+    if result.candidate_id != candidate.candidate_id:
+        raise ValueError("counterexample result/candidate identity mismatch")
+    if result.status not in {"REFUTED", "INCONCLUSIVE", "NOT_RUN"}:
+        raise ValueError("invalid counterexample result status")
+    if result.status == "INCONCLUSIVE":
+        if tuple(result.evidence_refs) != tuple(finding.evidence_refs):
+            raise ValueError("inconclusive counterexample evidence mismatch")
+        return
+    if result.status == "NOT_RUN":
+        if result.evidence_refs:
+            raise ValueError("not-run counterexample cannot contain evidence")
+        return
+    transition_refs = {
+        f"transition:{index}:{record.candidate_id}": record
+        for index, record in enumerate(transitions)
+    }
+    for ref in result.evidence_refs:
+        record = transition_refs.get(ref)
+        if record is None or not record.accepted:
+            raise ValueError("refuted counterexample evidence is not an accepted transition")
 
 
 class CounterexampleEngine:
@@ -64,6 +96,7 @@ class CounterexampleEngine:
             )
             return CounterexampleResult(
                 candidate_id=candidate.candidate_id,
+                finding_id=finding.finding_id,
                 status="REFUTED",
                 evidence_refs=refs,
                 explanation="Historical evidence contains an accepted transition with a candidate identifier associated with the finding.",
@@ -71,6 +104,7 @@ class CounterexampleEngine:
 
         return CounterexampleResult(
             candidate_id=candidate.candidate_id,
+            finding_id=finding.finding_id,
             status="INCONCLUSIVE",
             evidence_refs=tuple(finding.evidence_refs),
             explanation="No historical accepted transition was found that satisfies this conservative counterexample criterion; the finding is not proven.",
