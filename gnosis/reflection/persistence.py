@@ -401,6 +401,34 @@ def append_evolution_audit(
 ) -> EvolutionAuditRecord:
     """Append exactly one record; prior audit records are never updated."""
     ensure_reflection_schema(conn)
+    if provenance_id:
+        row_provenance = conn.execute(
+            """SELECT provenance_id,candidate_id,execution_id,parent_state_digest,
+                      proposed_state_digest,evidence_digest
+               FROM evolution_provenance WHERE provenance_id=?""",
+            (provenance_id,),
+        ).fetchone()
+        if row_provenance is None:
+            raise KeyError(provenance_id)
+        expected_link = (
+            provenance_id,
+            row_provenance[1],
+            row_provenance[2],
+            row_provenance[3],
+            row_provenance[4],
+            row_provenance[5],
+        )
+        supplied_link = (
+            provenance_id,
+            candidate_id,
+            execution_id,
+            parent_state_digest,
+            proposed_state_digest,
+            evidence_digest,
+        )
+        if supplied_link != expected_link:
+            raise RuntimeError("audit provenance binding mismatch")
+
     row = conn.execute(
         "SELECT sequence, record_digest FROM evolution_audit ORDER BY sequence DESC LIMIT 1"
     ).fetchone()
