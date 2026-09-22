@@ -8,8 +8,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
-from .audit import EvolutionAuditRecord, crosscheck_provenance_audit, verify_audit_chain
-from .provenance import EvidenceProvenance, crosscheck_provenance
+from gnosis.evidence.audit import EvolutionAuditRecord, crosscheck_provenance_audit, verify_audit_chain
+from gnosis.evidence.provenance import EvidenceProvenance, crosscheck_provenance
 
 
 @dataclass(frozen=True)
