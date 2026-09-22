@@ -87,3 +87,48 @@ def test_shadow_adapter_rejects_duplicate_candidate_identity():
             lambda state, candidate: True,
             registry,
         )
+
+
+def test_shadow_adapter_rejects_unbound_transition_evidence_ref():
+    registry = RuleRegistry()
+    registry.register(RuleMetadata(
+        rule_id="test-rule:diagnostic-policy", rule_version=1,
+        rule_type="test_policy", scope="test",
+        implementation_ref="test:active", spec_ref="test:spec",
+    ))
+    proposal = RuleProposal(
+        proposal_id="proposal:unbound", finding_id="finding:unbound",
+        target="test-rule:diagnostic-policy", hypothesis="h",
+        evidence_refs=("transition:9:missing",), expected_effect="e",
+        regression_risk="r", required_test="shadow",
+        rule_id="test-rule:diagnostic-policy", current_version=1, proposed_version=2,
+    )
+    with pytest.raises(ValueError, match="do not match supplied candidates"):
+        evaluate_proposal_shadow(
+            proposal, (_candidate(1),),
+            lambda state, candidate: True,
+            lambda state, candidate: True,
+            registry,
+        )
+
+def test_shadow_adapter_rejects_empty_candidate_evidence():
+    registry = RuleRegistry()
+    registry.register(RuleMetadata(
+        rule_id="test-rule:diagnostic-policy", rule_version=1,
+        rule_type="test_policy", scope="test",
+        implementation_ref="test:active", spec_ref="test:spec",
+    ))
+    proposal = RuleProposal(
+        proposal_id="proposal:empty", finding_id="finding:empty",
+        target="test-rule:diagnostic-policy", hypothesis="h",
+        evidence_refs=(), expected_effect="e", regression_risk="r",
+        required_test="shadow", rule_id="test-rule:diagnostic-policy",
+        current_version=1, proposed_version=2,
+    )
+    with pytest.raises(ValueError, match="at least one candidate"):
+        evaluate_proposal_shadow(
+            proposal, (),
+            lambda state, candidate: True,
+            lambda state, candidate: True,
+            registry,
+        )
