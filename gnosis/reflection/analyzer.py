@@ -95,6 +95,37 @@ class ReflectionReport:
     evolution_evidence: tuple[object, ...] = field(default_factory=tuple)
 
 
+
+def validate_reflection_provenance(report: ReflectionReport) -> None:
+    """Reject internally inconsistent Observation -> Finding -> Counterexample -> Proposal links."""
+    observations = {o.observation_id: o for o in report.observations}
+    findings = {f.finding_id: f for f in report.findings}
+    for finding in report.findings:
+        if any(oid not in observations for oid in finding.observation_ids):
+            raise ValueError("finding references unknown observation")
+        observed_refs = tuple(observations[oid].evidence_ref for oid in finding.observation_ids)
+        if observed_refs != finding.evidence_refs:
+            raise ValueError("finding observation/evidence provenance mismatch")
+
+    for counterexample in report.counterexamples:
+        finding = findings.get(counterexample.finding_id)
+        if finding is None:
+            raise ValueError("counterexample references unknown finding")
+        if counterexample.candidate_id != f"counterexample:{finding.finding_id}":
+            raise ValueError("counterexample/finding identity mismatch")
+        if tuple(counterexample.evidence_refs) != tuple(finding.evidence_refs):
+            raise ValueError("counterexample/finding evidence provenance mismatch")
+
+    for proposal in report.proposals:
+        finding = findings.get(proposal.finding_id)
+        if finding is None:
+            raise ValueError("proposal references unknown finding")
+        if tuple(proposal.evidence_refs) != tuple(finding.evidence_refs):
+            raise ValueError("proposal/finding evidence provenance mismatch")
+        expected = tuple(c.candidate_id for c in report.counterexamples if c.finding_id == finding.finding_id)
+        if tuple(proposal.counterexample_refs) != expected:
+            raise ValueError("proposal/counterexample provenance mismatch")
+
 class ReflectionAnalyzer:
     """Analyze Core history without changing it.
 
@@ -242,9 +273,11 @@ class ReflectionAnalyzer:
                     )
                 )
 
-        return ReflectionReport(
+        report = ReflectionReport(
             observations=observations,
             findings=tuple(findings),
             counterexamples=tuple(counterexamples),
             proposals=tuple(proposals),
         )
+        validate_reflection_provenance(report)
+        return report
