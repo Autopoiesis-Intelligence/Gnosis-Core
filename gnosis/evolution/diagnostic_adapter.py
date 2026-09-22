@@ -1,7 +1,7 @@
 """Canonical adapter from sandbox execution evidence to diagnostic evidence."""
 from __future__ import annotations
 
-from .provenance import DiagnosticEvidence
+from gnosis.evidence.provenance import DiagnosticEvidence
 from .sandbox import SandboxResult
 
 
