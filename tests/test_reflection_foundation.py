@@ -88,3 +88,66 @@ def test_reflection_never_returns_activation_command():
     assert proposal.status == "PROPOSED"
     assert not hasattr(proposal, "activate")
     assert not hasattr(proposal, "commit")
+
+
+def test_reflection_provenance_rejects_tampered_finding_evidence():
+    from gnosis.reflection.analyzer import (
+        Finding, ReflectionObservation, ReflectionReport, validate_reflection_provenance,
+    )
+    observation = ReflectionObservation(
+        observation_id="observation:1",
+        transition_id="transition:1:c1",
+        kind="rejection_reason",
+        value="bad",
+        evidence_ref="transition:1:c1",
+    )
+    finding = Finding(
+        finding_id="finding:1",
+        claim="x",
+        observation_ids=("observation:1",),
+        evidence_refs=("transition:foreign:c9",),
+        reproducibility=2,
+        falsification_condition="x",
+    )
+    report = ReflectionReport(observations=(observation,), findings=(finding,))
+    with pytest.raises(ValueError, match="finding observation/evidence provenance mismatch"):
+        validate_reflection_provenance(report)
+
+
+def test_reflection_provenance_rejects_proposal_with_foreign_finding_evidence():
+    from gnosis.reflection.analyzer import (
+        Finding, ReflectionObservation, ReflectionReport, RuleProposal,
+        validate_reflection_provenance,
+    )
+    observation = ReflectionObservation(
+        observation_id="observation:1",
+        transition_id="transition:1:c1",
+        kind="rejection_reason",
+        value="bad",
+        evidence_ref="transition:1:c1",
+    )
+    finding = Finding(
+        finding_id="finding:1",
+        claim="x",
+        observation_ids=("observation:1",),
+        evidence_refs=("transition:1:c1",),
+        reproducibility=2,
+        falsification_condition="x",
+    )
+    proposal = RuleProposal(
+        proposal_id="proposal:1",
+        finding_id="finding:1",
+        target="rule:v1",
+        hypothesis="h",
+        evidence_refs=("transition:foreign:c9",),
+        expected_effect="e",
+        regression_risk="r",
+        required_test="t",
+    )
+    report = ReflectionReport(
+        observations=(observation,),
+        findings=(finding,),
+        proposals=(proposal,),
+    )
+    with pytest.raises(ValueError, match="proposal/finding evidence provenance mismatch"):
+        validate_reflection_provenance(report)
