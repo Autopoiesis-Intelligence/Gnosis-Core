@@ -3,7 +3,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 from gnosis.core.recovery import RecoveryEvidence, RecoveryPort
-from gnosis.reflection.persistence import list_evolution_audit, list_evolution_provenance
+from gnosis.evidence.recovery import list_evolution_audit, list_evolution_provenance
 
 class SQLiteRecoveryAdapter(RecoveryPort):
     def __init__(self, conn: sqlite3.Connection): self.conn=conn
