@@ -248,10 +248,32 @@ def list_reflection_reports(conn: sqlite3.Connection) -> tuple[dict[str, Any], .
 
 
 def classify_evolution_provenance(row: dict[str, Any]) -> str:
-    """Classify persisted provenance without silently upgrading legacy records."""
+    """Classify persisted provenance only when both canonical identities recompute."""
     identity = row.get("evolution_identity")
     if identity is None or identity == "":
         return "legacy_unverified"
+    try:
+        provenance = EvidenceProvenance(
+            execution_id=row["execution_id"],
+            candidate_id=row["candidate_id"],
+            parent_state_id=row["parent_state_id"],
+            parent_state_digest=row["parent_state_digest"],
+            proposed_state_digest=row["proposed_state_digest"],
+            evidence_digest=row["evidence_digest"],
+            evaluation_status=row["evaluation_status"],
+            shadow_status=row["shadow_status"],
+            invariant_status=row["invariant_status"],
+            governance_decision=row["governance_decision"],
+            status=row.get("status", "RECORDED"),
+            proposed_state_content_id=row.get("proposed_state_content_id", ""),
+            candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        )
+    except (KeyError, TypeError, ValueError):
+        return "malformed"
+    if row.get("provenance_id") != provenance.provenance_id:
+        return "malformed"
+    if identity != provenance.evolution_identity:
+        return "malformed"
     return "canonical"
 
 
