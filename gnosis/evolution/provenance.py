@@ -189,3 +189,66 @@ def crosscheck_provenance(
     if provenance.provenance_id != expected_provenance.provenance_id:
         reasons.append("provenance identity mismatch")
     return ProvenanceCrossCheck(valid=not reasons, reasons=tuple(reasons))
+
+
+"""Immutable evidence produced by the in-Core diagnostic subsystem.
+
+DiagnosticEvidence is intentionally distinct from EvolutionMemoryRecord:
+memory records describe durable evolutionary history, while this object
+describes a bounded diagnostic observation and its verification lifecycle.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Mapping
+
+from .provenance import canonical_digest
+
+
+_ALLOWED = {"EPHEMERAL", "OBSERVED", "REPRODUCED", "VERIFIED", "DURABLE"}
+
+
+@dataclass(frozen=True)
+class DiagnosticEvidence:
+    evidence_id: str
+    case_id: str
+    state_id: str
+    candidate_id: str
+    lifecycle: str
+    observations: Mapping[str, object]
+    provenance_refs: tuple[str, ...] = ()
+    limitations: tuple[str, ...] = ()
+    evidence_digest: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.evidence_id.strip() or not self.case_id.strip():
+            raise ValueError("diagnostic evidence identifiers must be non-empty")
+        if self.lifecycle not in _ALLOWED:
+            raise ValueError(f"unsupported diagnostic lifecycle: {self.lifecycle}")
+        expected = canonical_digest(
+            {
+                "evidence_id": self.evidence_id,
+                "case_id": self.case_id,
+                "state_id": self.state_id,
+                "candidate_id": self.candidate_id,
+                "lifecycle": self.lifecycle,
+                "observations": dict(self.observations),
+                "provenance_refs": self.provenance_refs,
+                "limitations": self.limitations,
+            }
+        )
+        if self.evidence_digest and self.evidence_digest != expected:
+            raise ValueError("diagnostic evidence digest mismatch")
+        if not self.evidence_digest:
+            object.__setattr__(self, "evidence_digest", expected)
+
+    def advance(self, lifecycle: str, *, provenance_refs: tuple[str, ...] | None = None) -> "DiagnosticEvidence":
+        order = ("EPHEMERAL", "OBSERVED", "REPRODUCED", "VERIFIED", "DURABLE")
+        if lifecycle not in _ALLOWED or order.index(lifecycle) < order.index(self.lifecycle):
+            raise ValueError("diagnostic lifecycle cannot move backwards")
+        return DiagnosticEvidence(
+            self.evidence_id, self.case_id, self.state_id, self.candidate_id,
+            lifecycle, self.observations,
+            self.provenance_refs if provenance_refs is None else provenance_refs,
+            self.limitations,
+        )
