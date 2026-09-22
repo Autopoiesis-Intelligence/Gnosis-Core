@@ -374,7 +374,11 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
     assert recovered.engine.state.state_id == original_head
     assert (recovered.engine.budget.total, recovered.engine.budget.spent) == original_budget
     assert conn.execute(
-        "SELECT accepted FROM transitions WHERE transition_id=?",
-        (rejected and __import__("gnosis.storage.repositories", fromlist=["transition_id"]).transition_id(rejected),),
-    ).fetchone()[0] == 0
+        "SELECT count(*) FROM transitions WHERE instance_id=? AND accepted=0",
+        (instance.instance_id,),
+    ).fetchone()[0] == 1
+    assert conn.execute(
+        "SELECT 1 FROM states WHERE state_id=?",
+        (proposed.state_id,),
+    ).fetchone() is not None
     assert verify_durable_graph(conn)[0] == 1
