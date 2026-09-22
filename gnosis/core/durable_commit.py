@@ -6,8 +6,9 @@ import sqlite3
 from .governance import AuthorizationPackage
 from .rule_proposal import RuleProposal
 from .commit import CommitRecord
-from gnosis.core import Candidate, Instance, TransitionRecord
-from gnosis.storage.repositories import persist_transition
+from gnosis.core import Candidate, TransitionRecord
+from gnosis.instances.instance import Instance
+from gnosis.storage.repositories import persist_transition, transition_id
 
 
 def persist_authorized_transition(
@@ -21,6 +22,7 @@ def persist_authorized_transition(
     actor: str,
     failure_at: str | None = None,
 ) -> CommitRecord:
+    """Persist an already-authorized accepted transition atomically."""
     if authorization.decision != "AUTHORIZED":
         raise ValueError("durable commit requires explicit authorization")
     if authorization.proposal_id != proposal.proposal_id:
@@ -43,14 +45,9 @@ def persist_authorized_transition(
         failure_at=failure_at,
     )
     return CommitRecord(
-        transition_id=transition_id_for(transition),
+        transition_id=transition_id(transition),
         authorization_id=authorization.authorization_id,
         proposal_id=proposal.proposal_id,
         previous_state_id=transition.from_state_id,
         new_state_id=transition.to_state_id,
     )
-
-
-def transition_id_for(record: TransitionRecord) -> str:
-    from gnosis.storage.repositories import transition_id
-    return transition_id(record)
