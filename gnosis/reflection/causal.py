@@ -66,4 +66,13 @@ def refine_proposal_target(
         regression_risk=proposal.regression_risk,
         required_test=proposal.required_test,
         status=proposal.status,
+        rule_id=proposal.rule_id,
+        current_version=proposal.current_version,
+        proposed_version=proposal.proposed_version,
+        finding_refs=proposal.finding_refs,
+        counterexample_refs=proposal.counterexample_refs,
+        expected_effects=proposal.expected_effects,
+        possible_regressions=proposal.possible_regressions,
+        test_plan=proposal.test_plan,
+        provenance=proposal.provenance,
     )
