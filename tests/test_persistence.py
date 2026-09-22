@@ -395,3 +395,24 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     reopened = connect(path)
     assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
     assert verify_durable_graph(reopened)[0] == 1
+
+
+def test_a51_audit_action_and_result_mismatch_fails_durable_graph_verification():
+    conn, instance, record = _persisted_transition()
+    row = conn.execute(
+        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
+        "FROM audit_events WHERE transition_id IS NOT NULL"
+    ).fetchone()
+    conn.execute("DROP TRIGGER audit_events_no_update")
+    event = {
+        "event_id": row[0], "sequence": row[1], "transition_id": row[2],
+        "actor": row[3], "action": "transition.reject",
+        "resource": row[5], "result": "rejected",
+        "timestamp": row[7], "prev_hash": row[8],
+    }
+    conn.execute(
+        "UPDATE audit_events SET action=?, result=?, event_hash=? WHERE event_id=?",
+        ("transition.reject", "rejected", _audit_hash(event), row[0]),
+    )
+    with pytest.raises(StorageCorruptionError, match="audit/transition semantic mismatch"):
+        verify_durable_graph(conn)
