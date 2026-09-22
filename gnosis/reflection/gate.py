@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from gnosis.storage import recover_instance, verify_durable_graph
+from gnosis.evolution.recovery import recover_evolution_audit
 
 from .diagnostic_artifact import build_artifact
 from .persistence import reflection_id
@@ -51,6 +52,15 @@ def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, minimum_rep
 
     if history and recovery_state_id and recovery_state_id != engine.state.state_id:
         reasons.append("recovered state does not match canonical engine state")
+
+    # Durable instance recovery and evolution provenance recovery are distinct
+    # trust domains; a reflection gate must not pass with only one verified.
+    try:
+        evolution_report = recover_evolution_audit(conn)
+        if not evolution_report.chain_valid or not evolution_report.replay_valid:
+            reasons.append("evolution provenance/audit recovery failed")
+    except Exception as exc:
+        reasons.append(f"evolution provenance/audit recovery failed: {type(exc).__name__}")
 
     try:
         cumulative = reflect_with_history(engine, conn, minimum_repetitions=minimum_repetitions)
