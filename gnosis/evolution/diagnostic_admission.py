@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from .evaluator import EvaluationResult
-from .provenance import DiagnosticEvidence
+from gnosis.evidence.provenance import DiagnosticEvidence
 from .replay import ReplayResult
 
 
