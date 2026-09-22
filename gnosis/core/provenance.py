@@ -15,7 +15,7 @@ def canonical_digest(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class EvidenceProvenance:
     execution_id: str
     candidate_id: str
@@ -31,9 +31,49 @@ class EvidenceProvenance:
     proposed_state_content_id: str = ""
     candidate_binding_digest: str = ""
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        fields = (
+            "provenance_id", "execution_id", "candidate_id", "parent_state_id",
+            "parent_state_digest", "proposed_state_digest", "evidence_digest",
+            "evaluation_status", "shadow_status", "invariant_status",
+            "governance_decision", "status", "evolution_identity",
+            "proposed_state_content_id", "candidate_binding_digest",
+        )
+        if args:
+            if len(args) == 15:
+                values = dict(zip(fields, args))
+            elif len(args) == 13:
+                legacy = fields[1:12] + fields[13:15]
+                values = dict(zip(legacy, args))
+            else:
+                raise TypeError("unsupported EvidenceProvenance positional arity")
+        else:
+            values = dict(kwargs)
+        defaults = {"status": "RECORDED", "proposed_state_content_id": "", "candidate_binding_digest": ""}
+        values = {**defaults, **values}
+        required = (
+            "execution_id", "candidate_id", "parent_state_id", "parent_state_digest",
+            "proposed_state_digest", "evidence_digest", "evaluation_status",
+            "shadow_status", "invariant_status", "governance_decision",
+        )
+        for name in required:
+            if name not in values:
+                raise TypeError(f"missing required argument: {name}")
+        for name in (
+            "execution_id", "candidate_id", "parent_state_id", "parent_state_digest",
+            "proposed_state_digest", "evidence_digest", "evaluation_status",
+            "shadow_status", "invariant_status", "governance_decision", "status",
+            "proposed_state_content_id", "candidate_binding_digest",
+        ):
+            object.__setattr__(self, name, values[name])
+        object.__setattr__(self, "_provenance_id_override", values.get("provenance_id"))
+        object.__setattr__(self, "_evolution_identity_override", values.get("evolution_identity"))
+
     @property
     def evolution_identity(self) -> str:
         """Canonical identity for the complete persisted evolution unit."""
+        if getattr(self, "_evolution_identity_override", None):
+            return self._evolution_identity_override
         return "evolution:" + canonical_digest({
             "candidate_id": self.candidate_id,
             "execution_id": self.execution_id,
@@ -52,6 +92,8 @@ class EvidenceProvenance:
 
     @property
     def provenance_id(self) -> str:
+        if getattr(self, "_provenance_id_override", None):
+            return self._provenance_id_override
         return "provenance:" + canonical_digest({
             "execution_id": self.execution_id,
             "candidate_id": self.candidate_id,
