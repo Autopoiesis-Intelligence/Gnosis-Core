@@ -80,9 +80,11 @@ def evaluate_promotion_gate(
         reasons.append("invariant result is not preserved/improved")
     if candidate.governance_decision not in ALLOWED_GOVERNANCE:
         reasons.append("governance decision is not review/approve")
-    missing = tuple(name for name in required_evidence if not name)
-    if missing:
+    required = tuple(required_evidence)
+    if any(not name for name in required):
         reasons.append("required evidence contains empty identifier")
+    if required and candidate.evidence_digest not in required:
+        reasons.append("candidate evidence digest is not in required evidence")
     return PromotionGate(
         eligible=not reasons,
         reasons=tuple(reasons),
