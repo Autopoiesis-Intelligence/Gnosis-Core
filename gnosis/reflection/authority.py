@@ -257,6 +257,7 @@ class ExecutionReceipt:
             and self.provenance_id == str(p.provenance_id)
             and self.evolution_identity == str(p.evolution_identity)
             and self.parent_state_digest == str(p.parent_state_digest)
+            and self.resulting_state_digest == str(p.proposed_state_digest)
             and self.candidate_binding_digest == str(p.candidate_binding_digest)
             and request.authorization.evolution_identity == self.evolution_identity
         )
