@@ -31,8 +31,11 @@ def persist_authorized_transition(
         raise ValueError("candidate/transition source mismatch")
     if candidate.proposed_state.state_id != transition.to_state_id:
         raise ValueError("candidate/transition target mismatch")
-    if instance.engine.state.state_id != transition.from_state_id:
-        raise ValueError("stale instance head")
+    current = conn.execute("SELECT current_state_id FROM instances WHERE instance_id=?", (instance.instance_id,)).fetchone()
+    if current is None:
+        raise ValueError("instance is not persisted")
+    if current[0] != transition.from_state_id:
+        raise ValueError("stale persisted instance head")
     if not transition.accepted:
         raise ValueError("durable evolution commit requires accepted transition")
 
