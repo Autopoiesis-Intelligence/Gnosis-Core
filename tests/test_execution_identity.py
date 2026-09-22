@@ -19,10 +19,10 @@ def test_input_tamper_detected():
 def test_context_tamper_detected():
     check=check_identity("A","check:A",{"predicate":"x>0"})
     result=TestResult(True,("ok",))
-    i=execution_identity(check,{"x":1},{"mode":"sandbox"},result)
+    i=execution_identity(check,execution_input_from_state(State({"x":1},(),1),"sandbox"),{"mode":"sandbox"},result)
     assert not verify_execution_identity(i,check,execution_input_from_state(State({"x":1},(),1),"commit"),{"mode":"commit"},result)
 
 def test_result_tamper_detected():
     check=check_identity("A","check:A",{"predicate":"x>0"})
-    i=execution_identity(check,{"x":1},{"mode":"sandbox"},TestResult(True,("ok",)))
+    i=execution_identity(check,execution_input_from_state(State({"x":1},(),1),"sandbox"),{"mode":"sandbox"},TestResult(True,("ok",)))
     assert not verify_execution_identity(i,check,execution_input_from_state(State({"x":1},(),1),"sandbox"),{"mode":"sandbox"},TestResult(False,("bad",)))
