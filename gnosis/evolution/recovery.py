@@ -45,8 +45,6 @@ def recover_evolution_audit(
         return RecoveryReport(len(records), False, False, None, None, ("observations required for independent recovery verification",))
     if proposed_state is None:
         return RecoveryReport(len(records), False, False, None, None, ("proposed state required for content reconciliation",))
-    if parent_state is None:
-        return RecoveryReport(len(records), False, False, None, None, ("parent state required for execution input reconciliation",))
     result = verify_persisted_chain(
         provenance_rows[0],
         [record.__dict__ for record in records],
@@ -56,10 +54,12 @@ def recover_evolution_audit(
     expected_digest = provenance_row["evidence_digest"]
     actual_digest = canonical_digest(observations)
     persisted_identity = provenance_row.get("evolution_identity", "")
-    execution_input = execution_input_from_state(parent_state, "sandbox")
-    execution_binding_valid = execution_input.state_id == provenance_row["parent_state_id"] and execution_input.state_digest == provenance_row["parent_state_digest"]
-    if not execution_binding_valid:
-        reasons = ["recovery execution input binding mismatch"]
+    if parent_state is not None:
+        execution_input = execution_input_from_state(parent_state, "sandbox")
+        execution_binding_valid = (execution_input.state_id == provenance_row["parent_state_id"] and execution_input.state_digest == provenance_row["parent_state_digest"])
+        reasons = list(result.reasons)
+        if not execution_binding_valid:
+            reasons.append("recovery execution input binding mismatch")
     else:
         reasons = list(result.reasons)
     provenance_class = classify_evolution_provenance(provenance_row)
