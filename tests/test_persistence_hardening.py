@@ -382,3 +382,15 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
         (proposed.state_id,),
     ).fetchone() is not None
     assert verify_durable_graph(conn)[0] == 1
+
+
+def test_durable_graph_rejects_budget_snapshot_exceeding_total():
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"root": 0}))
+    save_instance(conn, instance)
+    conn.execute(
+        "UPDATE instances SET budget_spent=budget_total+1 WHERE instance_id=?",
+        (instance.instance_id,),
+    )
+    with pytest.raises(StorageCorruptionError, match="budget spent exceeds total"):
+        verify_durable_graph(conn)
