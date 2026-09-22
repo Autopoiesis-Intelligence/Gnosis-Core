@@ -2603,3 +2603,27 @@ The repository is now treated as an engineering specimen. We use reverse-analysi
 ### Session recovery anchor
 
 If this context must be reconstructed in a new session, resume from RM-CORE-R1, not from the beginning of E7.x. The immediate job is repository restructuring toward Gnozis Core + Gnozis Research Machine, using the existing AI Knowledge Interface and preserving the dual-track Research/Engineering workflow.
+
+
+## 2026-09-22 RELEASE FREEZE ANCHOR — FINAL 2-REPOSITORY ARCHITECTURE
+
+The restructuring line reached its defined executable release boundary.
+
+### Verified release state
+- Branch: `architecture/restructure-r1-9`
+- Verified implementation HEAD before documentation freeze: `2754f1e2691718f41589d2efc9948ab99d992bdd`
+- CI: Python 3.11 PASS; Python 3.12 PASS
+- Final 2-repository architecture: **100%** within the explicitly defined release scope.
+- This percentage is earned by implementation + tests + CI, not by documentation alone.
+
+### Closed release contracts
+ExecutionInput is bound to canonical State identity and execution context. ExecutionIdentity cannot independently claim a different input identity. Transition persistence and recovery verify canonical transition identity and detect payload substitution. Atomic evolution preserves rollback semantics under failure injection. Audit events remain append-only. TestResult identity is bound through the canonical digest helper. The resulting contracts passed the final CI gate on the exact HEAD above.
+
+### Scope boundary
+100% is **not** a claim that the entire long-term Gnozis program is complete. Research Machine extraction, User Continuity runtime, Memory hardening, invariant-delta analysis, Governance/Rollback expansion, endogenous rule generation, and future multi-user strategy remain separate tracks unless independently verified.
+
+### Release freeze
+Do not add unrelated architecture to this release line. Any post-freeze change must have a new TASK-ID / BLOCK with explicit scope, implementation evidence, required tests, acceptance criteria, and CI evidence. A future change must not silently reduce the verified release boundary.
+
+### Resume anchor
+Next task: **RELEASE-R2 — Research Machine / Core boundary finalization**. Start by inventorying actual repository paths and classifying them as KEEP IN CORE / MOVE TO RESEARCH MACHINE / REFERENCE / SUPERSEDED / INTERFACE / TOOLING / TEST-EVIDENCE, then execute only bounded provenance-preserving migrations.
