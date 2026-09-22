@@ -1,6 +1,6 @@
 import pytest
 from gnosis.core.types import State, Candidate, TransitionRecord, TestResult
-from gnosis.core.test_identity import test_result_digest, verify_test_transition_binding
+from gnosis.core.test_identity import test_result_digest as compute_test_result_digest, verify_test_transition_binding
 
 def make(result=None):
     p=State({"x":1},(),1); q=State({"x":2},(),2); c=Candidate(p.state_id,q,"test",1)
@@ -9,7 +9,7 @@ def make(result=None):
     return c,result,t
 
 def test_test_result_binding_valid():
-    c,r,t=make(); verify_test_transition_binding(c,r,t,test_result_digest(r))
+    c,r,t=make(); verify_test_transition_binding(c,r,t,compute_test_result_digest(r))
 
 def test_failing_result_is_rejected():
     c,r,t=make(TestResult(False,("failure",)))
