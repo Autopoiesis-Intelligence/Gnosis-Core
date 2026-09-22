@@ -68,3 +68,19 @@ def test_audit_repository_contract_preserves_append_only_chain():
     )
 
     assert audit_repo.verify_audit_chain()[0] == 2
+
+
+def test_canonical_core_has_no_in_repo_development_memory_dependency():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    development = root / "development"
+    assert not development.exists()
+
+
+def test_canonical_core_does_not_import_development_namespace():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1] / "gnosis"
+    forbidden = ("import development", "from development")
+    for path in root.rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        assert not any(token in text for token in forbidden), path
