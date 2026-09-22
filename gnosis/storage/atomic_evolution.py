@@ -2,8 +2,8 @@
 from __future__ import annotations
 import json, sqlite3
 from typing import Any, Mapping
-from gnosis.core.audit import make_audit_record
-from gnosis.core.provenance import EvidenceProvenance, canonical_digest
+from gnosis.evidence.audit import make_audit_record, EvolutionAuditRecord, verify_audit_chain
+from gnosis.evidence.provenance import EvidenceProvenance, canonical_digest
 from gnosis.core.durable_commit import DurableCommitResult
 from gnosis.core.persistable_transition import PersistableTransition
 from gnosis.core.types import TransitionRecord
