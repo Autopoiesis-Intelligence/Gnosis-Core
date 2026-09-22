@@ -51,6 +51,9 @@ def evaluate_proposal_shadow(
         raise ValueError("proposal rule_id does not match registry metadata")
 
     candidate_tuple = tuple(candidates)
+    candidate_ids = tuple(candidate.candidate_id for candidate in candidate_tuple)
+    if len(set(candidate_ids)) != len(candidate_ids):
+        raise ValueError("shadow evaluation requires unique candidate_ids")
     evaluation = evaluate_shadow(candidate_tuple, active_test, shadow_test)
     return ProposalShadowAssessment(
         proposal_id=proposal.proposal_id,
