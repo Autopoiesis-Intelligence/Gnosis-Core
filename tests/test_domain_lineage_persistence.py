@@ -22,8 +22,8 @@ def test_domain_lineage_transition_is_persistent_and_recoverable(tmp_path):
     assert record.transition_id==tid
     row=conn.execute("SELECT transition_id FROM transitions WHERE transition_id=?",(tid,)).fetchone()
     audit=conn.execute("SELECT transition_id FROM audit_events WHERE transition_id=?",(tid,)).fetchone()
-    assert row==(tid,)
-    assert audit==(tid,)
+    assert tuple(row)==(tid,)
+    assert tuple(audit)==(tid,)
     assert verify_durable_graph(conn)[0]==2
     conn.close()
     reopened=connect(path)
