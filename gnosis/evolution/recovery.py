@@ -9,7 +9,7 @@ from ..core.types import State
 
 from .chain_verifier import verify_persisted_chain
 from gnosis.evidence.provenance import canonical_digest, EvidenceProvenance
-from gnosis.reflection.persistence import classify_evolution_provenance, list_evolution_audit, list_evolution_provenance
+from gnosis.evidence.recovery import classify_evolution_provenance, list_evolution_audit, list_evolution_provenance
 
 
 @dataclass(frozen=True)
