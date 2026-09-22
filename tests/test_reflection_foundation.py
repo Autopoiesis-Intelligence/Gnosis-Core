@@ -203,10 +203,8 @@ def test_reflection_provenance_rejects_counterexample_with_foreign_evidence():
 
 
 def test_transition_evidence_identity_is_stable_across_history_reordering():
-    state = State(elements={"n": 0})
-    first = _record(0, False, "c0", "same")
-    second = _record(1, False, "c1", "same")
-    from gnosis.core.types import TransitionRecord
+    first = transition("c0", False, "same")
+    second = transition("c1", False, "same")
     reordered = (second, first)
     assert first.transition_id != second.transition_id
     assert first.transition_id == reordered[1].transition_id
