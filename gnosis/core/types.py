@@ -145,6 +145,18 @@ class TransitionRecord:
         if not self.reason.strip():
             raise ValueError("TransitionRecord.reason must not be empty")
 
+    @property
+    def transition_id(self) -> str:
+        """Stable content-derived identity for this historical transition."""
+        return _stable_hash({
+            "candidate_id": self.candidate_id,
+            "from": self.from_state_id,
+            "to": self.to_state_id,
+            "accepted": self.accepted,
+            "reasons": self.test_result.reasons,
+            "test_rule_id": self.test_rule_id,
+        })
+
 
 Agent = None
 Instance = None
