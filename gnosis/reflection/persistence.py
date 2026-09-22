@@ -178,6 +178,22 @@ def load_counterexample(conn: sqlite3.Connection, result_id: str) -> Counterexam
     return result
 
 
+def load_counterexample_for_report(
+    conn: sqlite3.Connection,
+    report_id: str,
+    result_id: str,
+) -> CounterexampleResult:
+    """Reload a counterexample only when its persisted report identity matches."""
+    report = load_reflection_report(conn, report_id)
+    result = load_counterexample(conn, result_id)
+    if result_id.split(":counterexample:", 1)[0] != report_id:
+        raise RuntimeError("counterexample/report identity mismatch")
+    stored_results = tuple(report["payload"].get("counterexample_results", ()))
+    if not any(_json(item) == _json(asdict(result)) for item in stored_results):
+        raise RuntimeError("counterexample is not part of persisted reflection report")
+    return result
+
+
 def save_shadow_assessment(conn: sqlite3.Connection, report_id: str, assessment: ShadowEvaluation) -> str:
     ensure_reflection_schema(conn)
     assessment_id = f"{report_id}:shadow:{len(assessment.cases)}:{assessment.status}"
