@@ -14,10 +14,10 @@ def test_test_result_binding_valid():
 def test_failing_result_cannot_be_accepted():
     c,r,_=make(TestResult(False,("failure",)))
     t=TransitionRecord("s1","s2",c.candidate_id,r,True,"accepted","rule:1")
-    with pytest.raises(ValueError,match="failing"):
+    with pytest.raises(ValueError,match="test result mismatch"):
         verify_test_transition_binding(c,r,t,test_result_digest(r))
 
 def test_result_tamper_is_detected():
     c,r,t=make(); verify_test_transition_binding(c,r,t,test_result_digest(r))
-    with pytest.raises(ValueError,match="digest"):
+    with pytest.raises(ValueError,match="test result mismatch"):
         verify_test_transition_binding(c,TestResult(True,("tampered",)),t,test_result_digest(r))
