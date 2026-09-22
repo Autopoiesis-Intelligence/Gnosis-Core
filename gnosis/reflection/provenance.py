@@ -33,7 +33,7 @@ def attribute_rule(
     wanted = set(transition_ids)
     grouped: dict[str, list[str]] = {}
     for index, transition in enumerate(transitions):
-        transition_id = f"transition:{index}:{transition.candidate_id}"
+        transition_id = transition.transition_id
         if transition_id not in wanted:
             continue
         grouped.setdefault(transition.test_rule_id, []).append(transition_id)
