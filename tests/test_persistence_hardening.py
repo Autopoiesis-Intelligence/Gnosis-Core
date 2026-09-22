@@ -348,3 +348,33 @@ def test_durable_graph_rejects_tampered_unheaded_transition_source():
     )
     with pytest.raises(StorageCorruptionError, match="state hash mismatch"):
         verify_durable_graph(conn)
+
+
+def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"root": 0}))
+    save_instance(conn, instance)
+    original_head = instance.engine.state.state_id
+    original_budget = (instance.engine.budget.total, instance.engine.budget.spent)
+
+    proposed = instance.engine.state.with_elements({"rejected": 1})
+    candidate = Candidate(instance.engine.state.state_id, proposed, "reject-only")
+    rejected = TransitionRecord(
+        from_state_id=instance.engine.state.state_id,
+        to_state_id=proposed.state_id,
+        candidate_id=candidate.candidate_id,
+        test_result=TestResult(passed=False, reasons=("rejected",)),
+        accepted=False,
+        reason="rejected",
+        test_rule_id="test-rule",
+    )
+    persist_transition(conn, instance, candidate, rejected, actor="u")
+
+    recovered = recover_instance(conn, instance.instance_id)
+    assert recovered.engine.state.state_id == original_head
+    assert (recovered.engine.budget.total, recovered.engine.budget.spent) == original_budget
+    assert conn.execute(
+        "SELECT accepted FROM transitions WHERE transition_id=?",
+        (rejected and __import__("gnosis.storage.repositories", fromlist=["transition_id"]).transition_id(rejected),),
+    ).fetchone()[0] == 0
+    assert verify_durable_graph(conn)[0] == 1
