@@ -394,3 +394,34 @@ def test_durable_graph_rejects_budget_snapshot_exceeding_total():
     )
     with pytest.raises(StorageCorruptionError, match="budget spent exceeds total"):
         verify_durable_graph(conn)
+
+
+def test_transition_reload_rejects_identity_tampering():
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    candidate, record = _transition(instance, "next")
+    persist_transition(conn, instance, candidate, record, actor="u")
+    conn.execute(
+        "UPDATE transitions SET test_rule_id=? WHERE transition_id=?",
+        ("tampered-rule", record.transition_id),
+    )
+    with pytest.raises(StorageCorruptionError, match="transition identity mismatch"):
+        from gnosis.storage.repositories import load_transition_records
+        load_transition_records(conn, instance.instance_id)
+
+
+def test_transition_reload_identity_is_independent_of_created_at():
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    candidate, record = _transition(instance, "next")
+    persist_transition(conn, instance, candidate, record, actor="u")
+    conn.execute(
+        "UPDATE transitions SET created_at=? WHERE transition_id=?",
+        ("2099-01-01T00:00:00+00:00", record.transition_id),
+    )
+    loaded = __import__("gnosis.storage.repositories", fromlist=["load_transition_records"]).load_transition_records(
+        conn, instance.instance_id
+    )
+    assert loaded[0].transition_id == record.transition_id
