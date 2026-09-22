@@ -8,7 +8,7 @@ def test_state_digest_round_trip():
 
 def test_state_digest_detects_content_tamper():
     s=State({"a":1},(),1)
-    payload=canonical_state_payload(s); payload["elements"]["a"]=2
+    payload=canonical_state_payload(s); payload["elements"] = {"a": 2}
     restored=state_from_payload(payload)
     assert state_digest(restored)!=state_digest(s)
 
