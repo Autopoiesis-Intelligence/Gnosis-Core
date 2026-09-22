@@ -61,6 +61,7 @@ def recover_evolution_audit(
         if not execution_binding_valid:
             reasons.append("recovery execution input binding mismatch")
             replay_valid = False
+            # CI gate anchor: this branch must make replay invalid.
     else:
         reasons = list(result.reasons)
     provenance_class = classify_evolution_provenance(provenance_row)
