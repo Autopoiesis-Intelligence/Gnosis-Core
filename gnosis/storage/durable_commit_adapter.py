@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import sqlite3
 
-from .governance import AuthorizationPackage
-from .rule_proposal import RuleProposal
-from .commit import CommitRecord
+from gnosis.core.governance import AuthorizationPackage
+from gnosis.core.rule_proposal import RuleProposal
+from gnosis.core.commit import CommitRecord
 from gnosis.core import Candidate, TransitionRecord
 from gnosis.instances.instance import Instance
 from gnosis.storage.repositories import persist_transition, transition_id
