@@ -90,3 +90,17 @@ def test_counterexample_result_rejects_nonaccepted_refuted_evidence():
     )
     with pytest.raises(ValueError, match="refuted counterexample evidence"):
         validate_counterexample_result(finding,candidate,result,history)
+
+
+def test_reloaded_refuted_counterexample_requires_canonical_accepted_history():
+    from gnosis.reflection.persistence import validate_reloaded_counterexample_evidence
+    result = CounterexampleResult(
+        candidate_id="counterexample:finding:1",
+        finding_id="finding:1",
+        status="REFUTED",
+        evidence_refs=("transition:0:c1",),
+        explanation="x",
+    )
+    rejected = _record(0, False, "c1", "rejected")
+    with pytest.raises(RuntimeError, match="persisted counterexample evidence"):
+        validate_reloaded_counterexample_evidence(result, (rejected,))
