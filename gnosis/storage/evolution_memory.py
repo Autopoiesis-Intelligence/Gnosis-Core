@@ -78,5 +78,21 @@ def load_evolution_memory(conn, instance_id: str, *, limit: int = 100) -> tuple[
         rec=EvolutionMemoryRecord(*row[:7], evidence, row[8])
         if rec.memory_id != rec.digest:
             raise StorageCorruptionError("evolution memory digest mismatch")
+
+        # Read-side verification: persisted memory must still agree with the
+        # canonical transition after storage has been reopened or tampered.
+        transition = conn.execute(
+            """SELECT instance_id,candidate_id,to_state_id,accepted
+               FROM transitions WHERE transition_id=?""",
+            (rec.transition_id,),
+        ).fetchone()
+        if transition is None:
+            raise StorageCorruptionError("evolution memory references missing transition")
+        if transition[0] != rec.instance_id or transition[1] != rec.candidate_id:
+            raise StorageCorruptionError("evolution memory transition identity mismatch")
+        if transition[2] != rec.state_id:
+            raise StorageCorruptionError("evolution memory state mismatch")
+        if rec.outcome in {"accepted", "rejected"} and (rec.outcome == "accepted") != bool(transition[3]):
+            raise StorageCorruptionError("evolution memory outcome disagrees with transition")
         records.append(rec)
     return tuple(records)
