@@ -1,3 +1,4 @@
+import pytest
 import sqlite3
 
 from gnosis.evolution.audit import make_audit_record, verify_audit_chain
