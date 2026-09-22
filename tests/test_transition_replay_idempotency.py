@@ -47,3 +47,34 @@ def test_same_transition_id_with_conflicting_content_is_rejected():
     )
     with pytest.raises((ValueError, StorageCorruptionError)):
         persist_transition(conn, candidate= candidate, instance=instance, record=conflicting, actor="test")
+
+
+def test_same_accepted_transition_replay_cannot_apply_changed_budget_snapshot():
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    proposed = instance.engine.state.with_elements({"b": 2})
+    candidate = Candidate(instance.engine.state.state_id, proposed, "budget-replay")
+    record = instance.engine.step(candidate)
+
+    persist_transition(conn, instance, candidate, record, actor="test")
+    before = conn.execute(
+        "SELECT current_state_id,budget_total,budget_spent FROM instances WHERE instance_id=?",
+        (instance.instance_id,),
+    ).fetchone()
+
+    # Deliberately diverge the caller's in-memory budget after the durable commit.
+    instance.engine.budget.spent += 999
+
+    persist_transition(conn, instance, candidate, record, actor="replay")
+
+    after = conn.execute(
+        "SELECT current_state_id,budget_total,budget_spent FROM instances WHERE instance_id=?",
+        (instance.instance_id,),
+    ).fetchone()
+    assert after == before
+    assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
+    assert conn.execute(
+        "SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL"
+    ).fetchone()[0] == 1
+    verify_durable_graph(conn)
