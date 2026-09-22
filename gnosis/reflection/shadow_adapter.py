@@ -54,6 +54,12 @@ def evaluate_proposal_shadow(
     candidate_ids = tuple(candidate.candidate_id for candidate in candidate_tuple)
     if len(set(candidate_ids)) != len(candidate_ids):
         raise ValueError("shadow evaluation requires unique candidate_ids")
+    if not candidate_tuple:
+        raise ValueError("shadow evaluation requires at least one candidate")
+    if any(ref.startswith("transition:") and not any(
+        ref.endswith(f":{candidate.candidate_id}") for candidate in candidate_tuple
+    ) for ref in proposal.evidence_refs):
+        raise ValueError("shadow evidence_refs do not match supplied candidates")
     evaluation = evaluate_shadow(candidate_tuple, active_test, shadow_test)
     return ProposalShadowAssessment(
         proposal_id=proposal.proposal_id,
