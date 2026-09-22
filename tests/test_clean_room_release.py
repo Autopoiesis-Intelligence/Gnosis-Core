@@ -31,3 +31,11 @@ def test_project_core_has_no_runtime_dependencies():
         encoding="utf-8"
     )
     assert "dependencies = []" in pyproject
+
+def test_end_to_end_persistence_recovery_and_diagnostic_path_is_canonical():
+    from diagnostic_corpus.generate import generate
+    generate()
+    root = Path(__file__).resolve().parents[1] / "diagnostic_corpus" / "SELF-DIAGNOSTIC-0001"
+    assert (root / "diagnostic.json").exists()
+    assert (root / "transitions.json").exists()
+    assert (root / "metadata.json").exists()
