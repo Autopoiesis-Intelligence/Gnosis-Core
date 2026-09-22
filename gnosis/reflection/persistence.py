@@ -11,8 +11,8 @@ from .counterexample import CounterexampleResult
 from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
-from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance
-from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
+from gnosis.evidence.provenance import EvidenceProvenance, crosscheck_provenance
+from gnosis.evidence.audit import EvolutionAuditRecord, make_audit_record
 
 
 def _json(value: Any) -> str:
