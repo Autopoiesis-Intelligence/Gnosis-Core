@@ -1,3 +1,4 @@
+import pytest
 from gnosis.core.types import Candidate, State
 from gnosis.reflection.analyzer import RuleProposal
 from gnosis.reflection.rules import RuleMetadata, RuleRegistry
@@ -62,3 +63,27 @@ def test_rule_proposal_is_evaluated_without_activation() -> None:
 
     # The adapter only evaluates; it must not register or activate v2.
     assert registry.versions(proposal.rule_id) == (1,)
+
+
+def test_shadow_adapter_rejects_duplicate_candidate_identity():
+    registry = RuleRegistry()
+    registry.register(RuleMetadata(
+        rule_id="test-rule:diagnostic-policy", rule_version=1,
+        rule_type="test_policy", scope="test",
+        implementation_ref="test:active", spec_ref="test:spec",
+    ))
+    proposal = RuleProposal(
+        proposal_id="proposal:dup", finding_id="finding:dup",
+        target="test-rule:diagnostic-policy", hypothesis="h",
+        evidence_refs=("transition:1",), expected_effect="e",
+        regression_risk="r", required_test="shadow",
+        rule_id="test-rule:diagnostic-policy", current_version=1, proposed_version=2,
+    )
+    candidate = _candidate(1)
+    with pytest.raises(ValueError, match="unique candidate_ids"):
+        evaluate_proposal_shadow(
+            proposal, (candidate, candidate),
+            lambda state, candidate: True,
+            lambda state, candidate: True,
+            registry,
+        )
