@@ -304,3 +304,47 @@ def test_a41_missing_current_head_fails_recovery():
     conn.execute("UPDATE instances SET current_state_id='missing-state' WHERE instance_id=?", (instance.instance_id,))
     with pytest.raises(StorageCorruptionError, match="current head lacks transition provenance"):
         recover_instance(conn, instance.instance_id)
+
+
+def test_durable_graph_rejects_tampered_unheaded_transition_source():
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"a": 1}))
+    save_instance(conn, instance)
+
+    orphan_source = State(elements={"orphan": 1})
+    proposed = orphan_source.with_elements({"orphan": 2})
+    candidate = Candidate(orphan_source.state_id, proposed, "unheaded-rejected")
+    from gnosis.storage.repositories import save_state, save_candidate, transition_id
+
+    save_state(conn, orphan_source)
+    save_candidate(conn, candidate)
+    record = TransitionRecord(
+        from_state_id=orphan_source.state_id,
+        to_state_id=proposed.state_id,
+        candidate_id=candidate.candidate_id,
+        test_result=TestResult(passed=False, reasons=("rejected",)),
+        accepted=False,
+        reason="rejected",
+        test_rule_id="test-rule",
+    )
+    tid = transition_id(record)
+    conn.execute(
+        """INSERT INTO transitions
+           (transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
+        (tid, instance.instance_id, candidate.candidate_id, orphan_source.state_id,
+         proposed.state_id, 0, json.dumps(["rejected"]), "test-rule", "now"),
+    )
+    append_audit(
+        conn, actor="u", action="transition.reject", resource=instance.instance_id,
+        result="rejected", event_key=f"transition:{tid}", transition_id_value=tid,
+    )
+
+    conn.execute("PRAGMA foreign_keys=OFF")
+    conn.execute(
+        "UPDATE states SET payload=? WHERE state_id=?",
+        (json.dumps({"elements": {"orphan": "tampered"}, "version": orphan_source.version},
+                    separators=(",", ":")), orphan_source.state_id),
+    )
+    with pytest.raises(StorageCorruptionError, match="state hash mismatch"):
+        verify_durable_graph(conn)
