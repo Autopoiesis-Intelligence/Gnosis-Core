@@ -2,7 +2,7 @@
 from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass
-from gnosis.core.audit import EvolutionAuditRecord, verify_audit_chain
+from gnosis.evidence.audit import EvolutionAuditRecord, verify_audit_chain
 from gnosis.storage.evolution_integrity import verify_evolution_integrity
 
 @dataclass(frozen=True)
