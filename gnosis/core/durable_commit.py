@@ -21,3 +21,18 @@ def durable_commit(port: PersistencePort, provenance: EvidenceProvenance, *,
     if not isinstance(payload, Mapping):
         raise TypeError("payload must be a mapping")
     return port.persist_evolution(provenance, event_type=event_type, payload=dict(payload))
+
+
+def persist_authorized_transition(
+    port: PersistencePort,
+    provenance: EvidenceProvenance,
+    *,
+    payload: Mapping[str, Any],
+) -> DurableCommitResult:
+    """Canonical persistence entrypoint for an already-authorized transition."""
+    return durable_commit(
+        port,
+        provenance,
+        event_type="authorized_transition",
+        payload=payload,
+    )
