@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from .provenance import DiagnosticEvidence
+from gnosis.evidence.provenance import DiagnosticEvidence
 
 
 @dataclass(frozen=True)
