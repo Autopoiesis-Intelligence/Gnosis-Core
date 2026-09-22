@@ -145,14 +145,37 @@ def save_reflection_report(
     return report_key
 
 
+def counterexample_result_id(report_id: str, result: CounterexampleResult) -> str:
+    payload = _json(result)
+    digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]
+    return f"{report_id}:counterexample:{result.candidate_id}:{digest}"
+
+
 def save_counterexample(conn: sqlite3.Connection, report_id: str, result: CounterexampleResult) -> str:
     ensure_reflection_schema(conn)
-    result_id = f"{report_id}:counterexample:{result.candidate_id}"
+    result_id = counterexample_result_id(report_id, result)
     conn.execute(
-        "INSERT OR REPLACE INTO reflection_counterexamples(result_id,report_id,status,payload) VALUES(?,?,?,?)",
+        "INSERT OR IGNORE INTO reflection_counterexamples(result_id,report_id,status,payload) VALUES(?,?,?,?)",
         (result_id, report_id, result.status, _json(result)),
     )
     return result_id
+
+
+def load_counterexample(conn: sqlite3.Connection, result_id: str) -> CounterexampleResult:
+    ensure_reflection_schema(conn)
+    row = conn.execute(
+        "SELECT result_id,report_id,status,payload FROM reflection_counterexamples WHERE result_id=?",
+        (result_id,),
+    ).fetchone()
+    if row is None:
+        raise KeyError(result_id)
+    payload = json.loads(row[3])
+    result = CounterexampleResult(**payload)
+    if counterexample_result_id(row[1], result) != row[0]:
+        raise RuntimeError("counterexample persistence integrity mismatch")
+    if row[2] != result.status:
+        raise RuntimeError("counterexample persistence status mismatch")
+    return result
 
 
 def save_shadow_assessment(conn: sqlite3.Connection, report_id: str, assessment: ShadowEvaluation) -> str:
@@ -238,7 +261,11 @@ def load_reflection_report(conn: sqlite3.Connection, stored_report_id: str) -> d
     row = conn.execute("SELECT report_id,created_at,payload FROM reflection_reports WHERE report_id=?", (stored_report_id,)).fetchone()
     if row is None:
         raise KeyError(stored_report_id)
-    return {"report_id": row[0], "created_at": row[1], "payload": json.loads(row[2])}
+    payload = json.loads(row[2])
+    report_digest = "reflection:" + hashlib.sha256(_json(payload).encode("utf-8")).hexdigest()[:24]
+    if report_digest != row[0]:
+        raise RuntimeError("reflection persistence integrity mismatch")
+    return {"report_id": row[0], "created_at": row[1], "payload": payload}
 
 
 def list_reflection_reports(conn: sqlite3.Connection) -> tuple[dict[str, Any], ...]:
