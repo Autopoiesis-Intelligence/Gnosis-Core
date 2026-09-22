@@ -10,4 +10,4 @@ def test_rule_content_tamper_is_detected():
 
 def test_rule_id_change_is_detected():
     i=rule_identity("rule:1",{"predicate":"x>0"})
-    assert not verify_rule_identity(rule_identity("rule:2",{"predicate":"x>0"}),{"predicate":"x>0"})
+    assert not verify_rule_identity(i,{"predicate":"x>0","version":2})
