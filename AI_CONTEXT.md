@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.83 — Governed Collaboration Lifecycle Closure & Contract Retirement
+
+E7.83 defines final collaboration lifecycle closure after remediation verification. Closure requires explicit prerequisites, retirement of temporary authority, preservation of all historical contracts/evidence and a reconstructable end-to-end provenance chain. Closure does not authorize deletion or mutate Core authority.
+
+Contract artifact: `docs/architecture/PARTNER_COLLABORATION_LIFECYCLE_CLOSURE_RETIREMENT_CONTRACT.md`.
+Contract commit: `cea9f41f234c03eb7a0a26b9fd8c668f222e9538`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.82 — Remediation Result Verification & Governed Closure
 
 E7.82 defines the verification and closure boundary after remediation execution. Closure requires evidence that the declared objective was achieved; PARTIAL/UNKNOWN remain visible and contradictory later evidence can reopen the incident. Verification and closure do not create authority or erase history.
