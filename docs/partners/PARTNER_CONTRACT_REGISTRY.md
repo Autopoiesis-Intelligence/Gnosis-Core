@@ -51,6 +51,9 @@ Each contract record SHOULD contain:
 | E7.30 | DESIGNED / NOT_IMPLEMENTED | Partner Contract Acceptance & Capability Negotiation |
 | E7.31 | DESIGNED / NOT_IMPLEMENTED | Partner Capability Enforcement & Runtime Scope Boundary |
 | E7.32 | DESIGNED / NOT_IMPLEMENTED | Partner Action Audit & Evidence |
+| E7.33 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Review, Dispute & Correction Protocol |
+| E7.34 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Retention & Privacy Boundary |
+| E7.35 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Lifecycle & State Derivation |
 
 ## Update rule
 
