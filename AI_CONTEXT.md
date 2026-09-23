@@ -4356,3 +4356,37 @@ Coverage < Ω_C => ResidualUnknown > 0.
 For E7.9.3/E7.9.4, the initial challenge classes are: added-data, harder-task, representation-only, lossy-transition, non-progress-cycle, task-switch, and scoped-task/evidence mismatch.
 
 Status: FORMALIZED / NOT PROVEN.
+## E5.25 — PERSISTENCE IS NOT AN ISSUER
+
+The authorization registry is explicitly storage-only. Persisting a row cannot mint or upgrade authority: the existing issuer signature remains mandatory at verification, and a database-fabricated/altered authorization fails issuer verification.
+
+Invariant:
+`Persist(Store, a) does not imply Authorized(a)`.
+`Authorized(a) => IssuerVerify(a) ∧ ExactContext(a) ∧ RegistryIntegrity(a)`.
+
+The test registry exposes no independent issuance operation. This closes the conceptual distinction between authority issuance and authority persistence for the test vertical slice.
+
+Boundary: this is not a production Root-of-Trust. A fully privileged attacker who controls the issuer secret remains outside this test model.
+
+Status: IMPLEMENTED / UNVERIFIED.
+
+## E7.9.7 — RESIDUAL-UNKNOWN DECISION BOUNDARY
+
+Let `U(C)` denote residual unknown challenge classes for claim C. Define a decision boundary by action risk and evidence scope, not by a universal numeric threshold.
+
+For a bounded action A, admissibility requires:
+`Permit(A,C) => ScopeValid(C,A) ∧ ResidualAcceptable(U(C),A) ∧ NoKnownContradiction(C)`.
+
+`ResidualAcceptable` is policy-scoped: an unknown that is tolerable for a reversible research observation may be unacceptable for an irreversible external side effect.
+
+Therefore uncertainty is not automatically failure, but increasing action consequence can shrink the admissible residual-unknown set.
+
+Hard stop condition:
+`Irreversible(A) ∧ U(C) contains an unresolved class relevant to A => DENY/ESCALATE`.
+
+Bounded research condition:
+`Reversible(A) ∧ ScopeValid(C,A) ∧ NoKnownContradiction(C)` may permit a limited step while preserving the residual unknown as explicit state.
+
+Unknown may never be silently converted to PASS, nor may the action itself redefine the acceptance criterion.
+
+Status: FORMALIZED / NOT PROVEN.
