@@ -4243,3 +4243,38 @@ Acceptance target for E7.9.2: produce a falsifiable relation between level conte
 ### Next
 E5.21 — integrate test issuer consumption with the existing ExecutionAuthorization/ExecutionIntentSnapshot boundary without making the test issuer production authority.
 E7.9.3 — Level Transition Algebra.
+## E5.21 — TEST AUTHORIZATION → EXECUTION BOUNDARY BRIDGE
+
+The E5.20 vertical slice now has a test-only adapter into the existing `ExecutionAuthorization` fail-closed boundary.
+
+`VerifiedTestAuthorization -> ExecutionAuthorization(owner_approved=True) -> require_execution_authorization`.
+
+The adapter is explicitly test-only and preserves exact `request_provenance` and `evolution_identity`. It does not replace `issue_execution_authorization()` and does not create production owner authority.
+
+Acceptance requires mismatched provenance/evolution to fail closed. Current source/test evidence exists; runtime/CI remains UNVERIFIED.
+
+## E7.9.3 — LEVEL TRANSITION ALGEBRA
+
+Let a level context be `L=(X,R,D,Q)` and let `T` be a task/observation requirement.
+
+Define an admissibility predicate `A(L,T)` meaning that the current distinctions, relations and query context are sufficient for the bounded task under the declared evidence rules.
+
+A level transition `L -> L'` is justified only if `¬A(L,T)` and there exists a representation/organization change `L'` such that `A(L',T)` holds under an explicitly stated transition relation.
+
+Minimal transition condition:
+`LevelChange(L,L',T) := ¬A(L,T) ∧ A(L',T) ∧ Δ_org(L,L') != ∅`.
+
+Here `Δ_org` denotes a change in information organization relevant to the task, not merely additional data.
+
+Non-implication constraints:
+`ΔX != ∅` does not imply `LevelChange`.
+`Difficulty(T)↑` does not imply `LevelChange`.
+`Representation(L) != Representation(L')` does not imply `LevelChange` unless it changes task-relevant organization.
+
+Level transitions are scoped to `T` and evidence context `Q`; no universal absolute level ordering is assumed.
+
+Counterexample requirement: any proposed level-transition rule must be tested against cases where more data, harder tasks, or alternate representations occur without an organizational transition.
+
+Compatibility with Ψ: the level context is an analytical projection over `Ψ=(X,R)`, not a second state model and not an authority mechanism.
+
+Status: FORMALIZED HYPOTHESIS / NOT PROVEN.
