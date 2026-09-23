@@ -227,7 +227,7 @@ def consume_test_authorization(
         raise PermissionError("test authorization already consumed")
     new_digest = _registry_digest(authorization, consumed=1, revoked=0, lifecycle_state="consumed")
     cur = conn.execute(
-        "UPDATE test_authorizations SET consumed = 1, lifecycle_state = "consumed", integrity_digest = ? WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
+        "UPDATE test_authorizations SET consumed = 1, lifecycle_state = 'consumed', integrity_digest = ? WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
         (new_digest, authorization.authorization_id),
     )
     if cur.rowcount != 1:
@@ -242,7 +242,7 @@ def revoke_test_authorization(conn: sqlite3.Connection, authorization_id: str) -
     authorization = TestAuthorization(authorization_id=authorization_id, issuer_id=row[0], issuer_version=row[1], request_provenance=row[2], evolution_identity=row[3], parent_state_digest=row[4], policy_version=row[5], nonce=row[6], expires_at=row[7], scope=tuple(json.loads(row[8])), signature=row[9])
     new_digest = _registry_digest(authorization, consumed=row[10], revoked=1, lifecycle_state="revoked")
     cur = conn.execute(
-        "UPDATE test_authorizations SET revoked = 1, lifecycle_state = "revoked", integrity_digest = ? WHERE authorization_id = ?",
+        "UPDATE test_authorizations SET revoked = 1, lifecycle_state = 'revoked', integrity_digest = ? WHERE authorization_id = ?",
         (new_digest, authorization_id),
     )
     if cur.rowcount != 1:
