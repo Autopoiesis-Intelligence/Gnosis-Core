@@ -19,3 +19,38 @@ Commit 14a6ec269938ff94fe7fc0acf18d32d9bd367d5c was checked.
 - CodeQL #70: was still in progress at the time of observation.
 
 P0 persistence/recovery remains OPEN. No green/full-regression acceptance is granted.
+
+
+## R2 continuation recovered from 2026-09-23 contract state
+
+### R2.META-1 — Global Contract Progress
+Baseline global progress: ~49%.
+This is an orchestration metric only; it is not test coverage, quality, probability or readiness.
+
+Tracked finite-contract snapshot:
+- R2.OPT-10b Authorization: implementation 70%
+- R2.OPT-10c Staleness Barrier: implementation 55% → adversarial coverage expanded in this run; acceptance remains OPEN pending exact CI evidence
+- R2.XFER-1 Machine Transfer: 35%
+- R2.XFER-2b Identity/Revocation: 100%
+- R2.XFER-2c Scope Authorization: 100%
+- R2.XFER-2d External Evidence: 20%
+- R2.DOC-1 GitHub Sync: 20%
+- R2.DOC-1b Evidence Audit: 10%
+- R2.META-1 Contract Registry: 30%
+
+The ~49% global figure is retained as the last established baseline until the weighting/accounting method is explicitly recalculated from the complete registry.
+
+### R2.OPT-10c continuation
+Added adversarial tests for:
+- fresh authorization;
+- stale candidate;
+- stale candidate binding;
+- stale provenance;
+- stale evidence;
+- stale decision;
+- authorization payload tampering.
+
+Acceptance remains OPEN until the exact resulting commit is executed and evidence is recorded.
+
+### Priority rule
+P0 persistence/recovery defects remain higher priority than accepting R2.OPT-10c. R2 work may continue in parallel only where it does not bypass the P0 evidence gate.
