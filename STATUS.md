@@ -265,3 +265,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - R2.XFER cross-report evidence isolation extended to CounterexampleResult: lineage validation now reloads each persisted counterexample through `load_counterexample_for_report()` and verifies its optional `finding_id` belongs to the current report. Added cross-report counterexample contamination regression. Commits: `0360c103`, `eb7dd85e`. Runtime/CI evidence remains UNVERIFIED.
 
 - Parallel contract update: mathematical branch advanced to E4.87, formalizing conditional evidence independence and common-mode failure; added to AI_CONTEXT as `a557831d`. Engineering/R2 work remains separate; runtime/CI evidence remains UNVERIFIED.
+
+- Parallel contract update: MATH E4.88 formalized evidence diversity as failure-mode coverage relation `C(e,f)` with explicit blind spots and anti-scalar rule; AI_CONTEXT commit `f032a728`. Engineering: stored evolution provenance crosscheck now recomputes provenance identity before accepting observations; commit `e8f08768`. Runtime/CI remains UNVERIFIED.
