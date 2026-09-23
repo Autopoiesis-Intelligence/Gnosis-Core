@@ -4760,3 +4760,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.42 — Self-Learning Contract Aggregation, Synthesis & Privacy Boundary:** DESIGNED / NOT_IMPLEMENTED. Self-Learning maintains a contract knowledge graph and partner contract database views, distinguishes source facts/findings/hypotheses/proposals/verified results/governance decisions, and performs the Observe->Retrieve->Compare->Find->Hypothesize->Propose->Validate->Govern->Record->Learn loop. Private/partner-restricted source material remains isolated unless explicitly authorized for abstraction/sharing.
+
+
+- **E7.42 — Self-Learning Contract Aggregation, Synthesis & Privacy Boundary:** DESIGNED / NOT_IMPLEMENTED. Self-Learning maintains a contract knowledge graph and partner contract database views, distinguishes source facts/findings/hypotheses/proposals/verified results/governance decisions, and performs the Observe->Retrieve->Compare->Find->Hypothesize->Propose->Validate->Govern->Record->Learn loop. Private/partner-restricted source material remains isolated unless explicitly authorized for abstraction/sharing.
