@@ -3470,3 +3470,58 @@ Adversarial matrices should classify not only passing tests but also coverage as
 ### Required next step
 
 E4.99: formalize falsification strength, counterexample generation and the distinction between absence of detected counterexamples and evidence that a claim survives the declared challenge space.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.99: FALSIFICATION STRENGTH AND COUNTEREXAMPLE SPACE
+
+Let `C` be a claim and `Q` a declared challenge space.
+
+### Counterexample absence
+
+`NoCounterexampleObserved(C,Q)` does not imply `Proven(C)`.
+
+It establishes only that no counterexample was observed within the executed challenge space and evidence boundary.
+
+### Falsification strength
+
+Define falsification strength relative to `Q`, not as an absolute scalar:
+`Falsify(C,Q) = ability of the challenge procedure to expose violations of C within Q`.
+
+A stronger challenge space contains materially different failure mechanisms, boundary conditions, representations and adversarial constructions relevant to C.
+
+### Counterexample quality
+
+A candidate counterexample must be traceable to:
+- the claim or invariant challenged;
+- input/state/environment conditions;
+- observation/evidence;
+- reproduction or execution conditions, when applicable;
+- scope and limitations.
+
+### Absence vs survival
+
+`NoCounterexampleObserved` means `C` survived the executed challenges; it does not mean `C` is true outside Q.
+
+### Challenge generation
+
+Generated counterexamples are hypotheses until independently validated against the declared claim and evidence scope.
+
+### UNKNOWN boundary
+
+If challenge execution is incomplete, oracle validity is unresolved, or relevant blind spots remain outside the tested space, the correct result may remain `UNKNOWN/INSUFFICIENT_EVIDENCE` rather than PASS.
+
+### Proposition E4.99.1
+
+If a claim is challenged only by a subset Q' of its relevant failure space Q, then survival in Q' cannot establish survival in Q.
+
+`Q' ⊂ Q -> Survives(C,Q') does not imply Survives(C,Q)`.
+
+### Relation to E4.98
+
+E4.98 defines blind spots of the verifier. E4.99 defines the epistemic meaning of surviving the executed challenge space despite those limits.
+
+### Engineering consequence
+
+Reflection must preserve counterexamples, rejected challenges and insufficient-evidence outcomes as first-class historical evidence rather than collapsing them into a boolean success flag.
+
+### Required next step
+
+E5.00: formalize challenge-space adequacy and adaptive adversarial expansion without allowing the selector to redefine its own success criteria.
