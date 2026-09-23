@@ -440,3 +440,52 @@ def test_execution_receipt_rejects_tampered_resulting_state_digest():
     )
     with pytest.raises(PermissionError, match="execution receipt does not match committed evolution"):
         require_execution_receipt(receipt, request)
+
+
+def test_self_limitation_rejects_unverified_commit_before_persistence():
+    provenance = _snapshot_provenance()
+    pending = type(provenance)(**{
+        **provenance.__dict__,
+        "evaluation_status": "PENDING",
+        "governance_decision": "REVIEW",
+    })
+    auth = ExecutionAuthorization(
+        request_provenance=pending.provenance_id,
+        evolution_identity=pending.evolution_identity,
+        owner_approved=True,
+    )
+    snapshot = ExecutionIntentSnapshot.from_provenance(pending)
+    request = ExecutionCommitRequest(
+        authorization=auth,
+        intent_snapshot=snapshot,
+        request_provenance=pending.provenance_id,
+        evolution_identity=pending.evolution_identity,
+        provenance=pending,
+    )
+    with pytest.raises(PermissionError):
+        require_execution_commit(request)
+
+
+def test_self_limitation_rejects_contradictory_evidence_before_persistence():
+    provenance = _snapshot_provenance()
+    contradictory = type(provenance)(**{
+        **provenance.__dict__,
+        "evaluation_status": "FAIL",
+        "governance_decision": "ALLOW",
+        "invariant_status": "VIOLATED",
+    })
+    auth = ExecutionAuthorization(
+        request_provenance=contradictory.provenance_id,
+        evolution_identity=contradictory.evolution_identity,
+        owner_approved=True,
+    )
+    snapshot = ExecutionIntentSnapshot.from_provenance(contradictory)
+    request = ExecutionCommitRequest(
+        authorization=auth,
+        intent_snapshot=snapshot,
+        request_provenance=contradictory.provenance_id,
+        evolution_identity=contradictory.evolution_identity,
+        provenance=contradictory,
+    )
+    with pytest.raises(PermissionError):
+        require_execution_commit(request)
