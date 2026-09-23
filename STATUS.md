@@ -538,3 +538,16 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.73 — Governed Feedback Promotion Record:** PARTIAL / UNVERIFIED. Added immutable provenance record linking validation, proposal, source delivery receipt, target knowledge revision, promoted findings and explicit exclusions. PROMOTE validation plus PROMOTED record is required; record itself does not mutate Core. CI integration present; exact PASS pending.
 
 - **E7.74 — Self-Learning Collaboration Proposal Generator:** PARTIAL / UNVERIFIED. Added machine-generated COMMERCIAL and OPEN collaboration proposals from evidence/contracts, including requested inputs, scope, deliverable contracts and publication target. GitHub publication remains an external reviewed/authorized boundary; generation cannot publish, invite, expose private data or modify Core. CI integration present; exact PASS pending.
+
+
+## 2026-09-23 — P0 Runtime Evidence Reconciliation
+
+- Pinned candidate: `a22cdbf1cc250452e035ef174fd8551da4b21a67` (PR #33).
+- Python 3.11 CI: PASS.
+- Python 3.12 CI: PASS.
+- CodeQL: PASS.
+- Dependency Review: UNVERIFIED/BLOCKED because GitHub Dependency Graph is unavailable for the repository; this is not evidence of a dependency vulnerability.
+- Runtime hardening discovered and corrected a shadow-assessment identity/proposal-lineage defect; canonical assessment identity no longer depends on proposal binding.
+- Current phase: E7.25 adversarial audit reconciliation of the single green lineage.
+- Main consolidation is pending; historical PRs are closed and retained for provenance.
+- Repository rename gate: NOT SAFE until adversarial reconciliation, main consolidation, dependency evidence and naming migration audit are complete.
