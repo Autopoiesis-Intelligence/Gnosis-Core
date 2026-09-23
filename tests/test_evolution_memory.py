@@ -3,6 +3,7 @@ import pytest
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.storage import append_evolution_memory, connect, load_evolution_memory, save_instance
+from gnosis.storage.repositories import StorageCorruptionError, persist_transition
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
 from gnosis.reflection.persistence import save_reflection_report
 
@@ -11,7 +12,6 @@ def test_evolution_memory_round_trip_and_digest():
     conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
     proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"reflection:endogenous")
     record=instance.engine.step(candidate)
-    from gnosis.storage.repositories import persist_transition
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
     proposal = RuleProposal("proposal:1", "finding:1", "test-rule:v1", "hypothesis", (tid,), "effect", "risk", "test")
