@@ -437,3 +437,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.31 — Partner Capability Enforcement & Runtime Scope Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `bf41eac43c24ee2cf02faefef1a7455ce55dbe96`. Defines fail-closed runtime authorization from declared/accepted/currently-valid capabilities to concrete resource/action scope, including cross-partner isolation, confused-deputy protection and authorization/mutation atomicity.
+
+
+- **E7.32 — Partner Action Audit & Evidence:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `6f07a4315a1fe8ac52d9a2ea324807386eb4abf6`. Defines append-only evidence for partner allow/deny decisions and outcomes, revision-aware authorization evidence, failure/interruption semantics, secret minimization, audit-chain integration and explicit non-authority of audit records.
