@@ -17,6 +17,8 @@ class KnowledgeUpdate:
 def propose_knowledge_update(*, subject_id: str, evidence_digest: str, knowledge: object, lifecycle: LifecycleResult, scope: str, shareable: bool) -> KnowledgeUpdate:
     if not lifecycle.complete:
         raise ValueError("knowledge updates require a complete verified lifecycle")
+    if subject_id != lifecycle.subject_id:
+        raise ValueError("knowledge update subject does not match verified lifecycle subject")
     if not shareable:
         raise PermissionError("non-shareable evidence cannot enter common knowledge")
     if not subject_id.strip() or not evidence_digest.strip() or not scope.strip():
