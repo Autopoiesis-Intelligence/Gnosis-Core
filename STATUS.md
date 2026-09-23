@@ -743,3 +743,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Dependency Review #104 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - No repository-managed persisted legacy EvidenceEvent fixture or SQLite-backed EvidenceEvent record was found during the compatibility audit; future legacy formats must be explicitly versioned.
 - E7.49 metadata-integrity contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.51 duplicate-stage integrity — integrated — 2026-09-23
+
+- PR #41 proved the duplicate-stage lifecycle gap with a failing regression.
+- PR #42 exact candidate `c2a1bb540ee641105a616f1d93df377d47b7e289` passed CI #1995 and CodeQL #873.
+- Required lifecycle stages are now rejected when any required stage occurs more than once, with `DUPLICATE_STAGE:<stage>`.
+- PR #42 merged by squash into `main` as `9db8e6eaefd298cd60fc865e0cd6645d158cdc20`.
+- Dependency Review #106 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.51 duplicate-stage integrity contract is INTEGRATED / CI + CodeQL VERIFIED.
