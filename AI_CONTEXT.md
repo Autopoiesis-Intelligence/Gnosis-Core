@@ -3629,3 +3629,59 @@ Current reflection uses `CounterexampleEngine` over canonical history and is not
 ### Required next step
 
 E5.02: formalize recursive verifier evaluation and the governance boundary for verifier updates.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.02: RECURSIVE VERIFIER EVALUATION AND TERMINAL TRUST BOUNDARY
+
+Let `V_0` be a verifier and `V_{n+1}` a verifier evaluating `V_n`.
+
+### Recursive evaluation
+
+`Verify(V_0)` may itself require evaluation by another verifier, but recursion does not create truth by itself.
+
+`V_{n+1}(V_n)` establishes only a claim about `V_n` within the scope and assumptions of `V_{n+1}`.
+
+### No infinite-regress proof
+
+`Verified(V_n) by V_{n+1}` does not imply an absolute foundation for `V_{n+1}`.
+
+An unbounded verifier chain cannot be treated as a proof of its own ultimate correctness merely by increasing depth.
+
+### Terminal boundary
+
+A verification architecture therefore requires an explicit terminal trust/governance boundary `T` or a formally specified foundational assumption set `A_0`.
+
+`V_n -> ... -> V_1 -> T`.
+
+`T` is not claimed to be mathematically infallible; it is the declared boundary beyond which the current verification contract does not make an internal proof claim.
+
+### Scope preservation
+
+For every recursive evaluation:
+`ClaimScope(V_{n+1}(V_n))` must be explicit and must not exceed the evaluator's declared authority/evidence scope.
+
+### Independence and recursion
+
+Recursive depth does not create independence. If all `V_i` share a common model, assumption, oracle or failure mode, the chain may contain common-mode risk at every level.
+
+`SharedFailure(V_0,...,V_n) -> CorrelatedRisk`.
+
+### Update boundary
+
+Changing a verifier or terminal trust rule is a new governance-sensitive transition and must not be justified solely by the verifier being changed.
+
+### Proposition E5.02.1
+
+Adding verifier layers without changing relevant failure assumptions does not necessarily reduce the blind-spot set.
+
+`Diversity(FailureModes)`, not recursion depth alone, is the relevant property for reducing correlated verification risk.
+
+### Engineering consequence
+
+Verifier metadata should preserve evaluator identity/version, assumptions, dependencies, scope, and terminal-boundary reference. The terminal boundary must remain explicit rather than being silently inferred.
+
+### Current implementation boundary
+
+V2 does not claim a fully implemented recursive verifier hierarchy or a formal foundational proof of verifier correctness. This contract defines the epistemic/governance boundary for future reflection evolution.
+
+### Required next step
+
+E5.03: formalize governance of the terminal boundary and verifier updates, including protected invariants that cannot be changed by the verifier under evaluation.
