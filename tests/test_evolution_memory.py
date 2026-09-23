@@ -75,13 +75,14 @@ def _persist_memory_fixture():
         ),
         lambda conn, tid, instance: conn.execute(
             "UPDATE transitions SET to_state_id=? WHERE transition_id=?",
-            (parent_state_id, tid),
+            (instance.engine.state.state_id, tid),
         ),
     ),
     ids=("accepted", "to_state_id"),
 )
 def test_load_evolution_memory_rejects_transition_semantic_tamper(mutation):
     conn, instance, tid = _persist_memory_fixture()
+    parent_state_id = conn.execute("SELECT parent_state_id FROM candidates WHERE candidate_id=(SELECT candidate_id FROM transitions WHERE transition_id=?)", (tid,)).fetchone()[0]
     mutation(conn, tid, instance)
     with pytest.raises(StorageCorruptionError):
         load_evolution_memory(conn, instance.instance_id)
