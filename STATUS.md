@@ -428,3 +428,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.28 — Partner Contract Registry Runtime Synchronization:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `6a2f2d9307ef038510a1f8ab28c58ed291176495`. Defines machine-maintained synchronization between contract artifacts, exact Git revisions, implementation/verification status, dependencies, supersession and audit evidence. Registry remains an index, never an authority root. Existing SQLite/append-only audit boundaries are preferred for runtime implementation.
+
+
+- **E7.29 — Partner Contract Package & Export Protocol:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `b039f186896b1e5d6980a0dc1e9c79b4ee9431cf`. Defines deterministic export/import packages bound to an exact registry revision, contract revisions, dependency closure, evidence references, recipient scope and package digest. Export transfers contract knowledge, never Core authority.
