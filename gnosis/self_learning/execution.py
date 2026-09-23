@@ -1,0 +1,66 @@
+"""Bounded execution planning for accepted Self-Learning governance records.
+
+This module creates an execution plan only. It never applies mutations.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+from dataclasses import asdict, dataclass
+
+from .governance import GovernanceReview
+
+
+@dataclass(frozen=True)
+class ExecutionPlan:
+    plan_id: str
+    review_id: str
+    proposal_id: str
+    action: str
+    preconditions: tuple[str, ...]
+    authority: str = "execution-plan-only"
+    status: str = "PLANNED"
+    provenance: str = "self-learning-governed-execution-plan"
+
+    def as_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def create_execution_plan(
+    review: GovernanceReview,
+    *,
+    expected_authority: str = "governance-record-only",
+) -> ExecutionPlan:
+    if review.authority != expected_authority:
+        raise ValueError("review authority is not eligible for planning")
+    if review.decision != "ACCEPTED":
+        raise ValueError("only ACCEPTED governance records may produce execution plans")
+
+    preconditions = (
+        "governance_record_identity_verified",
+        "proposal_identity_verified",
+        "validation_digest_present",
+        "execution_target_explicit",
+        "external_execution_authority_required",
+    )
+    action = "APPLY_GOVERNED_PROPOSAL_AFTER_EXTERNAL_AUTHORIZATION"
+    canonical = {
+        "review_id": review.review_id,
+        "proposal_id": review.proposal_id,
+        "action": action,
+        "preconditions": preconditions,
+    }
+    plan_id = "sha256:" + hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    return ExecutionPlan(
+        plan_id=plan_id,
+        review_id=review.review_id,
+        proposal_id=review.proposal_id,
+        action=action,
+        preconditions=preconditions,
+    )
+
+
+def serialize_plan(plan: ExecutionPlan) -> str:
+    return json.dumps(plan.as_dict(), sort_keys=True, separators=(",", ":"))
