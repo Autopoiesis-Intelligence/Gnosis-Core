@@ -5,7 +5,6 @@ import hashlib
 import json
 from typing import Any
 from .repositories import canonical_json, utc_now, StorageCorruptionError, load_transition_records
-from gnosis.reflection.persistence import load_reflection_report
 
 @dataclass(frozen=True)
 class EvolutionMemoryRecord:
@@ -32,6 +31,12 @@ class EvolutionMemoryRecord:
         }).encode()).hexdigest()
 
 
+def _load_reflection_report(conn, report_id: str):
+    """Load reflection persistence lazily to keep storage independent at import time."""
+    from gnosis.reflection.persistence import load_reflection_report
+    return load_reflection_report(conn, report_id)
+
+
 def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transition_id: str,
                             state_id: str, proposal_id: str | None, outcome: str,
                             evidence: tuple[str, ...] | list[str], created_at: str | None = None,
@@ -43,7 +48,7 @@ def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transi
     if proposal_id is None and proposal_report_id is not None:
         raise StorageCorruptionError("proposal report scope requires proposal_id")
     if proposal_id is not None:
-        report = load_reflection_report(conn, proposal_report_id)
+        report = _load_reflection_report(conn, proposal_report_id)
         proposals = tuple(report["payload"].get("proposals", ()))
         if not any(item.get("proposal_id") == proposal_id for item in proposals if isinstance(item, dict)):
             raise StorageCorruptionError("evolution memory references proposal outside report")
@@ -92,7 +97,7 @@ def load_evolution_memory(conn, instance_id: str, *, limit: int = 100) -> tuple[
         if rec.proposal_id is not None:
             if rec.proposal_report_id is None:
                 raise StorageCorruptionError("proposal provenance scope is missing")
-            report = load_reflection_report(conn, rec.proposal_report_id)
+            report = _load_reflection_report(conn, rec.proposal_report_id)
             proposals = tuple(report["payload"].get("proposals", ()))
             if not any(item.get("proposal_id") == rec.proposal_id for item in proposals if isinstance(item, dict)):
                 raise StorageCorruptionError("evolution memory references proposal outside report")
