@@ -486,7 +486,21 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     candidate_b = Candidate(
         parent_state_id, parent_state.with_elements({"a": 3}), "advanced-head"
     )
-    provenance_b = _provenance_for(candidate_b, parent_state, candidate_b.proposed_state)
+    observations_b = {"candidate": candidate_b.candidate_id}
+    provenance_b = build_provenance(
+        candidate_id=candidate_b.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=candidate_b.proposed_state.state_id,
+        observations=observations_b,
+        proposed_state_content_id=candidate_b.proposed_state.content_id,
+        candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations_b),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
     record_b = instance.engine.step(candidate_b)
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
