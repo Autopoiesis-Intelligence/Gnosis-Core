@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.113 — First Verification Batch Actual Proof Run
+
+E7.113 is the execution boundary for the first bounded Self-Learning proof batch. It requires frozen scope, exact-commit runtime/test execution, durable criterion-level evidence and fail-closed handling before any progress change.
+
+Contract artifact: `docs/architecture/SELF_LEARNING_FIRST_ACTUAL_PROOF_RUN.md`.
+Contract commit: `6d76f2a79faf9792e1c93ed1a8131e56679399f9`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.112 — First Verification Batch Closure & Immutable Progress Snapshot
 
 E7.112 defines formal closure after execution, evidence acceptance, reconciliation and independent audit. It makes the resulting progress snapshot historical and immutable while preserving follow-up work and later supersession.
