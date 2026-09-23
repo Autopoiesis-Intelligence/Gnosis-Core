@@ -176,3 +176,67 @@ InsufficientEvidence → NoCommit.
 The system must be able to preserve uncertainty rather than force an evolution or learning outcome.
 
 These three recurring contracts are architectural orientations and are excluded from the current ~49% Global Contract Progress until a documented weighting/acceptance scheme is established.
+
+
+## RECUR-SELF-01A — Self-Evolution Candidate Integrity
+Status: ACTIVE / MACHINE-TESTABLE
+
+Invariant:
+A self-evolution candidate MUST be explicit, provenance-bound, and distinguishable from an executed change.
+
+Required predicates:
+1. candidate_id is unique within its instance/lineage scope;
+2. candidate carries parent/current state identity;
+3. candidate carries provenance identity;
+4. candidate has test/evidence references before authorization;
+5. candidate generation alone never implies authorization or commit.
+
+Formal:
+CandidateValid(c) =>
+  Unique(c.id)
+  ∧ Bound(c.parent_state)
+  ∧ Bound(c.provenance)
+  ∧ HasEvidence(c)
+  ∧ ¬AuthorizedByGeneration(c)
+
+Acceptance:
+- tests cover missing provenance;
+- tests cover state/lineage mismatch;
+- tests cover attempted commit of an unverified candidate;
+- tests prove generation cannot directly mutate canonical state.
+
+## RECUR-SELF-02A — Self-Learning Provenance Integrity
+Status: ACTIVE / MACHINE-TESTABLE
+
+Invariant:
+A learning artifact cannot become an authoritative rule without evidence and verification.
+
+Formal:
+AuthoritativeRule(r) =>
+  Provenance(r)
+  ∧ Evidence(r)
+  ∧ Verified(r)
+
+Acceptance:
+- observation without evidence remains non-authoritative;
+- evidence without verification remains non-authoritative;
+- provenance mismatch is rejected;
+- verified learning artifact can enter the normal candidate pipeline.
+
+## RECUR-SELF-03A — Self-Limitation No-Commit
+Status: ACTIVE / MACHINE-TESTABLE
+
+Invariant:
+Insufficient or contradictory evidence must produce a hard no-commit result.
+
+Formal:
+InsufficientEvidence(c) ∨ ContradictoryEvidence(c)
+=> ¬Commit(c)
+
+Acceptance:
+- insufficient evidence test;
+- contradictory evidence test;
+- explicit rejection reason/provenance;
+- no durable mutation on rejected path.
+
+These acceptance criteria are additive and do not supersede P0 persistence/recovery or commit-bound authorization gates.
