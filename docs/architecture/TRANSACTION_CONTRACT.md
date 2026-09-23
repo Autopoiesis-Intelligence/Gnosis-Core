@@ -342,3 +342,7 @@ The test issuer may derive a development authorization only from the exact prove
 ## E5.23 — Recovery non-resurrection
 
 For test/development authorization persistence, recovery must preserve monotonic consumed/revoked state. Closing and reopening the backing store must not resurrect an authorization that was already consumed or revoked. This is a test-level contract only and does not establish production recovery correctness.
+
+## E5.25 — Persistence is not an issuer
+
+`Persist(Store,a)` does not imply authorization. Stored authority remains valid only when issuer verification, exact context binding, and registry integrity all hold. The test registry must not expose an independent issuance path.
