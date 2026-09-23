@@ -77,3 +77,13 @@ def receipt_digest(receipts: Iterable[MutationReceipt]) -> str:
     return "sha256:" + hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
+
+
+def validate_receipt_plan_binding(receipt: MutationReceipt, plan: ExecutionPlan) -> MutationReceipt:
+    if receipt.plan_id != plan.plan_id:
+        raise PermissionError("receipt plan identity mismatch")
+    if receipt.review_id != plan.review_id:
+        raise PermissionError("receipt review identity mismatch")
+    if receipt.proposal_id != plan.proposal_id:
+        raise PermissionError("receipt proposal identity mismatch")
+    return receipt
