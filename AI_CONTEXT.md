@@ -5145,3 +5145,12 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - Verification state for the new exact commit: **UNVERIFIED**. No CI PASS is claimed.
 - Contract execution remains iterative: observe exact evidence -> classify -> bounded repository correction -> exact CI/runtime evidence -> audit -> update contract state.
 - Global contract progress remains **~49% directional**; Self-Learning remains approximately **61% directional** until acceptance gates are evidenced.
+
+
+## Exact CI candidate evidence — 2026-09-23 22:20 CET
+
+- Exact candidate head 596f6f85f5909f22f68d059b00a6c1dccf9f0a3f now has fresh CI run 1774 with Python 3.11 PASS, Python 3.12 PASS and CodeQL PASS.
+- Dependency Review remains FAIL/UNVERIFIED because GitHub Dependency Graph is unavailable.
+- This upgrades the candidate branch from UNVERIFIED to VERIFIED_BY_CI for the tested scope. It does not upgrade current main.
+- PR #33 is still draft/non-mergeable, so consolidation must occur before claiming the canonical main gate is closed.
+- Issue #13 is closed; Issue #16 remains active until current-main reconciliation and post-consolidation CI evidence.
