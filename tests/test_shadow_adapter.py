@@ -27,7 +27,7 @@ def test_rule_proposal_is_evaluated_without_activation() -> None:
         finding_id="finding:shadow:1",
         target="test-rule:diagnostic-policy",
         hypothesis="accept positive values",
-        evidence_refs=("transition:1",),
+        evidence_refs=("transition:"+_candidate(1).candidate_id,),
         expected_effect="one additional accepted candidate",
         regression_risk="negative values must remain rejected",
         required_test="shadow evaluation",
