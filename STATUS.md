@@ -385,3 +385,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.17 — Learning Rule Promotion Governance:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_RULE_PROMOTION_GOVERNANCE_CONTRACT.md` (`09315cf2`). Defines explicit promotion classes, evidence/policy separation, promotion prerequisites, invariant regression protection and immutable supersession.
 - **P0 self-learning integrated proof:** remains ~20%. E7.17 architectural coverage ~45%, verification coverage ~5%. No automatic promotion is permitted from repeated success, agent consensus or partner reputation.
+
+- **E7.18 — Learned Rule Revocation / Rollback / Supersession:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNED_RULE_REVOCATION_ROLLBACK_SUPERSESSION_CONTRACT.md` (`0786696d`). Defines post-promotion safety lifecycle, controlled re-evaluation, immutable replacement lineage and fail-closed revocation.
+- **P0 self-learning integrated proof:** remains ~20%. E7.18 architectural coverage ~40%, verification coverage ~5%.
