@@ -501,3 +501,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.54 — Knowledge Promotion Gate:** IMPLEMENTED / UNVERIFIED. Added a governed proposal layer separating specialized/accumulated knowledge from knowledge proposed for common Self-Learning. Promotion requires a recorded version, evidence references, reason and target; ACCEPTED remains a decision record and does not mutate Ψ-Core or grant authority.
 
 - **E7.55 — Controlled Knowledge Integration Record:** IMPLEMENTED / UNVERIFIED. Accepted promotion decisions now produce a deterministic, traceable integration record. The record describes the controlled action but cannot itself mutate Ψ-Core, execute code or grant permissions; completion requires an execution receipt.
+
+- **E7.56 — Protected Core Integration Bridge:** IMPLEMENTED / UNVERIFIED. Added a narrow bridge that converts an approved, common-target integration record into an explicit Core mutation proposal. The bridge cannot execute mutation, bypass governance, grant permissions, or import partner-private data.
