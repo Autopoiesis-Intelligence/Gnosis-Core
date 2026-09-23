@@ -23,3 +23,10 @@ def test_unauthorized_delivery_is_blocked():
 
 def test_manifest_identity_is_deterministic():
     assert make()==make()
+
+
+def test_tampered_delivery_manifest_identity_is_rejected():
+    from dataclasses import replace
+    tampered=replace(make(), package_id="sha256:forged")
+    with pytest.raises(ValueError, match="delivery manifest identity"):
+        authorize_delivery(tampered, allowed_scopes={"partner:finance"})
