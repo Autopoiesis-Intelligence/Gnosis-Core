@@ -26,6 +26,10 @@ def verify_lineage(versions: list[KnowledgeVersion]) -> tuple[bool, tuple[str,..
     errors=[]
     previous="GENESIS"
     for v in versions:
+        canonical={"update_id":v.update_id,"subject_id":v.subject_id,"scope":v.scope,"knowledge_digest":v.knowledge_digest,"parent_version_id":v.parent_version_id}
+        expected="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+        if v.version_id != expected:
+            errors.append(f"VERSION_DIGEST_MISMATCH:{v.version_id}")
         if v.parent_version_id != previous:
             errors.append(f"PARENT_MISMATCH:{v.version_id}")
         previous=v.version_id
