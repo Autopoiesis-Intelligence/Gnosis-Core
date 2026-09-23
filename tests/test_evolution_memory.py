@@ -168,7 +168,7 @@ def test_shadow_assessment_persistence_rejects_payload_tamper():
     conn = connect()
     report = ReflectionReport(proposals=())
     report_id = save_reflection_report(conn, report, created_at="2026-09-23T10:02:00+00:00")
-    assessment = ShadowEvaluation(status="UNCHANGED", cases=())
+    assessment = ShadowEvaluation(cases=(), changed_cases=0, accepted_by_active=0, accepted_by_shadow=0, regressions=0, improvements=0, status="UNCHANGED")
     assessment_id = save_shadow_assessment(conn, report_id, assessment)
     conn.execute(
         "UPDATE reflection_shadow_assessments SET payload=? WHERE assessment_id=?",
