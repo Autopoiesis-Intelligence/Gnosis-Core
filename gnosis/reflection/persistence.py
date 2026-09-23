@@ -104,7 +104,8 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             relation TEXT NOT NULL,
             rationale TEXT NOT NULL,
             evidence_refs TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'PROPOSED'
+            status TEXT NOT NULL DEFAULT 'PROPOSED',
+            report_id TEXT
         );
         CREATE TABLE IF NOT EXISTS reflection_governance_decisions (
             decision_id TEXT PRIMARY KEY,
@@ -127,6 +128,7 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
         ("current_proposal_id", "TEXT"),
         ("status", "TEXT NOT NULL DEFAULT 'PROPOSED'"),
         ("proposal_id", "TEXT"),
+        ("report_id", "TEXT"),
     ):
 
         try:
@@ -276,7 +278,7 @@ def proposal_evolution_id(evolution: ProposalEvolution) -> str:
     return "proposal-evolution:" + hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:24]
 
 
-def save_proposal_evolution(conn: sqlite3.Connection, evolution: ProposalEvolution) -> str:
+def save_proposal_evolution(conn: sqlite3.Connection, evolution: ProposalEvolution, *, report_id: str | None = None) -> str:
     ensure_reflection_schema(conn)
     evolution_id = proposal_evolution_id(evolution)
     if evolution_id != evolution.evolution_id:
@@ -287,19 +289,19 @@ def save_proposal_evolution(conn: sqlite3.Connection, evolution: ProposalEvoluti
         _json(evolution.evidence_refs), evolution.status,
     )
     existing = conn.execute(
-        "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id,relation,rationale,evidence_refs,status "
+        "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id,relation,rationale,evidence_refs,status,report_id "
         "FROM reflection_proposal_evolutions WHERE evolution_id=?",
         (evolution_id,),
     ).fetchone()
     if existing is not None:
-        if tuple(existing) != expected:
+        if tuple(existing[:8]) != expected or existing[8] != report_id:
             raise RuntimeError("conflicting proposal evolution replay")
         return evolution_id
     conn.execute(
         "INSERT INTO reflection_proposal_evolutions "
-        "(evolution_id,finding_id,parent_proposal_id,current_proposal_id,relation,rationale,evidence_refs,status) "
-        "VALUES (?,?,?,?,?,?,?,?)",
-        expected,
+        "(evolution_id,finding_id,parent_proposal_id,current_proposal_id,relation,rationale,evidence_refs,status,report_id) "
+        "VALUES (?,?,?,?,?,?,?,?,?)",
+        expected + (report_id,),
     )
     return evolution_id
 
@@ -387,7 +389,7 @@ def validate_reflection_lineage(conn: sqlite3.Connection, report_id: str) -> dic
             raise RuntimeError("governance decision does not match persisted shadow/invariant evidence")
 
     evolutions = conn.execute(
-        "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id FROM reflection_proposal_evolutions"
+        "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id,report_id FROM reflection_proposal_evolutions"
     ).fetchall()
 
     for _, raw in counterexamples:
@@ -395,7 +397,9 @@ def validate_reflection_lineage(conn: sqlite3.Connection, report_id: str) -> dic
         if result.candidate_id == "" or counterexample_result_id(report_id, result) != _:
             raise RuntimeError("counterexample lineage integrity mismatch")
 
-    for evolution_id, finding_id, parent_id, current_id in evolutions:
+    for evolution_id, finding_id, parent_id, current_id, evolution_report_id in evolutions:
+        if evolution_report_id != report_id:
+            raise RuntimeError("proposal evolution belongs to another reflection report")
         if finding_id not in finding_ids:
             raise RuntimeError("proposal evolution finding is outside reflection lineage")
         if parent_id is not None and parent_id not in proposal_ids:
