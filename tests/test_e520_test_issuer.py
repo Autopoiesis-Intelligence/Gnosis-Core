@@ -81,3 +81,22 @@ def test_e520_expiry_and_revocation_fail_closed():
             parent_state_digest="parent-1",
             policy_version="policy:v1",
         )
+
+
+def test_e520_bridge_preserves_exact_execution_boundary():
+    from gnosis.reflection.authority import require_execution_authorization
+    from gnosis.reflection.test_issuer import to_execution_authorization_for_test
+
+    issuer, auth = _issued()
+    execution_auth = to_execution_authorization_for_test(issuer, auth)
+    require_execution_authorization(
+        execution_auth,
+        request_provenance="provenance:p1",
+        evolution_identity="evolution:e1",
+    )
+    with pytest.raises(PermissionError):
+        require_execution_authorization(
+            execution_auth,
+            request_provenance="provenance:other",
+            evolution_identity="evolution:e1",
+        )
