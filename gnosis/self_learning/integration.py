@@ -42,4 +42,4 @@ def mark_executed(record: IntegrationRecord, *, receipt: ExecutionReceipt, reque
         require_execution_receipt(receipt, request)
     except PermissionError as exc:
         raise ValueError("execution receipt does not match authorized evolution") from exc
-    return IntegrationRecord(record.integration_id,record.proposal_id,record.version_id,record.target,record.action,"EXECUTED",record.authority,receipt.execution_id,receipt.execution_id,receipt.provenance_id)
+    return IntegrationRecord(record.integration_id,record.proposal_id,record.version_id,record.target,record.action,"EXECUTED",record.authority,receipt.receipt_id,receipt.execution_id,receipt.provenance_id)

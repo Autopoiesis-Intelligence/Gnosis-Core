@@ -232,6 +232,18 @@ class ExecutionReceipt:
     resulting_state_digest: str
     candidate_binding_digest: str
 
+    @property
+    def receipt_id(self) -> str:
+        """Canonical identity of this immutable execution evidence."""
+        return "sha256:" + canonical_digest({
+            "execution_id": self.execution_id,
+            "provenance_id": self.provenance_id,
+            "evolution_identity": self.evolution_identity,
+            "parent_state_digest": self.parent_state_digest,
+            "resulting_state_digest": self.resulting_state_digest,
+            "candidate_binding_digest": self.candidate_binding_digest,
+        })
+
     @classmethod
     def after_commit(cls, request: ExecutionCommitRequest, resulting_state: object) -> "ExecutionReceipt":
         require_execution_commit(request)
