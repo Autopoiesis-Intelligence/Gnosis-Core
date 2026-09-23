@@ -5,7 +5,7 @@ from gnosis.instances.instance import Instance
 from gnosis.storage import append_evolution_memory, connect, load_evolution_memory, save_instance
 from gnosis.storage.repositories import StorageCorruptionError, persist_transition
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
-from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report
+from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report, validate_reflection_lineage
 from gnosis.reflection.proposal_lineage import ProposalEvolution, evolve_proposal
 
 
@@ -219,3 +219,49 @@ def test_proposal_evolution_persistence_rejects_payload_tamper():
     )
     with pytest.raises(RuntimeError, match="proposal evolution persistence integrity mismatch"):
         load_proposal_evolution(conn, evolution_id)
+
+
+def test_persisted_reflection_lineage_accepts_consistent_evolution():
+    conn = connect()
+    proposal = RuleProposal(
+        "p-lineage", "f-lineage", "test-rule:v1", "hypothesis", (), "effect", "risk", "test"
+    )
+    report_id = save_reflection_report(
+        conn,
+        ReflectionReport(
+            findings=(
+                __import__("gnosis.reflection.analyzer", fromlist=["Finding"]).Finding(
+                    "f-lineage", "claim", (), (), 1, "condition"
+                ),
+            ),
+            proposals=(proposal,),
+        ),
+        created_at="2026-09-23T10:04:00+00:00",
+    )
+    evolution = evolve_proposal(
+        finding_id="f-lineage",
+        current_proposal_id="p-lineage",
+        prior_proposals=(),
+    )
+    save_proposal_evolution(conn, evolution)
+    result = validate_reflection_lineage(conn, report_id)
+    assert result["findings"] == 1
+    assert result["proposals"] == 1
+    assert result["proposal_evolutions"] == 1
+
+
+def test_persisted_reflection_lineage_rejects_foreign_evolution():
+    conn = connect()
+    report_id = save_reflection_report(
+        conn,
+        ReflectionReport(proposals=()),
+        created_at="2026-09-23T10:05:00+00:00",
+    )
+    evolution = evolve_proposal(
+        finding_id="foreign-finding",
+        current_proposal_id="foreign-proposal",
+        prior_proposals=(),
+    )
+    save_proposal_evolution(conn, evolution)
+    with pytest.raises(RuntimeError, match="outside reflection lineage"):
+        validate_reflection_lineage(conn, report_id)
