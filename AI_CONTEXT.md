@@ -4668,3 +4668,8 @@ External learning evidence follows a bounded state machine: UNSEEN -> RECEIVED -
 ## E7.17 — Learning Rule Promotion Governance
 
 Verified learning results are classified as OBSERVATION_ONLY, TEST_ONLY, HYPOTHESIS, SHADOW_RULE, PROMOTION_CANDIDATE, GOVERNANCE_REJECTED or EXPIRED. Verified evidence does not itself authorize promotion. Promotion candidates require provenance, valid revisions, independence classification, reproducible evaluation, counterexample analysis, invariant compatibility, rollback/supersession semantics and an immutable governance decision. Success frequency, agent consensus or partner reputation cannot automatically escalate promotion status.
+
+
+## E7.18 — Learned Rule Revocation, Rollback and Supersession
+
+Promoted learned rules may transition ACTIVE -> SUSPENDED, REVOKED, SUPERSEDED or ROLLED_BACK after controlled re-evaluation. Triggers include counterexamples, source changes/revocation, failed regression, invariant violation, policy change, parent-state incompatibility or newly discovered provenance dependency. Revocation is fail-closed for active execution and is not retroactive authorization. Rollback/supersession preserves immutable history and creates explicit replacement lineage.
