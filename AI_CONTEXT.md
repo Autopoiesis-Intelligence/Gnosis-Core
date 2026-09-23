@@ -4581,3 +4581,24 @@ The first implementation should provide a partner-source registry, isolated part
 This contract does not authorize automatic model training, automatic code execution or automatic production deployment.
 
 Status: DESIGNED / NOT_IMPLEMENTED.
+
+## E5.30 — Agent Identity, Participation Intake and Contract Debate
+
+Partners do not receive direct access merely by sending a repository. They submit the machine-readable participation template at `docs/partners/PARTNER_AGENT_PARTICIPATION_TEMPLATE.md`.
+
+The Core-side process is:
+PARTICIPATION_SUBMISSION -> NORMALIZE -> IDENTITY_CHECK -> PROVENANCE/AUDIT -> QUARANTINE -> CAPABILITY_GRANT -> CONTRACT_DISCUSSION -> CORE_VERIFICATION.
+
+Agent identity and capability are separate. `Identity != Trust != Authority`.
+
+Each accepted agent receives a stable normalized agent identity linked to its declared identity material, source revision, participation scope, dataset references, audit state and revocation state.
+
+An agent may participate in contract discussion and submit evidence/candidates/tests without receiving execution authority. Contract discussion is a research/governance interaction, not authorization.
+
+Discussion objects must preserve agent_id, contract_id/version, claim, evidence references, challenge, response, resolution status and provenance. Core may reject, request evidence, accept for scope, or open a counterexample cycle.
+
+An agent's repository/database is an external learning source. The Core may compare its claims against other agents, user-provided sources and its own history, but must not treat agent consensus as proof.
+
+Partner/agent data must remain isolated from canonical Core state. Direct PartnerData -> CanonicalState mutation is forbidden.
+
+Status: DESIGNED / TEMPLATE IMPLEMENTED; runtime identity/discussion infrastructure NOT_IMPLEMENTED.
