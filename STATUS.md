@@ -457,3 +457,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.39 — Core Minimality & Specialized Knowledge/Learning Layer Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `c333b0103a0e7d7fc1cf6778c2746c26c6ff8d68`. Canonical Core is defined as common minimal effective mechanics, while domain knowledge, datasets, learned models and domain policies remain in governed specialization layers. Learning cannot silently mutate canonical Core.
+
+
+- **E7.41 — Distributed Clone Learning, Privacy & Network Integration:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `e70ca3517f80258584d1ca4d02cee1327b261090`. Specialized clones may learn locally and integrate approved generalized knowledge without exposing private user/partner data. Connectivity never implies data authorization; network learning cannot directly mutate Core.
