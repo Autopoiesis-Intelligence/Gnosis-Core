@@ -75,6 +75,7 @@ Each contract record SHOULD contain:
 | E7.54 | IMPLEMENTED / UNVERIFIED | Knowledge Promotion Gate |
 | E7.55 | IMPLEMENTED / UNVERIFIED | Controlled Knowledge Integration Record |
 | E7.56 | IMPLEMENTED / UNVERIFIED | Protected Core Integration Bridge |
+| E7.57 | IMPLEMENTED / UNVERIFIED | Core Mutation Execution Adapter |
 
 ## Update rule
 
