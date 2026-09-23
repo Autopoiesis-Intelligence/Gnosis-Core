@@ -7,7 +7,7 @@ from gnosis.storage.repositories import StorageCorruptionError, persist_transiti
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.counterexample import CounterexampleResult
-from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report, validate_reflection_lineage, load_governance_decision, save_governance_decision, save_invariant_delta, load_invariant_delta, save_counterexample, load_counterexample_for_report, save_shadow_assessment
+from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report, validate_reflection_lineage, load_governance_decision, save_governance_decision, save_invariant_delta, load_invariant_delta, save_counterexample, load_counterexample_for_report, save_shadow_assessment, load_shadow_assessment
 from gnosis.reflection.proposal_lineage import ProposalEvolution, evolve_proposal
 from gnosis.reflection.invariant_delta import InvariantDelta
 from gnosis.reflection.shadow import ShadowEvaluation
