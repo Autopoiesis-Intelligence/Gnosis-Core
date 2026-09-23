@@ -422,3 +422,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.26 — Partner Admission Runtime Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `1b35eb7d9b0f581ba41ab0dd5f48f225dcca9dab`. Defines the fail-closed runtime gate from validated/provenance-bound contribution to admitted learning/evidence state, with explicit scope, revocation, idempotency, crash/recovery and no-Core-mutation constraints.
+
+
+- **E7.27 — Partner Replay, Revocation & Contract-State Consistency:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `8180d98eb6f2d679c49f80d1edff627a449d3da4`. Defines exact replay identity, append-only revocation, contract revision binding, resurrection prevention, deterministic effective-state derivation and distinction between historical admission and current validity.
