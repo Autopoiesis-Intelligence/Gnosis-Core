@@ -400,3 +400,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.22 — Partner Repository Admission & Identity:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/PARTNER_REPOSITORY_ADMISSION_IDENTITY_CONTRACT.md` (`98782bc1`). Defines controlled partner admission, immutable PartnerIdentity, declared scope, baseline provenance, quarantine, revocation and no-authority-inheritance rules.
 - **P0 self-learning integrated proof:** remains ~20%. E7.22 architectural coverage ~40%, verification coverage ~5%.
+
+- **Repository role baseline:** `Gnozis-V2` = canonical Core/source of truth. Future second repository = **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**, holding theory, mathematics, evidence, context and machine-readable self-optimization material; it is not a second Core. Historical `Gnozis` remains legacy/research/archive.
+- Added `docs/architecture/REPOSITORY_ROLE_AND_NAMING_CONTRACT.md` (`85cccebf`).
