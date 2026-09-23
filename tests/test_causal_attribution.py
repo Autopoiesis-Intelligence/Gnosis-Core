@@ -60,3 +60,18 @@ def test_refine_proposal_target_preserves_lineage_and_versions():
     assert refined.possible_regressions == proposal.possible_regressions
     assert refined.test_plan == proposal.test_plan
     assert refined.provenance == proposal.provenance
+
+
+def test_fabricated_transition_reference_gets_no_causal_attribution():
+    finding = Finding(
+        finding_id="finding:forged",
+        claim="forged provenance",
+        observation_ids=(),
+        evidence_refs=("transition:forged",),
+        reproducibility=1,
+        falsification_condition="reference resolves to a recorded transition",
+    )
+    causal = attribute_finding(finding, (_record(0, "rule:real"),))
+    assert causal.attributions == ()
+    assert causal.target_rule_ids == ()
+    assert causal.confidence == "UNSPECIFIED"
