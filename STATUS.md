@@ -239,3 +239,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - R2.OPT-10c persistence-boundary continuation: strengthened crash/reopen tests so every pre-commit fault requires exactly the original durable state graph (1 state, 0 candidates, 0 transition-linked audit events), while post-commit fault requires the complete new graph (2 states, 1 candidate, 1 transition-linked audit event). Latest test commit: `23e5ff0fbfb6ea389e9346aba702238affe2dd2c`.
 - This remains source/test evidence only; runtime/CI execution has not been observed for the new commit.
+
+- R2.OPT-10c replay boundary: fixed a real defect where an existing transition_id could return idempotently before replay content validation. Stored transition identity/content is now checked first; conflicting replay fails closed. Regression added for conflicting parent provenance. Commits: `87a3732e`, `c55a21c8`. Execution evidence remains UNVERIFIED.
