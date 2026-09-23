@@ -47,7 +47,7 @@ def validate_proposal(
         reasons.append("UNKNOWN_FINDING_TYPE")
     if proposal.contract_id != "UNKNOWN" and known_ids and proposal.contract_id not in known_ids:
         reasons.append("CONTRACT_NOT_KNOWN")
-    if proposal.finding not in findings and findings:
+    if proposal.finding not in findings:
         reasons.append("SOURCE_FINDING_NOT_PRESENT")
 
     # Recompute the canonical identity through the public constructor.

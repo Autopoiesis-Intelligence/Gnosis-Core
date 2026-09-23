@@ -35,7 +35,7 @@ def test_recovery_rebuilds_and_verifies_persisted_chain():
     conn = sqlite3.connect(":memory:")
     ensure_reflection_schema(conn)
     pid, observations, state = _persist(conn)
-    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state)
+    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state, authorization_valid=True)
     assert report.recovered_records == 1
     assert report.chain_valid
     assert report.replay_valid
@@ -70,7 +70,7 @@ def test_recovery_replay_equality_fails_closed_on_changed_observations():
     ensure_reflection_schema(conn)
     pid, observations, state = _persist(conn)
     changed = {"status": "CHANGED"}
-    report = recover_evolution_audit(conn, provenance_id=pid, observations=changed, proposed_state=state)
+    report = recover_evolution_audit(conn, provenance_id=pid, observations=changed, proposed_state=state, authorization_valid=True)
     assert report.chain_valid is False
     assert report.replay_valid is False
     assert report.expected_digest != report.actual_digest
@@ -92,7 +92,7 @@ def test_recovery_rejects_tampered_canonical_evolution_identity():
     ensure_reflection_schema(conn)
     pid, observations, state = _persist(conn)
     conn.execute("UPDATE evolution_provenance SET evolution_identity='tampered'")
-    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state)
+    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state, authorization_valid=True)
     assert not report.replay_valid
     assert "recovery evolution identity mismatch" in report.reasons
 
@@ -102,7 +102,7 @@ def test_recovery_rejects_legacy_provenance_without_identity():
     ensure_reflection_schema(conn)
     pid, observations, state = _persist(conn)
     conn.execute("UPDATE evolution_provenance SET evolution_identity=''")
-    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state)
+    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state, authorization_valid=True)
     assert not report.replay_valid
     assert "legacy provenance identity is unverified" in report.reasons
 
@@ -128,7 +128,7 @@ def test_recovery_rejects_tampered_proposed_state_content_identity():
         evidence_digest=p.evidence_digest, payload={"status": "PASS"},
     )
     conn.execute("UPDATE evolution_provenance SET proposed_state_content_id='tampered'")
-    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state)
+    report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state, authorization_valid=True)
     assert not report.replay_valid
     assert "evolution identity mismatch" in " ".join(report.reasons)
 
@@ -148,12 +148,12 @@ def test_recovery_fails_closed_on_duplicate_provenance_audit_links():
            (sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,
             proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest)
            VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
-        (2, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-         row[10], __import__("gnosis.evolution.audit", fromlist=["audit_record_digest"]).audit_record_digest(sequence=2,event_type=row[0],candidate_id=row[1],execution_id=row[2],provenance_id=row[3],parent_state_digest=row[4],proposed_state_digest=row[5],evidence_digest=row[6],payload_digest=row[7],previous_digest=row[9])),
+        (2, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
+         __import__("gnosis.evolution.audit", fromlist=["audit_record_digest"]).audit_record_digest(sequence=2,event_type=row[0],candidate_id=row[1],execution_id=row[2],provenance_id=row[3],parent_state_digest=row[4],proposed_state_digest=row[5],evidence_digest=row[6],payload_digest=row[7],previous_digest=row[9])),
     )
     report = recover_evolution_audit(
         conn, provenance_id=pid, observations=observations, proposed_state=state
-    )
+    , authorization_valid=True)
     assert not report.replay_valid
     assert "multiple audit records linked to provenance" in report.reasons
 
@@ -169,7 +169,7 @@ def test_recovery_rejects_tampered_promotion_status_tuple():
     )
     report = recover_evolution_audit(
         conn, provenance_id=pid, observations=observations, proposed_state=state
-    )
+    , authorization_valid=True)
     assert report.chain_valid is False
     assert report.replay_valid is False
     assert "provenance identity mismatch" in report.reasons or "evolution identity mismatch" in report.reasons

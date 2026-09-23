@@ -12,18 +12,32 @@ from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
-from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance
+from gnosis.evolution.provenance import EvidenceProvenance, ProvenanceCrossCheck, crosscheck_provenance, provenance_id_for
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
 
 def _json(value: Any) -> str:
     if is_dataclass(value):
         value = asdict(value)
+    elif isinstance(value, dict):
+        value = {str(k): _json_value(v) for k, v in value.items()}
+    elif isinstance(value, (tuple, list)):
+        value = [_json_value(v) for v in value]
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
-def reflection_id(report: ReflectionReport) -> str:
-    return "reflection:" + hashlib.sha256(_json(report).encode("utf-8")).hexdigest()[:24]
+def _json_value(value: Any) -> Any:
+    if is_dataclass(value):
+        return asdict(value)
+    if isinstance(value, dict):
+        return {str(k): _json_value(v) for k, v in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_json_value(v) for v in value]
+    return value
+
+def reflection_id(report: ReflectionReport, created_at: str | None = None) -> str:
+    payload = {"payload": asdict(report), "created_at": created_at} if created_at is not None else asdict(report)
+    return "reflection:" + hashlib.sha256(_json(payload).encode("utf-8")).hexdigest()[:24]
 
 
 def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
@@ -157,7 +171,7 @@ def save_reflection_report(
     shadow_assessments: tuple[ShadowEvaluation, ...] = (),
 ) -> str:
     ensure_reflection_schema(conn)
-    report_key = reflection_id(report)
+    report_key = reflection_id(report, created_at)
     conn.execute(
         "INSERT OR IGNORE INTO reflection_reports(report_id,created_at,payload) VALUES(?,?,?)",
         (report_key, created_at, _json(report)),
@@ -229,7 +243,7 @@ def validate_reloaded_counterexample_evidence(result: CounterexampleResult, tran
 
 
 def shadow_assessment_id(report_id: str, assessment: ShadowEvaluation, proposal_id: str | None = None) -> str:
-    digest = hashlib.sha256(_json({"proposal_id": proposal_id, "assessment": assessment}).encode("utf-8")).hexdigest()[:24]
+    digest = hashlib.sha256(_json(assessment).encode("utf-8")).hexdigest()[:24]
     return f"{report_id}:shadow:{digest}"
 
 
@@ -260,7 +274,7 @@ def load_shadow_assessment(conn: sqlite3.Connection, assessment_id: str) -> dict
     if row is None:
         raise KeyError(assessment_id)
     payload = json.loads(row[3])
-    if shadow_assessment_id(row[1], ShadowEvaluation(**payload), row[4]) != row[0]:
+    if shadow_assessment_id(row[1], ShadowEvaluation(**payload)) != row[0]:
         raise RuntimeError("shadow assessment persistence integrity mismatch")
     if row[2] != payload.get("status"):
         raise RuntimeError("shadow assessment persistence status mismatch")
@@ -268,14 +282,11 @@ def load_shadow_assessment(conn: sqlite3.Connection, assessment_id: str) -> dict
 
 
 def proposal_evolution_id(evolution: ProposalEvolution) -> str:
-    parts = (
-        evolution.finding_id,
-        evolution.parent_proposal_id or "none",
-        evolution.current_proposal_id or "none",
-        evolution.relation,
-        *evolution.evidence_refs,
-    )
-    return "proposal-evolution:" + hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:24]
+    payload = asdict(evolution)
+    payload.pop("evolution_id", None)
+    return "proposal-evolution:" + hashlib.sha256(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:24]
 
 
 def save_proposal_evolution(conn: sqlite3.Connection, evolution: ProposalEvolution, *, report_id: str | None = None) -> str:
@@ -517,7 +528,7 @@ def load_reflection_report(conn: sqlite3.Connection, stored_report_id: str) -> d
     if row is None:
         raise KeyError(stored_report_id)
     payload = json.loads(row[2])
-    report_digest = "reflection:" + hashlib.sha256(_json(payload).encode("utf-8")).hexdigest()[:24]
+    report_digest = reflection_id(ReflectionReport(**payload), row[1])
     if report_digest != row[0]:
         raise RuntimeError("reflection persistence integrity mismatch")
     return {"report_id": row[0], "created_at": row[1], "payload": payload}
@@ -619,6 +630,12 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
         (provenance_id,),
     ).fetchone()
     if row is None:
+        rows = conn.execute("SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluation_status,shadow_status,invariant_status,governance_decision,status FROM evolution_provenance").fetchall()
+        for candidate_row in rows:
+            values = dict(zip(("provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluation_status","shadow_status","invariant_status","governance_decision","status"), candidate_row))
+            expected = provenance_id_for(execution_id=values["execution_id"], candidate_id=values["candidate_id"], parent_state_id=values["parent_state_id"], parent_state_digest=values["parent_state_digest"], proposed_state_digest=values["proposed_state_digest"], evidence_digest=values["evidence_digest"], evaluation_status=values["evaluation_status"], shadow_status=values["shadow_status"], invariant_status=values["invariant_status"], governance_decision=values["governance_decision"], status=values["status"], proposed_state_content_id=values["proposed_state_content_id"], candidate_binding_digest=values["candidate_binding_digest"])
+            if expected == provenance_id:
+                raise RuntimeError("stored provenance identity mismatch")
         raise KeyError(provenance_id)
     keys = (
         "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest",
