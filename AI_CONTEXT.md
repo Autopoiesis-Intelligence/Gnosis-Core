@@ -3734,3 +3734,64 @@ V2 currently documents protected invariants and governance contracts but does no
 ### Required next step
 
 E5.04: formalize governance evidence, authorization provenance, and non-repudiable audit requirements for boundary-sensitive changes.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.04: GOVERNANCE EVIDENCE, AUTHORIZATION PROVENANCE AND AUDIT NON-REPUDIATION
+
+Let `τ` be an authority-sensitive transition.
+
+### Authorization evidence tuple
+
+An authorization claim for `τ` must be represented as a bounded evidence relation:
+`AuthEvidence(τ) = (principal, scope, target, policy_version, evidence_ref, decision, time_bounds, provenance)`.
+
+The tuple is descriptive evidence of an authorization decision; possession of the record alone is not authority.
+
+### Binding
+
+Authorization must bind to the exact intended transition, not merely to a generic capability or task.
+
+`Authorize(τ_1) != Authorize(τ_2)` unless the policy explicitly defines a reusable authorization scope that covers both.
+
+For an exact execution binding:
+`Auth.scope ∋ τ.target` and `Auth.provenance == τ.provenance` and `Auth.policy_version == evaluated_policy_version`.
+
+### Audit non-repudiation boundary
+
+An append-only/hash-linked audit record can provide tamper-evident continuity relative to its cryptographic assumptions. It does not by itself prove that the recorded actor was truthful, authorized, or correctly represented.
+
+`AuditIntegrity != AuthorizationTruth`.
+
+### Evidence ordering
+
+Authority-sensitive transitions should preserve the relation:
+`proposal -> evidence -> evaluation -> authorization -> commit -> outcome`.
+
+An audit entry that appears after commit cannot retroactively create missing authorization evidence.
+
+### Provenance completeness
+
+For boundary-sensitive changes, provenance should identify at minimum:
+- exact target/boundary version;
+- proposing actor/process;
+- evidence references;
+- evaluator/version;
+- policy/invariant version;
+- authorization decision and scope;
+- relevant time/expiry constraints;
+- resulting transition identity;
+- rollback/revocation relation where applicable.
+
+### Revocation
+
+If authorization can expire or be revoked, current validity must be evaluated at the authority-sensitive transition boundary. Historical existence of an authorization record does not imply current validity.
+
+### Proposition E5.04.1
+
+If a system can commit an authority-sensitive transition without a provenance-bound authorization decision that was valid for the exact transition scope, an intact audit chain cannot repair the missing authorization.
+
+### Current implementation boundary
+
+V2 contains a concrete fail-closed execution authorization boundary in `gnosis/reflection/authority.py`, canonical evolution identity recomputation, immutable execution intent snapshots, and persistent append-only/hash-chained audit infrastructure. The owner-authority issuer remains intentionally unimplemented (`NotImplementedError`), so this is not a claim of complete end-to-end authorization.
+
+### Required next step
+
+E5.05: formalize authorization freshness, expiry, revocation and replay resistance for authority-sensitive transitions.
