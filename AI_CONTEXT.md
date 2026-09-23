@@ -5169,3 +5169,10 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - Exact head `4b209216c785d20cb888e2acb0047ff209f587d6` is **VERIFIED_BY_CI** for the scoped provenance lifecycle identity regression: CI 1969 PASS on Python 3.11/3.12 and CodeQL 847 PASS.
 - Dependency Review 96 remains UNVERIFIED because the GitHub Dependency Graph is unavailable.
 - PR #35 remains unmerged. Integration and post-merge verification are still required before closing Issue #16 / P0-R2.
+
+
+## PR #35 integration gate — 2026-09-23
+
+- PR #35 exact head `4b209216c785d20cb888e2acb0047ff209f587d6` is VERIFIED_BY_CI, but GitHub currently reports the PR as `mergeable=false`.
+- Do not force-merge or bypass branch protection. The candidate remains unmerged until GitHub exposes a valid merge state.
+- Candidate CI evidence remains valid for the candidate scope; it does not close P0-R2 or Issue #16.
