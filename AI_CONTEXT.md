@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.103 — Self-Learning Evidence-to-Contract Verification Matrix
+
+E7.103 defines the authoritative criterion-level mapping from contract requirements to implementation, tests and accepted evidence. It exposes proof gaps and supports bounded verification batches without inflating progress from mappings alone.
+
+Contract artifact: `docs/architecture/SELF_LEARNING_EVIDENCE_CONTRACT_VERIFICATION_MATRIX.md`.
+Contract commit: `9ca277536c630b12cb5afa762bf8fe1db876247b`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.102 — Self-Learning Evidence Ingestion & Acceptance Pipeline
 
 E7.102 defines how real implementation/runtime/CI/audit evidence enters the Self-Learning ledger. Evidence passes through controlled submission and validation before ACCEPTED evidence can affect progress metrics.
