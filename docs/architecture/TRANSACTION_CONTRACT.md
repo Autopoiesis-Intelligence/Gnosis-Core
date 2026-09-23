@@ -358,3 +358,25 @@ Execution authority state must distinguish consumed, revoked, and expired. These
 ## E7.9.9 — Action outcome is not retroactive authorization
 
 Action outcomes are post-action evidence. They cannot retroactively establish that the original decision, authorization, or intent was valid. Retrospective learning must use a new evidence update and versioned re-evaluation.
+## E5.29 — Partner Repository Agency / Knowledge Federation
+
+A separately audited partner repository may be attached as an external research/learning source with an isolated partner database.
+
+Required path:
+
+Partner Repository -> Partner DB -> Provenance/Audit -> Quarantine -> Evidence -> Candidate -> Core Verification -> Governed Evolution
+
+The partner database is not a second Core and cannot issue authority.
+
+`PartnerTrust != CoreAuthority`
+`PartnerRepositoryAccess != ExecutionAuthority`
+`PartnerData -> CanonicalState` has no direct path.
+
+Every source requires immutable revision provenance, schema/version metadata, audit scope, trust dimensions and revocation state. Partner material remains skeptical external evidence until verified for a declared scope.
+
+Initial agency levels are separately governed:
+READ_RESEARCH, SUBMIT_EVIDENCE, SUBMIT_CANDIDATE, SUBMIT_TEST, REQUEST_REVIEW, PROPOSE_CHANGE, EXECUTION_AUTHORITY.
+
+The first six are research collaboration capabilities; EXECUTION_AUTHORITY remains under the Root-of-Trust contracts.
+
+Status: DESIGNED / NOT_IMPLEMENTED.
