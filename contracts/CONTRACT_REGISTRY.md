@@ -61,3 +61,26 @@ A recurring execution may create one-shot tasks when it discovers a concrete gap
 ## Authority rule
 
 This registry is a control description, not proof. Repository source, reproducible runtime behavior and real CI evidence outrank registry claims.
+
+## Newly confirmed evidence requiring follow-up
+
+### Evolution memory semantic tamper
+STATUS: OPEN
+EVIDENCE: CI run 1180, Python 3.11, exact tested predecessor commit 8d3681a…
+FINDING: tests/test_evolution_memory.py::test_load_evolution_memory_rejects_transition_semantic_tamper[to_state_id] did not raise StorageCorruptionError.
+IMPLICATION: persistence semantic-integrity boundary is not fully verified.
+NEXT: bounded corrective task after the current active task gate permits.
+
+### Recovery duplicate provenance links
+STATUS: OPEN
+EVIDENCE: CI run 1180, Python 3.11, exact tested predecessor commit 8d3681a…
+FINDING: tests/test_evolution_recovery.py::test_recovery_fails_closed_on_duplicate_provenance_audit_links raised IndexError: tuple index out of range.
+IMPLICATION: recovery fail-closed behavior has a concrete defect under the tested adversarial case.
+NEXT: bounded corrective task after the current active task gate permits.
+
+### Dependency Review workflow
+STATUS: BLOCKED / REPOSITORY CONFIGURATION
+EVIDENCE: GitHub Dependency Review run 4.
+FINDING: GitHub reports Dependency Review unsupported because Dependency graph is not enabled.
+IMPLICATION: workflow cannot currently provide its intended evidence.
+NEXT: repository-security configuration task; do not misclassify as a code dependency vulnerability.
