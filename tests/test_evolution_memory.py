@@ -6,7 +6,7 @@ from gnosis.storage import append_evolution_memory, connect, load_evolution_memo
 from gnosis.storage.repositories import StorageCorruptionError, persist_transition
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
 from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report
-from gnosis.reflection.proposal_lineage import ProposalEvolution
+from gnosis.reflection.proposal_lineage import ProposalEvolution, evolve_proposal
 
 
 def test_evolution_memory_round_trip_and_digest():
@@ -187,16 +187,13 @@ def test_shadow_assessment_exact_replay_does_not_replace_payload():
     ).fetchone()[0] == 1
 
 
+
 def test_proposal_evolution_persistence_round_trip_and_exact_replay():
     conn = connect()
-    evolution = ProposalEvolution(
-        evolution_id="proposal-evolution:" + __import__("hashlib").sha256(
-            '{"evidence_refs":["e1"],"finding_id":"f1","parent_proposal_id":"p0","rationale":"refine","relation":"REFINEMENT_AFTER_REJECTION"}'.encode()
-        ).hexdigest()[:24],
+    evolution = evolve_proposal(
         finding_id="f1",
-        parent_proposal_id="p0",
-        relation="REFINEMENT_AFTER_REJECTION",
-        rationale="refine",
+        current_proposal_id="p1",
+        prior_proposals=({"finding_id": "f1", "proposal_id": "p0", "status": "REJECTED"},),
         evidence_refs=("e1",),
     )
     evolution_id = save_proposal_evolution(conn, evolution)
@@ -210,15 +207,10 @@ def test_proposal_evolution_persistence_round_trip_and_exact_replay():
 
 def test_proposal_evolution_persistence_rejects_payload_tamper():
     conn = connect()
-    evolution = ProposalEvolution(
-        evolution_id="proposal-evolution:" + __import__("hashlib").sha256(
-            '{"evidence_refs":[],"finding_id":"f2","parent_proposal_id":null,"rationale":"initial","relation":"INITIAL"}'.encode()
-        ).hexdigest()[:24],
+    evolution = evolve_proposal(
         finding_id="f2",
-        parent_proposal_id=None,
-        relation="INITIAL",
-        rationale="initial",
-        evidence_refs=(),
+        current_proposal_id="p2",
+        prior_proposals=(),
     )
     evolution_id = save_proposal_evolution(conn, evolution)
     conn.execute(
