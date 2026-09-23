@@ -374,3 +374,26 @@ def test_load_evolution_provenance_rejects_stored_identity_tamper():
     )
     with pytest.raises(RuntimeError, match="stored provenance identity mismatch"):
         load_evolution_provenance(conn, pid)
+
+
+def test_promotion_gate_distinguishes_evidence_roles():
+    from gnosis.evolution.promotion import evaluate_promotion_gate, make_promotion_candidate
+    candidate = make_promotion_candidate(
+        candidate_id="candidate:roles",
+        evidence_digest="digest:roles",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+    )
+    gate = evaluate_promotion_gate(
+        candidate,
+        provenance_valid=True,
+        evidence_roles={
+            "DETECTION": ("det:1",),
+            "EXPLANATION": ("exp:1",),
+            "AUTHORIZATION": (),
+        },
+    )
+    assert gate.eligible is False
+    assert "authorization evidence is missing" in gate.reasons
