@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.109 — First Verification Batch Evidence Acceptance & Criterion Promotion Gate
+
+E7.109 defines the controlled boundary between captured execution evidence and criterion promotion. Accepted evidence may affect criterion and progress state only after provenance and criterion-specific acceptance gates pass.
+
+Contract artifact: `docs/architecture/SELF_LEARNING_FIRST_BATCH_EVIDENCE_ACCEPTANCE_PROMOTION.md`.
+Contract commit: `20ae1693de1e8372de1d495e6086792321aea51f`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.108 — First Verification Batch Execution Record & Evidence Capture
 
 E7.108 defines the authoritative execution record for the first verification batch. It captures actual commands/tests, exact commit, environment, observed results and criterion-level evidence without granting acceptance or verification by itself.
