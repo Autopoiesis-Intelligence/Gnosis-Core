@@ -4,7 +4,7 @@ import hashlib
 import json
 import sqlite3
 from dataclasses import asdict, is_dataclass
-from typing import Any
+from typing import Any, Sequence
 
 from .analyzer import ReflectionReport
 from .counterexample import CounterexampleResult
