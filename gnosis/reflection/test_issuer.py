@@ -201,6 +201,25 @@ def revoke_test_authorization(conn: sqlite3.Connection, authorization_id: str) -
     conn.commit()
 
 
+def issue_for_provenance_for_test(
+    issuer: TestAuthorizationIssuer,
+    provenance: object,
+    *,
+    policy_version: str,
+    expires_at: int,
+    scope: tuple[str, ...] = ("test:execute",),
+) -> TestAuthorization:
+    """Issue only test authority from an exact provenance object."""
+    return issuer.issue(
+        request_provenance=str(provenance.provenance_id),
+        evolution_identity=str(provenance.evolution_identity),
+        parent_state_digest=str(provenance.parent_state_digest),
+        policy_version=policy_version,
+        scope=scope,
+        expires_at=expires_at,
+    )
+
+
 def to_execution_authorization_for_test(
     issuer: TestAuthorizationIssuer,
     authorization: TestAuthorization,
