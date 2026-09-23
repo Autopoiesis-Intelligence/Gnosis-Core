@@ -463,3 +463,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.41 — Distributed Clone Learning, Privacy & Network Integration:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `e70ca3517f80258584d1ca4d02cee1327b261090`. Specialized clones may learn locally and integrate approved generalized knowledge without exposing private user/partner data. Connectivity never implies data authorization; network learning cannot directly mutate Core.
+
+
+- **E7.42 — Self-Learning Contract Aggregation, Synthesis & Privacy Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `ebfc7bdf3911b6552592878005cca5e6ecaf7206`. Self-Learning is prioritized as the machine-maintained contract knowledge/synthesis layer. It may detect gaps, contradictions, stale revisions and generate proposals, while preserving provenance and privacy. It cannot silently accept contracts, grant capability, change Core invariants or become an authority root.
