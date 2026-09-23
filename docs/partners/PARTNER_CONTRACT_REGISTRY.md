@@ -87,6 +87,7 @@ Each contract record SHOULD contain:
 | E7.66 | PARTIAL / UNVERIFIED | Training Execution Receipt |
 | E7.67 | PARTIAL / UNVERIFIED | Specialized Core Build Record |
 | E7.68 | PARTIAL / UNVERIFIED | Specialized Core Validation & Release Gate |
+| E7.69 | PARTIAL / UNVERIFIED | Partner Core Delivery Authorization |
 
 ## Update rule
 
