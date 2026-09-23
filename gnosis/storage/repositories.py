@@ -87,6 +87,9 @@ def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)
         record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=row[1],test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6])
         if record.transition_id != row[0]:
             raise StorageCorruptionError("transition identity mismatch")
+        candidate = load_candidate(conn, row[1])
+        if candidate.parent_state_id != record.from_state_id or candidate.proposed_state.state_id != record.to_state_id:
+            raise StorageCorruptionError("transition/candidate mismatch")
         records.append(record)
     return records
 
