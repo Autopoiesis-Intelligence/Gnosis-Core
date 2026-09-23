@@ -572,3 +572,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.90 — Governance Outcome & Remediation Plan Intake:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `c6c0b2cbdf3d9e32992c0c4ac4b1d5ca6aa06fc2`. Defines the controlled handoff from REMEDIATION_REQUIRED governance outcome into an E7.80 plan proposal, with exact scope/target binding, clarification/rejection states and no execution authority.
 
 - **E7.91 — Remediation Plan Validation & Acceptance Gate:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `547d271b8f74b797e1e89c6e8e39224daef5a04e`. Defines evidence-linked plan validation, exact scope/target integrity, measurable success/verification criteria, material-change revalidation and separation from execution authorization.
+
+- **E7.92 — Remediation Plan Authorization Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `542e027a4fb8573cba9576489af8e03b19283e21`. Defines explicit exact-scoped execution authorization, validity windows, least-authority constraints, revocation/consumption, emergency-path separation and fail-closed conflict handling.
