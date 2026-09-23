@@ -25,6 +25,10 @@ def create_training_plan(*,intake_id:str,allowed_data_refs:tuple[str,...],learni
     return TrainingPlan(pid,intake_id,allowed_data_refs,learning_objectives,invariant_refs,test_requirements,acceptance_criteria,revision)
 
 def validate_plan_scope(plan:TrainingPlan,*,allowed_data_refs:set[str])->TrainingPlan:
+    canonical={"intake_id":plan.intake_id,"allowed_data_refs":plan.allowed_data_refs,"learning_objectives":plan.learning_objectives,"invariant_refs":plan.invariant_refs,"test_requirements":plan.test_requirements,"acceptance_criteria":plan.acceptance_criteria,"revision":plan.revision}
+    expected="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    if plan.plan_id != expected:
+        raise ValueError("training plan identity does not match immutable fields")
     if not set(plan.allowed_data_refs).issubset(allowed_data_refs):
         raise PermissionError("training plan requests data outside authorized scope")
     return plan

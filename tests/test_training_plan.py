@@ -15,3 +15,10 @@ def test_data_scope_escalation_is_blocked():
 
 def test_plan_identity_is_deterministic():
     assert make()==make()
+
+
+def test_tampered_training_plan_identity_is_rejected():
+    from dataclasses import replace
+    tampered=replace(make(), plan_id="sha256:forged")
+    with pytest.raises(ValueError, match="training plan identity"):
+        validate_plan_scope(tampered,allowed_data_refs={"source:1"})
