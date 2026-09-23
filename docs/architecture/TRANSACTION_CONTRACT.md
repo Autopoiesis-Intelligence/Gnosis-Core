@@ -268,3 +268,41 @@ Hash-derived identity is not equivalent to authorization validity:
 Legitimate idempotent retries must be explicitly distinguished from replay of a consumed authorization.
 
 Current runtime does not claim completed canonical serialization, nonce registry or cross-protocol replay enforcement.
+## E5.09–E5.19 — External interaction and delegation evolution gates
+
+These contracts extend the existing authorization boundary into multi-domain and external-effect execution.
+
+### E5.09 Root-of-Trust closure
+`Issue -> Persist -> Verify -> Consume -> Execute -> Audit -> Recover` must form one evidence-backed path. Partial controls do not constitute end-to-end authorization.
+
+### E5.10 Capability attenuation
+`Authority(child) ⊆ Authority(parent)` and `Scope(child) ⊆ Scope(parent)`. Shared storage/process does not imply shared authority; domain and policy context bind capability use.
+
+### E5.11 External API trust boundary
+External credentials are authority-bearing. External effects must pass `Intent -> PolicyCheck -> Authorization -> Gateway -> ExternalEffect -> Receipt -> Audit`. External responses are untrusted evidence.
+
+### E5.12 Generation fence / activation
+Experimental state cannot acquire stable authority merely through persistence, lineage or restart. Cross-generation external effects require active-generation and authorization binding.
+
+### E5.13 Local approval gateway
+Out-of-scope power requires an immutable `ExecutionIntentSnapshot` and explicit governed approval. Stale or materially changed intent fails closed.
+
+### E5.14 Domain risk matrix
+Each domain requires explicit autonomy policy `Omega_d` covering actions, power limits, approval rules, rate limits, rollback and evidence requirements. Domain risk labels are policy metadata, not universal truth.
+
+### E5.15 Delegation lineage
+Delegation forms an explicit root-to-descendant lineage with non-expanding scope, explicit depth/expiry/audience/action class and policy-defined ancestor revocation behavior.
+
+### E5.16 Multi-domain persistence isolation
+Shared persistence must not create cross-domain authority. Cross-domain references require explicit authorization and provenance; incompatible recovery must fail closed.
+
+### E5.17 External side-effect boundary
+External non-atomic effects require `PrepareIntent -> Authorize -> Execute -> Receipt -> PersistReceipt -> Reconcile`. Unknown external outcomes must not be blindly retried when the effect is non-idempotent.
+
+### E5.18 Autonomous budget / blast radius
+Autonomous power must be bounded by an explicit cumulative budget. Restart, delegation and capability refresh cannot silently reset or increase it.
+
+### E5.19 Approval freshness / exact intent binding
+Human approval is valid only for the exact bound intent, parent state, domain policy and validity window. Material changes require re-approval.
+
+These gates do not authorize a Ψ-Core redesign. They define requirements for bridges, delegation, activation and external-effect layers.
