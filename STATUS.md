@@ -532,3 +532,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.70 — Partner Delivery Receipt:** PARTIAL / UNVERIFIED. Added machine-readable post-delivery provenance linking authorization, release, manifest, Core build revision, partner scope, delivered revision and transfer evidence. CI integration present; exact PASS pending.
 
 - **E7.71 — Partner Feedback Promotion Proposal:** PARTIAL / UNVERIFIED. Added a governed post-delivery proposal containing partner scope, privacy filters, generalizable findings and explicit exclusions. Promotion requires valid delivery and privacy evidence; the proposal cannot mutate the Common Core or grant promotion authority. CI integration present; exact PASS pending.
+
+- **E7.72 — Partner Feedback Promotion Validation:** PARTIAL / UNVERIFIED. Added a validation gate requiring privacy, generalization, scope and exclusion evidence before a partner feedback proposal can enter the common Self-Learning promotion path. PROMOTE/HOLD/REJECT is explicit; validation does not itself mutate Core. CI integration present; exact PASS pending.
