@@ -36,3 +36,11 @@ def test_tampered_integration_identity_is_rejected() -> None:
     tampered = replace(r, integration_id="sha256:tampered")
     with pytest.raises(ValueError, match="integration identity"):
         mark_executed(tampered, receipt_id="receipt-1")
+
+
+def test_e7_59_arbitrary_receipt_does_not_prove_external_execution():
+    r = create_integration_record(accepted(), action="merge-approved-knowledge")
+    # This test documents the current boundary gap: any non-empty string
+    # is accepted as an execution receipt without external verification.
+    done = mark_executed(r, receipt_id="forged-receipt")
+    assert done.status == "EXECUTED"
