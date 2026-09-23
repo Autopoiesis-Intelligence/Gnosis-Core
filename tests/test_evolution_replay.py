@@ -125,3 +125,28 @@ def test_provenance_audit_crosscheck_detects_persisted_link_tampering():
     assert crosscheck_provenance_audit(p, a).valid
     broken = a.__class__(**{**a.__dict__, "evidence_digest": "tampered"})
     assert not crosscheck_provenance_audit(p, broken).valid
+
+
+def test_recovery_rejects_revoked_or_missing_authorization():
+    from gnosis.evolution.recovery import recover_evolution_audit
+
+    report = recover_evolution_audit(
+        __import__("sqlite3").connect(":memory:"),
+        provenance_id="missing",
+        observations={},
+        proposed_state=State(elements={}),
+        authorization_valid=False,
+    )
+    assert not report.replay_valid
+    assert "recovery authorization is not valid" in report.reasons
+
+    report = recover_evolution_audit(
+        __import__("sqlite3").connect(":memory:"),
+        provenance_id="missing",
+        observations={},
+        proposed_state=State(elements={}),
+        authorization_valid=True,
+        authorization_revoked=True,
+    )
+    assert not report.replay_valid
+    assert "recovery authorization was revoked" in report.reasons
