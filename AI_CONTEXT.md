@@ -3525,3 +3525,57 @@ Reflection must preserve counterexamples, rejected challenges and insufficient-e
 ### Required next step
 
 E5.00: formalize challenge-space adequacy and adaptive adversarial expansion without allowing the selector to redefine its own success criteria.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.00: CHALLENGE-SPACE ADEQUACY AND ADAPTIVE ADVERSARIAL EXPANSION
+
+Let `C` be a claim, `Q` its relevant declared challenge space, and `Q_t` the challenge set actually executed at time `t`.
+
+### Adequacy is relative
+
+`Adequate(Q_t,C)` cannot be asserted from test count alone. Adequacy requires a declared relation between the executed challenge set and the relevant failure space for `C`.
+
+`|Q_t| large` does not imply `Adequate(Q_t,C)`.
+
+### Adaptive expansion
+
+A challenge policy may expand `Q_t` using observed findings, counterexamples, dependencies, blind spots, environmental changes or newly discovered failure classes.
+
+`Q_(t+1) = Expand(Q_t, Evidence_t, Blind_t, Findings_t, Constraints_t)`.
+
+The expansion rule itself must remain bounded by declared objectives and protected invariants.
+
+### Selector non-sovereignty
+
+The selector may choose or prioritize challenges but must not unilaterally redefine:
+- the claim under evaluation;
+- the acceptance predicate;
+- the protected invariants;
+- the authority boundary;
+- the definition of sufficient evidence.
+
+`Select(Q) != DefineTruth(C)`.
+
+### Separation of roles
+
+Where practical, challenge generation, challenge execution, and adequacy assessment should be distinguishable functions or independently auditable stages. Perfect organizational independence is not assumed; common dependencies must be recorded.
+
+### Stopping condition
+
+Adaptive testing requires an explicit stopping rule. `Stop` must be justified relative to the declared challenge objective, budget and residual blind spots.
+
+`Stop != NoFailureFound`.
+
+### Residual uncertainty
+
+If relevant failure classes remain untested or materially blind, the outcome remains scoped or UNKNOWN rather than globally PASS.
+
+### Proposition E5.00.1
+
+If a selector can both redefine the success criterion and choose the challenge set used to evaluate itself, it can make adequacy unfalsifiable by narrowing either the criterion or the challenge space.
+
+### Engineering consequence
+
+Adaptive adversarial expansion should produce durable challenge records, provenance, selection rationale, execution result, coverage contribution and residual blind-spot information.
+
+### Required next step
+
+E5.01: formalize verifier/selector separation and independence requirements, including common-mode risk when the same model or rule family generates and judges challenges.
