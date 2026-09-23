@@ -259,13 +259,20 @@ def expire_test_authorization(
     if now <= authorization.expires_at:
         raise ValueError("authorization is not expired")
     row = conn.execute(
-        "SELECT consumed, revoked, integrity_digest FROM test_authorizations WHERE authorization_id = ?",
+        "SELECT consumed, revoked, lifecycle_state, integrity_digest FROM test_authorizations WHERE authorization_id = ?",
         (authorization.authorization_id,),
     ).fetchone()
     if row is None:
         raise KeyError("unknown test authorization")
-    if row[2] != _registry_digest(authorization, consumed=row[0], revoked=row[1]):
+    if row[3] != _registry_digest(authorization, consumed=row[0], revoked=row[1], lifecycle_state=row[2]):
         raise PermissionError("test authorization registry integrity failure")
+    if row[2] == "expired":
+        return None
+    if row[2] != "active":
+        raise PermissionError("test authorization is not expirable from current state")
+    new_digest = _registry_digest(authorization, consumed=row[0], revoked=row[1], lifecycle_state="expired")
+    conn.execute("UPDATE test_authorizations SET lifecycle_state = " + chr(34) + "expired" + chr(34) + ", integrity_digest = ? WHERE authorization_id = ? AND lifecycle_state = " + chr(34) + "active" + chr(34), (new_digest, authorization.authorization_id))
+    conn.commit()
     return None
 
 
