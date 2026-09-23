@@ -688,3 +688,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Candidate head `0fd1fe8857ff07958f10fea5b1b0b10f4cd86d76` had Python 3.11/3.12 CI PASS before merge.
 - The GitHub workflow lookup currently returns no workflow runs for the resulting merge SHA, so candidate evidence is not promoted to post-merge main evidence.
 - Shadow replay contract is INTEGRATED / POST_MERGE_VERIFICATION_PENDING.
+
+
+## CI trigger audit — 2026-09-23
+
+- `.github/workflows/ci.yml` declares `push` on `main` and `pull_request`.
+- `.github/workflows/codeql.yml` declares `push` on `main`, `pull_request`, schedule, and manual dispatch.
+- `.github/workflows/dependency-review.yml` is intentionally PR-only.
+- Therefore a zero-run lookup for merge SHA `fca2812f...` is not explained by a missing `push: main` trigger. The resulting merge SHA remains a CI evidence gap requiring GitHub-side workflow/run verification rather than a code change.
