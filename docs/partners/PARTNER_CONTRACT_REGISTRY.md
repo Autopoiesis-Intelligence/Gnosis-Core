@@ -100,6 +100,7 @@ Each contract record SHOULD contain:
 | E7.79 | DESIGNED / NOT_IMPLEMENTED | Governed External Collaboration Incident & Conflict Resolution |
 | E7.80 | DESIGNED / NOT_IMPLEMENTED | Governed Remediation Plan & Compensation Authorization |
 | E7.81 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Authorization & Controlled Compensation Execution |
+| E7.82 | DESIGNED / NOT_IMPLEMENTED | Remediation Result Verification & Governed Closure |
 
 ## Update rule
 
