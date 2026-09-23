@@ -4698,3 +4698,12 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 ## Repository Role Baseline
 
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
+
+
+## E7.23 — Partner Contribution Machine-Readable Manifest
+
+E7.23 extends the partner admission boundary with a machine-readable contribution manifest. The manifest records PartnerIdentity, source revision, declared domains, learning targets, provenance requirements, prohibitions, revision/retention/revocation rules and verification requirements.
+
+Hard distinctions remain: DeclaredCapability != GrantedCapability; Contribution != Authority; Manifest != Verification; Admission != ExecutionPermission. A partner declaration cannot expand its own scope or create Core mutation authority.
+
+The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validation, quarantine and replay must be implemented and evidenced before any promotion to a verified capability.
