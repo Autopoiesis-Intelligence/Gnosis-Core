@@ -431,3 +431,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.29 — Partner Contract Package & Export Protocol:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `b039f186896b1e5d6980a0dc1e9c79b4ee9431cf`. Defines deterministic export/import packages bound to an exact registry revision, contract revisions, dependency closure, evidence references, recipient scope and package digest. Export transfers contract knowledge, never Core authority.
+
+
+- **E7.30 — Partner Contract Acceptance & Capability Negotiation:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `39ebd9d38ab39b344aa110a606d2b5b77f7ba158`. Defines explicit partner acceptance/rejection, partial acceptance, requested amendments, deterministic effective capability intersection and separation of capability from authority. Silence/import never equals acceptance.
