@@ -4390,3 +4390,34 @@ Bounded research condition:
 Unknown may never be silently converted to PASS, nor may the action itself redefine the acceptance criterion.
 
 Status: FORMALIZED / NOT PROVEN.
+## E5.26 — MONOTONIC AUTHORITY LIFECYCLE
+
+Test authority lifecycle is constrained to irreversible state progression. Expiry is an observed terminal condition and cannot extend validity. Consumption and revocation remain terminal for execution purposes.
+
+Lifecycle safety condition:
+`state_{t+1} ∈ Forward(state_t)` and no transition in the lifecycle surface may move `consumed`, `revoked`, or `expired` back to an executable state.
+
+An expiry observation does not mutate the signed authorization payload and therefore cannot be used to mint a fresh authorization. Re-issuance, if ever allowed in production, must be a new authorization with a new identity and independent issuer evidence.
+
+Status: IMPLEMENTED / UNVERIFIED.
+
+## E7.9.8 — EVIDENCE → UNKNOWN → DECISION BOUNDARY → ACTION
+
+Let evidence set E induce a scoped claim C(E). Let residual unknown U(C) be the uncovered challenge classes relevant to C. A decision boundary B maps `(C,U,A_context)` to an admissibility outcome, but B has no authority to create authorization.
+
+`B(C,U,A_context) ∈ {DENY, ESCALATE, BOUNDED_ALLOW}`.
+
+Authorization remains an independent relation `Auth(A,Context)` and must not be inferred from `B(...)` alone.
+
+Therefore:
+`B(...) = BOUNDED_ALLOW` does not imply `Auth(A,Context)`.
+`Auth(A,Context)` requires its own issuer/evidence chain.
+
+The action relation is:
+`E -> C(E) -> U(C) -> B(C,U,A_context) -> {deny|escalate|bounded action}`.
+
+This preserves the distinction between epistemic evaluation and authority. A decision engine can determine that an action is epistemically admissible within scope without becoming the entity that grants permission to execute it.
+
+Boundary changes to B are themselves governed changes and cannot be justified solely by B's own output.
+
+Status: FORMALIZED / NOT PROVEN.
