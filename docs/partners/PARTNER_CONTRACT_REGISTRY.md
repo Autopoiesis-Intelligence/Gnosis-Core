@@ -119,6 +119,7 @@ Each contract record SHOULD contain:
 | E7.98 | DESIGNED / NOT_IMPLEMENTED | Post-Closure Monitoring Evidence Retention & Audit Continuity |
 | E7.99 | DESIGNED / NOT_IMPLEMENTED | Post-Closure Evidence Integrity Verification & Provenance Checkpoint |
 | E7.100 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Contract Completion & Evidence Gate |
+| E7.101 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence Registry & Reproducible Progress Ledger |
 
 ## Update rule
 
