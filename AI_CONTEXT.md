@@ -2718,3 +2718,132 @@ The Research Machine remains separate from Core authority. The knowledge interfa
 ### Current frontier
 
 The immediate analytical task is to continue the cross-domain reverse pass by testing whether the candidate relation patterns remain valid when moving between philosophy, work, production, business and markets, with explicit attention to conditions, counterconditions, state transitions and regime changes.
+
+## 2026-09-23 RESEARCH MACHINE — EPISTEMIC BOUNDARIES AND RELATION CLAIMS
+
+The external-world research branch is extended with an explicit map of applicability limits. Research must preserve not only successful patterns but also the conditions under which claims cannot be established.
+
+### Fundamental limits
+
+- Observability: observed relations are a subset of possible actual relations.
+- State incompleteness: the observed state may omit latent variables.
+- Non-identifiability: multiple models may explain the same available observations.
+- Confounding: apparent relations may arise from hidden common causes or coupled variables.
+- Temporal ambiguity: sequence does not by itself establish causation.
+- Feedback/reflexivity: system responses can alter the conditions that generated the observation.
+- Observer intervention: measurement or publication may change an adaptive system.
+- Regime change: a pattern may be valid only under bounded conditions.
+- Scale dependence: local effects do not automatically transfer to system-level effects.
+- Delayed effects: consequences may appear outside the initial observation window.
+- Path dependence: order of transitions can change the resulting state.
+- Irreversibility: some interventions can cross boundaries that cannot be practically reversed.
+
+### Epistemic status
+
+Research records should distinguish at minimum:
+
+`HYPOTHESIS`
+`SUPPORTED`
+`CONTRADICTED`
+`UNDETERMINED`
+`INSUFFICIENT_EVIDENCE`
+`OUT_OF_SCOPE`
+
+Absence of support is not automatically contradiction.
+
+Unknown, unobserved and unidentifiable are distinct conditions:
+
+`UNKNOWN` — not currently known.
+`UNOBSERVED` — potentially relevant but not currently observed.
+`UNIDENTIFIABLE` — available evidence cannot distinguish among competing explanations.
+
+### Claim Envelope
+
+Every material relation claim should preserve its evidence scope:
+
+`Domain → Time Horizon → Scale → Regime → Variables → Evidence → Assumptions → Constraints → Alternatives → Counterexamples → Unknowns → Status → History`
+
+A claim outside its envelope is a transfer hypothesis, not an established extension.
+
+### Relation Claim
+
+`RELATION_CLAIM` is a candidate research object distinct from raw observation and from a general pattern label.
+
+Conceptual record:
+
+`Claim ID → Relation → Conditions → Domain(s) → Observations → Evidence → Competing Hypotheses → Alternative Explanations → Counterexamples → Predictions → Tests → Scope/Envelope → Status → History`
+
+The claim must preserve how its interpretation changed over time.
+
+### Competing-model rule
+
+A single observation may support multiple explanatory models:
+
+`Observation → {H1, H2, H3, ...}`
+
+Research should retain materially plausible alternatives until available evidence discriminates between them.
+
+A useful test is a `DIFFERENTIAL_TEST`: an observation or experiment selected because competing hypotheses make materially different predictions.
+
+### Structural transfer
+
+Cross-domain transfer must be treated as an explicit research operation:
+
+`Pattern@Domain A → Structural Abstraction → Candidate Pattern@Domain B → Independent Evidence → Counterexamples → Transfer Status`
+
+Surface analogy is not structural equivalence.
+
+Suggested transfer statuses:
+
+`STRUCTURALLY_SIMILAR`
+`PARTIALLY_SIMILAR`
+`SUPERFICIAL_ANALOGY`
+`NOT_COMPARABLE`
+`UNDETERMINED`
+
+### Research / intervention separation
+
+Research and intervention remain separate loops.
+
+Research:
+
+`World → Observe → Reconstruct → Hypothesize → Challenge → Predict/Test → Verify → Knowledge`
+
+Intervention:
+
+`Knowledge → Candidate Change → Prediction → Controlled Test → Observed Effect → Evaluation → Action/Engineering Gate`
+
+Research evidence does not itself authorize action.
+
+### Improvement qualification
+
+A local improvement must not be assumed to be a system improvement. Candidate changes should be evaluated across relevant:
+
+`Value / Cost / Risk / Uncertainty / Resilience / Complexity / Dependencies / Reversibility`
+
+and across:
+
+`Scale / Time / Regime`
+
+### New research functions
+
+The Research Machine may eventually support:
+
+- Structure Inference
+- Relation Discovery
+- Dynamics Inference
+- Counterexample Discovery
+- Alternative Explanation Search
+- Differential Test Selection
+- Boundary Discovery
+- Structural Transfer
+- Intervention Analysis
+- Robustness Analysis
+- Evolution Analysis
+- Meta-Research
+
+These are research capabilities, not claims that the current implementation already provides them.
+
+### Core boundary
+
+No external-world relation claim, structural candidate or research pattern automatically changes Ψ-Core. Any engineering consequence must pass explicit research-to-engineering translation, implementation, verification and governance gates.
