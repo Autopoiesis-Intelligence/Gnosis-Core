@@ -3,9 +3,9 @@
 > GENERATED FILE — update with scripts/update_partner_contract_block.py.
 > This block is the current machine-readable partner contract index. It is not an authority root and does not grant access or execution rights.
 
-- Generated at (UTC): 2026-09-23T19:26:36.137042+00:00
-- Source revision: 09181de83c67ceea30423a57fb7f6ceb68b05c07
-- Contract index digest: sha256:3287718131c3a4e0cfb9174449bc376a62079d812d792424302244ce4782cd03
+- Generated at (UTC): 2026-09-23T21:27:07.325481+00:00
+- Source revision: be8191227aaea400a1ff59e7bcbf40260a36b1c7
+- Contract index digest: sha256:9536741040bc305517f688a34b5824d566d9137d1640ffa2268806dceed98ed6
 - Authority: index_only
 - Provenance: partner-contract-current-block
 
@@ -13,6 +13,25 @@
 
 | Contract ID | Status | Contract |
 |---|---|---|
+| E7.100 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Contract Completion & Evidence Gate |
+| E7.101 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence Registry & Reproducible Progress Ledger |
+| E7.102 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence Ingestion & Acceptance Pipeline |
+| E7.103 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence-to-Contract Verification Matrix |
+| E7.104 | DESIGNED / NOT_IMPLEMENTED | First Self-Learning Verification Batch & Baseline Evidence Gate |
+| E7.105 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Selection & Baseline Freeze |
+| E7.106 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Candidate Inventory & Selection Record |
+| E7.107 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Execution Readiness Gate |
+| E7.108 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Execution Record & Evidence Capture |
+| E7.109 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Evidence Acceptance & Criterion Promotion Gate |
+| E7.110 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Result Reconciliation & Progress Recalculation Gate |
+| E7.111 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Post-Execution Audit & Independent Evidence Review |
+| E7.112 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Closure & Immutable Progress Snapshot |
+| E7.113 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Actual Proof Run |
+| E7.114 | DESIGNED / NOT_IMPLEMENTED | First Actual Proof Run Scope Lock & Target Commit Record |
+| E7.115 | DESIGNED / NOT_IMPLEMENTED | First Proof Run Environment & Reproducibility Attestation |
+| E7.116 | DESIGNED / NOT_IMPLEMENTED | First Proof Run Preflight Final Gate & Execution Authorization |
+| E7.117 | DESIGNED / NOT_IMPLEMENTED | First Authorized Proof Execution Record |
+| E7.118 | DESIGNED / NOT_IMPLEMENTED | First Proof Runtime Evidence Integrity & Artifact Sealing |
 | E7.22 | DESIGNED / NOT_IMPLEMENTED | Partner Repository Admission & Identity |
 | E7.23 | DESIGNED / NOT_IMPLEMENTED | Partner Contribution Machine-Readable Manifest |
 | E7.24 | DESIGNED / NOT_IMPLEMENTED | Partner Contribution Validation & Quarantine |
@@ -81,6 +100,16 @@
 | E7.87 | DESIGNED / NOT_IMPLEMENTED | External Audit Challenge, Dispute & Evidence Reconciliation |
 | E7.88 | DESIGNED / NOT_IMPLEMENTED | External Audit Resolution, Corrective Finding & Attestation Update |
 | E7.89 | DESIGNED / NOT_IMPLEMENTED | Corrective Finding Governance Review & Remediation Trigger |
+| E7.90 | DESIGNED / NOT_IMPLEMENTED | Governance Outcome & Remediation Plan Intake |
+| E7.91 | DESIGNED / NOT_IMPLEMENTED | Remediation Plan Validation & Acceptance Gate |
+| E7.92 | DESIGNED / NOT_IMPLEMENTED | Remediation Plan Authorization Boundary |
+| E7.93 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Admission & Preflight Gate |
+| E7.94 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Transaction & Mutation Receipt |
+| E7.95 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Result Reconciliation & Outcome Verification |
+| E7.96 | DESIGNED / NOT_IMPLEMENTED | Remediation Closure & Residual Risk Governance |
+| E7.97 | DESIGNED / NOT_IMPLEMENTED | Post-Closure Monitoring, Reverification & Reopening Trigger |
+| E7.98 | DESIGNED / NOT_IMPLEMENTED | Post-Closure Monitoring Evidence Retention & Audit Continuity |
+| E7.99 | DESIGNED / NOT_IMPLEMENTED | Post-Closure Evidence Integrity Verification & Provenance Checkpoint |
 
 ## Partner Boundary
 
