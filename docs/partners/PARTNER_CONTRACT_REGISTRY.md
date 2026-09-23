@@ -80,6 +80,7 @@ Each contract record SHOULD contain:
 | E7.59 | IMPLEMENTED / UNVERIFIED | Runtime Fail-Closed Execution Boundary |
 | E7.60 | IMPLEMENTED / UNVERIFIED | Self-Learning CI Evidence Gate |
 | E7.61 | IMPLEMENTED / UNVERIFIED | Self-Learning Candidate Contract Generator |
+| E7.62 | PARTIAL / UNVERIFIED | Minimal Specialized Self-Evolving Core |
 
 ## Update rule
 
