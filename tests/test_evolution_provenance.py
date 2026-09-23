@@ -1,9 +1,10 @@
-from gnosis.evolution.provenance import build_provenance, verify_evidence_digest
+import pytest
+
+from gnosis.evolution.provenance import build_provenance, verify_evidence_digest, canonical_digest, provenance_id_for
 
 
 def test_provenance_accepts_matching_evidence_digest():
     observations = {"metric": 1, "nested": {"ok": True}}
-    from gnosis.evolution.provenance import canonical_digest
     digest = canonical_digest(observations)
     result = build_provenance(
         candidate_id="candidate:1",
@@ -49,7 +50,6 @@ def test_provenance_rejects_tampered_observations():
 
 def test_provenance_persists_and_reloads_without_activation():
     import sqlite3
-import pytest
     from gnosis.evolution.provenance import canonical_digest
     from gnosis.reflection.persistence import (
         ensure_reflection_schema,
