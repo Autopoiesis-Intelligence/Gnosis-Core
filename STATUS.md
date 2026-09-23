@@ -503,3 +503,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.55 — Controlled Knowledge Integration Record:** IMPLEMENTED / UNVERIFIED. Accepted promotion decisions now produce a deterministic, traceable integration record. The record describes the controlled action but cannot itself mutate Ψ-Core, execute code or grant permissions; completion requires an execution receipt.
 
 - **E7.56 — Protected Core Integration Bridge:** IMPLEMENTED / UNVERIFIED. Added a narrow bridge that converts an approved, common-target integration record into an explicit Core mutation proposal. The bridge cannot execute mutation, bypass governance, grant permissions, or import partner-private data.
+
+- **E7.57 — Core Mutation Execution Adapter:** IMPLEMENTED / UNVERIFIED. The Self-Learning path now has an adapter that binds an APPROVED bridge proposal to an exact evolution identity and delegates actual commit to the existing `SQLiteExecutionCommitAdapter`; no second State/mutation mechanism is introduced. Fresh runtime/CI verification remains required.
