@@ -835,3 +835,16 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #57 merged by squash into `main` as `9dc4af688ee769c9acf2b4179261f43f77071a44`.
 - Dependency Review #131 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.59 authenticated execution receipt contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.60 integration-to-execution binding — integrated — 2026-09-23
+
+- PR #58 exact candidate `393bd9ee381fa408484c74e92d137b9a41c8a3c5` passed CI #2043 and CodeQL #921.
+- Confirmed that `IntegrationRecord.integration_id` and `ExecutionReceipt.execution_id` are distinct identity domains and must not be equated.
+- `mark_executed()` now requires an authenticated `ExecutionCommitRequest` alongside the `ExecutionReceipt`.
+- Existing `require_execution_receipt(receipt, request)` is used as the authorization/provenance verification boundary.
+- Integration records preserve independent `integration_id` while recording the authenticated execution/provenance identities.
+- Regression tests cover valid receipt/request acceptance, forged receipt rejection, foreign execution rejection, and tampered integration identity.
+- PR #58 merged by squash into `main` as `15801275bc36b658667037f7cc812846fcf65af7`.
+- Dependency Review #136 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.60 authenticated integration-to-execution binding is INTEGRATED / CI + CodeQL VERIFIED.
