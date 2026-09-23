@@ -111,6 +111,7 @@ Each contract record SHOULD contain:
 | E7.90 | DESIGNED / NOT_IMPLEMENTED | Governance Outcome & Remediation Plan Intake |
 | E7.91 | DESIGNED / NOT_IMPLEMENTED | Remediation Plan Validation & Acceptance Gate |
 | E7.92 | DESIGNED / NOT_IMPLEMENTED | Remediation Plan Authorization Boundary |
+| E7.93 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Admission & Preflight Gate |
 
 ## Update rule
 
