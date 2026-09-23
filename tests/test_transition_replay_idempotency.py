@@ -131,3 +131,25 @@ def test_exact_transition_replay_after_reopen_is_idempotent_across_delivery_acto
     assert recovered.engine.state.state_id == record.to_state_id
     verify_durable_graph(reopened)
     reopened.close()
+
+
+def test_replay_same_transition_id_after_restart_with_changed_candidate_is_rejected() -> None:
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    candidate = Candidate(instance.engine.state.state_id, instance.engine.state.with_elements({"b": 2}), "corruption-replay")
+    record = instance.engine.step(candidate)
+    persist_transition(conn, instance, candidate, record, actor="worker-a")
+    db_path = conn.execute("PRAGMA database_list").fetchone()[2]
+    conn.close()
+
+    reopened = connect(db_path)
+    recovered = load_instance(reopened, instance.instance_id)
+    corrupted_candidate = Candidate(record.from_state_id, State(elements={"tampered": True}), candidate.origin, candidate.seed)
+    with pytest.raises(StorageCorruptionError, match="candidate|conflicting|mismatch"):
+        persist_transition(reopened, recovered, corrupted_candidate, record, actor="worker-b")
+
+    assert reopened.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
+    assert reopened.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
+    verify_durable_graph(reopened)
+    reopened.close()
