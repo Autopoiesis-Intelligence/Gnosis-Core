@@ -17,6 +17,10 @@ class PromotionCandidate:
     shadow_status: str
     invariant_status: str
     governance_decision: str
+    authorization_scope: str = ""
+    authorization_target: str = ""
+    policy_version: str = ""
+    authorization_freshness: str = ""
     status: str = "PROPOSED"
 
     @property
@@ -81,7 +85,8 @@ def make_promotion_candidate(
     return PromotionCandidate(
         "promotion:" + hashlib.sha256(raw.encode()).hexdigest()[:24],
         evidence_digest, evaluation_status, shadow_status,
-        invariant_status, governance_decision,
+        invariant_status, governance_decision, authorization_scope,
+        authorization_target, policy_version, authorization_freshness,
     )
 
 
