@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.92 — Remediation Plan Authorization Boundary
+
+E7.92 defines the authorization boundary after an E7.91 accepted plan. Authorization is exact-scoped, least-authority and time-bounded; it does not prove execution or success and cannot mutate Ψ-Core.
+
+Contract artifact: `docs/architecture/PARTNER_REMEDIATION_PLAN_AUTHORIZATION_CONTRACT.md`.
+Contract commit: `542e027a4fb8573cba9576489af8e03b19283e21`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.91 — Remediation Plan Validation & Acceptance Gate
 
 E7.91 defines the validation boundary between an E7.90 remediation proposal and an accepted plan. Acceptance confirms that the plan satisfies declared validation criteria; it does not authorize execution, compensation or Core mutation.
