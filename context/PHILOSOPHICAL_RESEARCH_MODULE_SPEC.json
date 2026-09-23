@@ -1,0 +1,144 @@
+{
+  "schema": "gnozis.research-module/v1",
+  "module_id": "RESEARCH-PHIL-001",
+  "name": "Hypothesis Reverse-Analysis Module",
+  "status": "ARCHITECTURE_CANDIDATE",
+  "authority": "ANALYSIS_ONLY",
+  "core_role": "A bounded research module for reverse-engineering hypotheses, textual/philosophical models, observed patterns and competing explanations into explicit structures, counterexamples, formal hypotheses and evidence requirements.",
+  "design_intent": "This module generalizes the philosophical research workflow into a reusable hypothesis-analysis capability. Spiritual and high writings are one source class, not the module's exclusive domain.",
+  "inputs": [
+    "textual hypotheses",
+    "philosophical models",
+    "scientific or engineering hypotheses",
+    "architectural hypotheses",
+    "observational patterns",
+    "existing Gnozis behavior",
+    "competing explanations",
+    "counterexamples",
+    "provenance-linked evidence"
+  ],
+  "outputs": [
+    "structured hypothesis",
+    "assumptions",
+    "entities and relations",
+    "state-transition model",
+    "candidate invariants",
+    "counterexamples",
+    "boundary conditions",
+    "competing explanations",
+    "falsifiable consequences",
+    "evidence requirements",
+    "Gnozis architecture mapping",
+    "research-only or engineering-candidate classification"
+  ],
+  "pipeline": [
+    "INGEST",
+    "PROVENANCE",
+    "DECOMPOSE",
+    "MODEL",
+    "REVERSE",
+    "GENERATE_COUNTEREXAMPLES",
+    "COMPARE_COMPETING_MODELS",
+    "FORMALIZE",
+    "DERIVE_TESTABLE_CONSEQUENCES",
+    "MAP_TO_CORE",
+    "CLASSIFY",
+    "AUDIT"
+  ],
+  "reverse_engineering_method": {
+    "principle": "Start from an observed claim, behavior, text or hypothesis and work backward to the minimal structure that would have to exist for the claim to hold.",
+    "questions": [
+      "What exactly is being claimed?",
+      "What entities and relations are required?",
+      "What assumptions are hidden?",
+      "What state must exist before and after the claimed transition?",
+      "What information must be available?",
+      "What mechanism could produce the observed result?",
+      "What alternative mechanisms could produce the same result?",
+      "What observation would distinguish them?",
+      "What is the smallest counterexample?",
+      "Which parts remain interpretation rather than evidence?"
+    ]
+  },
+  "epistemic_separation": {
+    "OBSERVATION": "Directly represented source/code/test/evidence.",
+    "INTERPRETATION": "An attributed reading of an observation.",
+    "HYPOTHESIS": "A claim requiring testing.",
+    "FORMALIZED": "A precisely defined hypothesis with assumptions and consequences.",
+    "ENGINEERING_CANDIDATE": "A formalized result mapped to a concrete capability or invariant.",
+    "ACCEPTED_ENGINEERING": "An engineering candidate accepted through the project evidence and audit gates."
+  },
+  "core_boundary": {
+    "authority_over_core": "NONE",
+    "can_read_core": true,
+    "can_analyze_core": true,
+    "can_propose_core_change": true,
+    "can_modify_core": false,
+    "can_activate_rules": false,
+    "can_create_second_state_model": false,
+    "rule": "Research may discover that an existing definition is incomplete, but no research result becomes a Core semantic change without an explicit engineering task and independent evidence."
+  },
+  "adversarial_requirements": [
+    "counterexamples are mandatory for promoted hypotheses",
+    "negative cases are first-class evidence",
+    "competing explanations must remain visible",
+    "source provenance must survive abstraction",
+    "correlated evidence must not be counted as independent evidence",
+    "absence of evidence must not be silently converted into evidence of absence",
+    "historical or cultural prevalence must not be treated as truth",
+    "metaphysical interpretations must remain distinct from engineering claims"
+  ],
+  "candidate_engineering_bridge": {
+    "research_result": "structured finding",
+    "formalization": "explicit hypothesis and assumptions",
+    "verification": "tests/counterexamples/evidence",
+    "mapping": "existing Core concepts or identified architecture gap",
+    "acceptance": "independent audit plus project-owner gate",
+    "implementation": "separate bounded engineering task"
+  },
+  "relationship_to_philosophical_track": {
+    "spiritual_high_writings": "supported source class",
+    "mythology": "supported source class",
+    "philosophy": "supported source class",
+    "literature": "supported source class",
+    "science_engineering": "future supported source class",
+    "cross_domain_comparison": "allowed only with explicit provenance and structural justification"
+  },
+  "migration_plan": [
+    {
+      "phase": "M1",
+      "action": "Keep PHIL-001 through PHIL-006 as research contracts and validate the workflow."
+    },
+    {
+      "phase": "M2",
+      "action": "Extract the domain-independent operations from the philosophical workflow."
+    },
+    {
+      "phase": "M3",
+      "action": "Implement a read-only prototype outside canonical Core and test it against heterogeneous hypotheses."
+    },
+    {
+      "phase": "M4",
+      "action": "Adversarially test for abstraction-induced false similarities, confirmation bias and evidence leakage."
+    },
+    {
+      "phase": "M5",
+      "action": "If the capability is demonstrated, define a bounded Core research-module interface."
+    },
+    {
+      "phase": "M6",
+      "action": "Independent audit before any integration into the executable Core."
+    }
+  ],
+  "first_non_philosophical_test": "Apply the same reverse-analysis protocol to a documented engineering hypothesis and a competing explanation, without using spiritual/philosophical vocabulary.",
+  "success_condition": "The module extracts useful structure and discriminating tests across domains while preserving provenance, uncertainty and source-specific differences.",
+  "failure_conditions": [
+    "module merely paraphrases inputs",
+    "module generates universal patterns from arbitrary analogies",
+    "module treats its own abstractions as evidence",
+    "module silently changes Core semantics",
+    "module cannot produce discriminating counterexamples"
+  ],
+  "next_task": "PHIL-004 — Cross-Tradition Invariant Extraction",
+  "future_architecture_task": "RESEARCH-MOD-001 — Bounded Core Research Interface"
+}
