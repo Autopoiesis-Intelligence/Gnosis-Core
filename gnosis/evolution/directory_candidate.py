@@ -86,3 +86,23 @@ def build_duplicate_candidate(
         reason=reason,
         candidate_binding_digest=binding,
     )
+
+
+def verify_candidate_binding(
+    candidate: OptimizationCandidate,
+    usage: Mapping[str, DirectoryUsage],
+) -> bool:
+    """Verify that candidate identity still matches its supplied evidence."""
+    expected = canonical_digest({
+        "content_digest": candidate.content_digest,
+        "files": candidate.files,
+        "usage": {
+            path: {
+                "referenced": usage.get(path, DirectoryUsage(path)).referenced,
+                "protected": usage.get(path, DirectoryUsage(path)).protected,
+                "provenance_id": usage.get(path, DirectoryUsage(path)).provenance_id,
+            }
+            for path in candidate.files
+        },
+    })
+    return expected == candidate.candidate_binding_digest
