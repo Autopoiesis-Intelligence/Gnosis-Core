@@ -15,6 +15,39 @@ def canonical_digest(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+
+def provenance_id_for(
+    *,
+    execution_id: str,
+    candidate_id: str,
+    parent_state_id: str,
+    parent_state_digest: str,
+    proposed_state_digest: str,
+    evidence_digest: str,
+    evaluation_status: str,
+    shadow_status: str,
+    invariant_status: str,
+    governance_decision: str,
+    status: str = "RECORDED",
+    proposed_state_content_id: str = "",
+    candidate_binding_digest: str = "",
+) -> str:
+    """Derive the canonical provenance identity from identity-bearing fields."""
+    return "provenance:" + canonical_digest({
+        "execution_id": execution_id,
+        "candidate_id": candidate_id,
+        "parent_state_id": parent_state_id,
+        "parent_state_digest": parent_state_digest,
+        "proposed_state_digest": proposed_state_digest,
+        "proposed_state_content_id": proposed_state_content_id,
+        "candidate_binding_digest": candidate_binding_digest,
+        "evidence_digest": evidence_digest,
+        "evaluation_status": evaluation_status,
+        "shadow_status": shadow_status,
+        "invariant_status": invariant_status,
+        "governance_decision": governance_decision,
+    })[:24]
+
 @dataclass(frozen=True)
 class EvidenceProvenance:
     execution_id: str
