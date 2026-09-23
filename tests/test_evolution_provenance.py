@@ -345,3 +345,32 @@ def test_promotion_gate_rejects_mismatched_required_evidence_digest():
     )
     assert gate.eligible is False
     assert "candidate evidence digest is not in required evidence" in gate.reasons
+
+
+def test_load_evolution_provenance_rejects_stored_identity_tamper():
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import ensure_reflection_schema, load_evolution_provenance, save_evolution_provenance
+    from gnosis.storage import connect
+
+    conn = connect()
+    ensure_reflection_schema(conn)
+    observations = {"x": 1}
+    p = build_provenance(
+        candidate_id="candidate:stored-id-tamper",
+        parent_state_id="state:1",
+        parent_state_digest="parent:1",
+        proposed_state_digest="state:2",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+    )
+    pid = save_evolution_provenance(conn, p)
+    conn.execute(
+        "UPDATE evolution_provenance SET provenance_id=? WHERE provenance_id=?",
+        ("forged-provenance-id", pid),
+    )
+    with pytest.raises(RuntimeError, match="stored provenance identity mismatch"):
+        load_evolution_provenance(conn, pid)
