@@ -66,6 +66,7 @@ Each contract record SHOULD contain:
 | E7.45 | IMPLEMENTED / UNVERIFIED | Self-Learning Proposal Validation / Counterexample Gate |
 | E7.46 | IMPLEMENTED / UNVERIFIED | Governed Proposal Review / Acceptance Record |
 | E7.47 | IMPLEMENTED / UNVERIFIED | Governed Execution / Controlled Contract Application Plan |
+| E7.48 | IMPLEMENTED / UNVERIFIED | Controlled Execution Evidence / Mutation Receipt |
 
 ## Update rule
 
