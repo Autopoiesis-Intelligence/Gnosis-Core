@@ -3300,3 +3300,59 @@ V2 contains persistent fork/lineage verification and independent instance heads.
 ### Required next step
 
 E4.96: formalize evidence conflict, precedence and non-destructive resolution across lineages, including preservation of both provenance branches.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.96: EVIDENCE CONFLICT AND NON-DESTRUCTIVE RESOLUTION
+
+Let `E_A` and `E_B` be evidence items from distinct lineages addressing a related claim.
+
+### Conflict preservation
+
+`Conflict(E_A,E_B)` does not imply that either evidence item is deleted, rewritten, or automatically invalid.
+
+### Resolution
+
+A resolution `C = Resolve(E_A,E_B,R)` is a new derived record with explicit relation `R`, assumptions, scope and provenance.
+
+`C != E_A` and `C != E_B`.
+
+### Non-destructive invariant
+
+`Resolve(E_A,E_B) -> Preserve(E_A) ∧ Preserve(E_B)`.
+
+### Precedence
+
+No universal precedence follows from recency, source identity, connector identity, lineage age, or majority agreement.
+
+Any precedence rule `P` must be explicit, scoped, reproducible and itself evidence-addressable.
+
+### Verification inheritance
+
+`Verified(E_A) ∧ Verified(E_B) does not imply Verified(C)`.
+
+The derived resolution requires its own verification scope.
+
+### Conflict classes
+
+At minimum distinguish:
+- factual disagreement;
+- temporal disagreement;
+- scope disagreement;
+- representation disagreement;
+- methodological disagreement;
+- semantic/ontology disagreement;
+- unresolved conflict.
+
+### Proposition E4.96.1
+
+If conflict resolution can silently discard one lineage or promote a derived synthesis to truth without preserving parent provenance and resolution assumptions, the evidence layer becomes non-auditable and can create false convergence.
+
+### Authority boundary
+
+Conflict resolution is epistemic/data processing. It does not itself authorize Core mutation or increase operational authority.
+
+### Engineering consequence
+
+The evidence layer should represent conflict as a relation among durable evidence records rather than as a destructive replacement operation.
+
+### Required next step
+
+E4.97: formalize evidence independence and common-mode correlation, including when multiple apparently distinct sources are not independent evidence.
