@@ -706,3 +706,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #35 remains a separate candidate blocked by Dependency Graph / Dependency Review infrastructure.
 - Issue #16 remains OPEN; P0-R2 is not closed.
 - Repository rename remains NOT SAFE.
+
+
+## E7.50 replay tamper contract — 2026-09-23
+
+- PR #37 exact head `835d2c2080689fa9b9048cdede7e08efad191a2d` passed CI 1981 on Python 3.11 and 3.12.
+- The regression proves replay fails closed when an evidence event's `event_digest` is tampered: `EVENT_DIGEST_MISMATCH`.
+- PR #37 was merged by squash into `main` as `98c0563ade27ab62432fa942ce03db2ace80f79d`.
+- Dependency Review remains infrastructure-blocked by unavailable Dependency Graph; CodeQL for the candidate was still running at the last observation.
+- E7.50 tamper-detection contract is INTEGRATED / candidate CI VERIFIED; post-merge evidence remains subject to the connector limitation already recorded.
