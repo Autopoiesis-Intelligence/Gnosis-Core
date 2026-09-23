@@ -267,3 +267,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Parallel contract update: mathematical branch advanced to E4.87, formalizing conditional evidence independence and common-mode failure; added to AI_CONTEXT as `a557831d`. Engineering/R2 work remains separate; runtime/CI evidence remains UNVERIFIED.
 
 - Parallel contract update: MATH E4.88 formalized evidence diversity as failure-mode coverage relation `C(e,f)` with explicit blind spots and anti-scalar rule; AI_CONTEXT commit `f032a728`. Engineering: stored evolution provenance crosscheck now recomputes provenance identity before accepting observations; commit `e8f08768`. Runtime/CI remains UNVERIFIED.
+
+- Parallel contract update: MATH E4.89 formalized severity/asymmetry, reversibility, detectability/observability, and residual unknowns without a universal risk score; AI_CONTEXT commit `f7e7894c`. Engineering: added adversarial regression for tampered persisted provenance identity; commit `cc43a451`. Runtime/CI remains UNVERIFIED.
