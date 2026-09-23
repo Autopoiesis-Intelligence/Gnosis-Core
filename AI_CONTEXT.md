@@ -4334,3 +4334,25 @@ Adversarial obligations for E7.9.3/E7.9.4:
 Research rule: a level claim survives only if it remains distinguishable from all six counterexample classes under the declared task/evidence scope. If evidence is insufficient, status is UNKNOWN/INSUFFICIENT_EVIDENCE rather than level confirmation.
 
 Status: COUNTEREXAMPLE AUDIT FORMALIZED / NOT PROVEN.
+
+## E7.9.6 — COUNTEREXAMPLE COVERAGE / RESIDUAL UNKNOWN
+
+Define a scoped challenge space for a claim C: Ω_C = {ω_1,...,ω_n}. Let Tested(C,ω) indicate that the claim has been subjected to a declared counterexample class ω, and Refuted(C,ω) indicate an actual counterexample was found.
+
+Coverage(C) = {ω ∈ Ω_C | Tested(C,ω)}.
+Residual(C) = Ω_C \\ Coverage(C).
+
+The absence of a counterexample over Coverage(C) yields only NoCounterexampleObserved(C | Coverage(C)), not proof of universal validity.
+
+A claim may be marked SUPPORTED_WITHIN_SCOPE only if its acceptance conditions are satisfied for every tested class in the declared scope and no contradiction is known within that scope. If Residual(C) != ∅, universal closure is forbidden.
+
+Adaptive challenge generation may expand Ω_C, but expansion cannot silently change the original acceptance criterion. Newly introduced challenge classes remain provenance-linked to the claim and are counted as additional coverage obligations.
+
+A counterexample found in any covered class produces COUNTEREXAMPLE_FOUND(C,ω) and invalidates the claim for that scope unless the claim itself is explicitly revised through a new versioned contract.
+
+NoCounterexampleObserved != Proof.
+Coverage < Ω_C => ResidualUnknown > 0.
+
+For E7.9.3/E7.9.4, the initial challenge classes are: added-data, harder-task, representation-only, lossy-transition, non-progress-cycle, task-switch, and scoped-task/evidence mismatch.
+
+Status: FORMALIZED / NOT PROVEN.
