@@ -2847,3 +2847,42 @@ These are research capabilities, not claims that the current implementation alre
 ### Core boundary
 
 No external-world relation claim, structural candidate or research pattern automatically changes Ψ-Core. Any engineering consequence must pass explicit research-to-engineering translation, implementation, verification and governance gates.
+
+
+## 2026-09-23 — CONTRACT SYSTEM + PERMANENT MATHEMATICAL RECONCILIATION
+
+A permanent control layer is now defined for the project.
+
+Finite contracts and recurring contracts are distinct:
+- finite contracts terminate at DONE/REJECTED/BLOCKED;
+- recurring contracts remain ACTIVE and create traceable RUN records.
+
+New recurring contracts:
+- RECUR-MATH-001 — Mathematical Reference Synchronization
+- RECUR-MATH-002 — Mathematics ↔ Architecture Reconciliation
+- RECUR-MATH-003 — Mathematical Sandbox Conformance
+- RECUR-MATH-004 — Mathematical Drift Detection
+- RECUR-MATH-005 — Proof / Counterexample Maintenance
+- RECUR-MATH-006 — Architecture Description Synchronization
+- RECUR-CONTRACT-001 — Contract Registry Synchronization
+- RECUR-EVIDENCE-001 — Runtime/CI Evidence Freshness
+- RECUR-R2-001 — Adversarial Mutation/Trust-Boundary Sweep
+
+The canonical mathematical reference is maintained in the Research Machine and mirrored as a machine-readable conformance baseline in the Core sandbox. It is independent of Python architecture.
+
+The Research Machine remains research/provenance authority only. The Core remains canonical state/evolution authority. The mathematical sandbox produces evidence and findings but cannot mutate Core.
+
+Reference relation:
+Research Mathematics ↔ Formal Reconciliation ↔ Core Architecture ↔ Runtime/CI Evidence.
+
+The first mathematical baseline includes Ψ=(X,R), governed transition semantics, protected invariant set I_P, fixed-point trichotomy, epistemic separations, authority separation, concurrency/merge constraints, reality-coupling hypotheses and tension semantics. The baseline is explicitly marked RECONSTRUCTION_BASELINE; exhaustive chat-by-chat reconstruction remains OPEN.
+
+Do not mark mathematical claims PROVEN merely because they are present in documentation. Implementation claims require actual runtime/CI evidence.
+
+## 2026-09-23 — REPOSITORY CONTROL PATH
+
+Current implementation/research restructuring branches:
+- Core: contracts/math-reconciliation-2026-09-23
+- Research Machine: research-machine/math-reconciliation-2026-09-23
+
+The active finite work remains governed by the existing task registry. The recurring mathematical layer runs in parallel and must not replace the current R2/adversarial, fixed-point, regression, and RM-CORE-R1 work.
