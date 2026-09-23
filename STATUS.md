@@ -230,3 +230,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Current source evidence confirms the earlier core remediation is present in source (`deep_freeze`, meaningful-change invariant, strict `TestResult.passed`, Select stage), but this is **source evidence, not fresh runtime/CI verification**.
 - Reflection/authority boundary remains non-authoritative; execution authorization is fail-closed and bound to exact evolution provenance/intent snapshots in the current source.
 - No autonomous rule activation, self-modification, or trust-boundary bypass was introduced by this checkpoint.
+
+- R2.OPT-10c progress: **~60%** (directional). Added an explicit regression for authorization issued against an old canonical head, followed by a valid head advance; the stale request must not persist its transition. This is source/test evidence only until executed by CI/runtime.
+- Fresh workflow evidence for commit `2563a84e983e4a2a4b85efc6ad12699bb5115f5d`: **none returned by GitHub Actions lookup**; therefore no CI PASS is claimed.
