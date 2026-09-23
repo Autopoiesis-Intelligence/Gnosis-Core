@@ -20,7 +20,7 @@ Gnozis Core
 
 ## Current engineering foundation
 
-The Core currently contains the protected Ψ=(X,R) state/evolution model, deep immutability and invariants, Candidate/Test/Verify/Authorize/Commit semantics, deterministic selection where applicable, budgets and stop conditions, instances/forks/lineage, SQLite persistence and durable provenance, append-only audit events, reflection/counterexamples/RuleProposal lineage/shadow evaluation, and boundaries preventing reflection from directly activating Core changes.
+The Core contains the protected Ψ=(X,R) state/evolution model, deep immutability and invariants, Candidate/Test/Verify/Authorize/Commit semantics, deterministic selection where applicable, budgets and stop conditions, instances/forks/lineage, SQLite persistence/audit mechanisms, reflection/counterexamples/RuleProposal lineage/shadow evaluation, and boundaries preventing reflection from directly activating Core changes. Persistence and reflection capabilities remain subject to the current runtime/CI evidence gates; see STATUS.md for verified state.
 
 Exact status is governed by STATUS.md and current source/tests.
 
