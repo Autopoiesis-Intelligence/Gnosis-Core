@@ -680,3 +680,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Dependency Review run 96 failed before dependency analysis because GitHub reports: `Dependency review is not supported on this repository. Please ensure that Dependency graph is enabled`.
 - Workflow `.github/workflows/dependency-review.yml` is present and correctly invokes `actions/dependency-review-action@v5` with `fail-on-severity: high`; therefore the current blocker is repository capability/configuration, not a workflow syntax failure.
 - No code or workflow bypass is authorized. PR #35 remains blocked until Dependency Graph is enabled or this external gate is explicitly classified as unresolved infrastructure debt.
+
+
+## Post-merge verification gate — PR #36 — 2026-09-23
+
+- PR #36 was merged by squash at `fca2812f202393d92589b2f1cc8a5844fdea6ece`.
+- Candidate head `0fd1fe8857ff07958f10fea5b1b0b10f4cd86d76` had Python 3.11/3.12 CI PASS before merge.
+- The GitHub workflow lookup currently returns no workflow runs for the resulting merge SHA, so candidate evidence is not promoted to post-merge main evidence.
+- Shadow replay contract is INTEGRATED / POST_MERGE_VERIFICATION_PENDING.
