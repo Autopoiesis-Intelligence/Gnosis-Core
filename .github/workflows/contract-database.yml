@@ -1,0 +1,34 @@
+name: Contract Database
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docs/**'
+      - 'gnosis/self_learning/**'
+      - 'scripts/generate_partner_contract_database.py'
+      - 'context/SELF_LEARNING_CONTRACT_DATABASE.schema.json'
+      - '.github/workflows/contract-database.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package
+        run: pip install -e .
+      - name: Generate partner contract database
+        run: python scripts/generate_partner_contract_database.py --source-revision "$GITHUB_SHA"
+      - name: Upload contract database and generation log
+        uses: actions/upload-artifact@v4
+        with:
+          name: partner-contract-database-${{ github.sha }}
+          path: |
+            logs/contracts/partner_contract_database.json
+            logs/contracts/partner_contract_database.jsonl
