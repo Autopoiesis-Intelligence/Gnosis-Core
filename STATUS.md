@@ -374,3 +374,8 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.14 — End-to-End Learning Execution & Replay:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/END_TO_END_LEARNING_EXECUTION_REPLAY_CONTRACT.md` (`c05917e2`). Defines the executable/replayable P0 proof of E7.10–E7.13, including persistence, deterministic replay and failure injection.
 - **P0 self-learning coverage:** E7.10 ~55% architecture/~20% verification; E7.11 ~60%/~25%; E7.12 ~65%/~25%; E7.13 ~60%/~15%; E7.14 ~45%/~10%. Integrated end-to-end learning proof remains ~20%.
+
+- **E7.15 — Self-Learning Vertical Slice Verification:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/SELF_LEARNING_VERTICAL_SLICE_VERIFICATION_CONTRACT.md` (`7fc061d0`). This is now the verification gate for E7.10–E7.14: one reproducible Agent→Evidence→Proposal→Shadow→Verification→Governance→Commit→Reopen→Replay→Re-evaluate path plus negative/failure-injection cases.
+- Repository search confirms existing component-level reflection/persistence/shadow/replay tests and SQLite durable records, but no fresh current-HEAD runtime/CI execution was performed in this step; therefore no VERIFIED promotion is made.
+- `context/PROJECT_CONTEXT.json` synchronized with the E7.10–E7.15 P0 self-learning chain (`a2e04313`).
+- **P0 self-learning integrated proof:** remains ~20%; E7.15 architectural coverage ~50%, verification coverage ~10%. This percentage is a contract/evidence estimate, not a test pass rate.
