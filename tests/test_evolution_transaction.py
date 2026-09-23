@@ -164,7 +164,7 @@ def test_save_evolution_provenance_rejects_conflicting_same_id() -> None:
         governance_decision="ALLOW",
     )
     save_evolution_provenance(conn, p)
-    conflicting = replace(p, evolution_identity="evolution:tampered", proposed_state_content_id="content:tampered")
+    conflicting = replace(p, proposed_state_content_id="content:tampered")
     with pytest.raises(RuntimeError, match="conflicting provenance replay"):
         save_evolution_provenance(conn, conflicting)
     conn.close()
