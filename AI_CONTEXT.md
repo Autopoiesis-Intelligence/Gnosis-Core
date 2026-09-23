@@ -4678,3 +4678,8 @@ Promoted learned rules may transition ACTIVE -> SUSPENDED, REVOKED, SUPERSEDED o
 ## E7.19 — Learning Dependency Graph and Impact Analysis
 
 Learning lineage is modeled as a directed graph of sources, revisions, evidence, findings, counterexamples, candidates, proposals, evaluations, tests, rules, policies and transitions. Changes require impact closure over dependent artifacts. Missing provenance/edges are treated as revalidation failures, not proof of independence. Partner revisions are new source nodes. Source, agent capability, policy, invariant or parent-state changes require impact analysis before affected learned rules remain active.
+
+
+## E7.20 — Learning Memory Retention, Compaction and Replay
+
+Self-learning artifacts require explicit retention classes: CORE_REQUIRED, REPLAY_REQUIRED, PROVENANCE_REQUIRED, AUDIT_REQUIRED, REFERENCE_ONLY or EXPIRED. Compaction must preserve semantic reconstructability and cannot alter prior decision meaning. Hash/content identifiers may compact large evidence but a hash is integrity identity, not evidence content. Active-rule dependencies, open counterexamples and pending re-evaluation require replay-safe retention. Partner revisions remain immutable historical nodes.
