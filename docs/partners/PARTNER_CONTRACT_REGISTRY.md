@@ -71,6 +71,7 @@ Each contract record SHOULD contain:
 | E7.50 | IMPLEMENTED / UNVERIFIED | Self-Learning Evidence Replay / Reconstruction |
 | E7.51 | IMPLEMENTED / UNVERIFIED | Learning Flow Integrity / Complete Contract Lifecycle |
 | E7.52 | IMPLEMENTED / UNVERIFIED | Governed Self-Learning Knowledge Update |
+| E7.53 | IMPLEMENTED / UNVERIFIED | Knowledge State Versioning / Lineage |
 
 ## Update rule
 
