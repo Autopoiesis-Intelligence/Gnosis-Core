@@ -351,6 +351,13 @@ def validate_reflection_lineage(conn: sqlite3.Connection, report_id: str) -> dic
             raise RuntimeError("shadow assessment proposal is outside reflection lineage")
         load_shadow_assessment(conn, assessment_id)
 
+    deltas = conn.execute(
+        "SELECT delta_id FROM reflection_invariant_deltas WHERE report_id=?",
+        (report_id,),
+    ).fetchall()
+    for delta_id, in deltas:
+        load_invariant_delta(conn, delta_id)
+
     governance = conn.execute(
         "SELECT decision_id,decision FROM reflection_governance_decisions WHERE report_id=?",
         (report_id,),
@@ -359,6 +366,25 @@ def validate_reflection_lineage(conn: sqlite3.Connection, report_id: str) -> dic
         decision = load_governance_decision(conn, decision_id)
         if decision["decision"] != decision_name:
             raise RuntimeError("governance decision lineage identity mismatch")
+
+    if len(shadows) == 1 and len(deltas) == 1 and len(governance) == 1:
+        from .governance import evaluate_governance
+        shadow_payload = load_shadow_assessment(conn, shadows[0][0])["payload"]
+        delta_payload = load_invariant_delta(conn, deltas[0][0])["payload"]
+        shadow = ShadowEvaluation(**shadow_payload)
+        delta = InvariantDelta(
+            preserved=tuple(delta_payload["preserved"]),
+            violated=tuple(delta_payload["violated"]),
+            improved=tuple(delta_payload["improved"]),
+            unknown=tuple(delta_payload["unknown"]),
+            active_violations=dict(delta_payload["active_violations"]),
+            shadow_violations=dict(delta_payload["shadow_violations"]),
+            provenance=delta_payload.get("provenance", "reflection-invariant-delta"),
+        )
+        expected = evaluate_governance(shadow, delta)
+        actual = load_governance_decision(conn, governance[0][0])["payload"]
+        if _json(expected) != _json(actual):
+            raise RuntimeError("governance decision does not match persisted shadow/invariant evidence")
 
     evolutions = conn.execute(
         "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id FROM reflection_proposal_evolutions"
@@ -411,7 +437,21 @@ def load_invariant_delta(conn: sqlite3.Connection, delta_id: str) -> dict[str, A
     ).fetchone()
     if row is None:
         raise KeyError(delta_id)
-    return {"delta_id": row[0], "report_id": row[1], "status": row[2], "payload": json.loads(row[3]), "raw_payload": row[3]}
+    payload = json.loads(row[3])
+    delta = InvariantDelta(
+        preserved=tuple(payload["preserved"]),
+        violated=tuple(payload["violated"]),
+        improved=tuple(payload["improved"]),
+        unknown=tuple(payload["unknown"]),
+        active_violations=dict(payload["active_violations"]),
+        shadow_violations=dict(payload["shadow_violations"]),
+        provenance=payload.get("provenance", "reflection-invariant-delta"),
+    )
+    if invariant_delta_id(row[1], delta) != row[0]:
+        raise RuntimeError("invariant delta persistence integrity mismatch")
+    if row[2] != delta.status:
+        raise RuntimeError("invariant delta persistence status mismatch")
+    return {"delta_id": row[0], "report_id": row[1], "status": row[2], "payload": payload, "raw_payload": row[3]}
 
 
 def list_invariant_deltas(conn: sqlite3.Connection, report_id: str | None = None) -> tuple[dict[str, Any], ...]:
