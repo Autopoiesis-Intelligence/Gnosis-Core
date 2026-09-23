@@ -234,3 +234,20 @@ The selector may prioritize challenges but cannot redefine the success criterion
 Stopping an adaptive challenge sequence requires an explicit bounded rationale (objective, budget, coverage assumptions, and residual uncertainty).
 
 This is a governance/epistemic contract; it does not claim that the current reflection runtime already implements adaptive challenge generation.
+## E5.01 — Verifier / selector common-mode boundary
+
+Adaptive challenge generation and evaluation must preserve provenance for both sides:
+- generator identity/version;
+- verifier identity/version;
+- shared model/rule family;
+- shared inputs and transformations;
+- common evaluator/oracle dependencies;
+- challenge provenance and selection rationale.
+
+A generator and verifier may be implemented by the same component only when the resulting common-mode risk is explicitly within the declared verification scope. Such agreement is not independent corroboration.
+
+`SelfReport(Adequacy) != IndependentEvidence(Adequacy)`.
+
+Verifier changes are authority-sensitive changes and require governed evaluation; the verifier must not silently redefine its own protected acceptance criteria.
+
+This remains a future adaptive/reflection constraint; the current CounterexampleEngine is not claimed to provide independent verifier separation.
