@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Mapping
 
 
 @dataclass(frozen=True)
@@ -40,6 +40,23 @@ ALLOWED_SHADOW = frozenset({"NO_BEHAVIORAL_CHANGE", "IMPROVED"})
 ALLOWED_INVARIANT = frozenset({"PRESERVED", "IMPROVED"})
 ALLOWED_GOVERNANCE = frozenset({"REVIEW", "APPROVE"})
 
+EVIDENCE_ROLES = frozenset({"DETECTION", "EXPLANATION", "AUTHORIZATION"})
+
+
+def validate_evidence_roles(
+    evidence_roles: Mapping[str, Iterable[str]],
+) -> tuple[str, ...]:
+    """Validate role-separated evidence without granting authority."""
+    reasons: list[str] = []
+    unknown = set(evidence_roles) - EVIDENCE_ROLES
+    if unknown:
+        reasons.append("unknown evidence role: " + ",".join(sorted(unknown)))
+    for role in EVIDENCE_ROLES:
+        values = tuple(evidence_roles.get(role, ()))
+        if any(not value for value in values):
+            reasons.append(f"{role.lower()} evidence contains empty identifier")
+    return tuple(reasons)
+
 
 def make_promotion_candidate(
     *,
@@ -68,8 +85,17 @@ def evaluate_promotion_gate(
     *,
     provenance_valid: bool,
     required_evidence: Iterable[str] = (),
+    evidence_roles: Mapping[str, Iterable[str]] | None = None,
 ) -> PromotionGate:
     reasons: list[str] = []
+    if evidence_roles is not None:
+        reasons.extend(validate_evidence_roles(evidence_roles))
+        if not tuple(evidence_roles.get("DETECTION", ())):
+            reasons.append("detection evidence is missing")
+        if not tuple(evidence_roles.get("EXPLANATION", ())):
+            reasons.append("explanation evidence is missing")
+        if not tuple(evidence_roles.get("AUTHORIZATION", ())):
+            reasons.append("authorization evidence is missing")
     if not provenance_valid:
         reasons.append("provenance cross-check failed")
     if candidate.evaluation_status != REQUIRED_EVALUATION:
