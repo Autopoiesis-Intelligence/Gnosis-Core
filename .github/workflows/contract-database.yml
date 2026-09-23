@@ -26,7 +26,7 @@ jobs:
       - name: Generate partner contract database
         run: python scripts/generate_partner_contract_database.py --source-revision "$GITHUB_SHA"
       - name: Upload contract database and generation log
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: partner-contract-database-${{ github.sha }}
           path: |
