@@ -113,8 +113,8 @@ class TestAuthorizationIssuer:
         return hmac.compare_digest(authorization.signature, _sign(self._secret, authorization.payload()))
 
 
-def _registry_digest(authorization: TestAuthorization) -> str:
-    return canonical_digest(authorization.payload())
+def _registry_digest(authorization: TestAuthorization, *, consumed: int = 0, revoked: int = 0) -> str:
+    return canonical_digest({**authorization.payload(), "consumed": consumed, "revoked": revoked})
 
 
 def initialize_test_authorization_store(conn: sqlite3.Connection) -> None:
@@ -190,7 +190,7 @@ def consume_test_authorization(
     ).fetchone()
     if row is None:
         raise PermissionError("test authorization is not persisted")
-    if row[10] != _registry_digest(authorization):
+    if row[10] != _registry_digest(authorization, consumed=row[11], revoked=row[12]):
         raise PermissionError("test authorization registry integrity failure")
     stored = {
         "issuer_id": row[0], "issuer_version": row[1],
@@ -217,9 +217,10 @@ def consume_test_authorization(
         raise PermissionError("test authorization revoked")
     if row[11]:
         raise PermissionError("test authorization already consumed")
+    new_digest = _registry_digest(authorization, consumed=1, revoked=0)
     cur = conn.execute(
-        "UPDATE test_authorizations SET consumed = 1 WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
-        (authorization.authorization_id,),
+        "UPDATE test_authorizations SET consumed = 1, integrity_digest = ? WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
+        (new_digest, authorization.authorization_id),
     )
     if cur.rowcount != 1:
         raise PermissionError("test authorization consumption race")
@@ -227,9 +228,14 @@ def consume_test_authorization(
 
 
 def revoke_test_authorization(conn: sqlite3.Connection, authorization_id: str) -> None:
+    row = conn.execute("SELECT issuer_id, issuer_version, request_provenance, evolution_identity, parent_state_digest, policy_version, nonce, expires_at, scope_json, signature, consumed FROM test_authorizations WHERE authorization_id = ?", (authorization_id,)).fetchone()
+    if row is None:
+        raise KeyError("unknown test authorization")
+    authorization = TestAuthorization(authorization_id=authorization_id, issuer_id=row[0], issuer_version=row[1], request_provenance=row[2], evolution_identity=row[3], parent_state_digest=row[4], policy_version=row[5], nonce=row[6], expires_at=row[7], scope=tuple(json.loads(row[8])), signature=row[9])
+    new_digest = _registry_digest(authorization, consumed=row[10], revoked=1)
     cur = conn.execute(
-        "UPDATE test_authorizations SET revoked = 1 WHERE authorization_id = ?",
-        (authorization_id,),
+        "UPDATE test_authorizations SET revoked = 1, integrity_digest = ? WHERE authorization_id = ?",
+        (new_digest, authorization_id),
     )
     if cur.rowcount != 1:
         raise KeyError("unknown test authorization")
