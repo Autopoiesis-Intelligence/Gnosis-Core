@@ -96,6 +96,10 @@ def evaluate_promotion_gate(
     provenance_valid: bool,
     required_evidence: Iterable[str] = (),
     evidence_roles: Mapping[str, Iterable[str]] | None = None,
+    expected_authorization_scope: str | None = None,
+    expected_authorization_target: str | None = None,
+    expected_policy_version: str | None = None,
+    expected_authorization_freshness: str | None = None,
 ) -> PromotionGate:
     reasons: list[str] = []
     if evidence_roles is not None:
@@ -109,6 +113,14 @@ def evaluate_promotion_gate(
     if evidence_roles is not None:
         if not candidate.authorization_scope or not candidate.authorization_target:
             reasons.append("authorization scope/target is missing")
+    if expected_authorization_scope is not None and candidate.authorization_scope != expected_authorization_scope:
+        reasons.append("authorization scope is stale or mismatched")
+    if expected_authorization_target is not None and candidate.authorization_target != expected_authorization_target:
+        reasons.append("authorization target is stale or mismatched")
+    if expected_policy_version is not None and candidate.policy_version != expected_policy_version:
+        reasons.append("authorization policy version is stale or mismatched")
+    if expected_authorization_freshness is not None and candidate.authorization_freshness != expected_authorization_freshness:
+        reasons.append("authorization freshness is stale or mismatched")
     if not provenance_valid:
         reasons.append("provenance cross-check failed")
     if candidate.evaluation_status != REQUIRED_EVALUATION:
