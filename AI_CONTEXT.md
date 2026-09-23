@@ -5154,3 +5154,11 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - This upgrades the candidate branch from UNVERIFIED to VERIFIED_BY_CI for the tested scope. It does not upgrade current main.
 - PR #33 is still draft/non-mergeable, so consolidation must occur before claiming the canonical main gate is closed.
 - Issue #13 is closed; Issue #16 remains active until current-main reconciliation and post-consolidation CI evidence.
+
+
+## Contract clarification — provenance lifecycle status — 2026-09-23
+
+- `status` is treated as lifecycle state, not identity-bearing provenance content. It remains persisted and cross-checked as a state field, while canonical `provenance_id` / `evolution_identity` exclude it.
+- Regression test added in commit `517a9968d4e5fe70a7aedae8a1a95d4063b27f56` to prevent accidental identity coupling to lifecycle status.
+- This is a test-contract clarification only; no production semantics were changed.
+- Exact CI on current `main` remains the acceptance gate for P0-R2.
