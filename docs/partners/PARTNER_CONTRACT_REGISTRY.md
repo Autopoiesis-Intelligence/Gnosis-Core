@@ -127,6 +127,7 @@ Each contract record SHOULD contain:
 | E7.106 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Candidate Inventory & Selection Record |
 | E7.107 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Execution Readiness Gate |
 | E7.108 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Execution Record & Evidence Capture |
+| E7.109 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Evidence Acceptance & Criterion Promotion Gate |
 
 ## Update rule
 
