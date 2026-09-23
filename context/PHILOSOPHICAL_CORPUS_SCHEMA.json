@@ -1,0 +1,118 @@
+{
+  "schema": "gnozis.philosophical-corpus/v1",
+  "task_id": "PHIL-002",
+  "parent_task": "PHIL-001",
+  "status": "READY",
+  "purpose": "Define a provenance-first machine-readable record format for comparative research on spiritual literature, high writings, mythology, philosophy and related literary works.",
+  "principles": [
+    "source claims are preserved separately from researcher interpretation",
+    "primary and secondary sources are never silently merged",
+    "translation and edition differences are explicit",
+    "historical context is evidence, not endorsement",
+    "cross-tradition similarity is a hypothesis until independently supported",
+    "absence of evidence is not evidence of absence",
+    "philosophical interpretation never becomes engineering fact automatically"
+  ],
+  "record_schema": {
+    "source_id": "stable unique identifier",
+    "tradition": "cultural/religious/philosophical tradition; descriptive only",
+    "work_title": "canonical or commonly used title",
+    "work_type": "primary_text | commentary | philosophical_work | mythology | literature | scholarship",
+    "author_or_attribution": "author, attributed author, anonymous, or disputed",
+    "date_range": "known or estimated composition/publication range",
+    "language": "original language when known",
+    "edition": "edition/recension/manuscript identifier when relevant",
+    "translation": "translator and translation identifier when relevant",
+    "provenance": {
+      "source_locator": "bibliographic or repository locator",
+      "source_kind": "primary | secondary",
+      "access_date": "YYYY-MM-DD",
+      "confidence": "HIGH | MEDIUM | LOW"
+    },
+    "passage_records": [
+      {
+        "passage_id": "stable local identifier",
+        "locator": "chapter/verse/page/section/etc.",
+        "source_text": "short quotation or normalized source representation",
+        "translation_text": "translation if applicable",
+        "literal_claim": "what the passage explicitly states",
+        "context": "local and historical context",
+        "epistemic_status": "textual_fact | attributed_interpretation | disputed"
+      }
+    ],
+    "structural_analysis": {
+      "entities": [],
+      "relations": [],
+      "state_variables": [],
+      "transitions": [],
+      "information_flows": [],
+      "observers_or_guides": [],
+      "conflicts_or_tensions": [],
+      "transformation_patterns": []
+    },
+    "interpretations": [
+      {
+        "interpretation_id": "stable identifier",
+        "claim": "research interpretation",
+        "basis": "passage_ids or external scholarship",
+        "status": "HYPOTHESIS | SUPPORTED | DISPUTED | REJECTED",
+        "counterexamples": []
+      }
+    ],
+    "cross_source_links": [
+      {
+        "target_source_id": "another source record",
+        "relation": "analogy | contrast | possible_invariant | historical_influence | uncertain",
+        "claim": "explicit reason for linkage",
+        "confidence": "HIGH | MEDIUM | LOW"
+      }
+    ],
+    "formal_hypotheses": [
+      {
+        "hypothesis_id": "stable identifier",
+        "statement": "precise hypothesis",
+        "assumptions": [],
+        "predictions_or_consequences": [],
+        "counterexample_tests": [],
+        "status": "HYPOTHESIS | FORMALIZED | REJECTED"
+      }
+    ],
+    "gnozis_mapping": {
+      "status": "NONE | RESEARCH_REFERENCE | ENGINEERING_CANDIDATE",
+      "candidate_concepts": [],
+      "existing_core_elements": [],
+      "possible_architecture_gap": null,
+      "evidence_required": []
+    },
+    "audit": {
+      "analyst": "agent identifier",
+      "independent_review": "NOT_REVIEWED | REVIEWED | DISPUTED",
+      "known_limitations": [],
+      "last_updated": "YYYY-MM-DD"
+    }
+  },
+  "forbidden_shortcuts": [
+    "do not infer truth from antiquity",
+    "do not infer truth from number of adherents",
+    "do not equate similar vocabulary across traditions without structural analysis",
+    "do not treat translated wording as identical to original wording",
+    "do not use a modern Gnozis concept as proof that an ancient text intended that concept",
+    "do not promote an interpretation to implementation without the PHIL-001 migration gate"
+  ],
+  "minimum_comparative_unit": {
+    "required": [
+      "source_id",
+      "provenance",
+      "at_least_one_passage_record",
+      "literal_claim",
+      "structural_analysis",
+      "known_limitations"
+    ],
+    "recommended": [
+      "cross_source_links",
+      "counterexamples",
+      "formal_hypotheses"
+    ]
+  },
+  "next_task": "PHIL-003 — First Comparative Text Matrix"
+}
