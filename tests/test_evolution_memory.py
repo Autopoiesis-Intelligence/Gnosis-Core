@@ -47,7 +47,7 @@ def test_evolution_memory_cannot_lie_about_persisted_transition():
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
 
-    with pytest.raises(Exception, match="transition identity mismatch"):
+    with pytest.raises(Exception, match="evolution memory outcome disagrees with transition"):
         append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
             transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="rejected",evidence=("false",))
 
@@ -66,7 +66,7 @@ def test_load_evolution_memory_rechecks_transition_semantics_after_tamper():
         transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("ok",))
 
     conn.execute("UPDATE transitions SET accepted=0 WHERE transition_id=?",(tid,))
-    with pytest.raises(Exception, match="outcome disagrees with transition"):
+    with pytest.raises(Exception, match="transition identity mismatch"):
         load_evolution_memory(conn,instance.instance_id)
 
     conn.execute("UPDATE transitions SET accepted=1,to_state_id=? WHERE transition_id=?",
