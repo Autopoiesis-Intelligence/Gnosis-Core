@@ -44,6 +44,7 @@ Each contract record SHOULD contain:
 | E7.23 | DESIGNED / NOT_IMPLEMENTED | Partner Contribution Machine-Readable Manifest |
 | E7.24 | DESIGNED / NOT_IMPLEMENTED | Partner Contribution Validation & Quarantine |
 | E7.25 | DESIGNED / NOT_IMPLEMENTED | Partner Provenance Binding & Immutable Contribution Lineage |
+| E7.26 | DESIGNED / NOT_IMPLEMENTED | Partner Admission Runtime Boundary |
 
 ## Update rule
 
