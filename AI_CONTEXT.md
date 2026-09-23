@@ -3416,3 +3416,57 @@ Evidence records should be able to preserve dependency/common-cause metadata or 
 ### Required next step
 
 E4.98: formalize adversarial coverage and blind-spot sets: what the current verification system cannot test, observe, or falsify.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.98: ADVERSARIAL COVERAGE AND BLIND-SPOT SETS
+
+Let `V` be a verification system and `F` a declared failure/defect space.
+
+Define the observable detection region:
+`Detect(V) = { f in F | V can distinguish f from an accepted/non-failing condition under its declared scope }`.
+
+Define the blind-spot set:
+`Blind(V) = F \ Detect(V)`.
+
+### Coverage is scoped
+
+Coverage is never an absolute property. A statement `Coverage(V,F)=complete` is meaningful only relative to a declared failure space `F`, observation model, representation, oracle, budget and execution environment.
+
+### Blind-spot non-emptiness
+
+If there exists `f in Blind(V)`, passing V cannot establish absence of f.
+
+`Pass(V) -> not (f detected)` is not equivalent to `Pass(V) -> not f`.
+
+### Representation lock-in
+
+If V observes only representation `R(X)`, then failures invisible under `R` may remain in `Blind(V)` even when the underlying state differs.
+
+Thus:
+`Indistinguishable_R(x,y) -> V cannot separate x,y using R alone`.
+
+### Oracle dependence
+
+If the verifier and the generator share an oracle, model, assumption, transformation or failure mode, the corresponding blind-spot set may be correlated with the generation process.
+
+### Adversarial coverage
+
+Adversarial completeness requires explicit challenge classes. A finite test set does not prove coverage of an open-ended failure space unless the failure space itself is bounded and the mapping is justified.
+
+### Meta-verification
+
+A verifier can itself contain blind spots. Verification of the verifier does not automatically eliminate blind spots of the verifier's verification method.
+
+### Proposition E4.98.1
+
+If two distinct failure modes `f1,f2` are observationally equivalent under the verifier's representation/oracle, then the verifier cannot claim separate detection coverage for both from that representation alone.
+
+### Boundary
+
+E4.98 does not require exhaustive testing of all possible failures. It requires explicit declaration of what failure space and observation boundary the verification claim covers, and preservation of UNKNOWN/INSUFFICIENT_EVIDENCE outside that boundary.
+
+### Engineering consequence
+
+Adversarial matrices should classify not only passing tests but also coverage assumptions, untested classes, oracle dependencies, representation blind spots and known non-observable failures.
+
+### Required next step
+
+E4.99: formalize falsification strength, counterexample generation and the distinction between absence of detected counterexamples and evidence that a claim survives the declared challenge space.
