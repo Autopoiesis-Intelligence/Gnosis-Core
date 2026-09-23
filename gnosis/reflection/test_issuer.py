@@ -113,8 +113,8 @@ class TestAuthorizationIssuer:
         return hmac.compare_digest(authorization.signature, _sign(self._secret, authorization.payload()))
 
 
-def _registry_digest(authorization: TestAuthorization, *, consumed: int = 0, revoked: int = 0) -> str:
-    return canonical_digest({**authorization.payload(), "consumed": consumed, "revoked": revoked})
+def _registry_digest(authorization: TestAuthorization, *, consumed: int = 0, revoked: int = 0, lifecycle_state: str = "active") -> str:
+    return canonical_digest({**authorization.payload(), "consumed": consumed, "revoked": revoked, "lifecycle_state": lifecycle_state})
 
 
 def initialize_test_authorization_store(conn: sqlite3.Connection) -> None:
@@ -133,13 +133,20 @@ def initialize_test_authorization_store(conn: sqlite3.Connection) -> None:
             signature TEXT NOT NULL,
             integrity_digest TEXT NOT NULL,
             consumed INTEGER NOT NULL DEFAULT 0,
-            revoked INTEGER NOT NULL DEFAULT 0
+            revoked INTEGER NOT NULL DEFAULT 0,
+            lifecycle_state TEXT NOT NULL DEFAULT "active",
+            superseded_by TEXT
         )"""
     )
-    try:
-        conn.execute("ALTER TABLE test_authorizations ADD COLUMN integrity_digest TEXT")
-    except sqlite3.OperationalError:
-        pass
+    for statement in (
+        "ALTER TABLE test_authorizations ADD COLUMN integrity_digest TEXT",
+        "ALTER TABLE test_authorizations ADD COLUMN lifecycle_state TEXT NOT NULL DEFAULT 'active'",
+        "ALTER TABLE test_authorizations ADD COLUMN superseded_by TEXT",
+    ):
+        try:
+            conn.execute(statement)
+        except sqlite3.OperationalError:
+            pass
     conn.commit()
 
 
@@ -190,7 +197,7 @@ def consume_test_authorization(
     ).fetchone()
     if row is None:
         raise PermissionError("test authorization is not persisted")
-    if row[10] != _registry_digest(authorization, consumed=row[11], revoked=row[12]):
+    if row[10] != _registry_digest(authorization, consumed=row[11], revoked=row[12], lifecycle_state=row[13]):
         raise PermissionError("test authorization registry integrity failure")
     stored = {
         "issuer_id": row[0], "issuer_version": row[1],
@@ -213,13 +220,13 @@ def consume_test_authorization(
     }
     if stored != expected:
         raise PermissionError("test authorization registry payload mismatch")
-    if row[12]:
+    if row[12] or row[13] == "revoked":
         raise PermissionError("test authorization revoked")
-    if row[11]:
+    if row[11] or row[13] == "consumed":
         raise PermissionError("test authorization already consumed")
-    new_digest = _registry_digest(authorization, consumed=1, revoked=0)
+    new_digest = _registry_digest(authorization, consumed=1, revoked=0, lifecycle_state="consumed")
     cur = conn.execute(
-        "UPDATE test_authorizations SET consumed = 1, integrity_digest = ? WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
+        "UPDATE test_authorizations SET consumed = 1, lifecycle_state = "consumed", integrity_digest = ? WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
         (new_digest, authorization.authorization_id),
     )
     if cur.rowcount != 1:
@@ -232,9 +239,9 @@ def revoke_test_authorization(conn: sqlite3.Connection, authorization_id: str) -
     if row is None:
         raise KeyError("unknown test authorization")
     authorization = TestAuthorization(authorization_id=authorization_id, issuer_id=row[0], issuer_version=row[1], request_provenance=row[2], evolution_identity=row[3], parent_state_digest=row[4], policy_version=row[5], nonce=row[6], expires_at=row[7], scope=tuple(json.loads(row[8])), signature=row[9])
-    new_digest = _registry_digest(authorization, consumed=row[10], revoked=1)
+    new_digest = _registry_digest(authorization, consumed=row[10], revoked=1, lifecycle_state="revoked")
     cur = conn.execute(
-        "UPDATE test_authorizations SET revoked = 1, integrity_digest = ? WHERE authorization_id = ?",
+        "UPDATE test_authorizations SET revoked = 1, lifecycle_state = "revoked", integrity_digest = ? WHERE authorization_id = ?",
         (new_digest, authorization_id),
     )
     if cur.rowcount != 1:
