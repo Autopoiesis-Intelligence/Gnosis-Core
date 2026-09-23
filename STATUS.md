@@ -365,3 +365,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - AI_CONTEXT synchronized at `7575db6b`.
 - **E7.11 — Learning Freshness, Lineage and Replay:** DESIGNED / PARTIALLY COVERED. Added `docs/architecture/LEARNING_FRESHNESS_LINEAGE_REPLAY_CONTRACT.md` (`c0baf889`). Existing authority freshness/replay and proposal lineage provide partial coverage, but learning-specific end-to-end proof is NOT_IMPLEMENTED. Acceptance requires same-event reuse, cross-revision replay, stale-source, parent-state mismatch and revoked-source tests.
 - **Self-learning priority update:** E7.11 is now P0 together with E7.10. Next P0 chain: E7.11 freshness/replay -> source/dataset revision binding -> evidence independence -> agent learning feedback -> end-to-end learning replay.
+
+- **E7.12 — Learning Source Revision & Evidence Independence:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_SOURCE_REVISION_EVIDENCE_INDEPENDENCE_CONTRACT.md` (`9a2b732c`). Source revision/provenance binding and common-origin evidence are now explicit P0 learning constraints; runtime provenance grouping and re-evaluation remain unimplemented.
+- **Self-learning P0 sequence:** E7.10 governed loop → E7.11 freshness/replay → E7.12 source revision/independence → agent learning feedback → end-to-end replay proof.
