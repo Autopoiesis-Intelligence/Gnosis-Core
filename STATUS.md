@@ -220,3 +220,37 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 ## Immediate next step
 
 **End-to-end verification of the reflection foundation and persistence** is required. After that, the next architectural runtime step is **invariant-delta analysis for shadow evaluations**, followed by bounded Governance/Rollback. Autonomous rule activation remains prohibited.
+
+
+## Contract and Mathematical Reconciliation Layer — 2026-09-23
+
+### Contract system
+- Finite contracts: ACTIVE through the existing task registry.
+- Recurring contracts: ACTIVE as permanent project features.
+- Recurring health is tracked separately from finite completion percentage.
+
+### Mathematical reference
+**RECONSTRUCTION_BASELINE / OPEN.**
+The research-side canonical reference is stored under the Research Machine mathematical namespace. A conformance baseline is mirrored in the Core sandbox.
+
+### Mathematical sandbox
+**DOCUMENTED / NOT YET RUNTIME-VERIFIED.**
+The sandbox is evidence infrastructure only. It cannot mutate canonical Ψ, activate proposals, redefine protected invariants or promote evidence to authority.
+
+### Reconciliation
+**ACTIVE / BASELINE ESTABLISHED.**
+The required mapping is bidirectional:
+- mathematics → architectural coverage;
+- architecture → mathematical basis.
+
+### Evidence rule
+No recurring contract may close an implementation finding from documentation alone. Exact commit + actual runtime/CI evidence is required where behavior is claimed.
+
+### Current finite blockers remain unchanged
+- end-to-end reflection/persistence verification;
+- fixed-point semantic correction;
+- fresh full regression;
+- current R2 adversarial continuation;
+- RM-CORE-R1 repository boundary work.
+
+The mathematical layer does not authorize postponing these tasks.
