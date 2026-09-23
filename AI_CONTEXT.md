@@ -2969,3 +2969,33 @@ A participant integration is considered contract-complete only when identity, pr
 
 NEXT:
 R2.XFER-2b — Participant Identity & Revocation Record.
+
+
+## 2026-09-23 EVOLUTION CONTRACT — GITHUB DESCRIPTION SYNCHRONIZATION
+
+TASK-ID: R2.DOC-1
+BLOCK: Repository Description / Public Architecture Synchronization
+STATUS: ACTIVE
+PRIORITY: MEDIUM / PARALLEL
+OBJECTIVE: Keep the GitHub-facing repository description, README entry points and high-level public architecture statements synchronized with the actually verified project state without overstating implementation, readiness or autonomy.
+
+SCOPE:
+Repository description, README top-level positioning, architecture summary, current-stage statement and links to authoritative project documents where appropriate.
+
+DO_NOT_CHANGE:
+Do not expose secrets, private machine databases, internal credentials, sensitive operational details or unverifiable claims.
+Do not describe theoretical capabilities as implemented.
+Do not replace detailed AI_CONTEXT/AUDIT evidence with marketing language.
+Do not change Core authority boundaries through documentation.
+
+EPISTEMIC RULE:
+Public documentation must distinguish IMPLEMENTED / PARTIAL / MISSING / THEORETICAL / VERIFIED_BY_CI / NOT_PERFORMED where relevant. Documentation is not evidence of implementation.
+
+SYNC SOURCE OF TRUTH:
+Code + tests + CI/audit evidence + AI_CONTEXT. If these conflict, documentation must not silently choose the more favorable claim; record the discrepancy and resolve it through an explicit contract.
+
+ACCEPTANCE:
+Description is considered synchronized only when a reader can understand what Gnozis-V2 currently is, what stage it is in, what is implemented, and which capabilities remain experimental or unverified.
+
+NEXT:
+R2.DOC-1b — Public Description Evidence Audit.
