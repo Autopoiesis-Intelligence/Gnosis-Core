@@ -1,0 +1,89 @@
+{
+  "schema": "gnozis.research-mapping-gate/v1",
+  "task_id": "PHIL-006",
+  "parent_task": "PHIL-005",
+  "status": "READY",
+  "purpose": "Define the evidence gate by which a research result may be formalized and mapped to Gnozis engineering without allowing philosophical interpretation, analogy or textual recurrence to become Core requirements by default.",
+  "gate_sequence": [
+    "RESEARCH_RESULT",
+    "CLAIM_DECOMPOSITION",
+    "FORMAL_HYPOTHESIS",
+    "ASSUMPTIONS",
+    "COUNTEREXAMPLE_ATTACK",
+    "TESTABLE_CONSEQUENCE",
+    "EVIDENCE_SCOPE",
+    "GNOZIS_MAPPING",
+    "GAP_CLASSIFICATION",
+    "INDEPENDENT_AUDIT",
+    "ENGINEERING_TASK"
+  ],
+  "promotion_states": [
+    "RESEARCH_ONLY",
+    "HYPOTHESIS",
+    "FORMALIZED",
+    "ENGINEERING_CANDIDATE",
+    "ACCEPTED_ENGINEERING"
+  ],
+  "claim_contract": {
+    "claim": "precise statement",
+    "domain": "where it is intended to apply",
+    "assumptions": [],
+    "mechanism_or_relation": "",
+    "predicted_consequences": [],
+    "disconfirming_conditions": [],
+    "evidence": [],
+    "evidence_scope": "",
+    "uncertainty": [],
+    "provenance": []
+  },
+  "gnozis_mapping_record": {
+    "candidate_id": "",
+    "existing_core_elements": [],
+    "behavioral_evidence": [],
+    "semantic_compatibility": "COMPATIBLE | PARTIAL | CONFLICT | UNKNOWN",
+    "required_new_capability": null,
+    "architecture_gap": "NONE | LOCAL | ARCHITECTURAL | UNKNOWN",
+    "second_state_model_required": false,
+    "core_invariant_impact": [],
+    "implementation_consequence": "",
+    "status": "RESEARCH_REFERENCE | ENGINEERING_CANDIDATE | REJECTED"
+  },
+  "strict_rejection_conditions": [
+    "claim depends only on metaphor",
+    "claim depends only on textual frequency",
+    "claim has no explicit domain or assumptions",
+    "claim has no possible disconfirming condition",
+    "mapping requires silently changing Psi=(X,R)",
+    "mapping creates an unbounded sovereign selector or authority",
+    "mapping bypasses evidence or audit requirements",
+    "evidence is circular with the hypothesis under test"
+  ],
+  "architecture_gap_test": [
+    "Can existing Core semantics express the proposed capability?",
+    "If yes, is the capability already present or only unverified?",
+    "If no, is the missing behavior local or architectural?",
+    "Does the proposed change preserve canonical state semantics?",
+    "Does it preserve deterministic/evidence-bounded behavior?",
+    "Does it preserve trust boundaries?",
+    "Can the requirement be independently tested?"
+  ],
+  "independence_rule": "A research interpretation derived from Gnozis cannot by itself establish a requirement for Gnozis.",
+  "audit_requirement": "Every ENGINEERING_CANDIDATE requires independent review before implementation.",
+  "implementation_rule": "The mapping gate produces an engineering task specification; it does not implement the change.",
+  "module_generalization": {
+    "domain_independent": true,
+    "supported_inputs": [
+      "spiritual/high writings",
+      "philosophy",
+      "mythology",
+      "literature",
+      "science",
+      "engineering",
+      "software architecture",
+      "Gnozis self-analysis"
+    ],
+    "same_gate": true
+  },
+  "completion_effect": "PHIL-001 through PHIL-006 form the initial research-contract stack. The next phase is to extract and test the domain-independent operations as a bounded research module.",
+  "next_architecture_task": "RESEARCH-MOD-001 — Bounded Core Research Interface"
+}
