@@ -4663,3 +4663,8 @@ The complete learning path is defined as Agent/Observation -> Identity -> Scope 
 ## E7.16 — Self-Learning Evidence Quarantine and Promotion
 
 External learning evidence follows a bounded state machine: UNSEEN -> RECEIVED -> IDENTITY_CHECKED -> PROVENANCE_CHECKED -> REVISION_CHECKED -> INDEPENDENCE_CLASSIFIED -> QUARANTINED -> EVALUATED -> VERIFIED -> GOVERNED -> PROMOTABLE. Rejected/revoked/stale/invalid/conflicted material remains addressable evidence. Only VERIFIED + GOVERNED material can become PROMOTABLE, and PROMOTABLE still cannot bypass existing Commit/Authority boundaries. Changes to identity, source revision, parent state, independence, contract revision or governance policy require re-evaluation.
+
+
+## E7.17 — Learning Rule Promotion Governance
+
+Verified learning results are classified as OBSERVATION_ONLY, TEST_ONLY, HYPOTHESIS, SHADOW_RULE, PROMOTION_CANDIDATE, GOVERNANCE_REJECTED or EXPIRED. Verified evidence does not itself authorize promotion. Promotion candidates require provenance, valid revisions, independence classification, reproducible evaluation, counterexample analysis, invariant compatibility, rollback/supersession semantics and an immutable governance decision. Success frequency, agent consensus or partner reputation cannot automatically escalate promotion status.
