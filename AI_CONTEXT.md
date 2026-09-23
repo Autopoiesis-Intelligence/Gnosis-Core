@@ -5176,3 +5176,11 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - PR #35 exact head `4b209216c785d20cb888e2acb0047ff209f587d6` is VERIFIED_BY_CI, but GitHub currently reports the PR as `mergeable=false`.
 - Do not force-merge or bypass branch protection. The candidate remains unmerged until GitHub exposes a valid merge state.
 - Candidate CI evidence remains valid for the candidate scope; it does not close P0-R2 or Issue #16.
+
+
+## Contract state reconciliation — PR #36 — 2026-09-23
+
+- PR #36 merged into main as fca2812f202393d92589b2f1cc8a5844fdea6ece.
+- Shadow-assessment exact replay is VERIFIED_BY_CI on candidate 0fd1fe8857ff07958f10fea5b1b0b10f4cd86d76 and integrated.
+- Post-merge CI cannot currently be verified through the available commit-run connector because it exposes PR-triggered runs only; do not infer absence of execution.
+- Issue #16 remains OPEN and P0-R2 remains PARTIAL.
