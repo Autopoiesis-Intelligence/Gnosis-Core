@@ -266,3 +266,20 @@ Each verifier-evaluation record should preserve:
 An explicit terminal boundary is required for any recursive verification architecture. The current reflection implementation does not claim such a recursive verifier hierarchy is implemented.
 
 Verifier changes remain governance-sensitive and cannot be justified solely by the verifier's own evaluation.
+## E5.03 — Terminal boundary governance
+
+Changes to the terminal trust boundary or protected invariants are governance-sensitive transitions, not ordinary reflection outputs.
+
+Required properties for a future implementation:
+- explicit proposal and rationale;
+- preserved prior boundary state;
+- evidence and provenance for the proposal;
+- authorization distinct from proposal where required by the threat model;
+- auditable commit record;
+- rollback/revocation semantics where applicable.
+
+A verifier, selector, reflection process, or adaptive agent must not authorize its own boundary expansion solely from its own evaluation.
+
+`Useful(Change) != Authorized(Change)`.
+
+The current repository does not claim a complete runtime terminal-boundary governance subsystem.
