@@ -4713,3 +4713,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.25 — Partner Provenance Binding & Immutable Contribution Lineage:** DESIGNED / NOT_IMPLEMENTED. Every partner contribution is intended to bind PartnerIdentity, source revision, manifest revision, contribution identity and content digest. Derived learning artifacts must retain complete source references. Corrections create new events/revisions rather than rewriting provenance. No authority follows from provenance.
+
+
+- **E7.26 — Partner Admission Runtime Boundary:** DESIGNED / NOT_IMPLEMENTED. Admission requires validation, provenance binding, allowed scope, policy approval, non-revocation and current integrity. Admission produces an admitted evidence/learning object, not execution or Core mutation authority. Runtime failures must resolve to non-admitted, fully admitted or explicit quarantine/rejection after recovery.
