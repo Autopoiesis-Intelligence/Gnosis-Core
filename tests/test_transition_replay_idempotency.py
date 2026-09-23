@@ -78,3 +78,29 @@ def test_same_accepted_transition_replay_cannot_apply_changed_budget_snapshot():
         "SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()[0] == 1
     verify_durable_graph(conn)
+
+
+def test_same_transition_id_with_conflicting_from_state_is_rejected() -> None:
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    proposed = instance.engine.state.with_elements({"b": 2})
+    candidate = Candidate(instance.engine.state.state_id, proposed, "replay-parent-conflict")
+    record = instance.engine.step(candidate)
+    persist_transition(conn, instance, candidate, record, actor="test")
+
+    conflicting = TransitionRecord(
+        from_state_id="different-parent",
+        to_state_id=record.to_state_id,
+        candidate_id=record.candidate_id,
+        test_result=record.test_result,
+        accepted=record.accepted,
+        reason=record.reason,
+        test_rule_id=record.test_rule_id,
+    )
+    with pytest.raises((ValueError, StorageCorruptionError), match="conflicting transition replay|stale instance head"):
+        persist_transition(conn, instance=instance, candidate=candidate, record=conflicting, actor="test")
+
+    assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
+    assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
+    verify_durable_graph(conn)
