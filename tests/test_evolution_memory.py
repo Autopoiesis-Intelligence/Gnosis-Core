@@ -5,7 +5,8 @@ from gnosis.instances.instance import Instance
 from gnosis.storage import append_evolution_memory, connect, load_evolution_memory, save_instance
 from gnosis.storage.repositories import StorageCorruptionError, persist_transition
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
-from gnosis.reflection.persistence import save_reflection_report
+from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report
+from gnosis.reflection.proposal_lineage import ProposalEvolution
 
 
 def test_evolution_memory_round_trip_and_digest():
@@ -184,3 +185,45 @@ def test_shadow_assessment_exact_replay_does_not_replace_payload():
         "SELECT COUNT(*) FROM reflection_shadow_assessments WHERE assessment_id=?",
         (assessment_id,),
     ).fetchone()[0] == 1
+
+
+def test_proposal_evolution_persistence_round_trip_and_exact_replay():
+    conn = connect()
+    evolution = ProposalEvolution(
+        evolution_id="proposal-evolution:" + __import__("hashlib").sha256(
+            '{"evidence_refs":["e1"],"finding_id":"f1","parent_proposal_id":"p0","rationale":"refine","relation":"REFINEMENT_AFTER_REJECTION"}'.encode()
+        ).hexdigest()[:24],
+        finding_id="f1",
+        parent_proposal_id="p0",
+        relation="REFINEMENT_AFTER_REJECTION",
+        rationale="refine",
+        evidence_refs=("e1",),
+    )
+    evolution_id = save_proposal_evolution(conn, evolution)
+    assert save_proposal_evolution(conn, evolution) == evolution_id
+    assert load_proposal_evolution(conn, evolution_id) == evolution
+    assert conn.execute(
+        "SELECT COUNT(*) FROM reflection_proposal_evolutions WHERE evolution_id=?",
+        (evolution_id,),
+    ).fetchone()[0] == 1
+
+
+def test_proposal_evolution_persistence_rejects_payload_tamper():
+    conn = connect()
+    evolution = ProposalEvolution(
+        evolution_id="proposal-evolution:" + __import__("hashlib").sha256(
+            '{"evidence_refs":[],"finding_id":"f2","parent_proposal_id":null,"rationale":"initial","relation":"INITIAL"}'.encode()
+        ).hexdigest()[:24],
+        finding_id="f2",
+        parent_proposal_id=None,
+        relation="INITIAL",
+        rationale="initial",
+        evidence_refs=(),
+    )
+    evolution_id = save_proposal_evolution(conn, evolution)
+    conn.execute(
+        "UPDATE reflection_proposal_evolutions SET rationale=? WHERE evolution_id=?",
+        ("tampered", evolution_id),
+    )
+    with pytest.raises(RuntimeError, match="proposal evolution persistence integrity mismatch"):
+        load_proposal_evolution(conn, evolution_id)
