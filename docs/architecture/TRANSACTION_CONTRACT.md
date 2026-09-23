@@ -167,3 +167,25 @@ audit event exists and verifies in the chain
 ```
 
 For each rejected commit, the same test must prove that the instance head is unchanged.
+
+## E5.04 — Authorization provenance boundary
+
+Authority-sensitive commits must be bound to the exact evolution provenance being authorized.
+
+Required evidence includes, where applicable:
+- target/evolution identity;
+- principal/owner decision reference;
+- policy/invariant version evaluated;
+- evidence references;
+- evaluator identity/version;
+- scope and time validity;
+- resulting transition identity;
+- rollback/revocation relation.
+
+An append-only/hash-chained audit record is tamper-evidence for the recorded history; it is not proof that the recorded authorization was truthful or valid.
+
+`AuditIntegrity != AuthorizationTruth`.
+
+Authorization evidence must exist before the authority-sensitive commit; a post-commit audit event cannot retroactively create missing authorization.
+
+The current owner-authority issuer remains intentionally unimplemented; the runtime must fail closed rather than manufacture authorization.
