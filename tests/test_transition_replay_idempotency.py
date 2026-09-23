@@ -1,7 +1,7 @@
 import pytest
 
 from gnosis.core import Candidate, TestResult, TransitionRecord
-from gnosis.storage import StorageCorruptionError, connect, persist_transition, save_instance, verify_durable_graph
+from gnosis.storage import StorageCorruptionError, connect, load_instance, persist_transition, save_instance, verify_durable_graph
 from gnosis.instances.instance import Instance
 from gnosis.core import State
 
@@ -118,7 +118,7 @@ def test_exact_transition_replay_after_reopen_is_idempotent_across_delivery_acto
     conn.close()
 
     reopened = connect(db_path)
-    recovered = __import__("gnosis.storage", fromlist=["load_instance"]).load_instance(reopened, instance.instance_id)
+    recovered = load_instance(reopened, instance.instance_id)
     persist_transition(reopened, recovered, candidate, record, actor="worker-b")
 
     assert reopened.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
