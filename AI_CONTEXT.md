@@ -3189,3 +3189,63 @@ The existing SQLite `BEGIN IMMEDIATE` transaction protects database write serial
 ### Required next step
 
 E4.94: formalize delegated authority, scope monotonicity and non-escalation across forks/clones and multi-agent handoff.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.94: DELEGATION, SCOPE MONOTONICITY, NON-ESCALATION
+
+Let `Auth(p,S)` denote authority held by principal `p` over scope `S`.
+
+### Delegation
+
+A delegated authority `D` derived from parent authority `A` must satisfy:
+`Scope(D) ⊆ Scope(A)`
+
+and:
+`Operations(D) ⊆ Operations(A)`
+
+unless a separate higher-authority rule explicitly grants an extension.
+
+### Non-escalation
+
+Possession of a capability, credential, identity, lineage relation, or parent instance identifier does not by itself imply authority to create a broader capability.
+
+`CapabilityExists ≠ AuthorityExists`.
+
+`ParentIdentity ≠ ParentAuthority`.
+
+### Fork/clone
+
+A child instance may inherit lineage without inheriting operational authority automatically.
+
+`Lineage(child,parent) ≠ Authorized(child,parent_scope)`.
+
+Forking preserves provenance; authority inheritance requires an explicit policy.
+
+### Multi-agent handoff
+
+For handoff from agent `a1` to `a2`, any delegated authority must remain bounded by the grant:
+`Auth(a2,S2) -> S2 ⊆ S1`
+
+and the allowed operation set must not expand.
+
+### Revocation propagation
+
+If the parent authority from which a delegation derives is revoked, the child delegation cannot remain operational solely because its local record is intact, unless an independent authority explicitly reissues it.
+
+`Revoked(A) -> RevokedDerived(D)`
+
+subject to an explicit independent grant exception.
+
+### Proposition E4.94.1
+
+If a child can obtain authority outside the parent's authorized scope solely by cloning, lineage transfer, capability possession, or agent handoff, then the system contains an authority-escalation path.
+
+### Boundary
+
+E4.94 defines non-escalation constraints, not a concrete identity or capability implementation. Existing `CapabilityHypothesis` remains explicitly authority-free and cannot activate itself.
+
+### Engineering observation
+
+Current V2 contains capability contracts and an authority-free `CapabilityHypothesis`, but no accepted runtime capability/identity authority subsystem. Therefore E4.94 is currently a required invariant and not an implemented security claim.
+
+### Required next step
+
+E4.95: formalize cross-lineage merge authority and conflict resolution without union-by-default authority.
