@@ -5,7 +5,7 @@ from gnosis.instances.instance import Instance
 from gnosis.storage import append_evolution_memory, connect, load_evolution_memory, save_instance
 from gnosis.storage.repositories import StorageCorruptionError, persist_transition
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
-from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report, validate_reflection_lineage, load_governance_decision, save_governance_decision, save_invariant_delta, load_invariant_delta
+from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report, validate_reflection_lineage, load_governance_decision, save_governance_decision, save_invariant_delta, load_invariant_delta, save_counterexample, load_counterexample_for_report
 from gnosis.reflection.proposal_lineage import ProposalEvolution, evolve_proposal
 from gnosis.reflection.invariant_delta import InvariantDelta
 from gnosis.reflection.shadow import ShadowEvaluation
@@ -344,3 +344,26 @@ def test_reflection_lineage_rejects_cross_report_proposal_evolution():
     save_proposal_evolution(conn, evolution, report_id=report_a)
     with pytest.raises(RuntimeError, match="proposal evolution belongs to another reflection report"):
         validate_reflection_lineage(conn, report_b)
+
+
+def test_reflection_lineage_rejects_cross_report_counterexample():
+    conn = connect()
+    finding = __import__("gnosis.reflection.analyzer", fromlist=["Finding"]).Finding(
+        "same-finding", "claim", (), (), 1, "condition"
+    )
+    report_a = save_reflection_report(
+        conn, ReflectionReport(findings=(finding,)), created_at="2026-09-23T10:12:00+00:00"
+    )
+    report_b = save_reflection_report(
+        conn, ReflectionReport(findings=(finding,)), created_at="2026-09-23T10:13:00+00:00"
+    )
+    result = CounterexampleResult(
+        candidate_id="counterexample:same-finding",
+        status="INCONCLUSIVE",
+        evidence_refs=(),
+        explanation="test",
+        finding_id="same-finding",
+    )
+    result_id = save_counterexample(conn, report_a, result)
+    with pytest.raises(RuntimeError, match="counterexample/report identity mismatch"):
+        load_counterexample_for_report(conn, report_b, result_id)
