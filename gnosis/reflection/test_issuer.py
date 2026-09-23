@@ -182,11 +182,11 @@ def consume_test_authorization(
         raise PermissionError("test authorization revoked")
     if row[0]:
         raise PermissionError("test authorization already consumed")
-    conn.execute(
+    cur = conn.execute(
         "UPDATE test_authorizations SET consumed = 1 WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
         (authorization.authorization_id,),
     )
-    if conn.total_changes < 1:
+    if cur.rowcount != 1:
         raise PermissionError("test authorization consumption race")
     conn.commit()
 
