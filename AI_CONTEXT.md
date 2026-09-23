@@ -3079,3 +3079,50 @@ Every substantive public claim must have an identifiable evidence source or be e
 
 NEXT:
 R2.DOC-1c — Evidence-Based Public Description Update.
+
+
+## 2026-09-23 EVOLUTION CONTRACT — GLOBAL CONTRACT PROGRESS
+
+TASK-ID: R2.META-1
+BLOCK: Contract Registry & Global Progress Accounting
+STATUS: ACTIVE
+PRIORITY: HIGH / PARALLEL
+OBJECTIVE: Maintain a single machine-readable view of active evolution contracts, their directional completion percentages, dependencies, and aggregate project-contract progress.
+
+RULE:
+Global percentage is an orchestration metric only. It is not test coverage, probability, quality score, safety proof, or readiness certification.
+
+PER-CONTRACT:
+Each active contract reports:
+CONTRACT-ID
+STATUS
+PRIORITY
+DEPENDENCIES
+IMPLEMENTATION_PCT
+EVIDENCE_PCT
+CONTRACT_PCT
+NEXT
+
+GLOBAL:
+Aggregate contract completion must be computed from explicit contract percentages using a documented aggregation rule. If a reproducible denominator is unavailable, mark the global percentage as directional rather than factual.
+
+REPORTING:
+Every substantial evolution pass must include:
+- active contracts;
+- per-contract percentage;
+- global contract percentage;
+- completed contracts;
+- blocked contracts;
+- next actions;
+- repository commits;
+- evidence status;
+- mutation status.
+
+CURRENT ACTIVE CONTRACTS:
+R2.OPT-10b — Immutable Commit Authorization
+R2.XFER-2d — Provenance-Bound External Transfer Evidence
+R2.DOC-1b — Public Description Evidence Audit
+R2.META-1 — Contract Registry & Global Progress Accounting
+
+NEXT:
+R2.OPT-10c — Authorization Verification & Staleness Barrier.
