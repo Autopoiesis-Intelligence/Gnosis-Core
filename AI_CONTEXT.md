@@ -4710,3 +4710,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.24 — Partner Contribution Validation & Quarantine:** DESIGNED / NOT_IMPLEMENTED. The contract establishes the validation gate between partner submissions and learning/admission. Mandatory predicates include identity, schema, integrity, provenance, scope, policy and freshness. Failed validation remains auditable and quarantined; conflicting replay fails closed. No direct PartnerContribution -> CoreState or PartnerContribution -> ExecutionAuthority path is permitted.
+
+
+- **E7.25 — Partner Provenance Binding & Immutable Contribution Lineage:** DESIGNED / NOT_IMPLEMENTED. Every partner contribution is intended to bind PartnerIdentity, source revision, manifest revision, contribution identity and content digest. Derived learning artifacts must retain complete source references. Corrections create new events/revisions rather than rewriting provenance. No authority follows from provenance.
