@@ -107,3 +107,19 @@ A finding, reflection result, mathematical insight, stored record, or historical
 Implementation correctness ≠ Model correctness
 Model correctness ≠ Verification adequacy
 The purpose of the dual-track workflow is to expose these gaps early, while preserving a reproducible repository history of what was actually changed and why.
+
+## E4.99 — Falsification-strength boundary
+
+A claim that survives executed challenges is not automatically proven. The report must distinguish:
+
+`NO_COUNTEREXAMPLE_OBSERVED` — no counterexample was observed within the executed challenge scope;
+
+`INSUFFICIENT_EVIDENCE` — the challenge scope, oracle, execution, or relevant blind spots are insufficient for the requested claim;
+
+`COUNTEREXAMPLE_FOUND` — evidence contradicts the challenged claim within the declared scope;
+
+`SUPPORTED_WITHIN_SCOPE` — the claim survived the declared challenge space with the stated limitations.
+
+Counterexamples and rejected challenges remain historical evidence and must not be collapsed into a boolean PASS.
+
+An adaptive challenge procedure must not silently redefine the claim, acceptance predicate, or success criterion that it is evaluating.
