@@ -97,7 +97,8 @@
     "docs/ARCHITECTURE_SEQUENCING.md",
     "docs/CORE_REFLECTION_ROADMAP.md",
     "docs/CORE_REFLECTION_R1_TASK.md",
-    "context/PHILOSOPHICAL_RESEARCH_TASK.json"
+    "context/PHILOSOPHICAL_RESEARCH_TASK.json",
+    "context/PHILOSOPHICAL_CORPUS_SCHEMA.json"
   ],
   "next_permitted_actions": [
     "Run real pytest/CI against the current reflection foundation",
@@ -119,7 +120,8 @@
     "Older Gnozis is the public research/information library.",
     "Core is the engineering Core foundation, not merely an archive replacement.",
     "Research findings enter Core only through formalization, engineering mapping and evidence.",
-    "PHIL-001 establishes a machine-readable philosophical research track for comparative spiritual/high-writings study; it is not an engineering or Core-authority task."
+    "PHIL-001 establishes a machine-readable philosophical research track for comparative spiritual/high-writings study; it is not an engineering or Core-authority task.",
+    "PHIL-002 defines the provenance-first machine-readable corpus schema; source claims, interpretations, formal hypotheses and Gnozis mappings remain explicitly separated."
   ],
   "research_tracks": {
     "philosophical_research": {
@@ -127,7 +129,8 @@
       "status": "READY / RESEARCH-ONLY",
       "authority": "RESEARCH_ONLY",
       "migration_gate": "formalization -> falsifiable consequence -> counterexample attack -> Gnozis mapping -> independent audit",
-      "core_integration": "NOT_AUTHORIZED"
+      "core_integration": "NOT_AUTHORIZED",
+      "next_task": "PHIL-003"
     }
   }
 }
