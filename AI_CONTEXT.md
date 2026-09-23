@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.98 — Post-Closure Monitoring Evidence Retention & Audit Continuity
+
+E7.98 defines the durable evidence boundary after closure. Monitoring, drift, reverification and reopening events remain connected to the original remediation chain through append-only provenance and policy-bound retention.
+
+Contract artifact: `docs/architecture/PARTNER_POST_CLOSURE_EVIDENCE_RETENTION_AUDIT_CONTRACT.md`.
+Contract commit: `4c96697f3f38dfabcfff96336ac581f8cdad0176`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.97 — Post-Closure Monitoring, Reverification & Reopening Trigger
 
 E7.97 defines the post-closure monitoring boundary. Material drift, new evidence or failed obligations can trigger governed reverification or reopening while the original closure remains immutable history.
