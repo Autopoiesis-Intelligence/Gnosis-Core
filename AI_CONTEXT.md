@@ -4421,3 +4421,32 @@ This preserves the distinction between epistemic evaluation and authority. A dec
 Boundary changes to B are themselves governed changes and cannot be justified solely by B's own output.
 
 Status: FORMALIZED / NOT PROVEN.
+## E5.27 — DISTINCT AUTHORITY TERMINAL REASONS
+
+Test authority lifecycle now distinguishes `active`, `consumed`, `revoked`, and `expired` as separate states. These states are not interchangeable evidence.
+
+`consumed` means the authorization was used for the bounded execution event; `revoked` means an issuer-side invalidation; `expired` means the validity window has ended; `superseded` is reserved for a future new-identity replacement relation and is not treated as revocation.
+
+Terminal-state invariant: none of these states may transition back to `active` or executable authority. Re-issuance must create a new authorization identity.
+
+Status: IMPLEMENTED / UNVERIFIED.
+
+## E7.9.9 — ACTION DOES NOT RETROACTIVELY PROVE DECISION OR AUTHORITY
+
+Let an action `A` be selected from evidence `E` under claim `C` and decision boundary `B`, producing observation `O_A`.
+
+The feedback relation is:
+`E -> C -> U -> B -> A -> O_A -> E'`.
+
+`O_A` is evidence about the result or consequences of A. It is not, by itself, evidence that the pre-action claim C was true, that the decision boundary B was correct, or that authorization existed.
+
+Therefore:
+`PostCommitAudit(A) != RetroactiveAuthorization(A)`.
+`ObservedSuccess(A) != ProofOfCorrectDecision(C,B)`.
+`ObservedFailure(A) != ProofThatDecision(C,B)WasIllegitimate`.
+
+Any retrospective update must introduce new evidence and re-evaluate the relevant claim under its declared scope. It may revise a claim version, but it cannot rewrite the original authorization or decision evidence.
+
+An action outcome may increase or decrease posterior support for a claim only through an explicit evidence-update rule; the outcome is never an implicit issuer.
+
+Status: FORMALIZED / NOT PROVEN.
