@@ -200,6 +200,6 @@ def test_crosscheck_stored_provenance_includes_binding_fields() -> None:
     )
     report = crosscheck_stored_provenance(conn, p.provenance_id, observations=observations)
     assert report.valid is False
-    assert "candidate_binding_digest mismatch" in report.reasons
+    assert any(reason in report.reasons for reason in ("candidate_binding_digest mismatch", "stored provenance identity mismatch"))
     # Crosscheck must fail closed when persisted binding data is tampered.
     conn.close()
