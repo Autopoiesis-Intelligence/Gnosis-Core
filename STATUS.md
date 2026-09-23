@@ -881,3 +881,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #61 merged by squash into `main` as `83b2ddc0fd076936260f58213933b783bb2e5180`.
 - Dependency Review #143 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.63 delivery manifest identity verification is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.64 training intake identity verification — integrated — 2026-09-23
+
+- PR #62 exact head `1f525e9165ca403f4859dd2dddc7492dde7d2776` passed CI #2059 and CodeQL #937.
+- `authorize_training_intake()` now recomputes `TrainingIntake.intake_id` from immutable intake fields and fails closed on mismatch before partner/scope authorization.
+- Adversarial regression coverage rejects a forged/tampered intake identity.
+- PR #62 merged by squash into `main` as `aab04d7eb6c5f221cc025f5c3a4b630dcda28940`.
+- Dependency Review #144 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.64 training intake identity verification is INTEGRATED / CI + CodeQL VERIFIED.
