@@ -49,6 +49,7 @@ Each contract record SHOULD contain:
 | E7.28 | DESIGNED / NOT_IMPLEMENTED | Partner Contract Registry Runtime Synchronization |
 | E7.29 | DESIGNED / NOT_IMPLEMENTED | Partner Contract Package & Export Protocol |
 | E7.30 | DESIGNED / NOT_IMPLEMENTED | Partner Contract Acceptance & Capability Negotiation |
+| E7.31 | DESIGNED / NOT_IMPLEMENTED | Partner Capability Enforcement & Runtime Scope Boundary |
 
 ## Update rule
 
