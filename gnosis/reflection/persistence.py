@@ -274,7 +274,7 @@ def load_shadow_assessment(conn: sqlite3.Connection, assessment_id: str) -> dict
     if row is None:
         raise KeyError(assessment_id)
     payload = json.loads(row[3])
-    if shadow_assessment_id(row[1], ShadowEvaluation(**payload), row[4]) != row[0]:
+    if shadow_assessment_id(row[1], ShadowEvaluation(**payload)) != row[0]:
         raise RuntimeError("shadow assessment persistence integrity mismatch")
     if row[2] != payload.get("status"):
         raise RuntimeError("shadow assessment persistence status mismatch")
