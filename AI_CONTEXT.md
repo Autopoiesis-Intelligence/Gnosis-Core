@@ -3142,3 +3142,50 @@ A valid snapshot is therefore not sufficient evidence of current permission.
 ### Required next step
 
 E4.93: formalize concurrency and stale authorization, including compare-and-commit semantics for authority-sensitive transitions.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.93: CONCURRENCY AND STALE AUTHORIZATION
+
+Let an authorization context be `A_v` with version/freshness token `v`.
+
+### Stale authorization
+
+An authorization observed at `v1` is stale relative to current authorization context `v2` when `v1 != v2` under the declared policy versioning/freshness semantics.
+
+`A(v1) ∧ Current(v2) ∧ v1 != v2 -> A(v1) cannot authorize a new commit`.
+
+### Compare-and-commit
+
+For an authority-sensitive transition `tau`, a safe commit obligation is:
+
+`Read(A_v) -> Evaluate(tau,A_v) -> CommitIfCurrent(A_v)`.
+
+The final commit must revalidate the authority context against the current authoritative version.
+
+### TOCTOU invariant
+
+Observing valid authorization before another actor changes or revokes it does not reserve that authorization unless the system explicitly defines a reservation/lease primitive.
+
+Therefore:
+
+`ValidAtRead(A) != GuaranteedValidAtCommit(A)`.
+
+### Concurrency
+
+Concurrent actors may each hold internally valid observations while only one remains valid at the final commit boundary.
+
+The commit boundary must serialize or atomically compare the authority version so that a stale observation cannot silently commit.
+
+### Proposition E4.93.1
+
+If a transition can commit using an authorization snapshot without checking that its authority version remains current, then a concurrent revocation or policy change can produce an authority-sensitive TOCTOU violation.
+
+### Boundary
+
+E4.93 does not prescribe locks as the only solution. Equivalent mechanisms include atomic compare-and-swap, version predicates, leases, or another formally specified reservation protocol.
+
+### Engineering consequence
+
+The existing SQLite `BEGIN IMMEDIATE` transaction protects database write serialization, but transaction serialization alone does not prove freshness of an externally supplied authorization. The authorization version/freshness must therefore be part of the final acceptance predicate.
+
+### Required next step
+
+E4.94: formalize delegated authority, scope monotonicity and non-escalation across forks/clones and multi-agent handoff.
