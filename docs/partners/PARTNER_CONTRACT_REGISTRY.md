@@ -104,6 +104,7 @@ Each contract record SHOULD contain:
 | E7.83 | DESIGNED / NOT_IMPLEMENTED | Governed Collaboration Lifecycle Closure & Contract Retirement |
 | E7.84 | DESIGNED / NOT_IMPLEMENTED | Lifecycle Retention, Evidence Preservation & Controlled Data Disposal |
 | E7.85 | DESIGNED / NOT_IMPLEMENTED | Collaboration Evidence Export & External Audit Package |
+| E7.86 | DESIGNED / NOT_IMPLEMENTED | External Auditor Verification & Attestation Boundary |
 
 ## Update rule
 
