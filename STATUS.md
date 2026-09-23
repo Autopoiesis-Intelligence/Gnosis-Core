@@ -672,3 +672,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Dependency Review run **96** remains FAIL/UNVERIFIED because the repository Dependency Graph is unavailable; this is not evidence of a dependency vulnerability.
 - PR #35 is therefore VERIFIED_BY_CI for its scoped provenance lifecycle identity regression. It remains unmerged pending integration and post-merge verification.
 - This evidence does not yet close Issue #16 or P0-R2.
+
+
+## Dependency Review infrastructure gate — 2026-09-23
+
+- Exact PR #35 head `4b209216c785d20cb888e2acb0047ff209f587d6` passed CI (Python 3.11/3.12) and CodeQL.
+- Dependency Review run 96 failed before dependency analysis because GitHub reports: `Dependency review is not supported on this repository. Please ensure that Dependency graph is enabled`.
+- Workflow `.github/workflows/dependency-review.yml` is present and correctly invokes `actions/dependency-review-action@v5` with `fail-on-severity: high`; therefore the current blocker is repository capability/configuration, not a workflow syntax failure.
+- No code or workflow bypass is authorized. PR #35 remains blocked until Dependency Graph is enabled or this external gate is explicitly classified as unresolved infrastructure debt.
