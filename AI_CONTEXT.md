@@ -3099,3 +3099,46 @@ The implementation should make authorization context inspectable and fail closed
 ### Required next step
 
 E4.92: formalize revocation and temporal invalidation, including the invariant that recovery/replay cannot resurrect authority that was validly revoked after the recovered snapshot.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.92: REVOCATION AND TEMPORAL INVALIDATION
+
+Let an authorization be `A(t)` at time/version `t`.
+
+### Revocation invariant
+
+If authorization `A` is valid at `t0` and is validly revoked at `t1 > t0`, then for any recovery/replay time `t2 >= t1`: `Revoked(A,t1) -> not Authorized(A,t2)` unless a separate, explicit re-authorization event exists.
+
+### Recovery non-resurrection
+
+A recovered snapshot `S(t0)` may reconstruct historical state, but it must not silently reconstruct historical authority as currently active: `Recover(S(t0),t2) != ReactivateAuthority(A,t0)`.
+
+Historical validity and current authorization are distinct predicates.
+
+### Freshness
+
+Authorization validity is bounded by its declared freshness model. A valid historical authorization may remain valid as historical evidence while being invalid for a new commit.
+
+`HistoricalValid(A) != CurrentlyAuthorized(A)`.
+
+### Replay
+
+Replay of a previously authorized transition does not create new authority.
+
+If `Authorized(A, tau, t0)` and later `Revoked(A,t1)`, then `Replay(tau,t2)` cannot derive authorization at `t2` from the old authorization alone.
+
+### Proposition E4.92.1
+
+If recovery can produce a state in which a revoked authority is operationally active without an explicit post-revocation authorization event, the recovery boundary violates temporal authority integrity.
+
+### Boundary
+
+E4.92 does not require deletion of historical authorization records. Revocation should preserve history while invalidating present operational authority.
+
+### Engineering consequence
+
+Recovery, replay and rollback must distinguish historical reconstruction, current authority validity, and re-authorization.
+
+A valid snapshot is therefore not sufficient evidence of current permission.
+
+### Required next step
+
+E4.93: formalize concurrency and stale authorization, including compare-and-commit semantics for authority-sensitive transitions.
