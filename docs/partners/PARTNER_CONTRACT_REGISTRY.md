@@ -134,6 +134,7 @@ Each contract record SHOULD contain:
 | E7.113 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Actual Proof Run |
 | E7.114 | DESIGNED / NOT_IMPLEMENTED | First Actual Proof Run Scope Lock & Target Commit Record |
 | E7.115 | DESIGNED / NOT_IMPLEMENTED | First Proof Run Environment & Reproducibility Attestation |
+| E7.116 | DESIGNED / NOT_IMPLEMENTED | First Proof Run Preflight Final Gate & Execution Authorization |
 
 ## Update rule
 
