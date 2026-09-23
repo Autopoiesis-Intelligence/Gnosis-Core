@@ -16,10 +16,10 @@ def test_verified_shareable_flow_can_propose_update():
 
 def test_incomplete_flow_is_rejected():
     bad=flow()
-    bad=type(bad)(False,("RECEIPT",),("MISSING_STAGES:RECEIPT",))
+    bad=type(bad)(False,"x",("RECEIPT",),("MISSING_STAGES:RECEIPT",))
     with pytest.raises(ValueError):
         propose_knowledge_update(subject_id="x",evidence_digest="e",knowledge={},lifecycle=bad,scope="common",shareable=True)
 
 def test_private_evidence_is_rejected():
     with pytest.raises(PermissionError):
-        propose_knowledge_update(subject_id="x",evidence_digest="e",knowledge={},lifecycle=flow(),scope="common",shareable=False)
+        propose_knowledge_update(subject_id="flow-1",evidence_digest="e",knowledge={},lifecycle=flow(),scope="common",shareable=False)
