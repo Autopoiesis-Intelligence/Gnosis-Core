@@ -242,6 +242,26 @@ def revoke_test_authorization(conn: sqlite3.Connection, authorization_id: str) -
     conn.commit()
 
 
+def expire_test_authorization(
+    conn: sqlite3.Connection,
+    authorization: TestAuthorization,
+    *,
+    now: int,
+) -> None:
+    """Record expiry only as an observed lifecycle fact; never extend authority."""
+    if now <= authorization.expires_at:
+        raise ValueError("authorization is not expired")
+    row = conn.execute(
+        "SELECT consumed, revoked, integrity_digest FROM test_authorizations WHERE authorization_id = ?",
+        (authorization.authorization_id,),
+    ).fetchone()
+    if row is None:
+        raise KeyError("unknown test authorization")
+    if row[2] != _registry_digest(authorization, consumed=row[0], revoked=row[1]):
+        raise PermissionError("test authorization registry integrity failure")
+    return None
+
+
 def issue_for_provenance_for_test(
     issuer: TestAuthorizationIssuer,
     provenance: object,
