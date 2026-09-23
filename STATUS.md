@@ -236,3 +236,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - R2.OPT-10c continuation: strengthened the stale-authorization regression to require **zero durable transition and zero transition-linked audit side effects** after the canonical head advances. Latest source/test commit: `de3f8f0392096ea0f9cdb9781058011e85175d25`.
 - Verification status remains **UNVERIFIED**: no runtime/CI execution evidence has been observed for this commit; no PASS claim made.
+
+- R2.OPT-10c persistence-boundary continuation: strengthened crash/reopen tests so every pre-commit fault requires exactly the original durable state graph (1 state, 0 candidates, 0 transition-linked audit events), while post-commit fault requires the complete new graph (2 states, 1 candidate, 1 transition-linked audit event). Latest test commit: `23e5ff0fbfb6ea389e9346aba702238affe2dd2c`.
+- This remains source/test evidence only; runtime/CI execution has not been observed for the new commit.
