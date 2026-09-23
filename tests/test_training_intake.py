@@ -15,3 +15,10 @@ def test_wrong_partner_blocked():
 
 def test_wrong_scope_blocked():
     with pytest.raises(PermissionError): authorize_training_intake(make(),allowed_partner_ids={"partner-a"},allowed_scopes={"partner:game"})
+
+
+def test_tampered_training_intake_identity_is_rejected():
+    from dataclasses import replace
+    tampered=replace(make(), intake_id="sha256:forged")
+    with pytest.raises(ValueError, match="training intake identity"):
+        authorize_training_intake(tampered,allowed_partner_ids={"partner-a"},allowed_scopes={"partner:finance"})

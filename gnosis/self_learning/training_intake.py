@@ -24,6 +24,10 @@ def create_training_intake(*,partner_id:str,contract_id:str,domain:str,knowledge
     return TrainingIntake(iid,partner_id,contract_id,domain,knowledge_scope,source_refs,constraints,requested_revision)
 
 def authorize_training_intake(intake:TrainingIntake,*,allowed_partner_ids:set[str],allowed_scopes:set[str])->TrainingIntake:
+    canonical={"partner_id":intake.partner_id,"contract_id":intake.contract_id,"domain":intake.domain,"knowledge_scope":intake.knowledge_scope,"source_refs":intake.source_refs,"constraints":intake.constraints,"requested_revision":intake.requested_revision}
+    expected="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    if intake.intake_id != expected:
+        raise ValueError("training intake identity does not match immutable fields")
     if intake.partner_id not in allowed_partner_ids: raise PermissionError("partner is not authorized")
     if intake.knowledge_scope not in allowed_scopes: raise PermissionError("knowledge scope is not authorized")
     return intake
