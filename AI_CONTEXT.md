@@ -4716,3 +4716,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.26 — Partner Admission Runtime Boundary:** DESIGNED / NOT_IMPLEMENTED. Admission requires validation, provenance binding, allowed scope, policy approval, non-revocation and current integrity. Admission produces an admitted evidence/learning object, not execution or Core mutation authority. Runtime failures must resolve to non-admitted, fully admitted or explicit quarantine/rejection after recovery.
+
+
+- **E7.27 — Partner Replay, Revocation & Contract-State Consistency:** DESIGNED / NOT_IMPLEMENTED. Replay is idempotent only for identical contribution/provenance/contract context; conflicting replay fails closed. Revocation changes current usability without deleting history. Existing evidence retains the contract revision under which it was evaluated; newer policy requires explicit revalidation rather than silent reinterpretation.
