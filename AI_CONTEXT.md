@@ -2902,3 +2902,52 @@ This contract does not claim that all correlated evidence is useless. Correlated
 ### Required next step
 
 E4.88: formalize evidence diversity and failure-mode coverage without reducing verification quality to a single scalar score.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.88: EVIDENCE DIVERSITY AND FAILURE-MODE COVERAGE
+
+### Definition
+
+Let `F = {f1, ..., fm}` be a set of materially relevant failure modes for claim `H`, and let `E = {e1, ..., en}` be the available evidence.
+
+Define the coverage relation `C(ei, fj)` to mean that evidence `ei` is materially capable of detecting failure mode `fj` under the declared scope and assumptions.
+
+Evidence diversity is therefore not the number of evidence items. It is the diversity of failure modes, assumptions, mechanisms, or observation channels that the evidence can discriminate.
+
+### Coverage
+
+For a bounded failure-mode set `F*`, define `Covered(E,F*) = { fj in F* : exists ei in E such that C(ei,fj) }` and `Blind(E,F*) = F* minus Covered(E,F*)`.
+
+A verification claim that does not declare or justify its relevant `F*` cannot infer complete coverage from a high number of passing observations.
+
+### Diversity is relational
+
+Two evidence items can be diverse in execution but identical in failure-mode coverage: `C(e1,·) = C(e2,·)`.
+Conversely, two similar-looking tests may cover materially different failure modes.
+Therefore evidence diversity must be evaluated through the relation `C`, not through labels such as different test or different agent.
+
+### Proposition E4.88.1
+
+If `C(e1,·) = C(e2,·)`, then adding `e2` may increase redundancy or reproducibility, but it does not expand the failure-mode coverage represented by `e1`.
+
+This does not make `e2` useless; it may detect execution instability or repeated failure. It simply cannot be counted as new failure-mode coverage without additional evidence.
+
+### Coverage gap
+
+If `Blind(E,F*)` is non-empty, then the evidence does not establish coverage of `F*`.
+It may still support a bounded claim over `Covered(E,F*)`.
+
+### Failure-model incompleteness
+
+The set `F*` itself may be incomplete.
+Therefore complete coverage relative to `F*` does not imply complete coverage of the unknown total failure space.
+
+### Anti-scalar rule
+
+Do not collapse verification diversity into one universal score.
+A scalar can hide untested failure classes, common-mode dependencies, scope differences, severity asymmetry, irreversible consequences, and unknown failure modes.
+
+The contract therefore requires a structured representation:
+`Evidence → Failure Modes → Coverage / Blind Spots → Scope → Residual Unknowns`.
+
+### Required next step
+
+E4.89: formalize severity/asymmetry and residual risk without turning the verification contract into a universal numerical ranking.
