@@ -121,6 +121,7 @@ Each contract record SHOULD contain:
 | E7.100 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Contract Completion & Evidence Gate |
 | E7.101 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence Registry & Reproducible Progress Ledger |
 | E7.102 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence Ingestion & Acceptance Pipeline |
+| E7.103 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence-to-Contract Verification Matrix |
 
 ## Update rule
 
