@@ -397,3 +397,38 @@ def test_promotion_gate_distinguishes_evidence_roles():
     )
     assert gate.eligible is False
     assert "authorization evidence is missing" in gate.reasons
+
+
+def test_promotion_candidate_binds_authorization_context():
+    from gnosis.evolution.promotion import make_promotion_candidate
+
+    candidate = make_promotion_candidate(
+        candidate_id="candidate:auth-context",
+        evidence_digest="digest:auth",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+        authorization_scope="scope:1",
+        authorization_target="target:1",
+        policy_version="policy:v1",
+        authorization_freshness="epoch:7",
+    )
+    assert candidate.authorization_scope == "scope:1"
+    assert candidate.authorization_target == "target:1"
+    assert candidate.policy_version == "policy:v1"
+    assert candidate.authorization_freshness == "epoch:7"
+
+    other = make_promotion_candidate(
+        candidate_id="candidate:auth-context",
+        evidence_digest="digest:auth",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+        authorization_scope="scope:2",
+        authorization_target="target:1",
+        policy_version="policy:v1",
+        authorization_freshness="epoch:7",
+    )
+    assert other.candidate_id != candidate.candidate_id
