@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Mapping
 
+from .provenance import canonical_digest
+
 
 @dataclass(frozen=True)
 class DirectoryUsage:
@@ -25,6 +27,18 @@ class OptimizationCandidate:
     removable: tuple[str, ...]
     blocked: tuple[str, ...]
     reason: str
+    candidate_binding_digest: str
+
+    @property
+    def candidate_id(self) -> str:
+        return "optimization:" + canonical_digest({
+            "content_digest": self.content_digest,
+            "files": self.files,
+            "removable": self.removable,
+            "blocked": self.blocked,
+            "reason": self.reason,
+            "candidate_binding_digest": self.candidate_binding_digest,
+        })[:24]
 
 
 def build_duplicate_candidate(
@@ -52,10 +66,23 @@ def build_duplicate_candidate(
     else:
         reason = "candidate only: redundant content with sufficient local evidence"
 
+    binding = canonical_digest({
+        "content_digest": content_digest,
+        "files": normalized,
+        "usage": {
+            path: {
+                "referenced": usage.get(path, DirectoryUsage(path)).referenced,
+                "protected": usage.get(path, DirectoryUsage(path)).protected,
+                "provenance_id": usage.get(path, DirectoryUsage(path)).provenance_id,
+            }
+            for path in normalized
+        },
+    })
     return OptimizationCandidate(
         content_digest=content_digest,
         files=normalized,
         removable=tuple(removable),
         blocked=tuple(blocked),
         reason=reason,
+        candidate_binding_digest=binding,
     )
