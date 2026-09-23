@@ -594,3 +594,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.101 — Self-Learning Evidence Registry & Reproducible Progress Ledger:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `8b3fe4598099ece8576428fa832641ed3e3aee1c`. Defines durable evidence records, exact-commit binding, versioned progress calculation, conflict handling, tamper-evident history and replay/recovery integrity.
 
 - **E7.102 — Self-Learning Evidence Ingestion & Acceptance Pipeline:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `cbdfb83dac582a4f2eb40f21fda53adfbddff92d`. Defines controlled evidence submission/validation/acceptance, exact-commit provenance, criterion-level credit, duplicate/conflict handling, deterministic acceptance and recovery-safe ingestion.
+
+- **E7.103 — Self-Learning Evidence-to-Contract Verification Matrix:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `9ca277536c630b12cb5afa762bf8fe1db876247b`. Defines criterion-level proof mapping, explicit proof-gap classification, bounded verification batches, deterministic promotion rules, progress integration and regression preservation.
