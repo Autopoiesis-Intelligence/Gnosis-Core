@@ -361,3 +361,22 @@ def test_reflection_lineage_rejects_cross_report_counterexample():
     result_id = save_counterexample(conn, report_a, result)
     with pytest.raises(RuntimeError, match="counterexample/report identity mismatch"):
         load_counterexample_for_report(conn, report_b, result_id)
+
+
+def test_shadow_assessment_exact_replay_is_idempotent() -> None:
+    conn = connect()
+    report_id = save_reflection_report(
+        conn, ReflectionReport(), created_at="2026-09-23T10:14:00+00:00"
+    )
+    assessment = ShadowEvaluation(
+        cases=(), changed_cases=0, accepted_by_active=0,
+        accepted_by_shadow=0, regressions=0, improvements=0, status="NO_INPUT",
+    )
+    first = save_shadow_assessment(conn, report_id, assessment, proposal_id="p1")
+    second = save_shadow_assessment(conn, report_id, assessment, proposal_id="p1")
+    assert second == first
+    count = conn.execute(
+        "SELECT COUNT(*) FROM reflection_shadow_assessments WHERE assessment_id=?",
+        (first,),
+    ).fetchone()[0]
+    assert count == 1

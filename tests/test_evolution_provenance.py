@@ -464,6 +464,7 @@ def test_promotion_gate_rejects_stale_authorization_context():
 
 
 def test_provenance_lifecycle_status_does_not_change_identity() -> None:
+    from gnosis.evolution.provenance import canonical_digest
     observations = {"metric": 1}
     base = build_provenance(
         candidate_id="candidate:status",
