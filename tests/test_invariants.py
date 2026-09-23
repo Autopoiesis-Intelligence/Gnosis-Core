@@ -62,3 +62,31 @@ def test_candidate_with_non_increasing_version_fails():
     assert not all_pass(results)
     names = {r.name for r in results if not r.ok}
     assert "monotonic_version" in names
+
+
+def test_state_canonicalizes_relation_set_and_exposes_psi_identity():
+    r1 = Relation(source="a", target="b", relation_type="depends")
+    r2 = Relation(source="b", target="a", relation_type="depends")
+    state_a = State(elements={"a": 1, "b": 2}, relations=(r2, r1, r1), version=7)
+    state_b = State(elements={"a": 1, "b": 2}, relations=(r1, r2), version=7)
+
+    assert state_a.relations == state_b.relations
+    assert len(state_a.relations) == 2
+    assert state_a.content_id == state_b.content_id
+    assert state_a.psi_id == state_a.content_id
+
+def test_version_is_lineage_metadata_not_psi_content():
+    base = State(elements={"a": 1}, version=0)
+    next_version = State(elements={"a": 1}, version=100)
+
+    assert base.content_id == next_version.content_id
+    assert base.psi_id == next_version.psi_id
+    assert base.state_id != next_version.state_id
+
+def test_negative_version_is_rejected():
+    try:
+        State(elements={"a": 1}, version=-1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("negative State.version must be rejected")
