@@ -263,3 +263,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - R2.XFER cross-report contamination hardening: `ProposalEvolution` persistence now carries an explicit `report_id` binding; lineage validation rejects evolutions persisted under another report even when finding/proposal IDs are identical across reports. Added adversarial same-ID cross-report regression. Commits: `eb38f12b`, `89ee4927`. Runtime/CI evidence remains UNVERIFIED.
 
 - R2.XFER cross-report evidence isolation extended to CounterexampleResult: lineage validation now reloads each persisted counterexample through `load_counterexample_for_report()` and verifies its optional `finding_id` belongs to the current report. Added cross-report counterexample contamination regression. Commits: `0360c103`, `eb7dd85e`. Runtime/CI evidence remains UNVERIFIED.
+
+- Parallel contract update: mathematical branch advanced to E4.87, formalizing conditional evidence independence and common-mode failure; added to AI_CONTEXT as `a557831d`. Engineering/R2 work remains separate; runtime/CI evidence remains UNVERIFIED.
