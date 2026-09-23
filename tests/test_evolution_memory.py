@@ -157,3 +157,30 @@ def test_reflection_report_tamper_is_rejected_by_content_identity():
     )
     with pytest.raises(RuntimeError, match="reflection persistence integrity mismatch"):
         __import__("gnosis.reflection.persistence", fromlist=["load_reflection_report"]).load_reflection_report(conn, report_id)
+
+
+def test_shadow_assessment_persistence_rejects_payload_tamper():
+    conn = connect()
+    report = ReflectionReport(proposals=())
+    report_id = save_reflection_report(conn, report, created_at="2026-09-23T10:02:00+00:00")
+    assessment = ShadowEvaluation(status="UNCHANGED", cases=())
+    assessment_id = save_shadow_assessment(conn, report_id, assessment)
+    conn.execute(
+        "UPDATE reflection_shadow_assessments SET payload=? WHERE assessment_id=?",
+        ('{"status":"CHANGED","cases":[]}', assessment_id),
+    )
+    with pytest.raises(RuntimeError, match="shadow assessment persistence integrity mismatch"):
+        load_shadow_assessment(conn, assessment_id)
+
+
+def test_shadow_assessment_exact_replay_does_not_replace_payload():
+    conn = connect()
+    report = ReflectionReport(proposals=())
+    report_id = save_reflection_report(conn, report, created_at="2026-09-23T10:03:00+00:00")
+    assessment = ShadowEvaluation(status="UNCHANGED", cases=())
+    assessment_id = save_shadow_assessment(conn, report_id, assessment)
+    assert save_shadow_assessment(conn, report_id, assessment) == assessment_id
+    assert conn.execute(
+        "SELECT COUNT(*) FROM reflection_shadow_assessments WHERE assessment_id=?",
+        (assessment_id,),
+    ).fetchone()[0] == 1
