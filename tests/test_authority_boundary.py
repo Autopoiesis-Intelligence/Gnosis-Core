@@ -165,6 +165,12 @@ def test_execution_receipt_rejects_unproven_result_content():
         ExecutionReceipt.after_commit(request, {"state": "tampered"})
 
 
+def _make_execution_commit_request(provenance):
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
+    return ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
+
+
 def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     from gnosis.core import Candidate, State, TestResult, TransitionRecord
     from gnosis.evolution.provenance import build_provenance, canonical_digest
