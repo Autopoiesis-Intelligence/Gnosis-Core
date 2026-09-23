@@ -20,7 +20,7 @@ def test_finding_gets_exact_rule_attribution():
         finding_id="finding:1",
         claim="repeat",
         observation_ids=(),
-        evidence_refs=("transition:0:c0", "transition:1:c1"),
+        evidence_refs=(_record(0, "rule:nonnegative").transition_id, _record(1, "rule:nonnegative").transition_id),
         reproducibility=2,
         falsification_condition="replay differs",
     )
@@ -31,7 +31,7 @@ def test_finding_gets_exact_rule_attribution():
 
 def test_proposal_target_is_refined_only_from_exact_provenance():
     proposal = RuleProposal("p1", "finding:1", "unknown", "investigate", (), "effect", "risk", "test")
-    finding = Finding("finding:1", "repeat", (), ("transition:0:c0",), 2, "replay")
+    finding = Finding("finding:1", "repeat", (), (_record(0, "rule:budget").transition_id,), 2, "replay")
     causal = attribute_finding(finding, (_record(0, "rule:budget"),))
     refined = refine_proposal_target(proposal, causal)
     assert refined.target == "test-rule:rule:budget"
@@ -47,7 +47,7 @@ def test_refine_proposal_target_preserves_lineage_and_versions():
         expected_effects=("effect",), possible_regressions=("regression",),
         test_plan="replay", provenance="test-provenance",
     )
-    finding = Finding("finding:2", "repeat", (), ("transition:0:c0",), 2, "replay")
+    finding = Finding("finding:2", "repeat", (), (_record(0, "rule:budget").transition_id,), 2, "replay")
     causal = attribute_finding(finding, (_record(0, "rule:budget"),))
     refined = refine_proposal_target(proposal, causal)
     assert refined.target == "test-rule:rule:budget"
