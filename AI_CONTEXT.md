@@ -4794,3 +4794,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - Fresh audit also identified STATUS.md drift, 12 PytestCollectionWarning instances, missing lint/mypy/secret-scan/coverage-threshold/dependency-lock gates, and an unprotected main branch. These are repository-hardening findings, not evidence that the canonical Core semantics are broken.
 - E7.74 Self-Learning Collaboration Proposal Generator remains PARTIAL / UNVERIFIED. Global contract progress remains approximately 49% until acceptance gates gain exact-commit runtime/CI evidence.
 - Rule: implementation, documentation and auditor assertions remain distinct from verification. Exact current commit CI/runtime evidence is required before VERIFIED.
+
+- Exact CI evidence after the syntax repair: workflow run 1749 on cc361f4989dd73ad587f63b9d06a5e9855a7e347 reached tests on Python 3.12 with 452 passed, 23 failed, 13 warnings. This confirms the syntax blocker was real and bounded, but it also exposes a broader correctness queue.
+- The next correction queue must prioritize persistence/recovery integrity (semantic transition tamper, duplicate provenance, replay/restart), then E5.20/reflection persistence defects, then self-learning validation/test fixture defects. Do not merge or mark VERIFIED while the exact current CI remains failing.
