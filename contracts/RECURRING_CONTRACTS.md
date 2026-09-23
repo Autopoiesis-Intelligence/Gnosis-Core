@@ -125,3 +125,24 @@ Acceptance:
 - every capability statement has provenance;
 - OpenAI participation, if mentioned, is narrowly and accurately scoped;
 - no unsupported legal/IP claim is introduced.
+
+
+## RECUR-R2-002 — Commit-Bound Authorization Integration
+
+Objective:
+Ensure the authorization freshness verifier is not merely a standalone value check but is connected to the actual commit boundary.
+
+Required invariant:
+AuthorizationValid(A, S_current) ∧ CommitInput(S_current) = A.bound_state
+must be required before mutation/commit.
+
+A stale or tampered authorization must be rejected at the execution boundary, even if the caller bypasses the helper-level verifier.
+
+Acceptance:
+- identify the canonical commit entry point;
+- integrate freshness verification at that boundary without granting the verifier mutation authority;
+- add a regression test that attempts commit with stale authorization;
+- add a regression test for tampered authorization;
+- exact-commit CI evidence required.
+
+Do not close based on helper-level tests alone.
