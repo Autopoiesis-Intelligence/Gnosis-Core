@@ -392,10 +392,13 @@ def validate_reflection_lineage(conn: sqlite3.Connection, report_id: str) -> dic
         "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id,report_id FROM reflection_proposal_evolutions"
     ).fetchall()
 
-    for _, raw in counterexamples:
-        result = CounterexampleResult(**json.loads(raw))
-        if result.candidate_id == "" or counterexample_result_id(report_id, result) != _:
+    for result_id, _raw in counterexamples:
+        result = load_counterexample_for_report(conn, report_id, result_id)
+        if result.candidate_id == "":
             raise RuntimeError("counterexample lineage integrity mismatch")
+        if result.finding_id:
+            if result.finding_id not in finding_ids:
+                raise RuntimeError("counterexample finding is outside reflection lineage")
 
     for evolution_id, finding_id, parent_id, current_id, evolution_report_id in evolutions:
         if evolution_report_id != report_id:
