@@ -629,3 +629,38 @@ def test_self_learning_candidate_cannot_bypass_authorization_boundary():
         require_execution_commit(request)
     with pytest.raises(PermissionError, match="execution authorization"):
         require_execution_candidate_binding(request, candidate, record)
+
+
+def test_self_learning_materialized_candidate_requires_provenance_for_its_actual_core_identity():
+    parent = State(elements={"a": 1})
+    proposed = parent.with_elements({"a": 2})
+    candidate = Candidate(parent.state_id, proposed, "self-learning:handoff:identity", 1)
+    provenance = _provenance_for(candidate, parent, proposed)
+    assert provenance.candidate_id == candidate.candidate_id
+
+    forged = type(provenance)(**{
+        **provenance.__dict__,
+        "candidate_id": "promotion:source-id",
+    })
+    auth = ExecutionAuthorization(
+        request_provenance=forged.provenance_id,
+        owner_approved=True,
+        evolution_identity=forged.evolution_identity,
+    )
+    request = ExecutionCommitRequest(
+        auth,
+        ExecutionIntentSnapshot.from_provenance(forged),
+        forged.provenance_id,
+        forged.evolution_identity,
+        forged,
+    )
+    record = TransitionRecord(
+        parent.state_id,
+        proposed.state_id,
+        candidate.candidate_id,
+        TestResult(True),
+        True,
+        "ok",
+    )
+    with pytest.raises(PermissionError, match="execution candidate"):
+        require_execution_candidate_binding(request, candidate, record)
