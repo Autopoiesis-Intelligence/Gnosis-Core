@@ -129,3 +129,22 @@ This contract does not implement:
 ## 9. Acceptance principle
 
 A capability layer is not accepted because an external tool can technically execute an operation. Acceptance requires proof that capability discovery cannot silently become authority and that execution remains within explicit task and data scope.
+
+## 10. Delegation and non-escalation boundary
+
+A future delegated capability must be bounded by the authority that issued it:
+
+`delegated_scope ⊆ issuer_scope`
+`delegated_operations ⊆ issuer_operations`
+
+Lineage, cloning, instance inheritance, connector availability, or possession of a capability identifier do not grant authority by themselves.
+
+`lineage ≠ authority`
+`capability ≠ authority`
+`parent identity ≠ parent authority`
+
+A child agent/instance must not obtain broader authority solely through fork, clone or handoff.
+
+Revocation of the authority from which a delegation derives must invalidate the derived operational grant unless an independent authority explicitly re-authorizes it.
+
+This section is an architectural invariant only. No runtime identity/authorization implementation is claimed by this document.
