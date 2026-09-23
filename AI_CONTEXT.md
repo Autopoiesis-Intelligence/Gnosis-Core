@@ -4653,3 +4653,8 @@ External learning sources are bound to immutable revision, provenance, scope, au
 ## E7.13 — Agent Learning Feedback Boundary
 
 Partner/agent submissions enter learning only through IdentityCheck -> ScopeCheck -> ProvenanceCheck -> RevisionCheck -> IndependenceAnalysis -> EvidenceQuarantine -> LearningCandidate -> ShadowEvaluation -> CoreVerification -> Governance. Requested capability does not imply granted capability. Partner datasets are external evidence by immutable revision. Unknown/revoked identity, stale revision, unresolved independence, scope violation or failed verification fail closed. No agent submission may directly mutate canonical state, activate rules, grant authority, rewrite audit history or suppress counterexamples.
+
+
+## E7.14 — End-to-End Learning Execution and Replay
+
+The complete learning path is defined as Agent/Observation -> Identity -> Scope -> Provenance -> SourceRevision -> Independence -> Quarantine -> Finding -> Counterexample/Challenge -> Candidate/RuleProposal -> ShadowEvaluation -> CoreVerification -> Governance -> AcceptedTransition -> NewObservation. Replay must not create new epistemic facts; changed source, parent state or contract revision triggers re-evaluation. Failure injection must cover revoked agents, stale sources, duplicates, shared-origin evidence, provenance loss, state mismatch, evaluation/verification/governance failure, persistence interruption, restart and supersession. Learning has no direct CanonicalState mutation path.
