@@ -3,9 +3,9 @@
 > GENERATED FILE — update with scripts/update_partner_contract_block.py.
 > This block is the current machine-readable partner contract index. It is not an authority root and does not grant access or execution rights.
 
-- Generated at (UTC): 2026-09-23T16:29:50.993612+00:00
-- Source revision: e918a5598f03d8685c5f2cb9dfed32eb1afdcc10
-- Contract index digest: sha256:0b8a775d589b8215f7453ae1b34bcd1e6777305979ebce4b72255e8503ed1e7b
+- Generated at (UTC): 2026-09-23T17:27:17.183274+00:00
+- Source revision: 2276fbe1d46961aefc1de0675e00371ac8704493
+- Contract index digest: sha256:d7184847388fc860886b36adf9f8d474b8f55ba1f89dceaee88d395977d76897
 - Authority: index_only
 - Provenance: partner-contract-current-block
 
@@ -49,6 +49,22 @@
 | E7.55 | IMPLEMENTED / UNVERIFIED | Controlled Knowledge Integration Record |
 | E7.56 | IMPLEMENTED / UNVERIFIED | Protected Core Integration Bridge |
 | E7.57 | IMPLEMENTED / UNVERIFIED | Core Mutation Execution Adapter |
+| E7.58 | IMPLEMENTED / UNVERIFIED | End-to-End Self-Learning Contract Cycle |
+| E7.59 | IMPLEMENTED / UNVERIFIED | Runtime Fail-Closed Execution Boundary |
+| E7.60 | IMPLEMENTED / UNVERIFIED | Self-Learning CI Evidence Gate |
+| E7.61 | IMPLEMENTED / UNVERIFIED | Self-Learning Candidate Contract Generator |
+| E7.62 | PARTIAL / UNVERIFIED | Minimal Specialized Self-Evolving Core |
+| E7.63 | PARTIAL / UNVERIFIED | Partner Specialized Core Delivery Package |
+| E7.64 | PARTIAL / UNVERIFIED | Partner Training Intake |
+| E7.65 | PARTIAL / UNVERIFIED | Partner Training Execution Plan |
+| E7.66 | PARTIAL / UNVERIFIED | Training Execution Receipt |
+| E7.67 | PARTIAL / UNVERIFIED | Specialized Core Build Record |
+| E7.68 | PARTIAL / UNVERIFIED | Specialized Core Validation & Release Gate |
+| E7.69 | PARTIAL / UNVERIFIED | Partner Core Delivery Authorization |
+| E7.70 | PARTIAL / UNVERIFIED | Partner Delivery Receipt |
+| E7.71 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Proposal |
+| E7.72 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Validation |
+| E7.73 | PARTIAL / UNVERIFIED | Governed Feedback Promotion Record |
 
 ## Partner Boundary
 
