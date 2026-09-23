@@ -5135,3 +5135,13 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 - **Partner architecture clarified:** Gnozis Core remains the common minimal foundation. The completed Self-Learning direction must support both (1) Core-initiated identification of commercially relevant development opportunities and governed partner-contract proposals, and (2) partner-initiated specialization from a partner project repository/specification into a bounded commercial specialized core. Specialized cores are not second authority roots. Private partner/user data remains bounded; only explicitly shareable, validated and generalizable evidence may feed common Self-Learning.
 - **E7.50 implemented:** evidence ledger sequences can be deterministically replayed and structurally validated. Replay detects broken chain, missing genesis linkage and subject mixing and never repairs or executes history.
+
+
+## Live execution checkpoint — 2026-09-23 22:10 CET
+
+- Active P0 gate: **P0-R2 / Issue #16**, persistence and recovery correctness reconciliation.
+- PR #15 CI run 1753 was independently inspected. The failure was a collection-time SyntaxError in `gnosis/reflection/test_issuer.py`, not evidence that the two P0 persistence defects passed or failed at runtime.
+- Repository correction: `dfdb3b385bfa5214e1e7db081a31b9109dc24b44` repairs the two malformed SQL literals in the test-only E5.20 authorization registry. No production Core/persistence/recovery/authorization semantics were changed.
+- Verification state for the new exact commit: **UNVERIFIED**. No CI PASS is claimed.
+- Contract execution remains iterative: observe exact evidence -> classify -> bounded repository correction -> exact CI/runtime evidence -> audit -> update contract state.
+- Global contract progress remains **~49% directional**; Self-Learning remains approximately **61% directional** until acceptance gates are evidenced.
