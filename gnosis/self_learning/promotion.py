@@ -26,7 +26,13 @@ def propose_promotion(version: KnowledgeVersion, *, evidence_refs: tuple[str,...
     pid="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     return PromotionProposal(pid,version.version_id,version.subject_id,target,evidence_refs,reason)
 
+def _proposal_identity(proposal: PromotionProposal) -> str:
+    canonical={"version_id":proposal.version_id,"subject_id":proposal.subject_id,"target":proposal.target,"evidence_refs":proposal.evidence_refs,"reason":proposal.reason}
+    return "sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+
 def decide_promotion(proposal: PromotionProposal, *, decision: str, reviewer: str) -> PromotionProposal:
+    if proposal.proposal_id != _proposal_identity(proposal):
+        raise ValueError("proposal identity does not match immutable proposal fields")
     if proposal.status != "PROPOSED":
         raise ValueError("only PROPOSED promotion proposals may be decided")
     if decision not in {"ACCEPTED","REJECTED","DEFERRED"}:
