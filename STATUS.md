@@ -783,3 +783,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #49 merged by squash into `main` as `8725aca5d5534f9a9c888b37bc5c9be285127e60`.
 - Dependency Review #114 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.54 proposal-identity contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.55 integration receipt and identity — integrated — 2026-09-23
+
+- PR #50 proved two E7.55 gaps: execution discarded `receipt_id`, and tampered `integration_id` could reach execution.
+- PR #51 exact candidate `d8a57246cfa7b88810c5222ddf01cb64da19aabd` passed CI #2013 and CodeQL #891.
+- `IntegrationRecord` now retains `receipt_id`; `mark_executed()` verifies integration identity before marking execution complete.
+- PR #51 merged by squash into `main` as `573b7a827d6df542f9ab8fd559948f042aff5f78`.
+- Dependency Review #116 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.55 integration receipt/identity contract is INTEGRATED / CI + CodeQL VERIFIED.
