@@ -234,3 +234,20 @@ Revocation invalidates future use according to policy without rewriting historic
 The issuer must not self-authorize an expansion of its own authority.
 
 Current owner-authority issuance remains intentionally unimplemented; this contract defines the required boundary and does not claim runtime completion.
+## E5.07 — Cryptographic authorization boundary
+
+Future authorization issuance must use canonical payloads and cryptographic verification bound to an explicit issuer key/version.
+
+`Verify(pk_I, Canonical(Auth.payload), Auth.signature) = true` is necessary for signature validity, but `SignatureValid != AuthorityValid`.
+
+Authorization signatures must be domain-separated from unrelated signed objects. The signed payload must bind issuer/version, authority scope/version, exact evolution identity, parent-state identity, policy version, validity bounds, unique authorization identity/nonce, and delegation reference where applicable.
+
+Key rotation is an explicit governance transition. Verification resolves the key version referenced by the authorization; it must not silently substitute the newest key.
+
+Delegation must satisfy `Scope(delegate) ⊆ Scope(delegator)` and preserve explicit expiry, constraints, depth and provenance. Delegation does not become root authority.
+
+Unknown/revoked/expired keys, invalid signatures, unsupported algorithms, malformed payloads, scope/policy mismatch and invalid delegation fail closed.
+
+Ψ-Core must not contain secret signing material and must not become the cryptographic root of trust.
+
+Trusted issuer, key rotation and delegation runtime remain NOT_IMPLEMENTED unless separately verified.
