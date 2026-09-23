@@ -60,7 +60,7 @@ def test_runtime_reflection_executes_counterexample_stage_without_mutating_histo
 
 
 def test_counterexample_result_rejects_foreign_candidate():
-    from gnosis.reflection.counterexample import CounterexampleResult, validate_counterexample_result
+    from gnosis.reflection.counterexample import CounterexampleResult, CounterexampleResult, validate_counterexample_result
     history=(_record(0, False, "c1", "repeated failure"),)
     analyzer=ReflectionAnalyzer(history)
     report=analyzer.analyze()
