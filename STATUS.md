@@ -530,3 +530,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.69 — Partner Core Delivery Authorization:** PARTIAL / UNVERIFIED. Added final authorization binding release gate, built Core, delivery manifest, partner identity and knowledge scope. HOLD/non-built/REVOKED states block delivery. CI integration present; exact PASS pending.
 - **E7.70 — Partner Delivery Receipt:** PARTIAL / UNVERIFIED. Added machine-readable post-delivery provenance linking authorization, release, manifest, Core build revision, partner scope, delivered revision and transfer evidence. CI integration present; exact PASS pending.
+
+- **E7.71 — Partner Feedback Promotion Proposal:** PARTIAL / UNVERIFIED. Added a governed post-delivery proposal containing partner scope, privacy filters, generalizable findings and explicit exclusions. Promotion requires valid delivery and privacy evidence; the proposal cannot mutate the Common Core or grant promotion authority. CI integration present; exact PASS pending.
