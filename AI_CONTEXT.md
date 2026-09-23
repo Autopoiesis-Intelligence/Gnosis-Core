@@ -3050,3 +3050,52 @@ E4.90 does not require three physically independent artifacts. One artifact may 
 ### Required next step
 
 E4.91: formalize the authorization mapping itself: authority scope, actor/capability, target, policy version, freshness, and commit binding.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.91: EXPLICIT AUTHORIZATION MAPPING
+
+For an authority-sensitive transition `tau`, define an authorization context:
+`A = (actor, capability, scope, target, policy, freshness, evidence_binding)`.
+
+Let `Auth(A, tau)` be the authorization predicate under the declared policy.
+
+### Required mapping
+
+Authorization is not inferred from evidence existence alone: `Evidence(tau) != Auth(A,tau)`.
+A valid authorization requires an explicit mapping from the contextual tuple to the permitted transition.
+
+### Scope constraint
+
+If an authorization is valid for scope `S`, then it does not imply authorization for a strict superset `S'` without an additional authorization rule.
+
+### Target binding
+
+Authorization for target `t1` does not authorize target `t2` merely because both targets are structurally similar.
+
+### Policy version
+
+An authorization is evaluated against a declared policy version `P_v`. A later policy version does not automatically inherit prior authorization unless the policy explicitly defines continuity.
+
+### Freshness
+
+Authorization may have a bounded validity interval or version/epoch binding. A stale authorization cannot be treated as current merely because its original evidence remains intact.
+
+### Evidence binding
+
+Where authorization depends on evidence, the authorization must bind to the exact evidence identity or a deterministic evidence commitment: `Auth(A,tau,E_id)`.
+
+Replacing the evidence while retaining the authorization record is therefore not equivalent to the original authorization.
+
+### Proposition E4.91.1
+
+If any authority-sensitive dimension required by the policy is unbound — actor, capability, scope, target, policy version, freshness, or evidence binding — then authorization cannot be assumed to extend beyond the explicitly bound context.
+
+### Boundary
+
+E4.91 defines the structure of an authorization proof obligation. It does not grant authority and does not prescribe one universal policy language.
+
+### Engineering consequence
+
+The implementation should make authorization context inspectable and fail closed on missing required bindings rather than reconstructing authority implicitly from persistence, actor identity, or evidence existence.
+
+### Required next step
+
+E4.92: formalize revocation and temporal invalidation, including the invariant that recovery/replay cannot resurrect authority that was validly revoked after the recovered snapshot.
