@@ -337,3 +337,8 @@ A verified test authorization may be adapted into the existing `ExecutionAuthori
 ## E5.22 — Exact intent / issuer binding
 
 The test issuer may derive a development authorization only from the exact provenance object. The resulting test authorization must bind the same provenance/evolution identity used by `ExecutionIntentSnapshot`. Material parent-state or evolution-identity changes fail closed. This adapter is test-only and does not implement production owner authority.
+
+
+## E5.23 — Recovery non-resurrection
+
+For test/development authorization persistence, recovery must preserve monotonic consumed/revoked state. Closing and reopening the backing store must not resurrect an authorization that was already consumed or revoked. This is a test-level contract only and does not establish production recovery correctness.
