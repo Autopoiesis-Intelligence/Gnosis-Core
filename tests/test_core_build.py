@@ -20,3 +20,16 @@ def test_rejected_build_is_not_eligible():
 
 def test_identity_is_deterministic():
     assert make()==make()
+
+
+def test_tampered_build_record_identity_is_rejected():
+    from dataclasses import replace
+    record=make()
+    tampered=replace(record, build_revision="forged")
+    with pytest.raises(ValueError,match="build record identity"):
+        validate_build_record_identity(tampered)
+
+def test_build_record_cannot_use_foreign_receipt():
+    record=make()
+    with pytest.raises(PermissionError,match="build receipt identity"):
+        validate_build_receipt_binding(record,expected_receipt_id="sha256:foreign")
