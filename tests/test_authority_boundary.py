@@ -2,7 +2,7 @@ import pytest
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, SQLiteExecutionCommitAdapter, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
-from gnosis.evolution.provenance import build_provenance
+from gnosis.evolution.provenance import build_provenance, canonical_digest
 
 
 def test_authority_request_requires_owner_and_grants_no_capability() -> None:
