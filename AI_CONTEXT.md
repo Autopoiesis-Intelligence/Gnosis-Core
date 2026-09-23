@@ -4216,3 +4216,30 @@ Therefore E5.09 remains BLOCKED for runtime acceptance, while its mathematical/a
 ### Next implementation contract
 
 E5.20 — Minimal Trusted Issuer Vertical Slice: implement the smallest non-production local issuer/approval path needed to exercise E5.05–E5.09 without granting unrestricted external authority. It must be explicitly marked test/development authority, use ephemeral test credentials, bind exact intent/provenance, support revocation/consumption, and produce CI-testable evidence.
+## E5.20 — MINIMAL TRUSTED ISSUER VERTICAL SLICE
+
+Implementation checkpoint: a deliberately non-production, ephemeral test authority was added to exercise the minimum E5.05–E5.09 path without granting real external authority.
+
+### Runtime slice
+`TestAuthorizationIssuer -> TestAuthorization -> SQLite registry -> verify -> consume/revoke`.
+
+The authorization binds issuer/version, request provenance, exact evolution identity, parent-state digest, policy version, nonce, expiry, scope and HMAC signature. The HMAC secret is ephemeral/injected test material and is not persisted.
+
+Persistence records consumed/revoked state. Verification fails closed on signature/context mismatch, expiry, revocation, unknown authorization and repeated consumption.
+
+### Boundary
+This is explicitly TEST/DEVELOPMENT authority, not Root-of-Trust production implementation. It does not authorize external APIs, real accounts, real funds, or autonomous production actions.
+
+### Evidence status
+Source and regression tests were added, but no current CI execution evidence has been observed. Therefore E5.20 runtime status is IMPLEMENTED / UNVERIFIED until exact-commit CI execution is available.
+
+### Parallel mathematics — E7.9.2
+Level hypothesis remains a research track and must not be conflated with E5 execution authority. Working formalization: a level is an information-organization context `L=(X,R,D,Q)` where `D` denotes relevant distinctions and `Q` the admissible query/observation context. A transition between levels is not assumed to be linear; it is accepted only when a change in organization/representation is required to preserve a bounded task or resolve a scoped insufficiency.
+
+Counterexample boundary: increased task difficulty alone does not establish a new level; adding elements to X does not establish a level transition; a different representation with unchanged operational organization may be a representation change rather than a level change.
+
+Acceptance target for E7.9.2: produce a falsifiable relation between level contexts and transition criteria, compatible with `Psi=(X,R)`, without introducing a second state model or architectural authority.
+
+### Next
+E5.21 — integrate test issuer consumption with the existing ExecutionAuthorization/ExecutionIntentSnapshot boundary without making the test issuer production authority.
+E7.9.3 — Level Transition Algebra.
