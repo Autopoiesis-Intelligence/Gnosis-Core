@@ -3,8 +3,8 @@
 > GENERATED FILE — update with scripts/update_partner_contract_block.py.
 > This block is the current machine-readable partner contract index. It is not an authority root and does not grant access or execution rights.
 
-- Generated at (UTC): 2026-09-23T22:25:56.413464+00:00
-- Source revision: 45ed83c105667bac1a83c47292af045ac3e3a85e
+- Generated at (UTC): 2026-09-23T23:23:25.682892+00:00
+- Source revision: f437588b61611dc94515ba08686598e364304621
 - Contract index digest: sha256:9536741040bc305517f688a34b5824d566d9137d1640ffa2268806dceed98ed6
 - Authority: index_only
 - Provenance: partner-contract-current-block
@@ -73,10 +73,10 @@
 | E7.60 | IMPLEMENTED / UNVERIFIED | Self-Learning CI Evidence Gate |
 | E7.61 | IMPLEMENTED / UNVERIFIED | Self-Learning Candidate Contract Generator |
 | E7.62 | PARTIAL / UNVERIFIED | Minimal Specialized Self-Evolving Core |
-| E7.63 | IMPLEMENTED / VERIFIED | Partner Specialized Core Delivery Package |
-| E7.64 | IMPLEMENTED / VERIFIED | Partner Training Intake |
-| E7.65 | IMPLEMENTED / VERIFIED | Partner Training Execution Plan |
-| E7.66 | IMPLEMENTED / VERIFIED | Training Execution Receipt |
+| E7.63 | PARTIAL / UNVERIFIED | Partner Specialized Core Delivery Package |
+| E7.64 | PARTIAL / UNVERIFIED | Partner Training Intake |
+| E7.65 | PARTIAL / UNVERIFIED | Partner Training Execution Plan |
+| E7.66 | PARTIAL / UNVERIFIED | Training Execution Receipt |
 | E7.67 | PARTIAL / UNVERIFIED | Specialized Core Build Record |
 | E7.68 | PARTIAL / UNVERIFIED | Specialized Core Validation & Release Gate |
 | E7.69 | PARTIAL / UNVERIFIED | Partner Core Delivery Authorization |
