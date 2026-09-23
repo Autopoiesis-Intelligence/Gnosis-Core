@@ -124,6 +124,7 @@ Each contract record SHOULD contain:
 | E7.103 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Evidence-to-Contract Verification Matrix |
 | E7.104 | DESIGNED / NOT_IMPLEMENTED | First Self-Learning Verification Batch & Baseline Evidence Gate |
 | E7.105 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Selection & Baseline Freeze |
+| E7.106 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Candidate Inventory & Selection Record |
 
 ## Update rule
 
