@@ -4748,3 +4748,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.38 — Partner Specialized Core Provisioning & Inbound Trust Boundary:** DESIGNED / NOT_IMPLEMENTED. Commercial partner deployments may specialize knowledge and analytical orientation for domains such as finance, enterprise IT or game development. A specialized learning database is not Core authority; inbound evidence follows the protected admission path. Clone/fork lineage and specialization revisions remain traceable, and partner policy cannot override non-delegable Core invariants.
+
+
+- **E7.39 — Core Minimality & Specialized Knowledge/Learning Layer Boundary:** DESIGNED / NOT_IMPLEMENTED. Core is a minimal common mechanism, not a universal knowledge repository. A governed deployment is modeled as Core + specialization layers. Domain usefulness alone is insufficient to move functionality into canonical Core; Core changes require evidence of domain-independent necessity and governed verification.
