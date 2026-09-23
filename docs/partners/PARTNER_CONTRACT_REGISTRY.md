@@ -116,6 +116,7 @@ Each contract record SHOULD contain:
 | E7.95 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Result Reconciliation & Outcome Verification |
 | E7.96 | DESIGNED / NOT_IMPLEMENTED | Remediation Closure & Residual Risk Governance |
 | E7.97 | DESIGNED / NOT_IMPLEMENTED | Post-Closure Monitoring, Reverification & Reopening Trigger |
+| E7.98 | DESIGNED / NOT_IMPLEMENTED | Post-Closure Monitoring Evidence Retention & Audit Continuity |
 
 ## Update rule
 
