@@ -4722,3 +4722,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.28 — Partner Contract Registry Runtime Synchronization:** DESIGNED / NOT_IMPLEMENTED. The partner contract registry is now specified as a provenance-preserving synchronized index. Drift detection must catch missing artifacts, stale commits, unsupported status promotion, unresolved dependencies and inconsistent supersession. Automatic synchronization is not yet claimed as implemented.
+
+
+- **E7.29 — Partner Contract Package & Export Protocol:** DESIGNED / NOT_IMPLEMENTED. Partner packages must be deterministic, revision-bound, dependency-closed and integrity-addressable. Stale/revoked packages remain historically preserved and cannot silently become current. Package export does not grant Core write, execution, governance, admission or partner-management authority.
