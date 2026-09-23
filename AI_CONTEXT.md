@@ -4739,3 +4739,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - **E7.33 — Partner Evidence Review, Dispute & Correction Protocol:** DESIGNED / NOT_IMPLEMENTED. Disputes reference immutable evidence; corrections append new events and never rewrite history. Review findings cannot directly mutate Core.
 - **E7.34 — Partner Evidence Retention & Privacy Boundary:** DESIGNED / NOT_IMPLEMENTED. Private payload retention/redaction/deletion is separated from immutable event history. Privacy actions are auditable and cannot resurrect deleted state.
 - **E7.35 — Partner Evidence Lifecycle & State Derivation:** DESIGNED / NOT_IMPLEMENTED. Current evidence state is deterministically derived from authoritative history plus applicable policy, contract, revocation and retention state; conflicting sources become explicit findings and protected actions fail closed.
+
+
+- **E7.36 — Partner Evidence Query & Reconstruction Protocol:** DESIGNED / NOT_IMPLEMENTED. Evidence reconstruction is derived from immutable history plus query context, policy and contract revisions. Historical and current state are distinct; redacted/unavailable/conflicted/incomplete results are explicit; query results cannot grant authority.
