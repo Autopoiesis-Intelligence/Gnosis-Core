@@ -80,6 +80,10 @@ class BoundCoreExecution:
 def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest) -> BoundCoreExecution:
     if proposal.status != "APPROVED":
         raise PermissionError("Core mutation proposal is not approved")
+    canonical_proposal={"integration_id":proposal.integration_id,"version_id":proposal.version_id,"target":proposal.target,"action":proposal.action}
+    expected="sha256:"+hashlib.sha256(json.dumps(canonical_proposal,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    if proposal.mutation_id != expected:
+        raise ValueError("proposal identity does not match immutable bridge fields")
     if not request.evolution_identity:
         raise ValueError("execution evolution identity is required")
     canonical={"mutation_id":proposal.mutation_id,"integration_id":proposal.integration_id,"version_id":proposal.version_id,"evolution_identity":request.evolution_identity}
