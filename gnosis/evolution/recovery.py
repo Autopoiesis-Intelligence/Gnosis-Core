@@ -37,6 +37,10 @@ def recover_evolution_audit(
         if not records:
             return RecoveryReport(0, True, True, None, None, ())
         return RecoveryReport(len(records), False, False, None, None, ("provenance identity required for trusted recovery",))
+    if authorization_revoked:
+        return RecoveryReport(len(records), False, False, None, None, ("recovery authorization was revoked",))
+    if not authorization_valid:
+        return RecoveryReport(len(records), False, False, None, None, ("recovery authorization is not valid",))
     rows = list_evolution_provenance(conn, candidate_id=None)
     provenance_rows = [row for row in rows if row["provenance_id"] == provenance_id]
     if not provenance_rows:
