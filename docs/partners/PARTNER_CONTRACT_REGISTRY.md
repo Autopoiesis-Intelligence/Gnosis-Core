@@ -101,6 +101,7 @@ Each contract record SHOULD contain:
 | E7.80 | DESIGNED / NOT_IMPLEMENTED | Governed Remediation Plan & Compensation Authorization |
 | E7.81 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Authorization & Controlled Compensation Execution |
 | E7.82 | DESIGNED / NOT_IMPLEMENTED | Remediation Result Verification & Governed Closure |
+| E7.83 | DESIGNED / NOT_IMPLEMENTED | Governed Collaboration Lifecycle Closure & Contract Retirement |
 
 ## Update rule
 
