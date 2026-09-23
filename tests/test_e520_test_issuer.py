@@ -100,3 +100,29 @@ def test_e520_bridge_preserves_exact_execution_boundary():
             request_provenance="provenance:other",
             evolution_identity="evolution:e1",
         )
+
+
+def test_e522_issuer_binds_execution_intent_snapshot_exactly():
+    from gnosis.reflection.authority import ExecutionIntentSnapshot, require_execution_intent_snapshot
+    from gnosis.reflection.test_issuer import issue_for_provenance_for_test, to_execution_authorization_for_test
+    from tests.test_authority_boundary import _snapshot_provenance
+
+    provenance = _snapshot_provenance()
+    issuer = TestAuthorizationIssuer(secret=b"e5.22-test-secret")
+    auth = issue_for_provenance_for_test(
+        issuer, provenance, policy_version="policy:v1", expires_at=100
+    )
+    execution_auth = to_execution_authorization_for_test(issuer, auth)
+    snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
+    require_execution_intent_snapshot(snapshot, provenance)
+    assert execution_auth.evolution_identity == snapshot.evolution_identity
+    assert execution_auth.request_provenance == snapshot.provenance_id
+
+    changed = type(provenance)(**{**provenance.__dict__, "parent_state_digest": "stale-parent"})
+    with pytest.raises(PermissionError):
+        require_execution_intent_snapshot(snapshot, changed)
+    with pytest.raises(PermissionError):
+        to_execution_authorization_for_test(
+            issuer,
+            type(auth)(**{**auth.__dict__, "evolution_identity": "evolution:other"}),
+        )
