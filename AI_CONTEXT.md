@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.90 — Governance Outcome & Remediation Plan Intake
+
+E7.90 defines the intake boundary after an explicit REMEDIATION_REQUIRED governance outcome. Intake creates only a bounded E7.80 plan proposal and cannot approve the plan, authorize execution, grant compensation authority or mutate Ψ-Core.
+
+Contract artifact: `docs/architecture/PARTNER_GOVERNANCE_REMEDIATION_PLAN_INTAKE_CONTRACT.md`.
+Contract commit: `c6c0b2cbdf3d9e32992c0c4ac4b1d5ca6aa06fc2`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.89 — Corrective Finding Governance Review & Remediation Trigger
 
 E7.89 separates confirmed audit findings from governance decisions about remediation. Only an explicit REMEDIATION_REQUIRED decision may create a remediation-plan proposal; it does not authorize execution. Materiality, priority, containment and compensation remain separately governed.
