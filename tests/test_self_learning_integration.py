@@ -68,7 +68,7 @@ def test_e7_60_real_execution_receipt_identity_is_not_integration_id():
     r=create_integration_record(accepted(), action="merge-approved-knowledge")
     observations={"result":"ok"}
     import hashlib, json
-    evidence_digest="sha256:"+hashlib.sha256(json.dumps(observations,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    evidence_digest=hashlib.sha256(json.dumps(observations,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     p=build_provenance(
         candidate_id="candidate:1",
         parent_state_id="state:parent",
