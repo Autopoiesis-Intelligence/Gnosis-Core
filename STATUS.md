@@ -647,3 +647,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #33 remains draft/non-mergeable; main consolidation and post-consolidation exact-commit CI are still required.
 - Issue #13 is CLOSED/COMPLETED. Issue #16 remains the active P0-R2 acceptance gate.
 - Repository rename remains NOT SAFE at this stage.
+
+
+## Post-merge verification checkpoint — 2026-09-23
+
+- P0-R2 consolidation PR #34 merged successfully into `main` as `de113e1d9908cd0e0c32b854665977893a10fccd`.
+- Pre-merge exact candidate CI for `aa13d18821946626bbe73e026478d46b009543c8` was green for Python 3.11, Python 3.12 and CodeQL. Dependency Review remained UNVERIFIED because the GitHub Dependency Graph was unavailable.
+- GitHub commit-run lookup for the merge commit currently returns no workflow runs. Therefore post-merge runtime/CI acceptance is **PENDING**, and Issue #16 remains OPEN.
+- Do not transfer candidate-branch PASS automatically to the merge commit. The next gate is exact post-merge CI/evidence on `de113e1d...`.
