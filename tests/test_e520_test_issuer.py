@@ -188,9 +188,11 @@ def test_e524_sqlite_state_tamper_cannot_unconsume(tmp_path):
         (auth.authorization_id,),
     )
     conn.commit()
-    # State reset is detected by the persisted monotonicity assertion below.
-    row = conn.execute(
-        "SELECT consumed FROM test_authorizations WHERE authorization_id = ?",
-        (auth.authorization_id,),
-    ).fetchone()
-    assert row == (0,)
+    with pytest.raises(PermissionError, match="registry integrity"):
+        consume_test_authorization(
+            conn, issuer, auth, now=50,
+            request_provenance="provenance:p1",
+            evolution_identity="evolution:e1",
+            parent_state_digest="parent-1",
+            policy_version="policy:v1",
+        )
