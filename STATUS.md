@@ -626,3 +626,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.117 — First Authorized Proof Execution Record:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `a201f9ddea67477cafb619f0599e6f306ceb7d70`. Defines the runtime transition from AUTHORIZED to EXECUTING, actual command/test capture, explicit terminal states, exact-commit enforcement, unauthorized-execution rejection, replay/recovery safety and zero direct progress effect.
 
 - **E7.118 — First Proof Runtime Evidence Integrity & Artifact Sealing:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `04e6482e2f0a53a2a49938a942291b017882717b`. Defines artifact inventory, immutable evidence manifest, mutation/replacement/deletion detection, provenance conflict handling, sensitive-data quarantine, completeness states and deterministic sealing replay, without granting acceptance or progress credit.
+
+
+## Contract execution checkpoint — 2026-09-23 22:10 CET
+
+- P0-R2 runtime gate remains **OPEN / UNVERIFIED**. Issue #16 is the active reconciliation gate.
+- Exact CI evidence inspected: PR #15 merge run **1753** reached test collection on Python 3.12 but failed before runtime because `gnosis/reflection/test_issuer.py` contained two malformed SQL string literals. Python 3.11 was cancelled by the same collection failure. CodeQL succeeded; Dependency Review failed. No P0 verification is claimed.
+- Repository correction applied directly to `main`: commit `dfdb3b385bfa5214e1e7db081a31b9109dc24b44`, repairing the two malformed SQL string literals in the test-only E5.20 authorization registry. This is a syntax/fixture correction only; no Core, persistence, recovery or authorization semantics were changed.
+- The corrected commit is now the current canonical source checkpoint. Fresh runtime/CI evidence for this exact commit has **not** yet been observed through the available commit-run lookup, so status remains UNVERIFIED.
+- The previous P0 sequence remains preserved: test-harness reconciliation -> runtime evidence -> classification of production defects vs test-contract defects -> bounded production correction -> exact-commit 3.11/3.12 verification.
+- Global contract progress remains **~49% directional** until acceptance gates are actually evidenced.
