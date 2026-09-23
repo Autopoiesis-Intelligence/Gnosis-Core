@@ -3,9 +3,9 @@
 > GENERATED FILE — update with scripts/update_partner_contract_block.py.
 > This block is the current machine-readable partner contract index. It is not an authority root and does not grant access or execution rights.
 
-- Generated at (UTC): 2026-09-23T17:27:17.183274+00:00
-- Source revision: 2276fbe1d46961aefc1de0675e00371ac8704493
-- Contract index digest: sha256:d7184847388fc860886b36adf9f8d474b8f55ba1f89dceaee88d395977d76897
+- Generated at (UTC): 2026-09-23T18:30:54.026434+00:00
+- Source revision: 2c70235231fda9a84fc054b746b3325e9b6444f0
+- Contract index digest: sha256:010eaeda4f981050183888173626d685d9e8c164b62b4630034b266571a0a868
 - Authority: index_only
 - Provenance: partner-contract-current-block
 
@@ -65,6 +65,7 @@
 | E7.71 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Proposal |
 | E7.72 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Validation |
 | E7.73 | PARTIAL / UNVERIFIED | Governed Feedback Promotion Record |
+| E7.74 | PARTIAL / UNVERIFIED | Self-Learning Collaboration Proposal Generator |
 
 ## Partner Boundary
 
