@@ -529,4 +529,8 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     assert conn.execute(
         "SELECT count(*) FROM transitions WHERE candidate_id=?", (candidate_a.candidate_id,)
     ).fetchone()[0] == 0
+    assert conn.execute(
+        "SELECT count(*) FROM audit_events WHERE transition_id IS NOT NULL AND transition_id=?",
+        (record_a.transition_id,),
+    ).fetchone()[0] == 0
     conn.close()
