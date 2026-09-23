@@ -332,3 +332,8 @@ E5.09 formal integration contract is CLOSED. Runtime integration remains BLOCKED
 ## E5.21 — Test authority boundary bridge
 
 A verified test authorization may be adapted into the existing `ExecutionAuthorization` boundary only inside the test/development authority surface. The adapter must preserve exact `request_provenance` and `evolution_identity` and must continue to pass through `require_execution_authorization`. It must not implement the production owner issuer or grant real external authority.
+
+
+## E5.22 — Exact intent / issuer binding
+
+The test issuer may derive a development authorization only from the exact provenance object. The resulting test authorization must bind the same provenance/evolution identity used by `ExecutionIntentSnapshot`. Material parent-state or evolution-identity changes fail closed. This adapter is test-only and does not implement production owner authority.
