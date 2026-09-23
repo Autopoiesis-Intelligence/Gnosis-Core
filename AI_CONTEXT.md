@@ -3795,3 +3795,68 @@ V2 contains a concrete fail-closed execution authorization boundary in `gnosis/r
 ### Required next step
 
 E5.05: formalize authorization freshness, expiry, revocation and replay resistance for authority-sensitive transitions.
+## EXTERNAL AUDIT RECONCILIATION — 2026-09-23
+
+An external audit supplied to the project identified three priority concerns: (1) the execution-authority issuer/root-of-trust boundary is incomplete despite fail-closed enforcement, (2) persistent audit/code and documentation status must remain synchronized, and (3) real pytest/CI evidence is not established for current HEAD.
+
+These are treated as externally supplied findings, not as independently verified conclusions, until repository/CI evidence confirms them. Repository inspection confirms the explicit `NotImplementedError` owner-authority issuer and confirms documentation stating current CI is UNVERIFIED. The audit's broader characterization that tests 'fall' is therefore not adopted as a fact without fresh execution evidence.
+
+### CONTRACT GATE E5.05-A — ROOT-OF-TRUST CLOSURE
+
+Authority-sensitive execution cannot be considered end-to-end complete while `issue_execution_authorization` has no trusted issuer semantics.
+
+Required contract:
+`OwnerDecision -> AuthorizationIssuance -> ExactBinding -> Freshness/ReplayCheck -> Commit`.
+
+The issuer must be bound to an explicitly defined authority root, scope, policy version and evidence. Boolean approval is insufficient.
+
+`OwnerApproval != ExecutionAuthorization`.
+
+The issuer must fail closed for missing, malformed, expired, revoked, mismatched or replayed authorization.
+
+Completion criterion: a real trusted issuance path exists, is independently testable, is provenance-bound, and cannot mint authorization outside its declared authority.
+
+### CONTRACT GATE E5.05-B — FRESHNESS / REPLAY RESISTANCE
+
+An authorization valid at time `t` must not automatically be reusable for a distinct execution `tau'`.
+
+Define authorization validity as a conjunction of exact binding, temporal validity, revocation state, uniqueness/replay state and policy validity:
+`Valid(Auth,t,tau) = Binding(Auth,tau) ∧ Fresh(Auth,t) ∧ ¬Revoked(Auth,t) ∧ ¬Consumed(Auth,tau) ∧ PolicyValid(Auth,t)`.
+
+Freshness must not depend on time alone. Exact evolution identity must bind at minimum to the authorized provenance and parent-state identity/digest; a unique authorization/execution nonce or equivalent one-time identity is required where replay is a threat.
+
+Replay of a previously valid authorization against a different evolution, parent state, execution identity or already-consumed authorization must fail closed.
+
+Completion criterion: explicit tests demonstrate rejection of cross-evolution replay, same-authorization reuse, stale/expired authorization, revoked authorization, and parent-state mismatch.
+
+### CONTRACT GATE E5.05-C — GREEN-EVIDENCE / CI CLOSURE
+
+Security and authorization contracts are not accepted as verified until real CI/pytest evidence exists for the exact repository commit under evaluation.
+
+Required evidence must identify exact commit, environment, command/workflow, test result and artifact/log reference.
+
+Offline runners, static inspection and historical test counts may supplement but cannot replace real CI/pytest evidence.
+
+`HistoricalPass != CurrentHEADPass`.
+
+Completion criterion: current HEAD has reproducible real test/CI evidence, including authority, persistence/audit, replay, recovery and adversarial tests relevant to the changed contract.
+
+### CONTRACT GATE E5.05-D — DOCUMENTATION / IMPLEMENTATION SYNCHRONIZATION
+
+Any claim of IMPLEMENTED must be traceable to current source and current evidence. Any mismatch between documentation and implementation is recorded as a documentation-gap finding and does not become a PASS by narrative agreement.
+
+Required status tuple:
+`Status = (ImplementationState, EvidenceState, Scope, Commit)`.
+
+Examples:
+`(IMPLEMENTED, UNVERIFIED, scoped, HEAD)`;
+`NOT_IMPLEMENTED, UNKNOWN, scoped, HEAD`;
+`IMPLEMENTED, VERIFIED, scoped, exact-CI-commit`.
+
+### Gate ordering
+
+Do not advance the mathematical freshness/replay contract into an acceptance claim before E5.05-A and E5.05-C are closed. E5.05-B may be formalized in parallel, but runtime acceptance remains blocked until a trusted issuer and real verification evidence exist.
+
+### Required next step
+
+E5.06: formalize issuer authority scope, key/credential lifecycle, revocation semantics and audit binding for the trusted authorization issuer, without introducing secrets into the repository or audit database.
