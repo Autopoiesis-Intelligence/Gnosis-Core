@@ -4725,3 +4725,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.29 — Partner Contract Package & Export Protocol:** DESIGNED / NOT_IMPLEMENTED. Partner packages must be deterministic, revision-bound, dependency-closed and integrity-addressable. Stale/revoked packages remain historically preserved and cannot silently become current. Package export does not grant Core write, execution, governance, admission or partner-management authority.
+
+
+- **E7.30 — Partner Contract Acceptance & Capability Negotiation:** DESIGNED / NOT_IMPLEMENTED. Acceptance binds to exact package identity/digest and contract revisions. Effective capabilities are constrained by declared and policy-allowed scope. Acceptance cannot grant Core write, execution, governance or partner-management authority; contract changes require explicit revision/amendment handling.
