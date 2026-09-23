@@ -62,6 +62,7 @@ Each contract record SHOULD contain:
 | E7.41 | DESIGNED / NOT_IMPLEMENTED | Distributed Clone Learning, Privacy & Network Integration |
 | E7.42 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Contract Aggregation, Synthesis & Privacy Boundary |
 | E7.43 | IMPLEMENTED / UNVERIFIED | Self-Learning Contract Database Generation & Update Engine |
+| E7.44 | IMPLEMENTED / UNVERIFIED | Self-Learning Findings to Contract Proposal Engine |
 
 ## Update rule
 
