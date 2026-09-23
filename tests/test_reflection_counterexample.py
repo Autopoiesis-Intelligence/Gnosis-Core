@@ -1,3 +1,4 @@
+import pytest
 from gnosis.core import TestResult, TransitionRecord
 from gnosis.reflection import CounterexampleEngine, ReflectionAnalyzer, reflect
 
