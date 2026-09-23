@@ -509,3 +509,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.58 — End-to-End Self-Learning Contract Cycle:** IMPLEMENTED / UNVERIFIED. Added a deterministic integration harness covering DATABASE → FINDING → PROPOSAL → VALIDATION → GOVERNANCE → EXECUTION_PLAN → RECEIPT → KNOWLEDGE UPDATE → VERSION → PROMOTION → ACCEPTED → INTEGRATION RECORD. It does not execute Core mutation or bypass governance.
 
 - **E7.59 — Runtime Fail-Closed Execution Boundary:** IMPLEMENTED / UNVERIFIED. Added a regression proving that an APPROVED Self-Learning proposal still cannot reach the existing Core commit adapter without owner-authority execution conditions. CI evidence is pending; no claim of successful runtime execution is made.
+
+- **E7.60 — Self-Learning CI Evidence Gate:** IMPLEMENTED / UNVERIFIED. GitHub Actions `self-diagnostic.yml` now explicitly runs the E7.52–E7.59 Self-Learning tests as part of the repository diagnostic suite. Verification remains tied to an actual successful run for the exact commit.
