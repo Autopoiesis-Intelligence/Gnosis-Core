@@ -715,3 +715,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #37 was merged by squash into `main` as `98c0563ade27ab62432fa942ce03db2ace80f79d`.
 - Dependency Review remains infrastructure-blocked by unavailable Dependency Graph; CodeQL for the candidate was still running at the last observation.
 - E7.50 tamper-detection contract is INTEGRATED / candidate CI VERIFIED; post-merge evidence remains subject to the connector limitation already recorded.
+
+
+## E7.50 payload provenance contract — 2026-09-23
+
+- PR #38 exact head `0d17028b66991defc6bbfb347606fd9047a4bfc2` passed CI #1984 and CodeQL #862.
+- The regression proves replay fails closed when `payload_digest` is tampered, producing `EVENT_DIGEST_MISMATCH`.
+- PR #38 was merged by squash into `main` as `df7fbed5abdfa00fe4ac107875ac50a8c9ad81b2`.
+- Dependency Review #100 remains blocked by unavailable Dependency Graph and is not treated as evidence of a dependency vulnerability.
+- E7.50 payload-provenance tamper contract is INTEGRATED / candidate CI and CodeQL VERIFIED; post-merge evidence remains subject to the documented connector limitation.
