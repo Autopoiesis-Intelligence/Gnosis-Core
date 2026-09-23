@@ -1,9 +1,9 @@
-from gnosis.evolution.provenance import build_provenance, verify_evidence_digest
+import pytest
+from gnosis.evolution.provenance import build_provenance, verify_evidence_digest, canonical_digest, provenance_id_for
 
 
 def test_provenance_accepts_matching_evidence_digest():
     observations = {"metric": 1, "nested": {"ok": True}}
-    from gnosis.evolution.provenance import canonical_digest
     digest = canonical_digest(observations)
     result = build_provenance(
         candidate_id="candidate:1",
