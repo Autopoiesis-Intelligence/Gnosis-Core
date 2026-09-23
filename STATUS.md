@@ -368,3 +368,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.12 — Learning Source Revision & Evidence Independence:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_SOURCE_REVISION_EVIDENCE_INDEPENDENCE_CONTRACT.md` (`9a2b732c`). Source revision/provenance binding and common-origin evidence are now explicit P0 learning constraints; runtime provenance grouping and re-evaluation remain unimplemented.
 - **Self-learning P0 sequence:** E7.10 governed loop → E7.11 freshness/replay → E7.12 source revision/independence → agent learning feedback → end-to-end replay proof.
+
+- **E7.13 — Agent Learning Feedback Boundary:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/AGENT_LEARNING_FEEDBACK_BOUNDARY_CONTRACT.md` (`7fe2c8b4`). Connects partner/agent submissions to E7.10–E7.12 while preserving identity, scope, provenance, revision, independence, quarantine, verification and governance gates.
+- **Self-learning P0:** E7.10 ~55% architecture/~20% verification; E7.11 ~60%/~25%; E7.12 ~65%/~25%; E7.13 ~60%/~15%. End-to-end agent-to-learning proof remains ~20%.
