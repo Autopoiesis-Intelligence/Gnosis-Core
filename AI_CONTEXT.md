@@ -3975,3 +3975,63 @@ V2 currently documents cryptographic trust requirements but does not claim a com
 ### Required next step
 
 E5.08: formalize canonical serialization, signature algorithm agility, authorization identity/nonce uniqueness and cross-protocol replay resistance.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.08: CANONICAL AUTHORIZATION IDENTITY, NONCE UNIQUENESS AND CROSS-PROTOCOL REPLAY
+
+Let `P` be the authorization payload and `C(P)` its canonical serialization.
+
+### Canonical identity
+
+Authorization identity is derived from the canonical, domain-separated payload and must be deterministic:
+`AuthID = H(Domain || Version || C(P))`.
+
+Equivalent semantic authorizations must serialize identically under the declared canonicalization rules; semantically distinct authorizations must not intentionally collapse to the same identity.
+
+### Field completeness
+
+Canonicalization must bind all security-relevant fields. Omitting a field from the identity/signature domain creates a potential substitution or ambiguity boundary.
+
+### Nonce uniqueness
+
+An authorization nonce/unique identity must be unique within the issuer's applicable authority domain and validity policy.
+
+`Issued(AuthID,domain) -> ¬IssuedAgain(AuthID,domain)` unless an explicit idempotency rule defines the operation as the same authorization event.
+
+Nonce uniqueness alone is not sufficient if the signed payload omits the target, parent state, scope or policy context.
+
+### Replay classes
+
+Replay must be considered across at least:
+- same transition, repeated execution;
+- different transition with same authorization;
+- different parent state;
+- different policy version;
+- different protocol/object type;
+- different issuer key version where substitution is attempted.
+
+Each unauthorized reinterpretation must fail closed.
+
+### Cross-protocol separation
+
+Authorization domain tags must distinguish authorization from unrelated signed messages and from other authorization protocol versions.
+
+`Domain_v1(Auth) != Domain_v2(OtherProtocol)`.
+
+Protocol/version changes require explicit compatibility rules; no implicit cross-version acceptance.
+
+### Hash assumptions
+
+Hash-derived identity provides collision resistance only under the declared cryptographic assumptions. Identity equality is not by itself proof of authorization validity.
+
+`AuthIDMatch != AuthorizationValid`.
+
+### Idempotency
+
+If the same exact authorization is intentionally retried, the system must distinguish legitimate idempotent retry from replay of a consumed authorization. The distinction must be explicit in policy and persisted state.
+
+### Current implementation boundary
+
+V2 does not claim completed canonical authorization serialization, nonce registry, cryptographic issuer runtime or cross-protocol replay enforcement. These remain implementation contracts.
+
+### Required next step
+
+E5.09: define the minimum Root-of-Trust implementation and test contract, including issuer state, authorization registry, revocation state, persistence/recovery and adversarial CI evidence.
