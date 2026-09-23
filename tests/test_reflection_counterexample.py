@@ -79,7 +79,7 @@ def test_counterexample_result_rejects_foreign_candidate():
 
 def test_counterexample_result_rejects_nonaccepted_refuted_evidence():
     from gnosis.reflection.counterexample import CounterexampleResult, validate_counterexample_result
-    history=(_record(0, False, "c1", "repeated failure"),)
+    history=(_record(0, False, "c1", "repeated failure"), _record(1, False, "c1", "repeated failure"))
     analyzer=ReflectionAnalyzer(history)
     report=analyzer.analyze()
     finding, candidate = report.findings[0], report.counterexamples[0]
