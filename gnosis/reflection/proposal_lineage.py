@@ -7,7 +7,8 @@ new proposal relates to earlier proposals addressing the same finding.
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
+import json
+from dataclasses import asdict, dataclass
 from typing import Iterable, Mapping
 
 
@@ -23,9 +24,11 @@ class ProposalEvolution:
     status: str = "PROPOSED"
 
 
-def _stable_id(*parts: str) -> str:
-    raw = "|".join(parts).encode("utf-8")
-    return hashlib.sha256(raw).hexdigest()[:24]
+def proposal_evolution_id(evolution: ProposalEvolution) -> str:
+    payload = asdict(evolution)
+    payload.pop("evolution_id", None)
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return "proposal-evolution:" + hashlib.sha256(raw).hexdigest()[:24]
 
 
 def evolve_proposal(
@@ -61,19 +64,22 @@ def evolve_proposal(
             relation = "REVISION_OF_UNRESOLVED"
             rationale = "A prior proposal remains unresolved; the new proposal must provide additional evidence or a materially revised hypothesis."
 
-    evolution_id = "proposal-evolution:" + _stable_id(
-        finding_id,
-        parent_id or "none",
-        current_proposal_id,
-        relation,
-        *evidence_refs,
-    )
-    return ProposalEvolution(
-        evolution_id=evolution_id,
+    evolution = ProposalEvolution(
+        evolution_id="",
         finding_id=finding_id,
         parent_proposal_id=parent_id,
         relation=relation,
         rationale=rationale,
         evidence_refs=evidence_refs,
         current_proposal_id=current_proposal_id,
+    )
+    return ProposalEvolution(
+        evolution_id=proposal_evolution_id(evolution),
+        finding_id=evolution.finding_id,
+        parent_proposal_id=evolution.parent_proposal_id,
+        relation=evolution.relation,
+        rationale=evolution.rationale,
+        evidence_refs=evolution.evidence_refs,
+        current_proposal_id=evolution.current_proposal_id,
+        status=evolution.status,
     )
