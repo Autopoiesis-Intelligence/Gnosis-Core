@@ -1,5 +1,5 @@
 import pytest
-from gnosis.self_learning.bridge import CoreMutationProposal
+from gnosis.self_learning.bridge import CoreMutationProposal, approve_core_mutation
 from gnosis.self_learning.execution import bind_core_proposal
 from gnosis.reflection.authority import ExecutionCommitRequest
 
@@ -10,7 +10,7 @@ def req():
     )
 
 def test_approved_proposal_can_bind_to_execution():
-    p=CoreMutationProposal("m","i","v","common-self-learning","merge","APPROVED")
+    p=approve_core_mutation(CoreMutationProposal("m","i","v","common-self-learning","merge"), approver="test")
     b=bind_core_proposal(p,req())
     assert b.proposal_id=="m"
     assert b.evolution_identity=="e"
