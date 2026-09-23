@@ -419,3 +419,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.25 — Partner Provenance Binding & Immutable Contribution Lineage:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `75c96b4dd670c3358740dd7163ecad5f00c38bd3`. Defines immutable provenance tuples, lineage closure, multi-source derived-artifact lineage, provenance-preserving quarantine/revocation and conflict-safe replay. Provenance establishes origin, not authority.
+
+
+- **E7.26 — Partner Admission Runtime Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `1b35eb7d9b0f581ba41ab0dd5f48f225dcca9dab`. Defines the fail-closed runtime gate from validated/provenance-bound contribution to admitted learning/evidence state, with explicit scope, revocation, idempotency, crash/recovery and no-Core-mutation constraints.
