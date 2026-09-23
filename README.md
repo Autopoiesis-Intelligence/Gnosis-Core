@@ -4,7 +4,7 @@
 
 Gnozis Core is the canonical engineering foundation of the Gnozis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The older Gnozis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. V2 is not merely a replacement archive; it is the engineering foundation that receives research-derived requirements after they have been formalized and mapped to code.
+The older Gnozis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. The GitHub repository currently named Gnozis-V2 is the canonical Core repository; the product identity is Gnozis Core. It receives research-derived requirements only after they have been formalized and mapped to code.
 
 ## Project relationship
 
@@ -83,3 +83,14 @@ Every product-facing capability should answer four questions:
 4. What happens when evidence is missing, stale, conflicting or revoked?
 
 A connected AI product is a surface over the durable Gnozis context, not an alternative source of truth.
+
+
+## Repository naming baseline
+
+Product identity: **Gnozis Core**.
+
+Canonical engineering role: **Core**.
+
+Temporary second repository role: **Self-Learning Archive / Self-Learning Research & Learning Archive**.
+
+The `Gnozis-V2` GitHub repository name is a current repository identifier, not the product/version identity. Physical GitHub renaming is an account-level repository operation and is not represented as completed by documentation alone.
