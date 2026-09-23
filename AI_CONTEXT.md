@@ -2951,3 +2951,57 @@ The contract therefore requires a structured representation:
 ### Required next step
 
 E4.89: formalize severity/asymmetry and residual risk without turning the verification contract into a universal numerical ranking.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.89: SEVERITY, ASYMMETRY, REVERSIBILITY, RESIDUAL UNKNOWN
+
+### Definitions
+
+Let `F*` be the declared relevant failure-mode set and let `C(e,f)` be the coverage relation from E4.88.
+
+For each failure mode `f`, define qualitative attributes:
+- `sev(f)` — consequence severity;
+- `irr(f)` — irreversibility or difficulty of recovery;
+- `obs(f)` — observability after occurrence;
+- `det(f)` — detectability before commitment;
+- `dep(f)` — dependency on shared/common-mode assumptions.
+
+These are attributes, not a universal scalar score.
+
+### Asymmetry
+
+Verification obligations are asymmetric when two failures with similar occurrence characteristics have materially different consequences.
+
+`frequency(f1) ≈ frequency(f2)` does not imply `verification_priority(f1) ≈ verification_priority(f2)`.
+
+The contract does not define a universal numerical priority function.
+
+### Reversibility
+
+Let `R(f)` denote whether consequences of `f` can be reliably reversed within the declared operational scope.
+
+A failure that is difficult or impossible to reverse requires a stronger pre-commit evidence boundary than an otherwise comparable reversible failure.
+
+This is a constraint on verification design, not a numeric risk score.
+
+### Residual unknowns
+
+Define `U = {f : f is materially possible but not represented in F*}`.
+
+`Blind(E,F*) = ∅` does not imply `U = ∅`.
+
+Therefore absence of observed blind spots is not evidence that unknown failure modes do not exist.
+
+### Proposition E4.89.1
+
+If two failure modes `f1` and `f2` have equal observed frequency but different consequence/reversibility classes, then frequency alone is insufficient to establish equivalent verification requirements.
+
+### Boundary
+
+E4.89 does not define a universal scalar risk model, ranking, or threshold. Any quantitative prioritization introduced later must be explicitly scoped to a stated model and must not be mistaken for a theorem of the verification framework.
+
+### Dependency
+
+E4.89 depends on E4.87 and E4.88: independence → coverage diversity → consequence/reversibility-aware verification.
+
+### Required next step
+
+E4.90: formalize the distinction between evidence for detection, evidence for explanation, and evidence for authorization/commitment.
