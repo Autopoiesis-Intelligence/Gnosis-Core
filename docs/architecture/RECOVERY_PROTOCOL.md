@@ -143,3 +143,13 @@ Warnings must never downgrade a corrupt state to `RECOVERED`. A warning is for n
 ## Prohibited behavior
 
 Recovery must not choose a state by newest timestamp, ignore an invalid final event, repair a broken middle chain implicitly, delete records automatically, or advance an instance head based solely on an audit event.
+
+## Cross-lineage merge boundary
+
+Fork/lineage recovery does not imply a merge operation. If multiple valid lineages are later composed, the merge must be treated as a new candidate transition.
+
+`Valid(A) ∧ Valid(B) ≠ Valid(Merge(A,B))`
+
+Both parent histories and their provenance must remain recoverable. A merge must not silently replace one branch, union authority scopes by default, or resurrect revoked authority from either branch.
+
+No runtime cross-lineage merge authority is claimed by this document.
