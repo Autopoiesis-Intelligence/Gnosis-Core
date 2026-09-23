@@ -171,7 +171,14 @@ def _canonical_evolution_identity(provenance: object) -> str:
 
 
 def require_execution_commit(request: ExecutionCommitRequest) -> None:
-    """Fail closed unless authorization, identity and freshness all agree."""
+    """Fail closed unless authorization, evidence and freshness all agree."""
+    provenance = request.provenance
+    if str(getattr(provenance, "evaluation_status", "")) != "PASS":
+        raise PermissionError("execution commit requires verified evaluation")
+    if str(getattr(provenance, "invariant_status", "")) != "PRESERVED":
+        raise PermissionError("execution commit requires preserved invariants")
+    if str(getattr(provenance, "governance_decision", "")) != "ALLOW":
+        raise PermissionError("execution commit requires governance allow")
     require_execution_authorization(
         request.authorization,
         request_provenance=request.request_provenance,
