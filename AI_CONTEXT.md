@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.93 — Remediation Execution Admission & Preflight Gate
+
+E7.93 defines the final admission boundary immediately before execution. Preflight verifies current authorization, exact operation, actor, target, mutable resource state, holds/conflicts and required conditions without executing the operation or extending authority.
+
+Contract artifact: `docs/architecture/PARTNER_REMEDIATION_EXECUTION_PREFLIGHT_CONTRACT.md`.
+Contract commit: `7bd69b9283d88f6eb800ba91d499c16ab90f5c2d`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.92 — Remediation Plan Authorization Boundary
 
 E7.92 defines the authorization boundary after an E7.91 accepted plan. Authorization is exact-scoped, least-authority and time-bounded; it does not prove execution or success and cannot mutate Ψ-Core.
