@@ -388,3 +388,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.18 — Learned Rule Revocation / Rollback / Supersession:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNED_RULE_REVOCATION_ROLLBACK_SUPERSESSION_CONTRACT.md` (`0786696d`). Defines post-promotion safety lifecycle, controlled re-evaluation, immutable replacement lineage and fail-closed revocation.
 - **P0 self-learning integrated proof:** remains ~20%. E7.18 architectural coverage ~40%, verification coverage ~5%.
+
+- **E7.19 — Learning Dependency Graph & Impact Analysis:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_DEPENDENCY_GRAPH_IMPACT_ANALYSIS_CONTRACT.md` (`8522c056`). Defines explicit multi-hop learning lineage and change propagation across partner repositories, evidence, proposals, rules, policies and state.
+- **P0 self-learning integrated proof:** remains ~20%. E7.19 architectural coverage ~40%, verification coverage ~5%.
