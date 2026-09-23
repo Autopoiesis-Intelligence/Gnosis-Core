@@ -60,6 +60,9 @@ def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
                     f"incompatible schema version: {version} (expected {SCHEMA_VERSION})"
                 )
     conn.executescript(SCHEMA)
+    # Reflection persistence is part of the canonical database schema; initialize it once at connection boundary.
+    from ..reflection.persistence import ensure_reflection_schema
+    ensure_reflection_schema(conn)
     conn.execute(
         "INSERT OR IGNORE INTO schema_meta(key,value) VALUES('schema_version',?)",
         (str(SCHEMA_VERSION),),
