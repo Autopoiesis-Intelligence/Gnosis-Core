@@ -525,3 +525,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.66 — Training Execution Receipt:** PARTIAL / UNVERIFIED. Added machine-readable execution evidence binding plan/input/execution revisions, result references, test evidence, Core-invariant evidence, boundary evidence and status. Delivery eligibility requires PASSED plus all three evidence classes. CI coverage added; exact-commit PASS pending.
 
 - **E7.67 — Specialized Core Build Record:** PARTIAL / UNVERIFIED. Added provenance binding a specialized Core build to the exact Training Execution Receipt and Core specification, with source revisions, invariant evidence, validation references and build revision. Build eligibility requires PASSED receipt, BUILT status and evidence. CI coverage added; exact-commit PASS pending.
+
+- **E7.68 CI repair:** IMPLEMENTED / UNVERIFIED. Resolved the workflow update conflict and added `tests/test_release_gate.py` to the Self-Diagnostic test matrix. Commit: `2582ffaee84226018d36b31bbe94cfe506f76078`. Exact CI PASS still pending.
