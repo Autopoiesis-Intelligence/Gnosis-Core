@@ -432,3 +432,31 @@ def test_promotion_candidate_binds_authorization_context():
         authorization_freshness="epoch:7",
     )
     assert other.candidate_id != candidate.candidate_id
+
+
+def test_promotion_gate_rejects_stale_authorization_context():
+    from gnosis.evolution.promotion import evaluate_promotion_gate, make_promotion_candidate
+
+    candidate = make_promotion_candidate(
+        candidate_id="candidate:stale-auth",
+        evidence_digest="digest:stale-auth",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+        authorization_scope="scope:v1",
+        authorization_target="target:v1",
+        policy_version="policy:v1",
+        authorization_freshness="epoch:1",
+    )
+    gate = evaluate_promotion_gate(
+        candidate,
+        provenance_valid=True,
+        expected_authorization_scope="scope:v1",
+        expected_authorization_target="target:v1",
+        expected_policy_version="policy:v2",
+        expected_authorization_freshness="epoch:2",
+    )
+    assert not gate.eligible
+    assert "authorization policy version is stale or mismatched" in gate.reasons
+    assert "authorization freshness is stale or mismatched" in gate.reasons
