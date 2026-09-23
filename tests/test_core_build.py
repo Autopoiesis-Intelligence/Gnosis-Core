@@ -1,5 +1,5 @@
 import pytest
-from gnosis.self_learning.core_build import create_build_record,build_eligible
+from gnosis.self_learning.core_build import create_build_record,build_eligible,validate_build_record_identity,validate_build_receipt_binding
 
 def make(status="BUILT"):
     return create_build_record(receipt_id="sha256:receipt",core_spec_id="sha256:spec",source_revisions=("data:r1",),invariant_refs=("psi:pass",),validation_refs=("ci:pass",),build_revision="core:r1",status=status)
