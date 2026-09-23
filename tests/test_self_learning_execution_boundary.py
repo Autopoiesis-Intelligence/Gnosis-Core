@@ -1,12 +1,17 @@
 import pytest
-from gnosis.self_learning.bridge import CoreMutationProposal
+from gnosis.self_learning.bridge import CoreMutationProposal, approve_core_mutation, create_core_mutation_proposal
+from gnosis.self_learning.integration import IntegrationRecord
 from gnosis.self_learning.execution import execute_approved_core_proposal
 from gnosis.reflection.authority import (
     ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot,
 )
 
+def valid_proposal():
+    record=IntegrationRecord("sha256:i","sha256:p","sha256:v","common-self-learning","merge")
+    return approve_core_mutation(create_core_mutation_proposal(record), approver="test")
+
 def test_execution_adapter_fails_closed_without_owner_authorization():
-    proposal=CoreMutationProposal("m","i","v","common-self-learning","merge","APPROVED")
+    proposal=valid_proposal()
     auth=ExecutionAuthorization(
         request_provenance="p",
         owner_approved=False,
