@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.100 — Self-Learning Contract Completion & Evidence Gate
+
+E7.100 defines the evidence gate for transitioning Self-Learning contracts from DESIGNED to IMPLEMENTED and VERIFIED. It prevents documentation or unexecuted tests from being treated as runtime proof and requires reproducible progress metrics.
+
+Contract artifact: `docs/architecture/SELF_LEARNING_CONTRACT_COMPLETION_EVIDENCE_GATE.md`.
+Contract commit: `3d8afa94c49e9bdfe74f5e0cc94f96af83ef6fe1`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.99 — Post-Closure Evidence Integrity Verification & Provenance Checkpoint
 
 E7.99 defines a deterministic integrity checkpoint over the complete remediation evidence chain. It verifies provenance and immutable record identity without rewriting history, changing closure status or granting execution authority.
