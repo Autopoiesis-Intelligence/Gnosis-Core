@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gnozis Partner Agent Participation",
+  "type": "object",
+  "required": [
+    "submission_version",
+    "agent_id",
+    "agent_type",
+    "declared_role",
+    "participation_goal",
+    "requested_access_level",
+    "requested_contracts",
+    "identity"
+  ],
+  "properties": {
+    "submission_version": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_type": {
+      "enum": [
+        "HUMAN",
+        "AI_PLATFORM",
+        "AGENT",
+        "TESTER",
+        "RESEARCH_GROUP",
+        "HYBRID"
+      ]
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "organization_or_project": {
+      "type": "string"
+    },
+    "contact_reference": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "source_repository": {
+      "type": "string"
+    },
+    "source_revision": {
+      "type": "string"
+    },
+    "declared_role": {
+      "type": "string"
+    },
+    "participation_goal": {
+      "type": "string"
+    },
+    "problems_of_interest": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expected_contribution": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requested_access_level": {
+      "type": "string"
+    },
+    "requested_contracts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "supporting_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "known_uncertainty": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "known_counterexamples": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reproduction_method": {
+      "type": "string"
+    },
+    "technical_interface": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "contract_participation": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "debate_profile": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "audit_declaration": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "public_key",
+        "identity_method",
+        "identity_scope"
+      ],
+      "properties": {
+        "public_key": {
+          "type": "string"
+        },
+        "identity_method": {
+          "type": "string"
+        },
+        "identity_scope": {
+          "type": "string"
+        },
+        "key_rotation_policy": {
+          "type": "string"
+        },
+        "revocation_reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dataset_contribution": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "declaration": {
+      "type": "object",
+      "properties": {
+        "submitted_by": {
+          "type": "string"
+        },
+        "submission_signature": {
+          "type": "string"
+        },
+        "submission_timestamp": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
