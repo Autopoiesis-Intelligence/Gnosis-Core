@@ -860,3 +860,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #59 merged by squash into `main` as `42939b038392b76e617992bb459d867bce2ad91d`.
 - Dependency Review #137 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.61 canonical receipt identity is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.62 integration context binding — integrated — 2026-09-23
+
+- PR #60 exact head `44bcc977705278fff14a5727003eed1a619ebf19` passed CI #2053 and CodeQL #931.
+- Cross-context adversarial testing proved the pre-fix gap: a valid execution authorization could previously be applied to a different IntegrationRecord.
+- Production now fails closed on `proposal_id`, `version_id`, and `target` context mismatches before EXECUTED transition.
+- Tests were migrated to derive execution fixtures from the same accepted promotion context, preserving the adversarial foreign-context case.
+- PR #60 merged by squash into `main` as `af76998227c7b872623a8ce276b2a684a078113d`.
+- Dependency Review #142 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.62 integration context binding is INTEGRATED / CI + CodeQL VERIFIED.
