@@ -454,3 +454,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.38 — Partner Specialized Core Provisioning & Inbound Trust Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `fdb56e027211ba5dedee219415a83fa93df998da`. Defines governed commercial specialization of a Core instance around partner-specific learning databases, domain profiles, authorized populations and capabilities, while requiring all inbound evidence to pass identity, integrity, provenance, validation, quarantine/policy and admission boundaries.
+
+
+- **E7.39 — Core Minimality & Specialized Knowledge/Learning Layer Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `c333b0103a0e7d7fc1cf6778c2746c26c6ff8d68`. Canonical Core is defined as common minimal effective mechanics, while domain knowledge, datasets, learned models and domain policies remain in governed specialization layers. Learning cannot silently mutate canonical Core.
