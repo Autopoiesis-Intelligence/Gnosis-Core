@@ -2999,3 +2999,83 @@ Description is considered synchronized only when a reader can understand what Gn
 
 NEXT:
 R2.DOC-1b — Public Description Evidence Audit.
+
+
+## 2026-09-23 EVOLUTION CONTRACT — IMMUTABLE COMMIT AUTHORIZATION
+
+TASK-ID: R2.OPT-10b
+BLOCK: Immutable Commit Authorization
+STATUS: ACTIVE
+PRIORITY: HIGH
+DEPENDS_ON: R2.OPT-10, R2.OPT-9c
+OBJECTIVE: Create an immutable, evidence-bound authorization object that proves a specific candidate, provenance, shadow result and governance decision are the exact objects eligible to cross the commit boundary.
+
+NON-GOALS:
+Authorization must not itself mutate files, execute commands, grant general permissions, or bypass Core governance.
+
+REQUIRED BINDING:
+candidate_id
+candidate_binding_digest
+provenance_id
+evidence_digest
+decision_digest
+governance decision
+shadow acceptance
+authorization digest
+
+FAIL-CLOSED:
+Missing, inconsistent, stale, tampered or mismatched identity/evidence => NOT AUTHORIZED.
+
+AUTHORITY RULE:
+Authorization is a proof-bearing object, not an execution capability. Commit execution remains a separate boundary.
+
+NEXT:
+R2.OPT-10c — Authorization Verification & Staleness Barrier.
+
+## 2026-09-23 EVOLUTION CONTRACT — EXTERNAL TRANSFER EVIDENCE
+
+TASK-ID: R2.XFER-2d
+BLOCK: Provenance-Bound External Transfer Evidence
+STATUS: ACTIVE
+PRIORITY: HIGH / PARALLEL
+DEPENDS_ON: R2.XFER-2c, R2.XFER-1
+OBJECTIVE: Bind every accepted external-machine transfer to participant identity, repository scope, transfer identity and evidence provenance without granting Core authority.
+
+REQUIRED BINDING:
+machine_id
+participant_id
+transfer_id
+source_repository
+source_revision
+contract_id
+epistemic_status
+evidence_digest
+payload_digest
+target_scope
+
+FAIL-CLOSED:
+Inactive/revoked/out-of-scope participant, missing provenance or payload mismatch => transfer rejected.
+
+NEXT:
+R2.XFER-2e — External Transfer Replay / Duplicate Protection.
+
+## 2026-09-23 EVOLUTION CONTRACT — PUBLIC DESCRIPTION EVIDENCE AUDIT
+
+TASK-ID: R2.DOC-1b
+BLOCK: Public Description Evidence Audit
+STATUS: ACTIVE
+PRIORITY: MEDIUM / PARALLEL
+DEPENDS_ON: R2.DOC-1
+OBJECTIVE: Audit GitHub-facing descriptions against verified implementation, tests, CI and AI_CONTEXT before public wording is updated.
+
+REQUIRED OUTPUT:
+For every public capability claim classify as IMPLEMENTED / PARTIAL / MISSING / THEORETICAL / VERIFIED_BY_CI / NOT_PERFORMED where applicable.
+
+DO_NOT_CHANGE:
+Do not expose secrets or internal operational details. Do not turn directional readiness percentages into public quality claims.
+
+ACCEPTANCE:
+Every substantive public claim must have an identifiable evidence source or be explicitly labeled as planned/theoretical.
+
+NEXT:
+R2.DOC-1c — Evidence-Based Public Description Update.
