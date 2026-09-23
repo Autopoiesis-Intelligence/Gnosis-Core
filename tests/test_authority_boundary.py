@@ -595,3 +595,37 @@ def test_sqlite_execution_commit_rejects_contradictory_self_evolution_without_du
     assert load_instance(conn, instance.instance_id).engine.state.state_id == before
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == before_transitions
     conn.close()
+
+
+def test_self_learning_candidate_cannot_bypass_authorization_boundary():
+    parent = State(elements={"a": 1})
+    proposed = parent.with_elements({"a": 2})
+    candidate = Candidate(parent.state_id, proposed, "self-learning:handoff:123", 1)
+    provenance = _provenance_for(candidate, parent, proposed)
+    request = _make_execution_commit_request(provenance)
+
+    # Deliberately make the learning-origin candidate look otherwise valid,
+    # but provide no executable owner authorization.
+    request = ExecutionCommitRequest(
+        authorization=ExecutionAuthorization(
+            request_provenance=provenance.provenance_id,
+            owner_approved=False,
+            evolution_identity=provenance.evolution_identity,
+        ),
+        intent_snapshot=request.intent_snapshot,
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        provenance=provenance,
+    )
+    record = TransitionRecord(
+        parent.state_id,
+        proposed.state_id,
+        candidate.candidate_id,
+        TestResult(True),
+        True,
+        "ok",
+    )
+    with pytest.raises(PermissionError, match="execution authorization"):
+        require_execution_commit(request)
+    with pytest.raises(PermissionError, match="execution authorization"):
+        require_execution_candidate_binding(request, candidate, record)
