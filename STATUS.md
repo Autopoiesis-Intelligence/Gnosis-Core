@@ -942,3 +942,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #67 merged by squash into `main` as `debe34c199c1ada688a736898d8fcde4cdbf2f69`.
 - Dependency Review #153 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.69 partner delivery authorization binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.70 partner delivery receipt binding — integrated — 2026-09-24
+
+- PR #68 exact head `5edfa0ef87fc566033bd84a384b641a024536750` passed CI #2082 and CodeQL #960.
+- `validate_delivery_receipt_binding()` recomputes receipt identity and fails closed when authorization, delivery manifest, core build revision, partner, or knowledge scope differs from the expected context.
+- Adversarial coverage rejects tampered receipt identity and foreign authorization.
+- PR #68 merged by squash into `main` as `7bd53b9e8c3c640b68b164ec248435fc01d00f29`.
+- Dependency Review #154 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.70 partner delivery receipt binding is INTEGRATED / CI + CodeQL VERIFIED.
