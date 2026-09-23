@@ -107,6 +107,7 @@ Each contract record SHOULD contain:
 | E7.86 | DESIGNED / NOT_IMPLEMENTED | External Auditor Verification & Attestation Boundary |
 | E7.87 | DESIGNED / NOT_IMPLEMENTED | External Audit Challenge, Dispute & Evidence Reconciliation |
 | E7.88 | DESIGNED / NOT_IMPLEMENTED | External Audit Resolution, Corrective Finding & Attestation Update |
+| E7.89 | DESIGNED / NOT_IMPLEMENTED | Corrective Finding Governance Review & Remediation Trigger |
 
 ## Update rule
 
