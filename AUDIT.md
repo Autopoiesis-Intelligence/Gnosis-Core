@@ -1,3 +1,28 @@
+# CURRENT AUDIT BASELINE — 2026-09-23
+
+> **Superseding note:** The legacy audit body below describes an earlier repository snapshot and must not be read as the current runtime state. Current implementation claims are governed by the pinned source, tests, exact-commit CI evidence, and the latest adversarial findings.
+
+## Current pinned evidence
+
+- Candidate evidence commit: `a22cdbf1cc250452e035ef174fd8551da4b21a67` (PR #33).
+- CI evidence: Python 3.11 and 3.12 runtime suites passed; CodeQL passed on the pinned candidate commit.
+- P0 runtime integrity cycle: transition tamper, replay/restart, provenance, recovery authorization, reflection identity and shadow-assessment integrity were exercised during the corrective CI sequence.
+- A real persistence defect was found and corrected during this sequence: shadow-assessment identity previously depended on `proposal_id`; canonical identity is now based on the immutable assessment payload, while proposal binding remains lineage metadata.
+- The legacy shallow-freeze/no-op/TestResult findings in the historical sections were subsequently addressed by the corrective patch set; they are historical findings, not current status claims.
+- Dependency Review remains **UNVERIFIED/BLOCKED by repository Dependency Graph availability**, not a reported dependency vulnerability.
+
+## Current gate
+
+**Runtime correctness:** VERIFIED_BY_CI on the pinned candidate commit.
+
+**Independent adversarial reconciliation:** IN_PROGRESS.
+
+**Main consolidation:** PENDING.
+
+**Repository rename:** NOT SAFE.
+
+---
+
 # GNOZIS 2.0 — КОНТРОЛЬНЫЙ АУДИТ АКТУАЛЬНОСТИ АРХИВА
 
 Аудируемый артефакт: `gnosis2-phase0-1-3.zip` (Phase 0 + Phase 1 + Phase 3 slice,
