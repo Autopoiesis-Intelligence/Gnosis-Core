@@ -4731,3 +4731,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.31 — Partner Capability Enforcement & Runtime Scope Boundary:** DESIGNED / NOT_IMPLEMENTED. Runtime authorization is constrained to the intersection of declared, policy-allowed, accepted and currently valid capabilities. Runtime scope may narrow but never widen granted scope. Protected actions require explicit boundary checks and cannot bypass Core, audit, validation, admission or governance controls.
+
+
+- **E7.32 — Partner Action Audit & Evidence:** DESIGNED / NOT_IMPLEMENTED. Partner audit events distinguish authorization Decision (ALLOW/DENY) from execution Outcome (SUCCESS/FAILURE/INTERRUPTED/REVOKED/NOT_EXECUTED). Events preserve applicable contract/package/acceptance/policy revisions and denial evidence while never becoming capability tokens or authority sources.
