@@ -60,3 +60,35 @@ def test_e7_59_receipt_identity_must_match_integration():
     )
     with pytest.raises(ValueError, match="execution receipt"):
         mark_executed(r, receipt=receipt)
+
+
+def test_e7_60_real_execution_receipt_identity_is_not_integration_id():
+    from gnosis.evolution.provenance import build_provenance
+    from gnosis.reflection.authority import ExecutionReceipt
+    r=create_integration_record(accepted(), action="merge-approved-knowledge")
+    observations={"result":"ok"}
+    import hashlib, json
+    evidence_digest="sha256:"+hashlib.sha256(json.dumps(observations,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    p=build_provenance(
+        candidate_id="candidate:1",
+        parent_state_id="state:parent",
+        parent_state_digest="sha256:parent",
+        proposed_state_digest="sha256:result",
+        observations=observations,
+        evidence_digest=evidence_digest,
+        evaluation_status="PASS",
+        shadow_status="PASS",
+        invariant_status="PASS",
+        governance_decision="ACCEPT",
+    )
+    receipt=ExecutionReceipt(
+        execution_id=p.execution_id,
+        provenance_id=p.provenance_id,
+        evolution_identity=p.evolution_identity,
+        parent_state_digest=p.parent_state_digest,
+        resulting_state_digest=p.proposed_state_digest,
+        candidate_binding_digest=p.candidate_binding_digest,
+    )
+    assert receipt.execution_id != r.integration_id
+    with pytest.raises(ValueError, match="execution receipt"):
+        mark_executed(r, receipt=receipt)
