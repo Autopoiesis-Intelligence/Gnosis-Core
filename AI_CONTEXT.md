@@ -4278,3 +4278,34 @@ Counterexample requirement: any proposed level-transition rule must be tested ag
 Compatibility with Ψ: the level context is an analytical projection over `Ψ=(X,R)`, not a second state model and not an authority mechanism.
 
 Status: FORMALIZED HYPOTHESIS / NOT PROVEN.
+## E5.22 — EXACT INTENT / ISSUER BINDING
+
+The test issuer now accepts an exact provenance object and derives test authorization fields directly from it. The resulting test authorization is adapted into `ExecutionAuthorization`, then checked against the immutable `ExecutionIntentSnapshot`.
+
+`Provenance -> TestAuthorization -> ExecutionAuthorization -> ExecutionIntentSnapshot`.
+
+Material changes to parent-state identity invalidate the snapshot; material changes to authorization evolution identity invalidate issuer verification. This remains a test-only vertical slice and does not implement the production owner issuer.
+
+Status: IMPLEMENTED / UNVERIFIED pending exact-commit CI.
+
+## E7.9.4 — COMPOSITION OF LEVEL TRANSITIONS
+
+Given level contexts `L_i=(X_i,R_i,D_i,Q_i)` and scoped tasks `T_i`, define a transition sequence `L_0 -> L_1 -> ... -> L_n` where each edge satisfies `LevelChange(L_i,L_{i+1},T_i)`.
+
+Composition is valid only if each transition's output context remains admissible for the next task and the transition provenance is preserved:
+`A(L_{i+1}, T_{i+1})` is evaluated independently; validity of edge `i` does not imply validity of edge `i+1`.
+
+Define sequence validity:
+`SeqValid(L_0...L_n,T_0...T_{n-1}) := ∧_{i=0}^{n-1} LevelChange(L_i,L_{i+1},T_i) ∧ ∧_{i=1}^{n} Compat(L_i,T_i)`.
+
+`Compat` must explicitly state which distinctions/relations from the prior context remain available. A transition may be locally valid while the composed sequence is globally insufficient if required information is discarded.
+
+Non-monotonicity: `LevelChange(L_i,L_{i+1},T)` does not imply `A(L_{i+1},T')` for another task `T'`.
+
+Information loss boundary: if a mapping `F:L_i->L_{i+1}` discards a distinction required by `T_{i+1}`, then `Compat(L_{i+1},T_{i+1})` is false unless that distinction is reconstructible from retained evidence.
+
+Cycle condition: `L_i -> ... -> L_i` is not automatically progress. A cycle is an evolution only if the composed transformation changes task-relevant organization or evidence under the declared criterion.
+
+Compatibility with Ψ remains representational: each `L_i` is a projection over the same `Ψ=(X,R)`; no second mutable state model is introduced.
+
+Status: FORMALIZED / NOT PROVEN. Required counterexamples: locally valid but globally incompatible transition sequence; lossy transition; cycle without organizational gain; task-switch without level transition.
