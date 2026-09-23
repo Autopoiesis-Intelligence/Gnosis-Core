@@ -18,7 +18,7 @@ def req():
 def test_approved_proposal_can_bind_to_execution():
     p=valid_proposal()
     b=bind_core_proposal(p,req())
-    assert b.proposal_id=="m"
+    assert b.proposal_id==p.mutation_id
     assert b.evolution_identity=="e"
 
 def test_unapproved_proposal_is_blocked():
