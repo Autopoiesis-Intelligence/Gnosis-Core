@@ -89,3 +89,71 @@ def test_ineligible_learning_proposal_cannot_create_handoff():
             provenance_id="provenance:blocked",
             proposed_state_content_id="state-content:blocked",
         )
+
+
+def test_verified_learning_handoff_materializes_normal_candidate_without_activation():
+    from gnosis.core.types import State
+
+    candidate = make_promotion_candidate(
+        candidate_id="learning:candidate:materialize",
+        evidence_digest="evidence:materialize",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+    )
+    gate = evaluate_promotion_gate(
+        candidate,
+        provenance_valid=True,
+        required_evidence=("evidence:materialize",),
+    )
+    handoff = build_promotion_handoff(
+        candidate,
+        gate,
+        provenance_id="provenance:materialize",
+        proposed_state_content_id=State(elements={"x": 2}).content_id,
+    )
+    proposed = State(elements={"x": 2})
+    materialized = materialize_candidate_from_handoff(
+        handoff,
+        parent_state_id="state:parent",
+        proposed_state=proposed,
+        provenance_id="provenance:materialize",
+        source_promotion_id=handoff.promotion_id,
+    )
+    assert materialized.parent_state_id == "state:parent"
+    assert materialized.proposed_state.content_id == handoff.proposed_state_content_id
+    assert materialized.origin.startswith("self-learning:")
+    assert handoff.can_activate is False
+
+
+def test_learning_handoff_cannot_materialize_with_tampered_proposed_state():
+    from gnosis.core.types import State
+
+    candidate = make_promotion_candidate(
+        candidate_id="learning:candidate:tamper",
+        evidence_digest="evidence:tamper",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+    )
+    gate = evaluate_promotion_gate(
+        candidate,
+        provenance_valid=True,
+        required_evidence=("evidence:tamper",),
+    )
+    handoff = build_promotion_handoff(
+        candidate,
+        gate,
+        provenance_id="provenance:tamper",
+        proposed_state_content_id=State(elements={"x": 2}).content_id,
+    )
+    with pytest.raises(ValueError, match="proposed state mismatch"):
+        materialize_candidate_from_handoff(
+            handoff,
+            parent_state_id="state:parent",
+            proposed_state=State(elements={"x": 999}),
+            provenance_id="provenance:tamper",
+            source_promotion_id=handoff.promotion_id,
+        )
