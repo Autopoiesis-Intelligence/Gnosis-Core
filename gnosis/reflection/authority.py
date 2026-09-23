@@ -184,6 +184,18 @@ def require_execution_commit(request: ExecutionCommitRequest) -> None:
     require_execution_intent_snapshot(request.intent_snapshot, request.provenance)
 
 
+def require_execution_integration_context(request: ExecutionCommitRequest, record: object) -> None:
+    """Fail closed unless the authorized execution matches the integration context."""
+    p = request.provenance
+    for field in ("proposal_id", "version_id", "target"):
+        request_value = getattr(p, field, None)
+        record_value = getattr(record, field, None)
+        if request_value is None:
+            raise PermissionError(f"execution provenance has no integration field: {field}")
+        if str(request_value) != str(record_value):
+            raise PermissionError(f"execution integration context mismatch: {field}")
+
+
 def require_execution_candidate_binding(
     request: ExecutionCommitRequest,
     candidate: object,

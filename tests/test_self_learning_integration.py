@@ -94,11 +94,14 @@ def test_e7_60_real_execution_receipt_identity_is_not_integration_id():
         mark_executed(r, receipt=receipt, request=_execution_fixture()[0])
 
 
-def _execution_fixture():
+def _execution_fixture(proposal=None):
     from types import SimpleNamespace
     from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot, ExecutionReceipt
+    if proposal is None:
+        proposal = accepted()
     p=SimpleNamespace(
         provenance_id="prov:1", execution_id="exec:1",
+        proposal_id=proposal.proposal_id, version_id=proposal.version_id, target=proposal.target,
         parent_state_id="state:parent", parent_state_digest="sha256:parent",
         evolution_identity="evolution:1", candidate_binding_digest="sha256:binding",
         proposed_state_digest="sha256:result", proposed_state_content_id="sha256:content",
@@ -111,8 +114,9 @@ def _execution_fixture():
 
 
 def test_e7_60_matching_receipt_and_authorized_request_are_accepted():
-    r=create_integration_record(accepted(), action="merge-approved-knowledge")
-    request, receipt=_execution_fixture()
+    proposal=accepted()
+    r=create_integration_record(proposal, action="merge-approved-knowledge")
+    request, receipt=_execution_fixture(proposal)
     done=mark_executed(r, receipt=receipt, request=request)
     assert done.status=="EXECUTED"
     assert done.execution_id=="exec:1"
@@ -120,8 +124,9 @@ def test_e7_60_matching_receipt_and_authorized_request_are_accepted():
 
 
 def test_e7_60_receipt_from_other_execution_is_rejected():
-    r=create_integration_record(accepted(), action="merge-approved-knowledge")
-    request, receipt=_execution_fixture()
+    proposal=accepted()
+    r=create_integration_record(proposal, action="merge-approved-knowledge")
+    request, receipt=_execution_fixture(proposal)
     from dataclasses import replace
     foreign=replace(receipt, execution_id="exec:foreign")
     with pytest.raises(ValueError, match="authorized evolution"):
@@ -149,3 +154,13 @@ def test_e7_61_integration_persists_receipt_identity_separately():
     assert done.receipt_id == receipt.receipt_id
     assert done.execution_id == receipt.execution_id
     assert done.receipt_id != done.execution_id
+
+
+def test_e7_62_authorized_execution_cannot_execute_different_integration_context():
+    from dataclasses import replace
+    request, receipt = _execution_fixture()
+    original=create_integration_record(accepted(), action="merge-approved-knowledge")
+    foreign_proposal=replace(accepted(), proposal_id="proposal:foreign", version_id="version:foreign")
+    foreign=create_integration_record(foreign_proposal, action="merge-approved-knowledge")
+    with pytest.raises(ValueError):
+        mark_executed(foreign, receipt=receipt, request=request)
