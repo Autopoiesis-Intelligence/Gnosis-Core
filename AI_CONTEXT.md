@@ -3005,3 +3005,48 @@ E4.89 depends on E4.87 and E4.88: independence → coverage diversity → conseq
 ### Required next step
 
 E4.90: formalize the distinction between evidence for detection, evidence for explanation, and evidence for authorization/commitment.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.90: DETECTION, EXPLANATION, AUTHORIZATION EVIDENCE
+
+### Definitions
+
+For a claim or transition `q`, distinguish three evidence roles:
+- `E_D(q)` — detection evidence: establishes that an event, anomaly, failure, or observed property occurred.
+- `E_X(q)` — explanation evidence: supports a model of why or under what mechanism the observation occurred.
+- `E_A(q)` — authorization evidence: establishes that the system is permitted to perform the bounded action/transition under the applicable policy and authority scope.
+
+These sets may overlap, but their roles are not interchangeable.
+
+### Non-equivalence
+
+In general: `E_D ≠ E_X ≠ E_A`.
+
+Detection without explanation does not establish causality.
+Explanation without detection does not establish occurrence.
+Detection + explanation does not establish permission to act.
+Authorization without detection/explanation does not establish that the underlying claim is true.
+
+### Proposition E4.90.1
+
+If `E_D(q)` establishes an observed event and `E_X(q)` supports a causal model, then neither alone nor their union entails `E_A(q)` unless an explicit authorization rule maps the evidence and context to an authorized action.
+
+Likewise, an authorization decision does not retroactively make the detection or explanation true.
+
+### Commit boundary
+
+For an authority-sensitive transition: `Evidence → Evaluation → Authorization → Commit` must preserve role separation.
+
+A governance record is therefore not automatically equivalent to evidence of the underlying phenomenon; it is evidence about a decision under a declared authority rule.
+
+### Consequence for reflection
+
+Shadow evaluation and invariant analysis may provide detection/explanation evidence.
+They must not be interpreted as activation authority.
+A RuleProposal may accumulate evidence across all three roles while remaining non-authoritative until a separate governed authorization boundary is satisfied.
+
+### Boundary
+
+E4.90 does not require three physically independent artifacts. One artifact may carry multiple roles if the role assignment and derivation are explicit and independently checkable.
+
+### Required next step
+
+E4.91: formalize the authorization mapping itself: authority scope, actor/capability, target, policy version, freshness, and commit binding.
