@@ -4688,3 +4688,8 @@ Self-learning artifacts require explicit retention classes: CORE_REQUIRED, REPLA
 ## E7.21 — Learning Memory Trust Boundary
 
 Memory domains are separated into immutable Core K, governed learning workspace W, partner repository revisions P_i and external/archive storage A. Allowed learning flow is P_i/A -> W -> Verification -> Governance -> K. Direct partner/archive -> Core and workspace -> Core without verification/governance are forbidden. Knowledge storage is separate from authorization storage. Recovery must not substitute unverified cached/archive content.
+
+
+## E7.22 — Partner Repository Admission and Identity
+
+External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> METADATA_VALIDATED -> SCOPE_DECLARED -> PROVENANCE_BASELINED -> SECURITY_AUDITED -> QUARANTINED -> ADMITTED -> ACTIVE_SOURCE. Admission is not trust or execution authority. PartnerIdentity is distinct from human/agent identity, repository name/URL and authority. Undeclared capabilities are denied by default; forks/renames do not silently inherit authority; revocation triggers impact analysis without erasing historical provenance.
