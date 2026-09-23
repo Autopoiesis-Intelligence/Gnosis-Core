@@ -18,3 +18,13 @@ def test_lineage_break_is_detected():
     ok,errors=verify_lineage([a,b])
     assert not ok
     assert errors
+
+
+def test_tampered_version_identity_is_rejected() -> None:
+    from dataclasses import replace
+
+    original = record_version(u(1))
+    tampered = replace(original, version_id="sha256:tampered")
+    ok, errors = verify_lineage([tampered])
+    assert not ok
+    assert any(x.startswith("VERSION_DIGEST_MISMATCH") for x in errors)
