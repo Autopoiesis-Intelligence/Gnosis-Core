@@ -73,6 +73,7 @@ Each contract record SHOULD contain:
 | E7.52 | IMPLEMENTED / UNVERIFIED | Governed Self-Learning Knowledge Update |
 | E7.53 | IMPLEMENTED / UNVERIFIED | Knowledge State Versioning / Lineage |
 | E7.54 | IMPLEMENTED / UNVERIFIED | Knowledge Promotion Gate |
+| E7.55 | IMPLEMENTED / UNVERIFIED | Controlled Knowledge Integration Record |
 
 ## Update rule
 
