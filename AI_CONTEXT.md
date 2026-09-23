@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.117 — First Authorized Proof Execution Record
+
+E7.117 defines the authoritative runtime record for the first proof execution after E7.116 authorization. It captures the actual execution lifecycle and terminal result without granting direct progress credit.
+
+Contract artifact: `docs/architecture/SELF_LEARNING_FIRST_AUTHORIZED_PROOF_EXECUTION.md`.
+Contract commit: `a201f9ddea67477cafb619f0599e6f306ceb7d70`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.116 — First Proof Run Preflight Final Gate & Execution Authorization
 
 E7.116 defines the final fail-closed boundary immediately before the first actual proof run. Execution may start only after all frozen scope, exact commit, environment, evidence, policy and recovery prerequisites pass.
