@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.78 — External Collaboration Failure, Compensation & Recovery Boundary
+
+E7.78 defines the fail-closed boundary after external execution failure or uncertainty. FAILED/PARTIAL/UNKNOWN/MISMATCH remain distinct evidence states; retries and compensation require separate authorization, new execution identities and preserved prior evidence. Recovery cannot silently repair history or expand scope.
+
+Contract artifact: `docs/architecture/PARTNER_COLLABORATION_FAILURE_COMPENSATION_RECOVERY_CONTRACT.md`.
+Contract commit: `00c65f18a9e693fcb3103d6673896eb13fbbf3fc`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.77 — External Collaboration Execution Evidence & Result Reconciliation
 
 E7.77 closes the evidence boundary after an authorized external collaboration action. Execution evidence must bind the exact Proposal -> Review -> Authorization -> Execution Attempt -> Result -> Reconciliation chain. UNKNOWN/PARTIAL outcomes cannot become success without new evidence; conflicting replay and scope mismatch fail closed.
