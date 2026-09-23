@@ -460,3 +460,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.41 — Distributed Clone Learning, Privacy & Network Integration:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `e70ca3517f80258584d1ca4d02cee1327b261090`. Specialized clones may learn locally and integrate approved generalized knowledge without exposing private user/partner data. Connectivity never implies data authorization; network learning cannot directly mutate Core.
+
+
+- **E7.41 — Distributed Clone Learning, Privacy & Network Integration:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `e70ca3517f80258584d1ca4d02cee1327b261090`. Specialized clones may learn locally and integrate approved generalized knowledge without exposing private user/partner data. Connectivity never implies data authorization; network learning cannot directly mutate Core.
