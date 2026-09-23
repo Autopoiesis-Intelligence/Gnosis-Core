@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.108 — First Verification Batch Execution Record & Evidence Capture
+
+E7.108 defines the authoritative execution record for the first verification batch. It captures actual commands/tests, exact commit, environment, observed results and criterion-level evidence without granting acceptance or verification by itself.
+
+Contract artifact: `docs/architecture/SELF_LEARNING_FIRST_BATCH_EXECUTION_EVIDENCE_CAPTURE.md`.
+Contract commit: `5cb5aa5a7177b62b0b9cd6c4e53fd0f997472cae`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.107 — First Verification Batch Execution Readiness Gate
 
 E7.107 defines the final gate before first verification execution. It requires frozen scope, exact target commit, executable tests, evidence capture readiness, environment identity and deterministic stop/retry rules.
