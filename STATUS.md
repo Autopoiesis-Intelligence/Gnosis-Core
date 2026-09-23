@@ -590,3 +590,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.99 — Post-Closure Evidence Integrity Verification & Provenance Checkpoint:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `5d95bed36ce98fdba721f30f777cdf463721cffc`. Defines deterministic end-to-end provenance checkpoints, immutable identity/revision verification, digest checks, bounded DEGRADED mode and fail-closed integrity failure handling.
 
 - **E7.100 — Self-Learning Contract Completion & Evidence Gate:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `3d8afa94c49e9bdfe74f5e0cc94f96af83ef6fe1`. Defines explicit DESIGNED/IMPLEMENTED/VERIFIED evidence states, exact-commit binding, acceptance matrices, runtime-proof requirements, reproducible progress calculation and anti-gaming controls.
+
+- **E7.101 — Self-Learning Evidence Registry & Reproducible Progress Ledger:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `8b3fe4598099ece8576428fa832641ed3e3aee1c`. Defines durable evidence records, exact-commit binding, versioned progress calculation, conflict handling, tamper-evident history and replay/recovery integrity.
