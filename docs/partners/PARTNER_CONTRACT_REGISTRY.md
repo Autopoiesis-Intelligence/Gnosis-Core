@@ -58,6 +58,9 @@ Each contract record SHOULD contain:
 | E7.37 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Export & Interoperability Protocol |
 | E7.38 | DESIGNED / NOT_IMPLEMENTED | Partner Specialized Core Provisioning & Inbound Trust Boundary |
 | E7.39 | DESIGNED / NOT_IMPLEMENTED | Core Minimality & Specialized Knowledge/Learning Layer Boundary |
+| E7.40 | DESIGNED / NOT_IMPLEMENTED | Specialized Learning Evolution & Proposal-to-Core Promotion |
+| E7.41 | DESIGNED / NOT_IMPLEMENTED | Distributed Clone Learning, Privacy & Network Integration |
+| E7.42 | DESIGNED / NOT_IMPLEMENTED | Self-Learning Contract Aggregation, Synthesis & Privacy Boundary |
 
 ## Update rule
 
