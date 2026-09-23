@@ -132,8 +132,21 @@ This registry does not replace:
 
 It is the contract knowledge/index layer connecting those systems.
 
+## Self-Learning generation engine
+
+The repository now contains the first executable Self-Learning contract database generator:
+
+- `gnosis/self_learning/contract_database.py`;
+- `scripts/generate_partner_contract_database.py`;
+- `context/SELF_LEARNING_CONTRACT_DATABASE.schema.json`;
+- `logs/contracts/partner_contract_database.json` — generated database target;
+- `logs/contracts/partner_contract_database.jsonl` — append-only generation/update log;
+- `.github/workflows/contract-database.yml` — CI generation and artifact publication.
+
+The generated database is an index-only knowledge artifact and MUST NOT be treated as an authority root.
+
+Registry mutation/automatic status acceptance remains governed and is NOT_IMPLEMENTED.
+
 ## Status
 
-DOCUMENTED / REGISTRY FOUNDATION
-
-Automatic generation and runtime synchronization are NOT_IMPLEMENTED.
+PARTIAL / REGISTRY FOUNDATION + SELF-LEARNING GENERATION IMPLEMENTED
