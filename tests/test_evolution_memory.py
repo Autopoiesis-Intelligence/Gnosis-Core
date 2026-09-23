@@ -1,5 +1,6 @@
 import sqlite3
 import pytest
+import pytest
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.storage import append_evolution_memory, connect, load_evolution_memory, save_instance
