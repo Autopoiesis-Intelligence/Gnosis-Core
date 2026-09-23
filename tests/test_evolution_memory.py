@@ -5,7 +5,9 @@ from gnosis.instances.instance import Instance
 from gnosis.storage import append_evolution_memory, connect, load_evolution_memory, save_instance
 from gnosis.storage.repositories import StorageCorruptionError, persist_transition
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
-from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report, validate_reflection_lineage, load_governance_decision, save_governance_decision, save_invariant_delta, load_invariant_delta, save_counterexample, load_counterexample_for_report
+from gnosis.reflection.governance import GovernanceDecision
+from gnosis.reflection.counterexample import CounterexampleResult
+from gnosis.reflection.persistence import load_proposal_evolution, save_proposal_evolution, save_reflection_report, validate_reflection_lineage, load_governance_decision, save_governance_decision, save_invariant_delta, load_invariant_delta, save_counterexample, load_counterexample_for_report, save_shadow_assessment, load_shadow_assessment
 from gnosis.reflection.proposal_lineage import ProposalEvolution, evolve_proposal
 from gnosis.reflection.invariant_delta import InvariantDelta
 from gnosis.reflection.shadow import ShadowEvaluation
@@ -70,23 +72,15 @@ def _persist_memory_fixture():
     return conn, instance, tid
 
 
-@pytest.mark.parametrize(
-    "mutation",
-    (
-        lambda conn, tid, instance: conn.execute(
-            "UPDATE transitions SET accepted=0 WHERE transition_id=?", (tid,)
-        ),
-        lambda conn, tid, instance: conn.execute(
-            "UPDATE transitions SET to_state_id=? WHERE transition_id=?",
-            (instance.engine.state.state_id, tid),
-        ),
-    ),
-    ids=("accepted", "to_state_id"),
-)
+@pytest.mark.parametrize("mutation", ("accepted", "to_state_id"), ids=("accepted", "to_state_id"))
 def test_load_evolution_memory_rejects_transition_semantic_tamper(mutation):
     conn, instance, tid = _persist_memory_fixture()
-    parent_state_id = conn.execute("SELECT parent_state_id FROM candidates WHERE candidate_id=(SELECT candidate_id FROM transitions WHERE transition_id=?)", (tid,)).fetchone()[0]
-    mutation(conn, tid, instance)
+    if mutation == "accepted":
+        conn.execute("UPDATE transitions SET accepted=0 WHERE transition_id=?", (tid,))
+    else:
+        parent_state_id = conn.execute("SELECT parent_state_id FROM candidates WHERE candidate_id=(SELECT candidate_id FROM transitions WHERE transition_id=?)", (tid,)).fetchone()[0]
+        conn.execute("UPDATE transitions SET to_state_id=? WHERE transition_id=?", (parent_state_id, tid))
+    conn.commit()
     with pytest.raises(StorageCorruptionError):
         load_evolution_memory(conn, instance.instance_id)
 
@@ -166,11 +160,11 @@ def test_shadow_assessment_persistence_rejects_payload_tamper():
     conn = connect()
     report = ReflectionReport(proposals=())
     report_id = save_reflection_report(conn, report, created_at="2026-09-23T10:02:00+00:00")
-    assessment = ShadowEvaluation(status="UNCHANGED", cases=())
+    assessment = ShadowEvaluation(cases=(), changed_cases=0, accepted_by_active=0, accepted_by_shadow=0, regressions=0, improvements=0, status="UNCHANGED")
     assessment_id = save_shadow_assessment(conn, report_id, assessment)
     conn.execute(
         "UPDATE reflection_shadow_assessments SET payload=? WHERE assessment_id=?",
-        ('{"status":"CHANGED","cases":[]}', assessment_id),
+        ('{"cases":[],"changed_cases":0,"accepted_by_active":0,"accepted_by_shadow":0,"regressions":0,"improvements":0,"status":"CHANGED"}', assessment_id),
     )
     with pytest.raises(RuntimeError, match="shadow assessment persistence integrity mismatch"):
         load_shadow_assessment(conn, assessment_id)
@@ -180,7 +174,7 @@ def test_shadow_assessment_exact_replay_does_not_replace_payload():
     conn = connect()
     report = ReflectionReport(proposals=())
     report_id = save_reflection_report(conn, report, created_at="2026-09-23T10:03:00+00:00")
-    assessment = ShadowEvaluation(status="UNCHANGED", cases=())
+    assessment = ShadowEvaluation(cases=(), changed_cases=0, accepted_by_active=0, accepted_by_shadow=0, regressions=0, improvements=0, status="UNCHANGED")
     assessment_id = save_shadow_assessment(conn, report_id, assessment)
     assert save_shadow_assessment(conn, report_id, assessment) == assessment_id
     assert conn.execute(

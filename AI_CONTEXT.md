@@ -4783,3 +4783,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 - **Partner architecture clarified:** Gnozis Core remains the common minimal foundation. The completed Self-Learning direction must support both (1) Core-initiated identification of commercially relevant development opportunities and governed partner-contract proposals, and (2) partner-initiated specialization from a partner project repository/specification into a bounded commercial specialized core. Specialized cores are not second authority roots. Private partner/user data remains bounded; only explicitly shareable, validated and generalizable evidence may feed common Self-Learning.
 - **E7.50 implemented:** evidence ledger sequences can be deterministically replayed and structurally validated. Replay detects broken chain, missing genesis linkage and subject mixing and never repairs or executes history.
+
+
+- **2026-09-23 E7.25 evidence checkpoint:** runtime hardening reached a pinned candidate with Python 3.11/3.12 and CodeQL CI evidence passing. The adversarial sequence also found and corrected a real shadow-assessment canonical-identity defect. Current task is independent reconciliation of historical Claude/Gemini/Manus findings against this pinned source/CI evidence. This does not authorize rename or claim final acceptance.
