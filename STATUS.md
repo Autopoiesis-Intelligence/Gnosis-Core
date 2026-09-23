@@ -233,3 +233,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - R2.OPT-10c progress: **~60%** (directional). Added an explicit regression for authorization issued against an old canonical head, followed by a valid head advance; the stale request must not persist its transition. This is source/test evidence only until executed by CI/runtime.
 - Fresh workflow evidence for commit `2563a84e983e4a2a4b85efc6ad12699bb5115f5d`: **none returned by GitHub Actions lookup**; therefore no CI PASS is claimed.
+
+- R2.OPT-10c continuation: strengthened the stale-authorization regression to require **zero durable transition and zero transition-linked audit side effects** after the canonical head advances. Latest source/test commit: `de3f8f0392096ea0f9cdb9781058011e85175d25`.
+- Verification status remains **UNVERIFIED**: no runtime/CI execution evidence has been observed for this commit; no PASS claim made.
