@@ -191,7 +191,8 @@ def consume_test_authorization(
     row = conn.execute(
         """SELECT issuer_id, issuer_version, request_provenance, evolution_identity,
                   parent_state_digest, policy_version, nonce, expires_at,
-                  scope_json, signature, integrity_digest, consumed, revoked
+                  scope_json, signature, integrity_digest, consumed, revoked,
+                  lifecycle_state
            FROM test_authorizations WHERE authorization_id = ?""",
         (authorization.authorization_id,),
     ).fetchone()
