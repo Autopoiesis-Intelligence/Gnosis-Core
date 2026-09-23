@@ -187,7 +187,7 @@ def require_execution_commit(request: ExecutionCommitRequest) -> None:
 def require_execution_integration_context(request: ExecutionCommitRequest, record: object) -> None:
     """Fail closed unless the authorized execution matches the integration context."""
     p = request.provenance
-    for field in ("proposal_id", "version_id", "target", "action"):
+    for field in ("proposal_id", "version_id", "target"):
         request_value = getattr(p, field, None)
         record_value = getattr(record, field, None)
         if request_value is None:
