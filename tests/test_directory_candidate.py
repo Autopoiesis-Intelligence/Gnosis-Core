@@ -43,3 +43,13 @@ def test_duplicate_candidate_binding_changes_when_usage_evidence_changes() -> No
     })
     assert base.candidate_binding_digest != changed.candidate_binding_digest
     assert base.candidate_id != changed.candidate_id
+
+
+def test_candidate_binding_detects_usage_tampering() -> None:
+    from gnosis.evolution.directory_candidate import verify_candidate_binding
+
+    usage = {"b": DirectoryUsage("b", provenance_id="p1")}
+    candidate = build_duplicate_candidate(["a", "b"], "digest", usage)
+    assert verify_candidate_binding(candidate, usage)
+    tampered = {"b": DirectoryUsage("b", protected=True, provenance_id="p1")}
+    assert not verify_candidate_binding(candidate, tampered)
