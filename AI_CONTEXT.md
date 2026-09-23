@@ -2886,3 +2886,12 @@ Current implementation/research restructuring branches:
 - Research Machine: research-machine/math-reconciliation-2026-09-23
 
 The active finite work remains governed by the existing task registry. The recurring mathematical layer runs in parallel and must not replace the current R2/adversarial, fixed-point, regression, and RM-CORE-R1 work.
+
+
+## Contract execution continuity — 2026-09-23
+
+The authorization/staleness work is explicitly split into two evidence levels:
+1. helper-level freshness verification;
+2. commit-bound enforcement at the canonical mutation/transaction boundary.
+
+Helper tests do not close the contract. The commit boundary must reject stale or tampered authorization before durable mutation. The last established Global Contract Progress baseline remains ~49%; it is an orchestration metric only and is not recalculated from partial evidence.
