@@ -100,7 +100,8 @@
     "context/PHILOSOPHICAL_RESEARCH_TASK.json",
     "context/PHILOSOPHICAL_CORPUS_SCHEMA.json",
     "context/PHILOSOPHICAL_COMPARATIVE_MATRIX.json",
-    "context/PHILOSOPHICAL_RESEARCH_MODULE_SPEC.json"
+    "context/PHILOSOPHICAL_RESEARCH_MODULE_SPEC.json",
+    "context/PHILOSOPHICAL_INVARIANT_EXTRACTION.json"
   ],
   "next_permitted_actions": [
     "Run real pytest/CI against the current reflection foundation",
@@ -125,7 +126,8 @@
     "PHIL-001 establishes a machine-readable philosophical research track for comparative spiritual/high-writings study; it is not an engineering or Core-authority task.",
     "PHIL-002 defines the provenance-first machine-readable corpus schema; source claims, interpretations, formal hypotheses and Gnozis mappings remain explicitly separated.",
     "PHIL-003 defines a controlled heterogeneous comparison matrix with explicit disanalogies and negative cases to reduce abstraction-induced similarity.",
-    "The philosophical research workflow is now generalized into a candidate bounded Hypothesis Reverse-Analysis Module. It may analyze heterogeneous hypotheses but has no Core modification or activation authority."
+    "The philosophical research workflow is now generalized into a candidate bounded Hypothesis Reverse-Analysis Module. It may analyze heterogeneous hypotheses but has no Core modification or activation authority.",
+    "PHIL-004 defines invariant extraction as a bounded structural comparison problem, requiring negative cases, preserved source differences, independence assessment and explicit abstraction boundaries."
   ],
   "research_tracks": {
     "philosophical_research": {
@@ -134,7 +136,7 @@
       "authority": "RESEARCH_ONLY",
       "migration_gate": "formalization -> falsifiable consequence -> counterexample attack -> Gnozis mapping -> independent audit",
       "core_integration": "NOT_AUTHORIZED",
-      "next_task": "PHIL-004",
+      "next_task": "PHIL-005",
       "module": "RESEARCH-PHIL-001",
       "module_status": "ARCHITECTURE_CANDIDATE / ANALYSIS_ONLY"
     }
