@@ -283,10 +283,10 @@ def test_a09_root_atomicity_rolls_back_failed_root_transaction(monkeypatch):
 def test_a30_atomicity_rolls_back_after_audit_before_commit(monkeypatch):
     conn = connect()
     instance = Instance.create_root("u", State(elements={"root": 0}))
-    candidate = Candidate(instance.engine.state.state_id, instance.engine.state.with_elements({"x": 1}), "atomicity")
-    record = instance.engine.step(candidate)
-    save_instance(conn, instance)
     original_state_id = instance.engine.state.state_id
+    candidate = Candidate(instance.engine.state.state_id, instance.engine.state.with_elements({"x": 1}), "atomicity")
+    save_instance(conn, instance)
+    record = instance.engine.step(candidate)
 
     with pytest.raises(RuntimeError, match="injected failure at after_audit"):
         persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_audit")
