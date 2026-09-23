@@ -922,3 +922,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #65 merged by squash into `main` as `28ddf18d25f4b0dd8be52c8f49613cafc12189c9`.
 - Dependency Review #151 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.67 specialized core build record binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.68 delivery manifest → specialized core binding — integrated — 2026-09-24
+
+- PR #66 exact head `35cc13b9572020a53324e68394152dd13004b40f` passed CI #2076 and CodeQL #954.
+- `validate_delivery_build_binding()` now fails closed when DeliveryManifest.core_id differs from the expected Specialized Core identity, after existing manifest integrity and scope validation.
+- Adversarial coverage rejects foreign-core delivery.
+- PR #66 merged by squash into `main` as `8469ba00f7ae829629d6dfdf406fbd3d281fcd07`.
+- Dependency Review #152 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.68 delivery manifest → specialized core binding is INTEGRATED / CI + CodeQL VERIFIED.
