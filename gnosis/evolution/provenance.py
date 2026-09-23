@@ -59,6 +59,7 @@ class EvidenceProvenance:
             "parent_state_digest": self.parent_state_digest,
             "proposed_state_digest": self.proposed_state_digest,
             "proposed_state_content_id": self.proposed_state_content_id,
+            "candidate_binding_digest": self.candidate_binding_digest,
             "evidence_digest": self.evidence_digest,
             "evaluation_status": self.evaluation_status,
             "shadow_status": self.shadow_status,
