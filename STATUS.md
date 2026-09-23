@@ -499,3 +499,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.53 — Knowledge State Versioning / Lineage:** IMPLEMENTED / UNVERIFIED. Applied knowledge updates now receive deterministic version identities and explicit parent lineage from GENESIS onward. Broken lineage is detected; versioning does not authorize Core mutation, partner access or automatic promotion.
 
 - **E7.54 — Knowledge Promotion Gate:** IMPLEMENTED / UNVERIFIED. Added a governed proposal layer separating specialized/accumulated knowledge from knowledge proposed for common Self-Learning. Promotion requires a recorded version, evidence references, reason and target; ACCEPTED remains a decision record and does not mutate Ψ-Core or grant authority.
+
+- **E7.55 — Controlled Knowledge Integration Record:** IMPLEMENTED / UNVERIFIED. Accepted promotion decisions now produce a deterministic, traceable integration record. The record describes the controlled action but cannot itself mutate Ψ-Core, execute code or grant permissions; completion requires an execution receipt.
