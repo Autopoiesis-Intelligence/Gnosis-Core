@@ -445,3 +445,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.33 — Partner Evidence Review, Dispute & Correction Protocol:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `15c7c016274a442743974823657d94f758e7c9de`.
 - **E7.34 — Partner Evidence Retention & Privacy Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `77d59fe60c862cca0ac6138defd40d8243e4413a`.
 - **E7.35 — Partner Evidence Lifecycle & State Derivation:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `8e828acca35ee5a46b1d2aebc327466f38c662e0`.
+
+
+- **E7.36 — Partner Evidence Query & Reconstruction Protocol:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `f6218c27ad27eb4c17ac8cf73b93fdae1c4ac8ab`. Defines deterministic current/historical reconstruction from append-only evidence history, explicit conflict/incompleteness states, revision-aware queries, scope isolation and a strict non-authority boundary for query results.
