@@ -104,3 +104,30 @@ def test_same_transition_id_with_conflicting_from_state_is_rejected() -> None:
     assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
     verify_durable_graph(conn)
+
+
+def test_exact_transition_replay_after_reopen_is_idempotent_across_delivery_actor() -> None:
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    proposed = instance.engine.state.with_elements({"b": 2})
+    candidate = Candidate(instance.engine.state.state_id, proposed, "restart-replay")
+    record = instance.engine.step(candidate)
+    persist_transition(conn, instance, candidate, record, actor="worker-a")
+    db_path = conn.execute("PRAGMA database_list").fetchone()[2]
+    conn.close()
+
+    reopened = connect(db_path)
+    recovered = __import__("gnosis.storage", fromlist=["load_instance"]).load_instance(reopened, instance.instance_id)
+    persist_transition(reopened, recovered, candidate, record, actor="worker-b")
+
+    assert reopened.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
+    assert reopened.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
+    audit = reopened.execute(
+        "SELECT actor,action,result,transition_id FROM audit_events WHERE transition_id=?",
+        (record.transition_id,),
+    ).fetchone()
+    assert tuple(audit) == ("worker-a", "transition.commit", "accepted", record.transition_id)
+    assert recovered.engine.state.state_id == record.to_state_id
+    verify_durable_graph(reopened)
+    reopened.close()
