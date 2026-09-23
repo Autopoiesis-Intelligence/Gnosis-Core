@@ -2925,3 +2925,47 @@ CURRENT STATE:
 Primary engineering remains R2.OPT-10b — Immutable Commit Authorization.
 Parallel machine-transfer contract is R2.XFER-1 — Machine Transfer Optimization.
 Filesystem mutation remains prohibited until the governed commit boundary itself is independently verified.
+
+
+## 2026-09-23 EVOLUTION CONTRACT — EXTERNAL MACHINE PARTICIPATION
+
+TASK-ID: R2.XFER-2
+BLOCK: External Machine Participation & Trust Boundary
+STATUS: ACTIVE
+PRIORITY: HIGH / PARALLEL
+DEPENDS_ON: R2.XFER-1
+OBJECTIVE: Define a safe participation contract for independently operated machine databases/agents that join project work through explicit GitHub collaboration while remaining separately owned and independently persisted.
+
+PARTICIPATION MODEL:
+External machine may contribute research, audits, findings, counterexamples, proposals and machine-readable transfer records. Its own database remains outside Gnozis-V2 unless explicitly imported through the transfer boundary.
+
+IDENTITY:
+Each participant must have a stable machine_id and transfer_id/provenance for material submissions. Human GitHub membership and machine identity are separate concepts and must not be conflated.
+
+ACCESS BOUNDARY:
+GitHub repository permissions determine repository access only. They do not imply trust in the participant's database, outputs, runtime, credentials, or proposed changes.
+
+TRUST BOUNDARY:
+External Machine -> Transfer Boundary -> Verification -> Governance -> Core.
+Never: External Machine -> direct Core mutation.
+
+DEFAULT TRUST:
+New participants are untrusted evidence sources by default. Their outputs are classified as external evidence until independently verified. Trust is evidence-derived, not inherited from invitation or repository membership.
+
+DATA OWNERSHIP:
+Participant-owned machine database remains separate. Import/export must preserve provenance, revision identity and epistemic status. No implicit synchronization or database write-back is assumed.
+
+REVOCATION:
+Participant access must be revocable independently of historical provenance. Revocation must not rewrite accepted historical records.
+
+EPISTEMIC STATUS:
+External output remains distinguishable as FACT/OBSERVATION/HYPOTHESIS/DERIVATION/AUDIT_FINDING/COUNTEREXAMPLE/PROPOSAL/UNVERIFIED/INSUFFICIENT_EVIDENCE. Collaboration status must never upgrade epistemic status automatically.
+
+SECURITY RULE:
+Do not request, store or expose external machine secrets as part of the transfer contract. Credentials, private database contents and unrelated project data remain outside the transfer payload unless explicitly authorized by a separate contract.
+
+ACCEPTANCE:
+A participant integration is considered contract-complete only when identity, provenance, access scope, trust state, revocation path, transfer format and Core non-authority are explicitly testable.
+
+NEXT:
+R2.XFER-2b — Participant Identity & Revocation Record.
