@@ -41,6 +41,8 @@ def test_crash_checkpoint_reopen_has_only_old_durable_state(tmp_path, point):
     assert recovered.engine.state.state_id != proposed.state_id
     assert reopened.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 0
     assert reopened.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 0
+    assert reopened.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 0
+    assert reopened.execute("SELECT COUNT(*) FROM states").fetchone()[0] == 1
     assert verify_durable_graph(reopened)[0] == 1
 
 
@@ -56,4 +58,6 @@ def test_after_commit_reopen_has_complete_new_state(tmp_path):
     assert recovered.engine.state.state_id == proposed.state_id
     assert reopened.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert reopened.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
+    assert reopened.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 1
+    assert reopened.execute("SELECT COUNT(*) FROM states").fetchone()[0] == 2
     assert verify_durable_graph(reopened)[0] == 2
