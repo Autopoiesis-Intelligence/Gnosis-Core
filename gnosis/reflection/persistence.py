@@ -12,7 +12,7 @@ from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
-from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance, provenance_id_for
+from gnosis.evolution.provenance import EvidenceProvenance, ProvenanceCrossCheck, crosscheck_provenance, provenance_id_for
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
 
