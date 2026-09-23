@@ -1,7 +1,7 @@
 import pytest
 
 from gnosis.core import Candidate, TestResult, TransitionRecord
-from gnosis.storage import StorageCorruptionError, connect, load_instance, persist_transition, save_instance, verify_durable_graph
+from gnosis.storage import StorageCorruptionError, connect, load_instance, persist_transition, save_instance, verify_audit_chain, verify_durable_graph
 from gnosis.instances.instance import Instance
 from gnosis.core import State
 
@@ -25,6 +25,7 @@ def test_same_transition_replay_is_idempotent():
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == audit_count
     assert conn.execute("SELECT current_state_id FROM instances WHERE instance_id=?", (instance.instance_id,)).fetchone()[0] == head
     verify_durable_graph(conn)
+    assert verify_audit_chain(conn)[0] == 1
 
 
 def test_same_transition_id_with_conflicting_content_is_rejected():
@@ -103,6 +104,7 @@ def test_same_transition_id_with_conflicting_from_state_is_rejected() -> None:
 
     assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
+    assert verify_audit_chain(conn)[0] == 1
     verify_durable_graph(conn)
 
 
