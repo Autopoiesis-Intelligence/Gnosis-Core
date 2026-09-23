@@ -126,3 +126,25 @@ def test_e522_issuer_binds_execution_intent_snapshot_exactly():
             issuer,
             type(auth)(**{**auth.__dict__, "evolution_identity": "evolution:other"}),
         )
+
+
+def test_e523_restart_persistence_does_not_resurrect_consumed_or_revoked_authority(tmp_path):
+    db = tmp_path / "auth.sqlite3"
+    issuer = TestAuthorizationIssuer(secret=b"e5.23-test-secret")
+    auth1 = issuer.issue(request_provenance="p1", evolution_identity="e1", parent_state_digest="s1", policy_version="v1", scope=("test:execute",), expires_at=100)
+    conn = sqlite3.connect(db)
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, auth1)
+    consume_test_authorization(conn, issuer, auth1, now=50, request_provenance="p1", evolution_identity="e1", parent_state_digest="s1", policy_version="v1")
+    conn.close()
+    conn = sqlite3.connect(db)
+    with pytest.raises(PermissionError, match="already consumed"):
+        consume_test_authorization(conn, issuer, auth1, now=50, request_provenance="p1", evolution_identity="e1", parent_state_digest="s1", policy_version="v1")
+
+    auth2 = issuer.issue(request_provenance="p2", evolution_identity="e2", parent_state_digest="s2", policy_version="v1", scope=("test:execute",), expires_at=100)
+    persist_test_authorization(conn, auth2)
+    revoke_test_authorization(conn, auth2.authorization_id)
+    conn.close()
+    conn = sqlite3.connect(db)
+    with pytest.raises(PermissionError, match="revoked"):
+        consume_test_authorization(conn, issuer, auth2, now=50, request_provenance="p2", evolution_identity="e2", parent_state_digest="s2", policy_version="v1")
