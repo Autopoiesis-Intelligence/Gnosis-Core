@@ -350,3 +350,11 @@ For test/development authorization persistence, recovery must preserve monotonic
 ## E5.26 — Monotonic authority lifecycle
 
 Test authority lifecycle must not reverse terminal execution states. Expiry cannot extend validity; consumed and revoked authority cannot return to an executable state. Any future re-issuance must create a new authorization identity and independent issuer evidence.
+
+## E5.27 — Distinct terminal authority reasons
+
+Execution authority state must distinguish consumed, revoked, and expired. These reasons have different semantics and must not be collapsed into one generic inactive state. None may return to executable authority; supersession, if introduced, creates a new authorization identity.
+
+## E7.9.9 — Action outcome is not retroactive authorization
+
+Action outcomes are post-action evidence. They cannot retroactively establish that the original decision, authorization, or intent was valid. Retrospective learning must use a new evidence update and versioned re-evaluation.
