@@ -102,7 +102,8 @@
     "context/PHILOSOPHICAL_COMPARATIVE_MATRIX.json",
     "context/PHILOSOPHICAL_RESEARCH_MODULE_SPEC.json",
     "context/PHILOSOPHICAL_INVARIANT_EXTRACTION.json",
-    "context/PHILOSOPHICAL_ADVERSARIAL_ANALYSIS.json"
+    "context/PHILOSOPHICAL_ADVERSARIAL_ANALYSIS.json",
+    "context/PHILOSOPHICAL_FORMALIZATION_MAPPING_GATE.json"
   ],
   "next_permitted_actions": [
     "Run real pytest/CI against the current reflection foundation",
@@ -129,16 +130,17 @@
     "PHIL-003 defines a controlled heterogeneous comparison matrix with explicit disanalogies and negative cases to reduce abstraction-induced similarity.",
     "The philosophical research workflow is now generalized into a candidate bounded Hypothesis Reverse-Analysis Module. It may analyze heterogeneous hypotheses but has no Core modification or activation authority.",
     "PHIL-004 defines invariant extraction as a bounded structural comparison problem, requiring negative cases, preserved source differences, independence assessment and explicit abstraction boundaries.",
-    "PHIL-005 establishes adversarial-first analysis: candidate patterns must be attacked with counterexamples, negative cases, alternative explanations and abstraction-sensitivity tests before promotion."
+    "PHIL-005 establishes adversarial-first analysis: candidate patterns must be attacked with counterexamples, negative cases, alternative explanations and abstraction-sensitivity tests before promotion.",
+    "PHIL-006 defines the formalization-to-Gnozis migration gate. The philosophical track now has a complete research-contract stack; domain-independent module extraction is the next architectural phase."
   ],
   "research_tracks": {
     "philosophical_research": {
       "task_id": "PHIL-001",
-      "status": "READY / RESEARCH-ONLY",
+      "status": "PHIL-001..PHIL-006 CONTRACT STACK DEFINED",
       "authority": "RESEARCH_ONLY",
       "migration_gate": "formalization -> falsifiable consequence -> counterexample attack -> Gnozis mapping -> independent audit",
       "core_integration": "NOT_AUTHORIZED",
-      "next_task": "PHIL-006",
+      "next_task": "RESEARCH-MOD-001",
       "module": "RESEARCH-PHIL-001",
       "module_status": "ARCHITECTURE_CANDIDATE / ANALYSIS_ONLY"
     }
