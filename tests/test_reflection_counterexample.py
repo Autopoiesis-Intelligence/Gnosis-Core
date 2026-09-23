@@ -1,6 +1,7 @@
 import pytest
 from gnosis.core import TestResult, TransitionRecord
 from gnosis.reflection import CounterexampleEngine, ReflectionAnalyzer, reflect
+from gnosis.reflection.counterexample import CounterexampleResult
 
 
 def _record(index: int, accepted: bool, candidate_id: str, reason: str) -> TransitionRecord:
@@ -39,7 +40,7 @@ def test_counterexample_refutes_unconditional_rejection_hypothesis():
         report.findings[0], report.counterexamples[0]
     )
     assert result.status == "REFUTED"
-    assert result.evidence_refs == ("transition:2:same",)
+    assert result.evidence_refs == (_record(2, True, "same", "committed").transition_id,)
 
 
 def test_runtime_reflection_executes_counterexample_stage_without_mutating_history():
@@ -60,7 +61,7 @@ def test_runtime_reflection_executes_counterexample_stage_without_mutating_histo
 
 
 def test_counterexample_result_rejects_foreign_candidate():
-    from gnosis.reflection.counterexample import CounterexampleResult, CounterexampleResult, validate_counterexample_result
+    from gnosis.reflection.counterexample import CounterexampleResult, validate_counterexample_result
     history=(_record(0, False, "c1", "repeated failure"),)
     analyzer=ReflectionAnalyzer(history)
     report=analyzer.analyze()
