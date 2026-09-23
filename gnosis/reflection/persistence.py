@@ -662,6 +662,25 @@ def crosscheck_stored_provenance(
     # The database key is itself a trust anchor: stored fields must recompute to it.
     if row["provenance_id"] != provenance_id:
         return ProvenanceCrossCheck(valid=False, reasons=("stored provenance_id mismatch",))
+    # Recompute the persisted provenance identity from immutable fields.
+    recomputed = provenance_id_for(
+        execution_id=row["execution_id"],
+        candidate_id=row["candidate_id"],
+        parent_state_id=row["parent_state_id"],
+        parent_state_digest=row["parent_state_digest"],
+        proposed_state_digest=row["proposed_state_digest"],
+        evidence_digest=row["evidence_digest"],
+        evaluation_status=row["evaluation_status"],
+        shadow_status=row["shadow_status"],
+        invariant_status=row["invariant_status"],
+        governance_decision=row["governance_decision"],
+        status=row["status"],
+        proposed_state_content_id=row["proposed_state_content_id"],
+        candidate_binding_digest=row.get("candidate_binding_digest", ""),
+    )
+    if recomputed != provenance_id:
+        return ProvenanceCrossCheck(valid=False, reasons=("stored provenance identity mismatch",))
+
     provenance = EvidenceProvenance(
         execution_id=row["execution_id"],
         candidate_id=row["candidate_id"],
