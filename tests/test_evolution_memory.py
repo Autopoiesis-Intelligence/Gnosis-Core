@@ -29,7 +29,7 @@ def test_evolution_memory_is_append_only():
     from gnosis.storage.repositories import persist_transition
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
-    append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="rejected",evidence=("rejected",))
+    append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("accepted",))
     with pytest.raises(sqlite3.DatabaseError): conn.execute("DELETE FROM evolution_memory")
     with pytest.raises(sqlite3.DatabaseError): conn.execute("UPDATE evolution_memory SET outcome='accepted'")
 
@@ -92,10 +92,9 @@ def test_evolution_memory_rejects_cross_instance_transition_rebinding():
          "state_id":mem.state_id,"proposal_id":mem.proposal_id,"outcome":mem.outcome,
          "evidence":mem.evidence,"created_at":mem.created_at,"proposal_report_id":mem.proposal_report_id}
     new_id=__import__("hashlib").sha256(__import__("gnosis.storage.repositories",fromlist=["canonical_json"]).canonical_json(raw).encode()).hexdigest()
-    conn.execute("UPDATE evolution_memory SET instance_id=?, memory_id=? WHERE memory_id=?",
-                 (b.instance_id,new_id,mem.memory_id))
-    with pytest.raises(Exception, match="transition identity mismatch"):
-        load_evolution_memory(conn,b.instance_id)
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("UPDATE evolution_memory SET instance_id=?, memory_id=? WHERE memory_id=?",
+                     (b.instance_id,new_id,mem.memory_id))
 
 
 def test_evolution_memory_rejects_tampered_transition_identity_on_reload():
