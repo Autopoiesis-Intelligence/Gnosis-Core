@@ -542,3 +542,56 @@ def test_sqlite_execution_commit_rejects_unverified_self_evolution_without_durab
     assert load_instance(conn, instance.instance_id).engine.state.state_id == before
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == before_transitions
     conn.close()
+
+
+def test_sqlite_execution_commit_rejects_contradictory_self_evolution_without_durable_mutation():
+    from gnosis.core import Candidate, State
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    parent_state_id = instance.engine.state.state_id
+    proposed = instance.engine.state.with_elements({"a": 2})
+    candidate = Candidate(parent_state_id, proposed, "self-evolution")
+    record = instance.engine.step(candidate)
+
+    observations = {"result": "contradictory"}
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=proposed.state_id,
+        observations=observations,
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=candidate.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="FAIL",
+        shadow_status="UNCHANGED",
+        invariant_status="VIOLATED",
+        governance_decision="ALLOW",
+    )
+    auth = ExecutionAuthorization(
+        provenance.provenance_id, True, provenance.evolution_identity
+    )
+    request = ExecutionCommitRequest(
+        auth,
+        ExecutionIntentSnapshot.from_provenance(provenance),
+        provenance.provenance_id,
+        provenance.evolution_identity,
+        provenance,
+    )
+
+    before = load_instance(conn, instance.instance_id).engine.state.state_id
+    before_transitions = conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
+
+    with pytest.raises(PermissionError, match="preserved invariants"):
+        SQLiteExecutionCommitAdapter().commit(
+            conn, instance, candidate, record, request, actor="user-1"
+        )
+
+    assert load_instance(conn, instance.instance_id).engine.state.state_id == before
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == before_transitions
+    conn.close()
