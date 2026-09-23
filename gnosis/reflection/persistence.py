@@ -328,6 +328,50 @@ def list_proposal_evolutions(conn: sqlite3.Connection) -> tuple[ProposalEvolutio
     return tuple(load_proposal_evolution(conn, row[0]) for row in rows)
 
 
+def validate_reflection_lineage(conn: sqlite3.Connection, report_id: str) -> dict[str, int]:
+    """Verify that persisted reflection artifacts belong to one report lineage."""
+    report = load_reflection_report(conn, report_id)
+    payload = report["payload"]
+    proposal_ids = {str(p.get("proposal_id")) for p in payload.get("proposals", ()) if p.get("proposal_id")}
+    finding_ids = {str(f.get("finding_id")) for f in payload.get("findings", ()) if f.get("finding_id")}
+
+    counterexamples = conn.execute(
+        "SELECT result_id,payload FROM reflection_counterexamples WHERE report_id=?",
+        (report_id,),
+    ).fetchall()
+    shadows = conn.execute(
+        "SELECT assessment_id FROM reflection_shadow_assessments WHERE report_id=?",
+        (report_id,),
+    ).fetchall()
+    evolutions = conn.execute(
+        "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id FROM reflection_proposal_evolutions"
+    ).fetchall()
+
+    for _, raw in counterexamples:
+        result = CounterexampleResult(**json.loads(raw))
+        if result.candidate_id == "" or counterexample_result_id(report_id, result) != _:
+            raise RuntimeError("counterexample lineage integrity mismatch")
+
+    for evolution_id, finding_id, parent_id, current_id in evolutions:
+        if finding_id not in finding_ids:
+            raise RuntimeError("proposal evolution finding is outside reflection lineage")
+        if parent_id is not None and parent_id not in proposal_ids:
+            raise RuntimeError("proposal evolution parent is outside reflection lineage")
+        if current_id is not None and current_id not in proposal_ids:
+            raise RuntimeError("proposal evolution current proposal is outside reflection lineage")
+        evolution = load_proposal_evolution(conn, evolution_id)
+        if evolution.finding_id != finding_id:
+            raise RuntimeError("proposal evolution lineage identity mismatch")
+
+    return {
+        "proposals": len(proposal_ids),
+        "findings": len(finding_ids),
+        "counterexamples": len(counterexamples),
+        "shadow_assessments": len(shadows),
+        "proposal_evolutions": len(evolutions),
+    }
+
+
 def invariant_delta_id(report_id: str, delta: InvariantDelta) -> str:
     return f"{report_id}:invariant-delta:" + hashlib.sha256(_json(delta).encode("utf-8")).hexdigest()[:24]
 
