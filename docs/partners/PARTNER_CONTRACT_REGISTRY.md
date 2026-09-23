@@ -48,6 +48,7 @@ Each contract record SHOULD contain:
 | E7.27 | DESIGNED / NOT_IMPLEMENTED | Partner Replay, Revocation & Contract-State Consistency |
 | E7.28 | DESIGNED / NOT_IMPLEMENTED | Partner Contract Registry Runtime Synchronization |
 | E7.29 | DESIGNED / NOT_IMPLEMENTED | Partner Contract Package & Export Protocol |
+| E7.30 | DESIGNED / NOT_IMPLEMENTED | Partner Contract Acceptance & Capability Negotiation |
 
 ## Update rule
 
