@@ -10,6 +10,8 @@ import hashlib
 import json
 import multiprocessing
 import queue
+import time
+import tracemalloc
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 
@@ -22,12 +24,15 @@ ObservationFn = Callable[[State, Candidate], Mapping[str, Any]]
 class SandboxBudget:
     max_operations: int = 20
     timeout_seconds: float = 1.0
+    max_memory_bytes: int | None = None
 
     def __post_init__(self) -> None:
         if not 1 <= self.max_operations <= 20:
             raise ValueError("sandbox max_operations must be in range 1..20")
         if self.timeout_seconds <= 0:
             raise ValueError("sandbox timeout_seconds must be positive")
+        if self.max_memory_bytes is not None and self.max_memory_bytes < 1:
+            raise ValueError("sandbox max_memory_bytes must be positive when set")
 
 
 @dataclass(frozen=True)
@@ -62,8 +67,14 @@ def _worker(
     observe: ObservationFn,
 ) -> None:
     try:
-        observations = dict(observe(state, candidate))
-        output.put(("COMPLETED", observations))
+        tracemalloc.start()
+        try:
+            observations = dict(observe(state, candidate))
+            _, peak = tracemalloc.get_traced_memory()
+            observations["resource_memory_peak_bytes"] = peak
+            output.put(("COMPLETED", observations))
+        finally:
+            tracemalloc.stop()
     except Exception as exc:
         output.put(
             (
@@ -95,8 +106,10 @@ def run_sandbox(
     ctx = multiprocessing.get_context("fork" if "fork" in multiprocessing.get_all_start_methods() else "spawn")
     output = ctx.Queue(maxsize=1)
     process = ctx.Process(target=_worker, args=(output, state, candidate, observe))
+    started = time.monotonic()
     process.start()
     process.join(budget.timeout_seconds)
+    elapsed = time.monotonic() - started
 
     if process.is_alive():
         process.terminate()
@@ -104,6 +117,7 @@ def run_sandbox(
         observations = {
             "execution_error": "ExecutionTimeout",
             "timeout_seconds": budget.timeout_seconds,
+            "resource_elapsed_seconds": elapsed,
         }
         return SandboxResult(
             SandboxExecution(
@@ -127,6 +141,13 @@ def run_sandbox(
             "execution_error": "WorkerFailure",
             "exit_code": process.exitcode,
         }
+
+    if status == "COMPLETED" and budget.max_memory_bytes is not None and observations.get("resource_memory_peak_bytes", 0) > budget.max_memory_bytes:
+        observations = dict(observations)
+        observations["resource_limit"] = "memory"
+        observations["resource_limit_bytes"] = budget.max_memory_bytes
+        observations["resource_elapsed_seconds"] = elapsed
+        status = "RESOURCE_EXHAUSTED"
 
     if status != "COMPLETED":
         return SandboxResult(
