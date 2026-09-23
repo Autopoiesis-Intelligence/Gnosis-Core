@@ -482,13 +482,15 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
 
     # Another valid transition advances the canonical instance head after authorization.
+    parent_state = instance.engine.state
     candidate_b = Candidate(
-        parent_state_id, instance.engine.state.with_elements({"a": 3}), "advanced-head"
+        parent_state_id, parent_state.with_elements({"a": 3}), "advanced-head"
     )
+    provenance_b = _provenance_for(candidate_b, parent_state, candidate_b.proposed_state)
     record_b = instance.engine.step(candidate_b)
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
-        _make_execution_commit_request(_provenance_for(candidate_b, instance.engine.state, candidate_b.proposed_state)),
+        _make_execution_commit_request(provenance_b),
         actor="user-1",
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
