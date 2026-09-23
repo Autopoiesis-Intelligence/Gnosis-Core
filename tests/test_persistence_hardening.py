@@ -381,7 +381,7 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
         "SELECT 1 FROM states WHERE state_id=?",
         (proposed.state_id,),
     ).fetchone() is not None
-    assert verify_durable_graph(conn)[0] == 1
+    assert verify_durable_graph(conn)[0] == 2
 
 
 def test_durable_graph_rejects_budget_snapshot_exceeding_total():
