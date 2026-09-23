@@ -19,8 +19,21 @@ from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 def _json(value: Any) -> str:
     if is_dataclass(value):
         value = asdict(value)
-    return json.dumps(asdict(value) if is_dataclass(value) else value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    elif isinstance(value, dict):
+        value = {str(k): _json_value(v) for k, v in value.items()}
+    elif isinstance(value, (tuple, list)):
+        value = [_json_value(v) for v in value]
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
+
+def _json_value(value: Any) -> Any:
+    if is_dataclass(value):
+        return asdict(value)
+    if isinstance(value, dict):
+        return {str(k): _json_value(v) for k, v in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_json_value(v) for v in value]
+    return value
 
 def reflection_id(report: ReflectionReport) -> str:
     return "reflection:" + hashlib.sha256(_json(report).encode("utf-8")).hexdigest()[:24]
