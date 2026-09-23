@@ -848,3 +848,15 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #58 merged by squash into `main` as `15801275bc36b658667037f7cc812846fcf65af7`.
 - Dependency Review #136 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.60 authenticated integration-to-execution binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.61 canonical execution receipt identity — integrated — 2026-09-23
+
+- PR #59 exact head `e1fd78776921ef29b571576f42c6afd5f79ed3d2` passed CI #2046 and CodeQL #924.
+- `ExecutionReceipt.receipt_id` is a canonical SHA-256 identity over the immutable receipt fields.
+- `receipt_id`, `execution_id`, `provenance_id`, and `integration_id` remain separate identity domains.
+- `IntegrationRecord` persists canonical receipt identity separately from execution identity.
+- Regression tests cover deterministic identity, tamper sensitivity, and identity separation.
+- PR #59 merged by squash into `main` as `42939b038392b76e617992bb459d867bce2ad91d`.
+- Dependency Review #137 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.61 canonical receipt identity is INTEGRATED / CI + CodeQL VERIFIED.
