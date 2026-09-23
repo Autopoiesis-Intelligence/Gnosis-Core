@@ -391,3 +391,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.19 — Learning Dependency Graph & Impact Analysis:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_DEPENDENCY_GRAPH_IMPACT_ANALYSIS_CONTRACT.md` (`8522c056`). Defines explicit multi-hop learning lineage and change propagation across partner repositories, evidence, proposals, rules, policies and state.
 - **P0 self-learning integrated proof:** remains ~20%. E7.19 architectural coverage ~40%, verification coverage ~5%.
+
+- **E7.20 — Learning Memory Retention / Compaction / Replay:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_MEMORY_RETENTION_COMPACTION_REPLAY_CONTRACT.md` (`c6a6e38b`). Defines retention classes, semantic reconstruction invariant, content-addressed archival, active-rule protection and partner revision retention.
+- **P0 self-learning integrated proof:** remains ~20%. E7.20 architectural coverage ~40%, verification coverage ~5%.
