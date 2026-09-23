@@ -73,10 +73,10 @@
 | E7.60 | IMPLEMENTED / UNVERIFIED | Self-Learning CI Evidence Gate |
 | E7.61 | IMPLEMENTED / UNVERIFIED | Self-Learning Candidate Contract Generator |
 | E7.62 | PARTIAL / UNVERIFIED | Minimal Specialized Self-Evolving Core |
-| E7.63 | PARTIAL / UNVERIFIED | Partner Specialized Core Delivery Package |
-| E7.64 | PARTIAL / UNVERIFIED | Partner Training Intake |
-| E7.65 | PARTIAL / UNVERIFIED | Partner Training Execution Plan |
-| E7.66 | PARTIAL / UNVERIFIED | Training Execution Receipt |
+| E7.63 | IMPLEMENTED / VERIFIED | Partner Specialized Core Delivery Package |
+| E7.64 | IMPLEMENTED / VERIFIED | Partner Training Intake |
+| E7.65 | IMPLEMENTED / VERIFIED | Partner Training Execution Plan |
+| E7.66 | IMPLEMENTED / VERIFIED | Training Execution Receipt |
 | E7.67 | PARTIAL / UNVERIFIED | Specialized Core Build Record |
 | E7.68 | PARTIAL / UNVERIFIED | Specialized Core Validation & Release Gate |
 | E7.69 | PARTIAL / UNVERIFIED | Partner Core Delivery Authorization |
