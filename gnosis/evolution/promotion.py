@@ -89,3 +89,46 @@ def evaluate_promotion_gate(
         eligible=not reasons,
         reasons=tuple(reasons),
     )
+
+
+@dataclass(frozen=True)
+class PromotionHandoff:
+    """Non-authoritative, provenance-bound handoff into the normal Candidate pipeline."""
+    promotion_id: str
+    source_candidate_id: str
+    evidence_digest: str
+    provenance_id: str
+    proposed_state_content_id: str
+    status: str = "ELIGIBLE_HANDOFF"
+
+    @property
+    def can_activate(self) -> bool:
+        return False
+
+
+def build_promotion_handoff(
+    candidate: PromotionCandidate,
+    gate: PromotionGate,
+    *,
+    provenance_id: str,
+    proposed_state_content_id: str,
+) -> PromotionHandoff:
+    if not gate.eligible:
+        raise ValueError("ineligible promotion cannot be handed off")
+    if not provenance_id or not proposed_state_content_id:
+        raise ValueError("promotion handoff requires provenance and proposed state identity")
+    promotion_id = "handoff:" + hashlib.sha256(
+        "|".join((
+            candidate.candidate_id,
+            candidate.evidence_digest,
+            provenance_id,
+            proposed_state_content_id,
+        )).encode()
+    ).hexdigest()[:24]
+    return PromotionHandoff(
+        promotion_id=promotion_id,
+        source_candidate_id=candidate.candidate_id,
+        evidence_digest=candidate.evidence_digest,
+        provenance_id=provenance_id,
+        proposed_state_content_id=proposed_state_content_id,
+    )
