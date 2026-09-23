@@ -363,3 +363,15 @@ User
 ```
 
 This is the architectural bridge between today's multi-terminal development workflow and the intended user-facing Gnozis system.
+
+## Delegation continuity invariant
+
+When a task or context is handed from one agent/product surface to another, the receiving party receives only the explicitly delegated capability scope.
+
+`source_scope → delegation policy → recipient_scope ⊆ source_scope`
+
+A copied task context, task identifier, capability identifier, or lineage reference is not itself authorization.
+
+A stale handoff must be rejected when the source authorization version, expiry, or revocation state no longer matches the current canonical context.
+
+This preserves continuity of work without transferring hidden authority between AI terminals, products, clones, or agents.
