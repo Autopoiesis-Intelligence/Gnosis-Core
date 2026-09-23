@@ -77,7 +77,8 @@ def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transi
                     VALUES(?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(memory_id) DO NOTHING""",
                  (record.memory_id, record.instance_id, record.candidate_id, record.transition_id,
-                  record.state_id, record.proposal_id, record.outcome, canonical_json(record.evidence), record.created_at))
+                  record.state_id, record.proposal_id, record.outcome, canonical_json(record.evidence),
+                  record.created_at, record.proposal_report_id))
     return record
 
 
