@@ -18,3 +18,11 @@ def test_governance_decision_is_explicit():
     p=propose_promotion(version(),evidence_refs=("sha256:e",),reason="generalizable")
     a=decide_promotion(p,decision="ACCEPTED",reviewer="reviewer-1")
     assert a.status=="ACCEPTED"
+
+
+def test_tampered_proposal_identity_is_rejected() -> None:
+    from dataclasses import replace
+    p = propose_promotion(version(), evidence_refs=("sha256:e",), reason="generalizable")
+    tampered = replace(p, proposal_id="sha256:tampered")
+    with pytest.raises(ValueError, match="proposal identity"):
+        decide_promotion(tampered, decision="ACCEPTED", reviewer="reviewer-1")
