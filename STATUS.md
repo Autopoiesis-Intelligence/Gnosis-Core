@@ -527,3 +527,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.67 — Specialized Core Build Record:** PARTIAL / UNVERIFIED. Added provenance binding a specialized Core build to the exact Training Execution Receipt and Core specification, with source revisions, invariant evidence, validation references and build revision. Build eligibility requires PASSED receipt, BUILT status and evidence. CI coverage added; exact-commit PASS pending.
 
 - **E7.68 CI repair:** IMPLEMENTED / UNVERIFIED. Resolved the workflow update conflict and added `tests/test_release_gate.py` to the Self-Diagnostic test matrix. Commit: `2582ffaee84226018d36b31bbe94cfe506f76078`. Exact CI PASS still pending.
+
+- **E7.69 — Partner Core Delivery Authorization:** PARTIAL / UNVERIFIED. Added final authorization binding release gate, built Core, delivery manifest, partner identity and knowledge scope. HOLD/non-built/REVOKED states block delivery. CI integration present; exact PASS pending.
+- **E7.70 — Partner Delivery Receipt:** PARTIAL / UNVERIFIED. Added machine-readable post-delivery provenance linking authorization, release, manifest, Core build revision, partner scope, delivered revision and transfer evidence. CI integration present; exact PASS pending.
