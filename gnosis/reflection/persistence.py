@@ -204,14 +204,43 @@ def validate_reloaded_counterexample_evidence(result: CounterexampleResult, tran
                 raise RuntimeError("persisted counterexample evidence is not canonical accepted history")
 
 
+def shadow_assessment_id(report_id: str, assessment: ShadowEvaluation) -> str:
+    digest = hashlib.sha256(_json(assessment).encode("utf-8")).hexdigest()[:24]
+    return f"{report_id}:shadow:{digest}"
+
+
 def save_shadow_assessment(conn: sqlite3.Connection, report_id: str, assessment: ShadowEvaluation) -> str:
     ensure_reflection_schema(conn)
-    assessment_id = f"{report_id}:shadow:{len(assessment.cases)}:{assessment.status}"
+    assessment_id = shadow_assessment_id(report_id, assessment)
+    existing = conn.execute(
+        "SELECT report_id,status,payload FROM reflection_shadow_assessments WHERE assessment_id=?",
+        (assessment_id,),
+    ).fetchone()
+    if existing is not None:
+        if existing[0] != report_id or existing[1] != assessment.status or existing[2] != _json(assessment):
+            raise RuntimeError("conflicting shadow assessment replay")
+        return assessment_id
     conn.execute(
-        "INSERT OR REPLACE INTO reflection_shadow_assessments(assessment_id,report_id,status,payload) VALUES(?,?,?,?)",
+        "INSERT INTO reflection_shadow_assessments(assessment_id,report_id,status,payload) VALUES(?,?,?,?)",
         (assessment_id, report_id, assessment.status, _json(assessment)),
     )
     return assessment_id
+
+
+def load_shadow_assessment(conn: sqlite3.Connection, assessment_id: str) -> dict[str, Any]:
+    ensure_reflection_schema(conn)
+    row = conn.execute(
+        "SELECT assessment_id,report_id,status,payload FROM reflection_shadow_assessments WHERE assessment_id=?",
+        (assessment_id,),
+    ).fetchone()
+    if row is None:
+        raise KeyError(assessment_id)
+    payload = json.loads(row[3])
+    if shadow_assessment_id(row[1], ShadowEvaluation(**payload)) != row[0]:
+        raise RuntimeError("shadow assessment persistence integrity mismatch")
+    if row[2] != payload.get("status"):
+        raise RuntimeError("shadow assessment persistence status mismatch")
+    return {"assessment_id": row[0], "report_id": row[1], "status": row[2], "payload": payload}
 
 
 def invariant_delta_id(report_id: str, delta: InvariantDelta) -> str:
