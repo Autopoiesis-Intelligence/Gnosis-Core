@@ -497,3 +497,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.52 — Governed Self-Learning Knowledge Update:** IMPLEMENTED / UNVERIFIED. Added bounded knowledge-update proposals derived only from complete E7.51 lifecycles and explicitly shareable evidence. Non-shareable/private evidence is rejected; the module does not mutate Ψ-Core, partner repositories, permissions or governance.
 
 - **E7.53 — Knowledge State Versioning / Lineage:** IMPLEMENTED / UNVERIFIED. Applied knowledge updates now receive deterministic version identities and explicit parent lineage from GENESIS onward. Broken lineage is detected; versioning does not authorize Core mutation, partner access or automatic promotion.
+
+- **E7.54 — Knowledge Promotion Gate:** IMPLEMENTED / UNVERIFIED. Added a governed proposal layer separating specialized/accumulated knowledge from knowledge proposed for common Self-Learning. Promotion requires a recorded version, evidence references, reason and target; ACCEPTED remains a decision record and does not mutate Ψ-Core or grant authority.
