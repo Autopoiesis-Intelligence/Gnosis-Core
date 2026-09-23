@@ -142,6 +142,7 @@ def test_evolution_transaction_conflicting_replay_fails_without_new_audit_record
 
 
 def test_save_evolution_provenance_rejects_conflicting_same_id() -> None:
+    from dataclasses import replace
     from gnosis.evolution.provenance import build_provenance, canonical_digest
     from gnosis.reflection.persistence import save_evolution_provenance
     from gnosis.storage import connect
@@ -163,24 +164,9 @@ def test_save_evolution_provenance_rejects_conflicting_same_id() -> None:
         governance_decision="ALLOW",
     )
     save_evolution_provenance(conn, p)
-    class Conflicting:
-        provenance_id = p.provenance_id
-        execution_id = p.execution_id
-        candidate_id = p.candidate_id
-        parent_state_id = p.parent_state_id
-        parent_state_digest = p.parent_state_digest
-        proposed_state_digest = p.proposed_state_digest
-        evidence_digest = p.evidence_digest
-        evolution_identity = "evolution:tampered"
-        proposed_state_content_id = "content:tampered"
-        candidate_binding_digest = p.candidate_binding_digest
-        evaluation_status = p.evaluation_status
-        shadow_status = p.shadow_status
-        invariant_status = p.invariant_status
-        governance_decision = p.governance_decision
-        status = p.status
+    conflicting = replace(p, evolution_identity="evolution:tampered", proposed_state_content_id="content:tampered")
     with pytest.raises(RuntimeError, match="conflicting provenance replay"):
-        save_evolution_provenance(conn, Conflicting())
+        save_evolution_provenance(conn, conflicting)
     conn.close()
 
 
