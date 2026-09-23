@@ -45,6 +45,7 @@ Each contract record SHOULD contain:
 | E7.24 | DESIGNED / NOT_IMPLEMENTED | Partner Contribution Validation & Quarantine |
 | E7.25 | DESIGNED / NOT_IMPLEMENTED | Partner Provenance Binding & Immutable Contribution Lineage |
 | E7.26 | DESIGNED / NOT_IMPLEMENTED | Partner Admission Runtime Boundary |
+| E7.27 | DESIGNED / NOT_IMPLEMENTED | Partner Replay, Revocation & Contract-State Consistency |
 
 ## Update rule
 
