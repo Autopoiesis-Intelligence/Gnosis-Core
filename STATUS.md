@@ -448,3 +448,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.36 — Partner Evidence Query & Reconstruction Protocol:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `f6218c27ad27eb4c17ac8cf73b93fdae1c4ac8ab`. Defines deterministic current/historical reconstruction from append-only evidence history, explicit conflict/incompleteness states, revision-aware queries, scope isolation and a strict non-authority boundary for query results.
+
+
+- **E7.37 — Partner Evidence Export & Interoperability Protocol:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `f45900206e30b6e351a33722b0c47d644f4f33e4`. Defines deterministic scoped export/import of evidence with provenance, revision, integrity, confidentiality, compatibility, conflict and stale/revoked package semantics. Imported evidence never becomes Core authority automatically.
