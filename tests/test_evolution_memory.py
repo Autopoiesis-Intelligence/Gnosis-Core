@@ -293,3 +293,38 @@ def test_shadow_assessment_lineage_binds_proposal_id():
     assert load_shadow_assessment(conn, assessment_id)["proposal_id"] == "p1"
     with pytest.raises(RuntimeError, match="conflicting shadow assessment replay"):
         save_shadow_assessment(conn, report_id, assessment, proposal_id="p2")
+
+
+def test_invariant_delta_persistence_rejects_payload_tamper():
+    conn = connect()
+    report_id = save_reflection_report(conn, ReflectionReport(), created_at="2026-09-23T10:08:00+00:00")
+    delta = InvariantDelta(
+        preserved=("i1",), violated=(), improved=(), unknown=(),
+        active_violations={}, shadow_violations={},
+    )
+    delta_id = save_invariant_delta(conn, report_id, delta)
+    conn.execute(
+        "UPDATE reflection_invariant_deltas SET payload=? WHERE delta_id=?",
+        ('{"preserved":[],"violated":[],"improved":[],"unknown":[],"active_violations":{},"shadow_violations":{}}', delta_id),
+    )
+    with pytest.raises(RuntimeError, match="invariant delta persistence integrity mismatch"):
+        load_invariant_delta(conn, delta_id)
+
+
+def test_governance_lineage_rejects_decision_not_derived_from_evidence():
+    conn = connect()
+    report_id = save_reflection_report(conn, ReflectionReport(), created_at="2026-09-23T10:09:00+00:00")
+    shadow = ShadowEvaluation(cases=(), changed_cases=0, accepted_by_active=0, accepted_by_shadow=0, regressions=0, improvements=0, status="NO_INPUT")
+    save_shadow_assessment(conn, report_id, shadow)
+    delta = InvariantDelta(
+        preserved=(), violated=(), improved=(), unknown=(),
+        active_violations={}, shadow_violations={},
+    )
+    save_invariant_delta(conn, report_id, delta)
+    dishonest = GovernanceDecision(
+        decision="REVIEW", shadow_status="NO_INPUT",
+        invariant_status="PRESERVED", rationale=("not-derived",),
+    )
+    save_governance_decision(conn, report_id, dishonest)
+    with pytest.raises(RuntimeError, match="does not match persisted shadow/invariant evidence"):
+        validate_reflection_lineage(conn, report_id)
