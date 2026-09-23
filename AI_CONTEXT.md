@@ -4309,3 +4309,28 @@ Cycle condition: `L_i -> ... -> L_i` is not automatically progress. A cycle is a
 Compatibility with Ψ remains representational: each `L_i` is a projection over the same `Ψ=(X,R)`; no second mutable state model is introduced.
 
 Status: FORMALIZED / NOT PROVEN. Required counterexamples: locally valid but globally incompatible transition sequence; lossy transition; cycle without organizational gain; task-switch without level transition.
+
+## E5.23 — RECOVERY / NON-RESURRECTION OF TEST AUTHORITY
+
+The test authorization store now has an explicit recovery regression: after SQLite close/reopen, a consumed authorization remains consumed and a revoked authorization remains revoked. Recovery therefore restores authorization state without recreating operational authority.
+
+Invariant:
+`Recover(Store_t) must preserve consumed/revoked monotonicity: consumed_t => consumed_{t+1}, revoked_t => revoked_{t+1}`.
+
+This is still test/development authority only. It does not prove production recovery, key lifecycle, or external-effect recovery.
+
+Status: IMPLEMENTED / UNVERIFIED pending exact-commit CI.
+
+## E7.9.5 — COUNTEREXAMPLE AUDIT OF LEVEL COMPOSITION
+
+Adversarial obligations for E7.9.3/E7.9.4:
+1. More data without organizational change must not force a new level.
+2. Increased task difficulty without changed information organization must not force a new level.
+3. A representation change that preserves task-relevant organization must not force a new level.
+4. A locally valid transition can fail globally when required distinctions are lost before the next task.
+5. A cycle returning to an equivalent task-relevant organization is not progress merely because time/steps increased.
+6. Switching tasks can change admissibility without implying a level transition.
+
+Research rule: a level claim survives only if it remains distinguishable from all six counterexample classes under the declared task/evidence scope. If evidence is insufficient, status is UNKNOWN/INSUFFICIENT_EVIDENCE rather than level confirmation.
+
+Status: COUNTEREXAMPLE AUDIT FORMALIZED / NOT PROVEN.
