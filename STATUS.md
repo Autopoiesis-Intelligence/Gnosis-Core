@@ -733,3 +733,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Dependency Review #102 remains blocked by unavailable Dependency Graph.
 - PR #40 is mergeable but is NOT merged yet. Do not mark E7.49 closed until CodeQL and compatibility/migration review are complete.
 - Production fix binds event identity to persisted `provenance` and `authority`; this changes the canonical digest format and therefore requires explicit legacy-evidence compatibility assessment before acceptance.
+
+
+## E7.49 metadata integrity — integrated — 2026-09-23
+
+- PR #40 exact candidate `88f5936975a6db13ec320e8aa966f0d51ad51559` passed CI #1991 and CodeQL #869.
+- The fix binds event identity to persisted `provenance` and `authority`; adversarial tests cover both metadata fields.
+- PR #40 merged by squash into `main` as `c523b2dc88705ee88c7ca5f3f5a03c5a60e56f4d`.
+- Dependency Review #104 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- No repository-managed persisted legacy EvidenceEvent fixture or SQLite-backed EvidenceEvent record was found during the compatibility audit; future legacy formats must be explicitly versioned.
+- E7.49 metadata-integrity contract is INTEGRATED / CI + CodeQL VERIFIED.
