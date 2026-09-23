@@ -1,5 +1,5 @@
 import pytest
-from gnosis.self_learning.delivery import create_delivery_manifest, authorize_delivery
+from gnosis.self_learning.delivery import create_delivery_manifest, authorize_delivery, validate_delivery_build_binding
 
 def make():
     return create_delivery_manifest(
@@ -30,3 +30,9 @@ def test_tampered_delivery_manifest_identity_is_rejected():
     tampered=replace(make(), package_id="sha256:forged")
     with pytest.raises(ValueError, match="delivery manifest identity"):
         authorize_delivery(tampered, allowed_scopes={"partner:finance"})
+
+
+def test_delivery_cannot_reference_foreign_core():
+    manifest=create_delivery_manifest(core_id="sha256:core-a",contract_refs=("E7.68",),knowledge_scope="partner:core",evidence_refs=("ci:pass",),excluded_components=("secrets",),revision="r1")
+    with pytest.raises(PermissionError,match="delivery core identity"):
+        validate_delivery_build_binding(manifest,expected_core_id="sha256:core-b")
