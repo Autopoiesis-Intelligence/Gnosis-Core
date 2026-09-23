@@ -189,3 +189,31 @@ An append-only/hash-chained audit record is tamper-evidence for the recorded his
 Authorization evidence must exist before the authority-sensitive commit; a post-commit audit event cannot retroactively create missing authorization.
 
 The current owner-authority issuer remains intentionally unimplemented; the runtime must fail closed rather than manufacture authorization.
+## E5.05 — External-audit closure gates
+
+The following gates are prerequisites for accepting authority-sensitive execution as end-to-end verified.
+
+### E5.05-A — Trusted issuer / root of trust
+The fail-closed execution boundary is not equivalent to a complete authorization system. A trusted issuance path must bind an explicit authority root, scope, policy version, evidence and exact evolution identity.
+`OwnerApproval != ExecutionAuthorization`.
+
+The current `issue_execution_authorization` boundary intentionally fails closed with `NotImplementedError`; this remains an implementation gap until a governed issuer exists.
+
+### E5.05-B — Freshness and replay
+Authorization validity must include exact binding, temporal validity, revocation state, replay/consumption state and policy validity.
+`Valid(Auth,t,tau) = Binding ∧ Fresh ∧ ¬Revoked ∧ ¬Consumed ∧ PolicyValid`.
+
+Time or generation counters alone are insufficient when a valid authorization can be replayed against another execution. Tests must cover cross-evolution replay, same-authorization reuse, expiry/staleness, revocation and parent-state mismatch.
+
+### E5.05-C — Real CI evidence
+Authority-sensitive acceptance requires real CI/pytest evidence tied to the exact commit. Static inspection, historical counts and offline test shims are supplementary evidence only.
+`HistoricalPass != CurrentHEADPass`.
+
+### E5.05-D — Implementation/evidence synchronization
+Status must distinguish implementation from evidence. A required status record is:
+`(ImplementationState, EvidenceState, Scope, Commit)`.
+
+Documentation drift is recorded as a gap; it does not become proof of implementation or verification.
+
+### Gate ordering
+E5.05-B may be formalized in parallel, but end-to-end acceptance remains blocked until the trusted issuer (E5.05-A) and real verification evidence (E5.05-C) are closed.
