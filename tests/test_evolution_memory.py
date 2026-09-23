@@ -124,3 +124,36 @@ def test_evolution_memory_rejects_tampered_transition_identity_on_reload():
     conn.execute("UPDATE transitions SET test_rule_id=? WHERE transition_id=?", ("tampered", record.transition_id))
     with pytest.raises(StorageCorruptionError):
         load_evolution_memory(conn, instance.instance_id)
+
+
+def test_reflection_persistence_round_trip_preserves_report_and_counterexample_identity():
+    conn = connect()
+    report = ReflectionReport(
+        proposals=(
+            RuleProposal("proposal:persist", "finding:persist", "test-rule:v1", "hypothesis", (), "effect", "risk", "test"),
+        ),
+    )
+    report_id = save_reflection_report(
+        conn, report, created_at="2026-09-23T10:00:00+00:00"
+    )
+    loaded = __import__("gnosis.reflection.persistence", fromlist=["load_reflection_report"]).load_reflection_report(conn, report_id)
+    assert loaded["report_id"] == report_id
+    assert loaded["payload"]["proposals"][0]["proposal_id"] == "proposal:persist"
+
+
+def test_reflection_report_tamper_is_rejected_by_content_identity():
+    conn = connect()
+    report = ReflectionReport(
+        proposals=(
+            RuleProposal("proposal:tamper", "finding:tamper", "test-rule:v1", "hypothesis", (), "effect", "risk", "test"),
+        ),
+    )
+    report_id = save_reflection_report(
+        conn, report, created_at="2026-09-23T10:01:00+00:00"
+    )
+    conn.execute(
+        "UPDATE reflection_reports SET payload=? WHERE report_id=?",
+        ('{"proposals":[],"findings":[],"counterexample_results":[]}', report_id),
+    )
+    with pytest.raises(RuntimeError, match="reflection persistence integrity mismatch"):
+        __import__("gnosis.reflection.persistence", fromlist=["load_reflection_report"]).load_reflection_report(conn, report_id)
