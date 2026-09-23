@@ -4648,3 +4648,8 @@ Learning-derived Findings, Counterexamples, Candidates and RuleProposals must be
 ## E7.12 — Learning Source Revision and Evidence Independence
 
 External learning sources are bound to immutable revision, provenance, scope, audit and revocation/supersession state. Evidence independence is a provenance relation, not an assumption: shared origin/dependency yields non-independent evidence; inability to establish independence yields UNKNOWN, never automatic independence. Superseded/revoked sources trigger re-evaluation of derived learning items. External evidence has no direct path to CanonicalState.
+
+
+## E7.13 — Agent Learning Feedback Boundary
+
+Partner/agent submissions enter learning only through IdentityCheck -> ScopeCheck -> ProvenanceCheck -> RevisionCheck -> IndependenceAnalysis -> EvidenceQuarantine -> LearningCandidate -> ShadowEvaluation -> CoreVerification -> Governance. Requested capability does not imply granted capability. Partner datasets are external evidence by immutable revision. Unknown/revoked identity, stale revision, unresolved independence, scope violation or failed verification fail closed. No agent submission may directly mutate canonical state, activate rules, grant authority, rewrite audit history or suppress counterexamples.
