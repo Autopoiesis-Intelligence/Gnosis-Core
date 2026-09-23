@@ -132,3 +132,31 @@ def build_promotion_handoff(
         provenance_id=provenance_id,
         proposed_state_content_id=proposed_state_content_id,
     )
+
+
+def materialize_candidate_from_handoff(
+    handoff: PromotionHandoff,
+    *,
+    parent_state_id: str,
+    proposed_state: "State",
+    provenance_id: str,
+    source_promotion_id: str,
+) -> "Candidate":
+    """Construct a normal Core Candidate without granting activation authority."""
+    if handoff.can_activate:
+        raise ValueError("promotion handoff cannot activate")
+    if handoff.provenance_id != provenance_id:
+        raise ValueError("handoff provenance mismatch")
+    if handoff.promotion_id != source_promotion_id:
+        raise ValueError("handoff promotion identity mismatch")
+    if handoff.proposed_state_content_id != proposed_state.content_id:
+        raise ValueError("handoff proposed state mismatch")
+    if not parent_state_id:
+        raise ValueError("parent state identity is required")
+    from gnosis.core.types import Candidate
+    return Candidate(
+        parent_state_id=parent_state_id,
+        proposed_state=proposed_state,
+        origin="self-learning:" + handoff.promotion_id,
+        seed=None,
+    )
