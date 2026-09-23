@@ -4658,3 +4658,8 @@ Partner/agent submissions enter learning only through IdentityCheck -> ScopeChec
 ## E7.14 — End-to-End Learning Execution and Replay
 
 The complete learning path is defined as Agent/Observation -> Identity -> Scope -> Provenance -> SourceRevision -> Independence -> Quarantine -> Finding -> Counterexample/Challenge -> Candidate/RuleProposal -> ShadowEvaluation -> CoreVerification -> Governance -> AcceptedTransition -> NewObservation. Replay must not create new epistemic facts; changed source, parent state or contract revision triggers re-evaluation. Failure injection must cover revoked agents, stale sources, duplicates, shared-origin evidence, provenance loss, state mismatch, evaluation/verification/governance failure, persistence interruption, restart and supersession. Learning has no direct CanonicalState mutation path.
+
+
+## E7.16 — Self-Learning Evidence Quarantine and Promotion
+
+External learning evidence follows a bounded state machine: UNSEEN -> RECEIVED -> IDENTITY_CHECKED -> PROVENANCE_CHECKED -> REVISION_CHECKED -> INDEPENDENCE_CLASSIFIED -> QUARANTINED -> EVALUATED -> VERIFIED -> GOVERNED -> PROMOTABLE. Rejected/revoked/stale/invalid/conflicted material remains addressable evidence. Only VERIFIED + GOVERNED material can become PROMOTABLE, and PROMOTABLE still cannot bypass existing Commit/Authority boundaries. Changes to identity, source revision, parent state, independence, contract revision or governance policy require re-evaluation.
