@@ -225,3 +225,43 @@ def test_e525_persistence_cannot_mint_new_authority(tmp_path):
 def test_e525_registry_has_no_issuance_operation():
     from gnosis.reflection import test_issuer
     assert not hasattr(test_issuer, "issue_test_authorization")
+
+def test_e526_expiry_is_monotonic_and_never_extends_authority():
+    from gnosis.reflection.test_issuer import expire_test_authorization
+    issuer, auth = _issued()
+    conn = sqlite3.connect(":memory:")
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, auth)
+    expire_test_authorization(conn, auth, now=101)
+    with pytest.raises(PermissionError, match="expired"):
+        consume_test_authorization(
+            conn, issuer, auth, now=101,
+            request_provenance="provenance:p1",
+            evolution_identity="evolution:e1",
+            parent_state_digest="parent-1",
+            policy_version="policy:v1",
+        )
+    with pytest.raises(ValueError, match="not expired"):
+        expire_test_authorization(conn, auth, now=100)
+
+
+def test_e526_lifecycle_cannot_reverse_consumed_or_revoked_state():
+    issuer, auth = _issued()
+    conn = sqlite3.connect(":memory:")
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, auth)
+    consume_test_authorization(
+        conn, issuer, auth, now=50,
+        request_provenance="provenance:p1",
+        evolution_identity="evolution:e1",
+        parent_state_digest="parent-1",
+        policy_version="policy:v1",
+    )
+    with pytest.raises(PermissionError, match="already consumed"):
+        consume_test_authorization(
+            conn, issuer, auth, now=50,
+            request_provenance="provenance:p1",
+            evolution_identity="evolution:e1",
+            parent_state_digest="parent-1",
+            policy_version="policy:v1",
+        )
