@@ -4728,3 +4728,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.30 — Partner Contract Acceptance & Capability Negotiation:** DESIGNED / NOT_IMPLEMENTED. Acceptance binds to exact package identity/digest and contract revisions. Effective capabilities are constrained by declared and policy-allowed scope. Acceptance cannot grant Core write, execution, governance or partner-management authority; contract changes require explicit revision/amendment handling.
+
+
+- **E7.31 — Partner Capability Enforcement & Runtime Scope Boundary:** DESIGNED / NOT_IMPLEMENTED. Runtime authorization is constrained to the intersection of declared, policy-allowed, accepted and currently valid capabilities. Runtime scope may narrow but never widen granted scope. Protected actions require explicit boundary checks and cannot bypass Core, audit, validation, admission or governance controls.
