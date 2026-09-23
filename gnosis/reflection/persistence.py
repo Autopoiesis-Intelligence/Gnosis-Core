@@ -431,6 +431,9 @@ def crosscheck_stored_provenance(
 ) -> Any:
     """Re-validate stored identity/evidence links against supplied observations."""
     row = load_evolution_provenance(conn, provenance_id)
+    # The database key is itself a trust anchor: stored fields must recompute to it.
+    if row["provenance_id"] != provenance_id:
+        return ProvenanceCrossCheck(valid=False, reasons=("stored provenance_id mismatch",))
     provenance = EvidenceProvenance(
         execution_id=row["execution_id"],
         candidate_id=row["candidate_id"],
