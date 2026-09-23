@@ -5162,3 +5162,10 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - Regression test added in commit `517a9968d4e5fe70a7aedae8a1a95d4063b27f56` to prevent accidental identity coupling to lifecycle status.
 - This is a test-contract clarification only; no production semantics were changed.
 - Exact CI on current `main` remains the acceptance gate for P0-R2.
+
+
+## PR #35 exact-head CI evidence — 2026-09-23
+
+- Exact head `4b209216c785d20cb888e2acb0047ff209f587d6` is **VERIFIED_BY_CI** for the scoped provenance lifecycle identity regression: CI 1969 PASS on Python 3.11/3.12 and CodeQL 847 PASS.
+- Dependency Review 96 remains UNVERIFIED because the GitHub Dependency Graph is unavailable.
+- PR #35 remains unmerged. Integration and post-merge verification are still required before closing Issue #16 / P0-R2.
