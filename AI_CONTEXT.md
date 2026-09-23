@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.95 — Remediation Execution Result Reconciliation & Outcome Verification
+
+E7.95 separates execution evidence from outcome verification. It defines evidence-linked verification states, discrepancy reconciliation, external-effect distinction, re-verification and residual-risk handling without mutating execution history.
+
+Contract artifact: `docs/architecture/PARTNER_REMEDIATION_OUTCOME_VERIFICATION_CONTRACT.md`.
+Contract commit: `8276248cac0ded4ff8e578ea9070f8ed2c527e90`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.94 — Remediation Execution Transaction & Mutation Receipt
 
 E7.94 defines the execution boundary after preflight admission. Execution is a separately evidenced transaction; mutation receipts are append-only, and execution status is distinguished from verification or business outcome.
