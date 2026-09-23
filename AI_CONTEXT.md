@@ -3579,3 +3579,53 @@ Adaptive adversarial expansion should produce durable challenge records, provena
 ### Required next step
 
 E5.01: formalize verifier/selector separation and independence requirements, including common-mode risk when the same model or rule family generates and judges challenges.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.01: VERIFIER / SELECTOR SEPARATION AND COMMON-MODE RISK
+
+Let `S` generate/select challenges and `V` evaluate them for claim `C`.
+
+### Role separation
+
+`S = V` is not automatically invalid, but it creates a common-mode risk that must be explicitly accounted for.
+
+Where independence is required for a claim, challenge generation and evaluation must use materially distinct failure assumptions, implementations, evidence sources, or independently justified controls.
+
+### Common-mode self-verification
+
+If the same model/rule family `M` generates both the challenge and the evaluator:
+`Generate_M(Q) -> Evaluate_M(Q)`
+
+then a failure mode of `M` may affect both stages.
+
+`SharedFailure(M) -> CorrelatedRisk(Generator,Verifier)`.
+
+A passing result from such a pair cannot be treated as independent corroboration merely because the operations are executed separately.
+
+### Independence is conditional
+
+No universal requirement of organizational or model separation is asserted. Independence is relative to the failure mode being excluded and must be evidenced for that claim.
+
+### Selector boundary
+
+The selector may choose challenges under declared policy, but evaluation of selector adequacy must not rely solely on the selector's own success reports.
+
+`SelfReport(S) != IndependentEvidence(Adequacy(S))`.
+
+### Verifier mutation
+
+A verifier update is itself authority-sensitive. A verifier cannot redefine its own protected acceptance criteria through an ungoverned self-update.
+
+### Proposition E5.01.1
+
+If a common failure mode can cause both challenge generation and evaluation to miss the same defect, agreement between generator and verifier does not establish independent evidence against that defect.
+
+### Engineering consequence
+
+Future adaptive verification should preserve generator identity/version, verifier identity/version, shared dependencies, challenge provenance, and adequacy assessment provenance.
+
+### Current boundary
+
+Current reflection uses `CounterexampleEngine` over canonical history and is not an independent verifier architecture. This contract therefore constrains future adaptive/reflection evolution; it does not claim current runtime independence.
+
+### Required next step
+
+E5.02: formalize recursive verifier evaluation and the governance boundary for verifier updates.
