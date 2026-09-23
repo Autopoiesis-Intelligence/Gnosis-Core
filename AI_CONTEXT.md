@@ -4628,3 +4628,14 @@ Contract: docs/architecture/REPOSITORY_INFORMATION_SYNC_CONTRACT.md.
 Added preliminary inventory: docs/agents/PRELIMINARY_HIDDEN_CONTRACT_INVENTORY.md.
 Initial candidates include identity continuity, capability negotiation, provenance, revocation/supersession, proposal freshness, dataset revision binding, sandbox boundaries, cross-agent communication provenance, escalation/stop conditions, repository capability drift, learning feedback boundaries and audit replay.
 Inventory status: DISCOVERY / PRELIMINARY. Candidate contracts require explicit scope, invariants, evidence and acceptance tests before activation.
+## E7.10 — Governed Self-Learning Feedback Loop
+
+Self-learning is bounded as: Observation -> Provenance -> Finding -> Counterexample/Challenge -> Candidate/RuleProposal -> Shadow Evaluation -> Verification -> Governance -> Accepted Rule/Transition -> New Observation.
+
+LearningData != CoreState; Finding != Truth; RuleProposal != ActiveRule; ShadowResult != ProductionVerification; AgentConsensus != Proof; HistoricalSuccess != CurrentAuthorization.
+
+External/partner evidence is revision-bound and scope-bound. Copied/common-origin evidence is not assumed independent. Rejections and failures remain historical evidence.
+
+Self-learning may expand candidate/test/rule hypotheses but cannot directly activate production behavior or mutate canonical state.
+
+Status: DESIGNED / PARTIALLY COVERED; end-to-end runtime proof NOT_IMPLEMENTED.
