@@ -495,3 +495,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.51 — Learning Flow Integrity / Complete Contract Lifecycle:** IMPLEMENTED / UNVERIFIED. Added an end-to-end verifier for the required DATABASE → FINDING → PROPOSAL → VALIDATION → GOVERNANCE → EXECUTION_PLAN → RECEIPT sequence. Missing stages, subject mixing, chain corruption and ordering violations fail explicitly; no history repair or execution is performed.
 
 - **E7.52 — Governed Self-Learning Knowledge Update:** IMPLEMENTED / UNVERIFIED. Added bounded knowledge-update proposals derived only from complete E7.51 lifecycles and explicitly shareable evidence. Non-shareable/private evidence is rejected; the module does not mutate Ψ-Core, partner repositories, permissions or governance.
+
+- **E7.53 — Knowledge State Versioning / Lineage:** IMPLEMENTED / UNVERIFIED. Applied knowledge updates now receive deterministic version identities and explicit parent lineage from GENESIS onward. Broken lineage is detected; versioning does not authorize Core mutation, partner access or automatic promotion.
