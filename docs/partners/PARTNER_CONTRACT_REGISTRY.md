@@ -129,6 +129,7 @@ Each contract record SHOULD contain:
 | E7.108 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Execution Record & Evidence Capture |
 | E7.109 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Evidence Acceptance & Criterion Promotion Gate |
 | E7.110 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Result Reconciliation & Progress Recalculation Gate |
+| E7.111 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Post-Execution Audit & Independent Evidence Review |
 
 ## Update rule
 
