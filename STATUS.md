@@ -891,3 +891,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #62 merged by squash into `main` as `aab04d7eb6c5f221cc025f5c3a4b630dcda28940`.
 - Dependency Review #144 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.64 training intake identity verification is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.65 training plan identity verification — integrated — 2026-09-23
+
+- PR #63 exact head `c7406b534dcf1231ca1476faa206ff39187a902e` passed CI #2062 and CodeQL #940.
+- `validate_plan_scope()` now recomputes `TrainingPlan.plan_id` from immutable plan fields and fails closed on mismatch before scope validation.
+- Adversarial regression coverage rejects a forged/tampered plan identity.
+- PR #63 merged by squash into `main` as `8768c8feda362a3b5cf91f61094dd5679674309f`.
+- Dependency Review #145 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.65 training plan identity verification is INTEGRATED / CI + CodeQL VERIFIED.
