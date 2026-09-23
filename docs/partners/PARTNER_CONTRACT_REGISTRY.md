@@ -132,6 +132,7 @@ Each contract record SHOULD contain:
 | E7.111 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Post-Execution Audit & Independent Evidence Review |
 | E7.112 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Closure & Immutable Progress Snapshot |
 | E7.113 | DESIGNED / NOT_IMPLEMENTED | First Verification Batch Actual Proof Run |
+| E7.114 | DESIGNED / NOT_IMPLEMENTED | First Actual Proof Run Scope Lock & Target Commit Record |
 
 ## Update rule
 
