@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.88 — External Audit Resolution, Corrective Finding & Attestation Update
+
+E7.88 defines the governed transition from audit challenge reconciliation to corrective finding and, where justified, a new attestation revision. Historical evidence and prior attestations remain immutable; remediation follows its separate governed path.
+
+Contract artifact: `docs/architecture/PARTNER_EXTERNAL_AUDIT_RESOLUTION_ATTESTATION_UPDATE_CONTRACT.md`.
+Contract commit: `d988071f708a3b2a39c7677c03308b1948e80f51`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.87 — External Audit Challenge, Dispute & Evidence Reconciliation
 
 E7.87 defines the governed challenge/dispute layer for external audit. A challenge can request reconciliation and additional evidence within disclosure policy, but cannot mutate authoritative records, Ψ-Core, permissions or historical evidence.
