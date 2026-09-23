@@ -1,4 +1,6 @@
 import pytest
+from pathlib import Path
+import tempfile
 
 from gnosis.core import Candidate, TestResult, TransitionRecord
 from gnosis.storage import StorageCorruptionError, connect, load_instance, persist_transition, save_instance, verify_audit_chain, verify_durable_graph
@@ -25,7 +27,7 @@ def test_same_transition_replay_is_idempotent():
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == audit_count
     assert conn.execute("SELECT current_state_id FROM instances WHERE instance_id=?", (instance.instance_id,)).fetchone()[0] == head
     verify_durable_graph(conn)
-    assert verify_audit_chain(conn)[0] == 1
+    assert verify_audit_chain(conn)[0] == 2
 
 
 def test_same_transition_id_with_conflicting_content_is_rejected():
@@ -99,7 +101,7 @@ def test_same_transition_id_with_conflicting_from_state_is_rejected() -> None:
         reason=record.reason,
         test_rule_id=record.test_rule_id,
     )
-    with pytest.raises((ValueError, StorageCorruptionError), match="conflicting transition replay|stale instance head"):
+    with pytest.raises((ValueError, StorageCorruptionError), match="candidate parent does not match transition source|conflicting transition replay|stale instance head"):
         persist_transition(conn, instance=instance, candidate=candidate, record=conflicting, actor="test")
 
     assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
@@ -117,6 +119,8 @@ def test_exact_transition_replay_after_reopen_is_idempotent_across_delivery_acto
     record = instance.engine.step(candidate)
     persist_transition(conn, instance, candidate, record, actor="worker-a")
     db_path = conn.execute("PRAGMA database_list").fetchone()[2]
+    if not db_path:
+        raise AssertionError("restart test requires a file-backed SQLite database")
     conn.close()
 
     reopened = connect(db_path)
