@@ -4450,3 +4450,134 @@ Any retrospective update must introduce new evidence and re-evaluate the relevan
 An action outcome may increase or decrease posterior support for a claim only through an explicit evidence-update rule; the outcome is never an implicit issuer.
 
 Status: FORMALIZED / NOT PROVEN.
+## E5.29 — Partner Repository Agency / Knowledge Federation
+
+This contract defines the first governed mechanism for adding a separately audited partner repository and an adjacent partner knowledge database as an additional learning/research source.
+
+### Canonical architecture
+
+`Partner Repository -> Partner DB -> Provenance/Audit -> Quarantine -> Evidence -> Challenge/Candidate -> Core Verification -> Governed Evolution`
+
+The partner source is an external knowledge/agent surface. It is not a second Ψ-Core and does not become an authority root.
+
+### Physical isolation
+
+The preferred initial topology is:
+
+`CoreDB != PartnerDB_1 != PartnerDB_2 ...`
+
+Each partner source receives a stable `partner_source_id`, immutable source revision/commit, dataset/schema version, provenance, audit status, scope and revocation state.
+
+A mutable branch name is insufficient provenance.
+
+### No authority inheritance
+
+`PartnerTrust != CoreAuthority`
+
+`PartnerRepositoryAccess != ExecutionAuthority`
+
+Partner material cannot directly mutate Ψ-Core, issue execution authorization, activate capabilities, modify protected policy/verifier authority, or bypass Candidate -> Test -> Verify -> Authorize -> Commit.
+
+### Skeptical ingestion
+
+Required distinctions:
+
+`PartnerClaim != VerifiedClaim`
+`PartnerTest != CoreProof`
+`PartnerAudit != CoreVerification`
+`PartnerHistory != Truth`
+`PartnerCode != TrustedCode`
+
+New material starts in QUARANTINED and may progress only through explicitly scoped states such as OBSERVED -> VERIFIED_FOR_SCOPE -> LEARNING_ACTIVE.
+
+### Multidimensional trust
+
+At minimum separate:
+
+`SOURCE_IDENTITY`
+`PROVENANCE_INTEGRITY`
+`REPOSITORY_AUDIT`
+`DATA_QUALITY`
+`SEMANTIC_VALIDITY`
+`EXECUTION_AUTHORITY`
+
+A PASS in one dimension cannot silently promote another.
+
+### Partner database
+
+The adjacent DB is a research/knowledge store, not an autonomous Core.
+
+Minimum records:
+- source metadata;
+- immutable repository revision;
+- schema/dataset version;
+- evidence;
+- provenance;
+- claims/hypotheses;
+- counterexamples;
+- audit findings;
+- ingestion events;
+- verification status;
+- revocation state;
+- references to derived Core candidates/findings.
+
+No partner table may directly represent an executable canonical transition.
+
+### Learning provenance
+
+Every derived finding/candidate must preserve:
+
+`source_id + source_revision + evidence_id + ingestion_event + verification_scope`.
+
+Similar evidence from multiple repositories is not assumed independent; common datasets, ancestry, copied code, shared models and common external sources must be considered where known.
+
+### Agency levels
+
+A partner-facing interface may expose separately governed levels:
+
+`READ_RESEARCH`
+`SUBMIT_EVIDENCE`
+`SUBMIT_CANDIDATE`
+`SUBMIT_TEST`
+`REQUEST_REVIEW`
+`PROPOSE_CHANGE`
+`EXECUTION_AUTHORITY`
+
+The first five are research collaboration capabilities, not execution authority. PROPOSE_CHANGE remains subject to Core verification/governance. EXECUTION_AUTHORITY remains under E5 Root-of-Trust contracts.
+
+### Revocation and revision
+
+A partner revision is new evidence:
+
+`Revision_n != Revision_{n+1}`
+
+unless immutable identity establishes unchanged content.
+
+Revocation stops new ingestion/learning activation but does not rewrite historical evidence or canonical history.
+
+### Security
+
+Partner repositories/databases are untrusted inputs until the declared intake audit is complete. Repository audit does not authorize executing partner code. Code execution, dependency installation, credentials, network access and external effects require separate sandbox/gateway contracts.
+
+### Acceptance invariant
+
+`PartnerIngestion -> Evidence -> Verification -> Candidate -> GovernedTransition`
+
+must be enforced, while:
+
+`PartnerData -> CanonicalState`
+
+must have no direct path.
+
+Strong form:
+
+`ExternalPartner 
+otRightarrow CoreAuthority`.
+
+### Initial implementation boundary
+
+The first implementation should provide a partner-source registry, isolated partner DB, immutable revision metadata, quarantine, provenance-linked evidence, audit/review records, read-only learning adapter, explicit revocation and no direct write/credential path into Ψ-Core.
+
+This contract does not authorize automatic model training, automatic code execution or automatic production deployment.
+
+Status: DESIGNED / NOT_IMPLEMENTED.
