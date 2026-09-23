@@ -265,3 +265,52 @@ def test_e526_lifecycle_cannot_reverse_consumed_or_revoked_state():
             parent_state_digest="parent-1",
             policy_version="policy:v1",
         )
+
+def test_e527_lifecycle_reasons_are_distinct_and_terminal():
+    from gnosis.reflection.test_issuer import expire_test_authorization
+    issuer, auth = _issued()
+    conn = sqlite3.connect(":memory:")
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, auth)
+    expire_test_authorization(conn, auth, now=101)
+    state = conn.execute(
+        "SELECT lifecycle_state, consumed, revoked FROM test_authorizations WHERE authorization_id = ?",
+        (auth.authorization_id,),
+    ).fetchone()
+    assert state == ("expired", 0, 0)
+    with pytest.raises(PermissionError, match="expired"):
+        consume_test_authorization(
+            conn, issuer, auth, now=101,
+            request_provenance="provenance:p1",
+            evolution_identity="evolution:e1",
+            parent_state_digest="parent-1",
+            policy_version="policy:v1",
+        )
+
+    issuer2, auth2 = _issued()
+    persist_test_authorization(conn, auth2)
+    revoke_test_authorization(conn, auth2.authorization_id)
+    state2 = conn.execute(
+        "SELECT lifecycle_state, consumed, revoked FROM test_authorizations WHERE authorization_id = ?",
+        (auth2.authorization_id,),
+    ).fetchone()
+    assert state2 == ("revoked", 0, 1)
+
+
+def test_e527_consumed_reason_is_distinct_from_revoked():
+    issuer, auth = _issued()
+    conn = sqlite3.connect(":memory:")
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, auth)
+    consume_test_authorization(
+        conn, issuer, auth, now=50,
+        request_provenance="provenance:p1",
+        evolution_identity="evolution:e1",
+        parent_state_digest="parent-1",
+        policy_version="policy:v1",
+    )
+    state = conn.execute(
+        "SELECT lifecycle_state, consumed, revoked FROM test_authorizations WHERE authorization_id = ?",
+        (auth.authorization_id,),
+    ).fetchone()
+    assert state == ("consumed", 1, 0)
