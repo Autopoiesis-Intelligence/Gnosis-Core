@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.76 — Collaboration Execution Authorization & External Action Boundary
+
+E7.76 defines the next boundary after proposal acceptance: an accepted collaboration proposal still requires a separate, exact-scope execution authorization before any external action. Authorization is fail-closed for stale, revoked, conflicting, privacy-ambiguous or scope-expanding requests and remains separate from execution evidence and Core authority.
+
+Contract artifact: `docs/architecture/PARTNER_COLLABORATION_EXECUTION_AUTHORIZATION_CONTRACT.md`.
+Contract commit: `a5ac10ccc52d1488cb74729fedd393208db1a5f4`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.75 — Governed Collaboration Proposal Review & Acceptance
 
 E7.75 defines the next boundary after E7.74: a collaboration proposal may be reviewed and recorded as ACCEPTED, REJECTED, DEFERRED or RETURNED_FOR_REVISION, but acceptance does not authorize GitHub publication, invitations, permission changes, private-data disclosure, external execution or Core mutation. Decisions bind to the exact proposal revision and must fail closed on stale/conflicting replay.
