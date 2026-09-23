@@ -871,3 +871,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #60 merged by squash into `main` as `af76998227c7b872623a8ce276b2a684a078113d`.
 - Dependency Review #142 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.62 integration context binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.63 delivery manifest identity verification — integrated — 2026-09-23
+
+- PR #61 exact head `8dec9722ed9496da456403590ee397c68476cd22` passed CI #2056 and CodeQL #934.
+- `authorize_delivery()` now recomputes `DeliveryManifest.package_id` from immutable manifest fields and fails closed on mismatch before scope authorization.
+- Adversarial regression coverage rejects a forged/tampered package identity.
+- PR #61 merged by squash into `main` as `83b2ddc0fd076936260f58213933b783bb2e5180`.
+- Dependency Review #143 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.63 delivery manifest identity verification is INTEGRATED / CI + CodeQL VERIFIED.
