@@ -78,6 +78,7 @@ Each contract record SHOULD contain:
 | E7.57 | IMPLEMENTED / UNVERIFIED | Core Mutation Execution Adapter |
 | E7.58 | IMPLEMENTED / UNVERIFIED | End-to-End Self-Learning Contract Cycle |
 | E7.59 | IMPLEMENTED / UNVERIFIED | Runtime Fail-Closed Execution Boundary |
+| E7.60 | IMPLEMENTED / UNVERIFIED | Self-Learning CI Evidence Gate |
 
 ## Update rule
 
