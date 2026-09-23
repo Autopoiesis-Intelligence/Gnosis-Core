@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gnozis Partner Contract Registry",
+  "type": "object",
+  "required": ["registry_version", "contracts"],
+  "properties": {
+    "registry_version": {"type": "string"},
+    "updated_at": {"type": "string"},
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_id", "title", "revision", "status", "source_path"],
+        "properties": {
+          "contract_id": {"type": "string"},
+          "title": {"type": "string"},
+          "revision": {"type": "string"},
+          "status": {"type": "string"},
+          "source_path": {"type": "string"},
+          "source_commit": {"type": ["string", "null"]},
+          "applies_to": {"type": "array", "items": {"type": "string"}},
+          "dependencies": {"type": "array", "items": {"type": "string"}},
+          "supersedes": {"type": ["string", "null"]},
+          "superseded_by": {"type": ["string", "null"]},
+          "implementation_status": {"type": "string"},
+          "verification_status": {"type": "string"}
+        }
+      }
+    }
+  }
+}
