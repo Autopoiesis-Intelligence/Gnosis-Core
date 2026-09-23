@@ -793,3 +793,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #51 merged by squash into `main` as `573b7a827d6df542f9ab8fd559948f042aff5f78`.
 - Dependency Review #116 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.55 integration receipt/identity contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.56 protected bridge proposal identity — integrated — 2026-09-23
+
+- PR #52 established the adversarial proof after correcting the test to reach the APPROVED execution boundary.
+- PR #53 exact candidate `fb6222b03e1f026e7fb1219b549f759f78b1e2f9` passed CI #2018 and CodeQL #896.
+- The protected execution boundary now recomputes `CoreMutationProposal.mutation_id` from immutable bridge fields before execution binding.
+- PR #53 merged by squash into `main` as `6c682d38a739fcea5840c75ab4849b7192f3f5fe`.
+- Dependency Review #119 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.56 protected bridge identity contract is INTEGRATED / CI + CodeQL VERIFIED.
