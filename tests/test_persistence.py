@@ -290,10 +290,8 @@ def test_a30_atomicity_rolls_back_after_audit_before_commit(monkeypatch):
     def fail_commit(*args, **kwargs):
         raise RuntimeError("injected failure before commit")
 
-    monkeypatch.setattr(conn, "commit", fail_commit)
-    with pytest.raises(RuntimeError, match="injected failure before commit"):
-        persist_transition(conn, instance, candidate, record, actor="u")
-    conn.rollback()
+    with pytest.raises(RuntimeError, match="injected failure at after_audit"):
+        persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_audit")
     assert recover_instance(conn, instance.instance_id).engine.state.state_id == original_state_id
 
 
