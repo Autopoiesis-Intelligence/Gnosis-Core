@@ -46,6 +46,7 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             report_id TEXT NOT NULL,
             status TEXT NOT NULL,
             payload TEXT NOT NULL,
+            proposal_id TEXT,
             FOREIGN KEY(report_id) REFERENCES reflection_reports(report_id)
         );
         CREATE TABLE IF NOT EXISTS reflection_invariant_deltas (
@@ -125,7 +126,9 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
     for column, definition in (
         ("current_proposal_id", "TEXT"),
         ("status", "TEXT NOT NULL DEFAULT 'PROPOSED'"),
+        ("proposal_id", "TEXT"),
     ):
+
         try:
             conn.execute(f"ALTER TABLE reflection_proposal_evolutions ADD COLUMN {column} {definition}")
         except sqlite3.OperationalError:
@@ -223,25 +226,25 @@ def validate_reloaded_counterexample_evidence(result: CounterexampleResult, tran
                 raise RuntimeError("persisted counterexample evidence is not canonical accepted history")
 
 
-def shadow_assessment_id(report_id: str, assessment: ShadowEvaluation) -> str:
-    digest = hashlib.sha256(_json(assessment).encode("utf-8")).hexdigest()[:24]
+def shadow_assessment_id(report_id: str, assessment: ShadowEvaluation, proposal_id: str | None = None) -> str:
+    digest = hashlib.sha256(_json({"proposal_id": proposal_id, "assessment": assessment}).encode("utf-8")).hexdigest()[:24]
     return f"{report_id}:shadow:{digest}"
 
 
-def save_shadow_assessment(conn: sqlite3.Connection, report_id: str, assessment: ShadowEvaluation) -> str:
+def save_shadow_assessment(conn: sqlite3.Connection, report_id: str, assessment: ShadowEvaluation, *, proposal_id: str | None = None) -> str:
     ensure_reflection_schema(conn)
-    assessment_id = shadow_assessment_id(report_id, assessment)
+    assessment_id = shadow_assessment_id(report_id, assessment, proposal_id)
     existing = conn.execute(
-        "SELECT report_id,status,payload FROM reflection_shadow_assessments WHERE assessment_id=?",
+        "SELECT report_id,status,payload,proposal_id FROM reflection_shadow_assessments WHERE assessment_id=?",
         (assessment_id,),
     ).fetchone()
     if existing is not None:
-        if existing[0] != report_id or existing[1] != assessment.status or existing[2] != _json(assessment):
+        if existing[0] != report_id or existing[1] != assessment.status or existing[2] != _json(assessment) or existing[3] != proposal_id:
             raise RuntimeError("conflicting shadow assessment replay")
         return assessment_id
     conn.execute(
-        "INSERT INTO reflection_shadow_assessments(assessment_id,report_id,status,payload) VALUES(?,?,?,?)",
-        (assessment_id, report_id, assessment.status, _json(assessment)),
+        "INSERT INTO reflection_shadow_assessments(assessment_id,report_id,status,payload,proposal_id) VALUES(?,?,?,?,?)",
+        (assessment_id, report_id, assessment.status, _json(assessment), proposal_id),
     )
     return assessment_id
 
@@ -249,17 +252,17 @@ def save_shadow_assessment(conn: sqlite3.Connection, report_id: str, assessment:
 def load_shadow_assessment(conn: sqlite3.Connection, assessment_id: str) -> dict[str, Any]:
     ensure_reflection_schema(conn)
     row = conn.execute(
-        "SELECT assessment_id,report_id,status,payload FROM reflection_shadow_assessments WHERE assessment_id=?",
+        "SELECT assessment_id,report_id,status,payload,proposal_id FROM reflection_shadow_assessments WHERE assessment_id=?",
         (assessment_id,),
     ).fetchone()
     if row is None:
         raise KeyError(assessment_id)
     payload = json.loads(row[3])
-    if shadow_assessment_id(row[1], ShadowEvaluation(**payload)) != row[0]:
+    if shadow_assessment_id(row[1], ShadowEvaluation(**payload), row[4]) != row[0]:
         raise RuntimeError("shadow assessment persistence integrity mismatch")
     if row[2] != payload.get("status"):
         raise RuntimeError("shadow assessment persistence status mismatch")
-    return {"assessment_id": row[0], "report_id": row[1], "status": row[2], "payload": payload}
+    return {"assessment_id": row[0], "report_id": row[1], "status": row[2], "payload": payload, "proposal_id": row[4]}
 
 
 def proposal_evolution_id(evolution: ProposalEvolution) -> str:
@@ -428,7 +431,14 @@ def load_governance_decision(conn: sqlite3.Connection, decision_id: str) -> dict
     ).fetchone()
     if row is None:
         raise KeyError(decision_id)
-    return {"decision_id": row[0], "report_id": row[1], "decision": row[2], "payload": json.loads(row[3]), "raw_payload": row[3]}
+    payload = json.loads(row[3])
+    try:
+        decision = GovernanceDecision(**payload)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("governance persistence malformed payload") from exc
+    if governance_decision_id(row[1], decision) != row[0] or row[2] != decision.decision:
+        raise RuntimeError("governance persistence integrity mismatch")
+    return {"decision_id": row[0], "report_id": row[1], "decision": row[2], "payload": payload, "raw_payload": row[3]}
 
 
 def list_governance_decisions(conn: sqlite3.Connection, report_id: str | None = None) -> tuple[dict[str, Any], ...]:
