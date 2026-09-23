@@ -397,3 +397,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.21 — Learning Memory Trust Boundary:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_MEMORY_TRUST_BOUNDARY_CONTRACT.md` (`f28cda9d`). Defines Core K, learning workspace W, partner revisions P_i and archive A with explicit allowed/forbidden flows and cross-domain leakage tests.
 - **P0 self-learning integrated proof:** remains ~20%. E7.21 architectural coverage ~40%, verification coverage ~5%.
+
+- **E7.22 — Partner Repository Admission & Identity:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/PARTNER_REPOSITORY_ADMISSION_IDENTITY_CONTRACT.md` (`98782bc1`). Defines controlled partner admission, immutable PartnerIdentity, declared scope, baseline provenance, quarantine, revocation and no-authority-inheritance rules.
+- **P0 self-learning integrated proof:** remains ~20%. E7.22 architectural coverage ~40%, verification coverage ~5%.
