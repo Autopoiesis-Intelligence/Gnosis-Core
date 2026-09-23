@@ -371,3 +371,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.13 — Agent Learning Feedback Boundary:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/AGENT_LEARNING_FEEDBACK_BOUNDARY_CONTRACT.md` (`7fe2c8b4`). Connects partner/agent submissions to E7.10–E7.12 while preserving identity, scope, provenance, revision, independence, quarantine, verification and governance gates.
 - **Self-learning P0:** E7.10 ~55% architecture/~20% verification; E7.11 ~60%/~25%; E7.12 ~65%/~25%; E7.13 ~60%/~15%. End-to-end agent-to-learning proof remains ~20%.
+
+- **E7.14 — End-to-End Learning Execution & Replay:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/END_TO_END_LEARNING_EXECUTION_REPLAY_CONTRACT.md` (`c05917e2`). Defines the executable/replayable P0 proof of E7.10–E7.13, including persistence, deterministic replay and failure injection.
+- **P0 self-learning coverage:** E7.10 ~55% architecture/~20% verification; E7.11 ~60%/~25%; E7.12 ~65%/~25%; E7.13 ~60%/~15%; E7.14 ~45%/~10%. Integrated end-to-end learning proof remains ~20%.
