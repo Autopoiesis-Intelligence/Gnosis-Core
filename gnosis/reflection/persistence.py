@@ -12,14 +12,14 @@ from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
-from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance
+from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance, provenance_id_for
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
 
 def _json(value: Any) -> str:
     if is_dataclass(value):
         value = asdict(value)
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return json.dumps(asdict(value) if is_dataclass(value) else value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def reflection_id(report: ReflectionReport) -> str:
