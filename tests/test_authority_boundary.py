@@ -664,3 +664,93 @@ def test_self_learning_materialized_candidate_requires_provenance_for_its_actual
     )
     with pytest.raises(PermissionError, match="execution candidate"):
         require_execution_candidate_binding(request, candidate, record)
+
+
+def test_verified_self_learning_runs_full_positive_path_to_durable_commit():
+    from gnosis.evolution.promotion import (
+        build_promotion_handoff,
+        evaluate_promotion_gate,
+        make_promotion_candidate,
+        materialize_candidate_from_handoff,
+    )
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-self-learning", State(elements={"a": 1}))
+    save_instance(conn, instance)
+
+    parent = instance.engine.state
+    proposed = parent.with_elements({"a": 2})
+
+    promotion = make_promotion_candidate(
+        candidate_id="learning:verified:positive",
+        evidence_digest="evidence:positive",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+    )
+    gate = evaluate_promotion_gate(
+        promotion,
+        provenance_valid=True,
+        required_evidence=("evidence:positive",),
+    )
+    handoff = build_promotion_handoff(
+        promotion,
+        gate,
+        provenance_id="provenance:handoff:positive",
+        proposed_state_content_id=proposed.content_id,
+    )
+    candidate = materialize_candidate_from_handoff(
+        handoff,
+        parent_state_id=parent.state_id,
+        proposed_state=proposed,
+        provenance_id=handoff.provenance_id,
+        source_promotion_id=handoff.promotion_id,
+    )
+
+    observations = {"learning": "verified", "shadow": "improved"}
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent.state_id,
+        parent_state_digest=parent.state_id,
+        proposed_state_digest=proposed.state_id,
+        observations=observations,
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=candidate.binding_digest(parent.state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    authorization = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+    )
+    request = ExecutionCommitRequest(
+        authorization,
+        ExecutionIntentSnapshot.from_provenance(provenance),
+        provenance.provenance_id,
+        provenance.evolution_identity,
+        provenance,
+    )
+    record = instance.engine.step(candidate)
+
+    require_execution_commit(request)
+    require_execution_candidate_binding(request, candidate, record)
+
+    before = load_instance(conn, instance.instance_id).engine.state.state_id
+    assert before == parent.state_id
+    result = SQLiteExecutionCommitAdapter().commit(
+        conn, instance, candidate, record, request, actor="user-self-learning"
+    )
+
+    after = load_instance(conn, instance.instance_id).engine.state.state_id
+    assert after == proposed.state_id
+    assert result.receipt.resulting_state_digest == proposed.state_id
+    assert result.receipt.matches_request(request)
+    assert candidate.origin.startswith("self-learning:")
+    conn.close()
