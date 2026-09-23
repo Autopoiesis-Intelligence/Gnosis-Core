@@ -763,3 +763,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #45 merged by squash into `main` as `9f3631212ee1b7b460e763d7de735df6bda84b96`.
 - Dependency Review #110 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.52 subject-binding contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.53 KnowledgeVersion identity integrity — integrated — 2026-09-23
+
+- PR #46 proved that a tampered `version_id` was not rejected by lineage verification.
+- PR #47 exact candidate `d628cadc72cf8f185f821d036445b445bc40c61a` passed CI #2005 and CodeQL #883.
+- `verify_lineage()` now recomputes each KnowledgeVersion identity and rejects `VERSION_DIGEST_MISMATCH` before parent-lineage validation.
+- PR #47 merged by squash into `main` as `134da58e4af60d7462b7261807f7a9a2a6f26d96`.
+- Dependency Review #112 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.53 version-identity contract is INTEGRATED / CI + CodeQL VERIFIED.
