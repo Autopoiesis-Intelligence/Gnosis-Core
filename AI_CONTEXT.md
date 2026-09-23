@@ -3917,3 +3917,61 @@ V2 currently has an explicit owner-approval type and fail-closed execution autho
 ### Required next step
 
 E5.07: formalize issuance signatures, key rotation, delegation limits and cryptographic verification without coupling secrets to Ψ-Core state.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.07: CRYPTOGRAPHIC ISSUANCE, ROTATION, DELEGATION AND VERIFICATION
+
+Let `I` be an issuer, `sk_I` its secret signing material, `pk_I` the corresponding verification key, and `Auth` an authorization object.
+
+### Authenticity
+
+An authorization is cryptographically attributable only if verification succeeds under an accepted issuer key/version and the signed content is canonical and scope-complete:
+`Verify(pk_I, Canonical(Auth.payload), Auth.signature) = true`.
+
+Cryptographic validity is necessary evidence of issuer attribution; it is not by itself proof that the issuer was authorized to issue the specific transition.
+
+`SignatureValid != AuthorityValid`.
+
+### Domain separation
+
+Authorization signatures must be domain-separated from unrelated signed objects so that a valid signature for one object class cannot be replayed as another object class.
+
+`Domain(Auth) != Domain(OtherObject)`.
+
+### Exact signed binding
+
+The signed payload must bind, at minimum, issuer identity/version, authority-scope version, target/evolution identity, parent-state identity, policy version, validity bounds, unique authorization identity/nonce, and any delegation reference.
+
+### Key rotation
+
+Key rotation is a governance transition:
+`Key_v -> Key_{v+1}`.
+
+Verification must resolve the key version associated with the authorization rather than silently substituting the newest key. Revocation/expiry rules remain applicable to the referenced key.
+
+### Delegation
+
+Delegation must not increase authority scope:
+`Scope(delegate) ⊆ Scope(delegator)`.
+
+Delegated authority must have explicit depth/expiry/constraints and provenance to the delegator.
+
+`Delegate(delegate) != RootAuthority`.
+
+### No implicit trust transitivity
+
+Valid delegation does not imply unlimited downstream delegation. Each delegation edge must be authorized under the applicable policy.
+
+### Verification boundary
+
+Verification must be deterministic over the canonical authorization payload, accepted key/version, signature algorithm and policy context. Ψ-Core state must not contain secret key material and must not become the cryptographic root of trust.
+
+### Failure behavior
+
+Unknown key, unsupported algorithm, invalid signature, malformed payload, scope mismatch, policy mismatch, expired/revoked key or invalid delegation must fail closed.
+
+### Current implementation boundary
+
+V2 currently documents cryptographic trust requirements but does not claim a completed trusted issuer/signature service, key rotation runtime or delegation runtime. These remain future implementation contracts.
+
+### Required next step
+
+E5.08: formalize canonical serialization, signature algorithm agility, authorization identity/nonce uniqueness and cross-protocol replay resistance.
