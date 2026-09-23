@@ -425,3 +425,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.27 — Partner Replay, Revocation & Contract-State Consistency:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `8180d98eb6f2d679c49f80d1edff627a449d3da4`. Defines exact replay identity, append-only revocation, contract revision binding, resurrection prevention, deterministic effective-state derivation and distinction between historical admission and current validity.
+
+
+- **E7.28 — Partner Contract Registry Runtime Synchronization:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `6a2f2d9307ef038510a1f8ab28c58ed291176495`. Defines machine-maintained synchronization between contract artifacts, exact Git revisions, implementation/verification status, dependencies, supersession and audit evidence. Registry remains an index, never an authority root. Existing SQLite/append-only audit boundaries are preferred for runtime implementation.
