@@ -636,3 +636,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - The corrected commit is now the current canonical source checkpoint. Fresh runtime/CI evidence for this exact commit has **not** yet been observed through the available commit-run lookup, so status remains UNVERIFIED.
 - The previous P0 sequence remains preserved: test-harness reconciliation -> runtime evidence -> classification of production defects vs test-contract defects -> bounded production correction -> exact-commit 3.11/3.12 verification.
 - Global contract progress remains **~49% directional** until acceptance gates are actually evidenced.
+
+
+## Exact CI candidate evidence — 2026-09-23 22:20 CET
+
+- PR #33 exact head 596f6f85f5909f22f68d059b00a6c1dccf9f0a3f has fresh GitHub Actions evidence from CI run 1774: Python 3.11 PASS; Python 3.12 PASS; CodeQL PASS.
+- Dependency Review is FAIL/UNVERIFIED because the repository Dependency Graph is unavailable; this is not evidence of a dependency vulnerability.
+- The earlier PR #33 report of 473 passed / 2 failed is superseded by this exact-head run.
+- P0 runtime integrity candidate is VERIFIED_BY_CI on the candidate branch, but not yet verified on current main.
+- PR #33 remains draft/non-mergeable; main consolidation and post-consolidation exact-commit CI are still required.
+- Issue #13 is CLOSED/COMPLETED. Issue #16 remains the active P0-R2 acceptance gate.
+- Repository rename remains NOT SAFE at this stage.
