@@ -773,3 +773,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #47 merged by squash into `main` as `134da58e4af60d7462b7261807f7a9a2a6f26d96`.
 - Dependency Review #112 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.53 version-identity contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.54 promotion proposal identity — integrated — 2026-09-23
+
+- PR #48 proved that a tampered `proposal_id` could reach the governance decision path.
+- PR #49 exact candidate `b30bf0c98eca53626e64760698813185bcbdc353` passed CI #2009 and CodeQL #887.
+- `decide_promotion()` now recomputes proposal identity from immutable proposal fields before accepting a governance decision.
+- PR #49 merged by squash into `main` as `8725aca5d5534f9a9c888b37bc5c9be285127e60`.
+- Dependency Review #114 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.54 proposal-identity contract is INTEGRATED / CI + CodeQL VERIFIED.
