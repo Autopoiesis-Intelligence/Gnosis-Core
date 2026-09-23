@@ -4602,3 +4602,16 @@ An agent's repository/database is an external learning source. The Core may comp
 Partner/agent data must remain isolated from canonical Core state. Direct PartnerData -> CanonicalState mutation is forbidden.
 
 Status: DESIGNED / TEMPLATE IMPLEMENTED; runtime identity/discussion infrastructure NOT_IMPLEMENTED.
+## E5.31 — Agent Contract Dialogue Protocol
+
+Added a machine-readable dialogue contract for agent participation. Each dialogue preserves agent_id, contract/version, message lineage, claim, evidence/counterexample references, scope, provenance, resolution and revocation state.
+
+Dialogue message types: CLAIM, CHALLENGE, EVIDENCE, COUNTEREXAMPLE, QUESTION, RESPONSE, PROPOSAL, ACCEPT_FOR_SCOPE, REJECT, REQUEST_MORE_EVIDENCE, WITHDRAW.
+
+State flow: OPEN -> EVIDENCE_REQUESTED -> UNDER_REVIEW -> ACCEPTED_FOR_SCOPE, with rejection and counterexample/retest branches.
+
+Core invariants: AgentClaim != CoreTruth; AgentChallenge != CoreInvalidation; AgentConsensus != Proof; CoreAcceptanceForScope != GlobalTrust.
+
+Dialogue can trigger a normal evidence/candidate/test cycle but has no direct dialogue-to-canonical-state mutation path. Unknown or revoked agents remain historical evidence only.
+
+Status: DESIGNED / NOT_IMPLEMENTED.
