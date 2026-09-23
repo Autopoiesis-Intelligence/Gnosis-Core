@@ -55,6 +55,21 @@ def append_evolution_memory(conn, *, instance_id: str, candidate_id: str, transi
 
     # Memory is evidence about a real persisted transition, not an independent
     # source of truth. Bind every identity/outcome field to that transition.
+    raw_transition = conn.execute(
+        "SELECT candidate_id,from_state_id,to_state_id,accepted FROM transitions "
+        "WHERE transition_id=? AND instance_id=?",
+        (transition_id, instance_id),
+    ).fetchone()
+    if raw_transition is None:
+        raise StorageCorruptionError("evolution memory references missing transition")
+    candidate_row = conn.execute(
+        "SELECT parent_state_id,candidate_state_id FROM candidates WHERE candidate_id=?",
+        (raw_transition[0],),
+    ).fetchone()
+    if candidate_row is None:
+        raise StorageCorruptionError("evolution memory references missing candidate")
+    if raw_transition[1] != candidate_row[0] or raw_transition[2] != candidate_row[1]:
+        raise StorageCorruptionError("evolution memory transition/candidate mismatch")
     transitions = {record.transition_id: record for record in load_transition_records(conn, instance_id)}
     transition = transitions.get(transition_id)
     if transition is None:
