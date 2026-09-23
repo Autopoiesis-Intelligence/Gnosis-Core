@@ -24,6 +24,10 @@ def create_delivery_manifest(*, core_id: str, contract_refs: tuple[str,...], kno
     return DeliveryManifest(pid,core_id,contract_refs,knowledge_scope,evidence_refs,excluded_components,revision)
 
 def authorize_delivery(manifest: DeliveryManifest, *, allowed_scopes: set[str]) -> DeliveryManifest:
+    canonical={"core_id":manifest.core_id,"contract_refs":manifest.contract_refs,"knowledge_scope":manifest.knowledge_scope,"evidence_refs":manifest.evidence_refs,"excluded_components":manifest.excluded_components,"revision":manifest.revision}
+    expected="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    if manifest.package_id != expected:
+        raise ValueError("delivery manifest identity does not match immutable fields")
     if manifest.knowledge_scope not in allowed_scopes:
         raise PermissionError("delivery scope is not authorized")
     return manifest
