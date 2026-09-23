@@ -39,3 +39,53 @@ def test_learning_proposal_cannot_become_eligible_without_verified_shadow():
     )
     assert gate.eligible is False
     assert "shadow result is not acceptable" in gate.reasons
+
+
+def test_eligible_learning_proposal_handoff_is_non_authoritative_and_provenance_bound():
+    candidate = make_promotion_candidate(
+        candidate_id="learning:candidate:handoff",
+        evidence_digest="evidence:handoff",
+        evaluation_status="PASS",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+    )
+    gate = evaluate_promotion_gate(
+        candidate,
+        provenance_valid=True,
+        required_evidence=("evidence:handoff",),
+    )
+    handoff = build_promotion_handoff(
+        candidate,
+        gate,
+        provenance_id="provenance:123",
+        proposed_state_content_id="state-content:456",
+    )
+    assert handoff.source_candidate_id == candidate.candidate_id
+    assert handoff.evidence_digest == candidate.evidence_digest
+    assert handoff.provenance_id == "provenance:123"
+    assert handoff.proposed_state_content_id == "state-content:456"
+    assert handoff.can_activate is False
+
+
+def test_ineligible_learning_proposal_cannot_create_handoff():
+    candidate = make_promotion_candidate(
+        candidate_id="learning:candidate:blocked",
+        evidence_digest="evidence:blocked",
+        evaluation_status="FAIL",
+        shadow_status="IMPROVED",
+        invariant_status="PRESERVED",
+        governance_decision="APPROVE",
+    )
+    gate = evaluate_promotion_gate(
+        candidate,
+        provenance_valid=True,
+        required_evidence=("evidence:blocked",),
+    )
+    with pytest.raises(ValueError, match="ineligible promotion"):
+        build_promotion_handoff(
+            candidate,
+            gate,
+            provenance_id="provenance:blocked",
+            proposed_state_content_id="state-content:blocked",
+        )
