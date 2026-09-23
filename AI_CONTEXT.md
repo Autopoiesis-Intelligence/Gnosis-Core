@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.111 — First Verification Batch Post-Execution Audit & Independent Evidence Review
+
+E7.111 defines an independent post-execution review of the first verification batch. It checks the frozen scope, exact commit, evidence provenance, acceptance/promotion decisions and progress reconciliation without itself creating verification credit.
+
+Contract artifact: `docs/architecture/SELF_LEARNING_FIRST_BATCH_POST_EXECUTION_AUDIT.md`.
+Contract commit: `d08b939d4f4e06dfb4c3345f756f2912cc93731e`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.110 — First Verification Batch Result Reconciliation & Progress Recalculation Gate
 
 E7.110 defines the final reconciliation boundary after the first verification batch. It prevents unsupported metric changes and requires every progress delta to be traceable to accepted criterion evidence under a versioned calculation policy.
