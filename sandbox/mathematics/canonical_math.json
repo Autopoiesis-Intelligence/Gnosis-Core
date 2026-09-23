@@ -1,0 +1,56 @@
+{
+  "schema": "gnozis-math-reference-0.1",
+  "status": "RECONSTRUCTION_BASELINE",
+  "provenance_scope": "project chats and current AI_CONTEXT; exhaustive chat-by-chat reconstruction remains in progress",
+  "authority": "reference_only",
+  "state_model": {
+    "definition": "Psi = (X, R)",
+    "status": "DERIVED",
+    "runtime_authority": false
+  },
+  "evolution": {
+    "abstract_transition": "Psi_t -> c -> Psi_(t+1)",
+    "governed_chain": ["Candidate", "Test", "Verify", "Authorize", "Commit"],
+    "status": "SUPPORTED"
+  },
+  "invariants": {
+    "protected_set": "I_P",
+    "preservation": "I_P(Psi_t) and Allowed(c) => I_P(Psi_(t+1))",
+    "status": "DERIVED"
+  },
+  "fixed_point": {
+    "empty_valid_set": "ValidSet(Psi)=empty => NoTransition",
+    "unchanged_valid": "V(Psi) and Psi'=Psi => FixedPoint",
+    "changed_valid": "V(Psi') and Psi'!=Psi => Evolution",
+    "status": "OPEN_FOR_RUNTIME_CONFORMANCE"
+  },
+  "epistemic_separation": [
+    "Evidence != Truth",
+    "Evidence != Authority",
+    "Verification != Authorization",
+    "Persistence != CanonicalAuthority",
+    "Pattern != Proof",
+    "Correlation != Causation",
+    "Tension != Authority"
+  ],
+  "authority": {
+    "state_vs_authority": "StateEvolution != AuthorityEvolution",
+    "protected_action_space": "Delta(ProtectedActionSpace)=0 for ordinary evolution",
+    "status": "DERIVED"
+  },
+  "concurrency": {
+    "merge": "Valid(A) and Valid(B) does not imply Valid(Merge(A,B))",
+    "status": "SUPPORTED"
+  },
+  "reality_coupling": {
+    "path": ["Environment", "Observation", "Evidence", "Claim", "Governance", "Candidate"],
+    "status": "HYPOTHESIS"
+  },
+  "tension": {
+    "path": ["Tension", "BoundaryRepresentation", "Experiment", "Evidence"],
+    "authority_rule": "Tension does not imply Authority",
+    "status": "DERIVED"
+  },
+  "statuses": ["PROVEN","DERIVED","SUPPORTED","HYPOTHESIS","COUNTEREXAMPLE","CONTRADICTED","OPEN","UNPROVEN"],
+  "note": "This file is a machine-readable reconstruction baseline, not proof of implementation."
+}
