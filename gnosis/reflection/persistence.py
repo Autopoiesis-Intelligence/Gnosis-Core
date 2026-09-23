@@ -12,6 +12,7 @@ from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
+from .proposal_lineage import ProposalEvolution
 from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
@@ -250,6 +251,72 @@ def load_shadow_assessment(conn: sqlite3.Connection, assessment_id: str) -> dict
     if row[2] != payload.get("status"):
         raise RuntimeError("shadow assessment persistence status mismatch")
     return {"assessment_id": row[0], "report_id": row[1], "status": row[2], "payload": payload}
+
+
+def proposal_evolution_id(evolution: ProposalEvolution) -> str:
+    parts = (
+        evolution.finding_id,
+        evolution.parent_proposal_id or "none",
+        evolution.current_proposal_id or "none",
+        evolution.relation,
+        *evolution.evidence_refs,
+    )
+    return "proposal-evolution:" + hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:24]
+
+
+def save_proposal_evolution(conn: sqlite3.Connection, evolution: ProposalEvolution) -> str:
+    ensure_reflection_schema(conn)
+    evolution_id = proposal_evolution_id(evolution)
+    if evolution_id != evolution.evolution_id:
+        raise RuntimeError("proposal evolution identity mismatch")
+    expected = (
+        evolution_id, evolution.finding_id, evolution.parent_proposal_id,
+        evolution.current_proposal_id, evolution.relation, evolution.rationale,
+        _json(evolution.evidence_refs), evolution.status,
+    )
+    existing = conn.execute(
+        "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id,relation,rationale,evidence_refs,status "
+        "FROM reflection_proposal_evolutions WHERE evolution_id=?",
+        (evolution_id,),
+    ).fetchone()
+    if existing is not None:
+        if tuple(existing) != expected:
+            raise RuntimeError("conflicting proposal evolution replay")
+        return evolution_id
+    conn.execute(
+        "INSERT INTO reflection_proposal_evolutions "
+        "(evolution_id,finding_id,parent_proposal_id,current_proposal_id,relation,rationale,evidence_refs,status) "
+        "VALUES (?,?,?,?,?,?,?,?)",
+        expected,
+    )
+    return evolution_id
+
+
+def load_proposal_evolution(conn: sqlite3.Connection, evolution_id: str) -> ProposalEvolution:
+    ensure_reflection_schema(conn)
+    row = conn.execute(
+        "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id,relation,rationale,evidence_refs,status "
+        "FROM reflection_proposal_evolutions WHERE evolution_id=?",
+        (evolution_id,),
+    ).fetchone()
+    if row is None:
+        raise KeyError(evolution_id)
+    evolution = ProposalEvolution(
+        evolution_id=row[0], finding_id=row[1], parent_proposal_id=row[2],
+        current_proposal_id=row[3], relation=row[4], rationale=row[5],
+        evidence_refs=tuple(json.loads(row[6])), status=row[7],
+    )
+    if proposal_evolution_id(evolution) != row[0]:
+        raise RuntimeError("proposal evolution persistence integrity mismatch")
+    return evolution
+
+
+def list_proposal_evolutions(conn: sqlite3.Connection) -> tuple[ProposalEvolution, ...]:
+    ensure_reflection_schema(conn)
+    rows = conn.execute(
+        "SELECT evolution_id FROM reflection_proposal_evolutions ORDER BY rowid"
+    ).fetchall()
+    return tuple(load_proposal_evolution(conn, row[0]) for row in rows)
 
 
 def invariant_delta_id(report_id: str, delta: InvariantDelta) -> str:
