@@ -95,6 +95,7 @@ Each contract record SHOULD contain:
 | E7.74 | PARTIAL / UNVERIFIED | Self-Learning Collaboration Proposal Generator |
 | E7.75 | DESIGNED / NOT_IMPLEMENTED | Governed Collaboration Proposal Review & Acceptance |
 | E7.76 | DESIGNED / NOT_IMPLEMENTED | Collaboration Execution Authorization & External Action Boundary |
+| E7.77 | DESIGNED / NOT_IMPLEMENTED | External Collaboration Execution Evidence & Result Reconciliation |
 
 ## Update rule
 
