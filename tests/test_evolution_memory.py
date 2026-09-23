@@ -40,7 +40,8 @@ def test_evolution_memory_rejects_unknown_outcome():
 
 def test_evolution_memory_cannot_lie_about_persisted_transition():
     conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
-    proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"memory-binding")
+    parent_state_id = instance.engine.state.state_id
+    proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(parent_state_id,proposed,"memory-binding")
     record=instance.engine.step(candidate)
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
@@ -51,12 +52,13 @@ def test_evolution_memory_cannot_lie_about_persisted_transition():
 
     with pytest.raises(StorageCorruptionError, match="state mismatch"):
         append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
-            transition_id=tid,state_id=instance.engine.state.state_id,proposal_id=None,outcome="accepted",evidence=("false",))
+            transition_id=tid,state_id=parent_state_id,proposal_id=None,outcome="accepted",evidence=("false",))
 
 
 def _persist_memory_fixture():
     conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
-    proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"read-binding")
+    parent_state_id = instance.engine.state.state_id
+    proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(parent_state_id,proposed,"read-binding")
     record=instance.engine.step(candidate)
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
@@ -73,7 +75,7 @@ def _persist_memory_fixture():
         ),
         lambda conn, tid, instance: conn.execute(
             "UPDATE transitions SET to_state_id=? WHERE transition_id=?",
-            (instance.engine.state.state_id, tid),
+            (parent_state_id, tid),
         ),
     ),
     ids=("accepted", "to_state_id"),
