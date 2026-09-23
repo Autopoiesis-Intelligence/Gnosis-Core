@@ -4643,3 +4643,8 @@ Status: DESIGNED / PARTIALLY COVERED; end-to-end runtime proof NOT_IMPLEMENTED.
 ## E7.11 — Learning Freshness, Lineage and Replay
 
 Learning-derived Findings, Counterexamples, Candidates and RuleProposals must be bound to source revision, evidence, relevant state/parent hash, contract revision and provenance lineage. Historical existence does not imply current validity. Replayed transport/session identity does not create new evidence. Supersession creates a new revision and preserves history. Learning-specific end-to-end freshness/replay verification remains NOT_IMPLEMENTED.
+
+
+## E7.12 — Learning Source Revision and Evidence Independence
+
+External learning sources are bound to immutable revision, provenance, scope, audit and revocation/supersession state. Evidence independence is a provenance relation, not an assumption: shared origin/dependency yields non-independent evidence; inability to establish independence yields UNKNOWN, never automatic independence. Superseded/revoked sources trigger re-evaluation of derived learning items. External evidence has no direct path to CanonicalState.
