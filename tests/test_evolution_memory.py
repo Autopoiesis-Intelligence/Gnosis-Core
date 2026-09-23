@@ -78,7 +78,7 @@ def _persist_memory_fixture():
         ),
         lambda conn, tid, instance: conn.execute(
             "UPDATE transitions SET to_state_id=? WHERE transition_id=?",
-            (instance.engine.state.state_id, tid),
+            (conn.execute("SELECT parent_state_id FROM candidates WHERE candidate_id=(SELECT candidate_id FROM transitions WHERE transition_id=?)", (tid,)).fetchone()[0], tid),
         ),
     ),
     ids=("accepted", "to_state_id"),
