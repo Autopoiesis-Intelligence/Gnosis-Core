@@ -4693,3 +4693,8 @@ Memory domains are separated into immutable Core K, governed learning workspace 
 ## E7.22 — Partner Repository Admission and Identity
 
 External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> METADATA_VALIDATED -> SCOPE_DECLARED -> PROVENANCE_BASELINED -> SECURITY_AUDITED -> QUARANTINED -> ADMITTED -> ACTIVE_SOURCE. Admission is not trust or execution authority. PartnerIdentity is distinct from human/agent identity, repository name/URL and authority. Undeclared capabilities are denied by default; forks/renames do not silently inherit authority; revocation triggers impact analysis without erasing historical provenance.
+
+
+## Repository Role Baseline
+
+`Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
