@@ -813,3 +813,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #55 merged by squash into `main` as `3c127ae055d3de28639d571d6b151b6dae063985`.
 - Dependency Review #126 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.57 shadowed-bridge cleanup contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.58 bridge approval identity — integrated — 2026-09-23
+
+- PR #56 exact candidate `a8866efb161bd2221fb3dc3a199f4406a3e25eda` passed CI #2031 and CodeQL #909.
+- Adversarial testing proved that a forged `mutation_id` could previously reach `approve_core_mutation()` without identity verification.
+- `approve_core_mutation()` now recomputes the canonical proposal identity before returning `APPROVED`.
+- E7.56 bind-time identity verification remains as defense-in-depth.
+- PR #56 merged by squash into `main` as `4cb2582773768fa813a7ae7f9b8d8c0e14e8b12e`.
+- Dependency Review #128 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.58 governance-boundary contract is INTEGRATED / CI + CodeQL VERIFIED.
