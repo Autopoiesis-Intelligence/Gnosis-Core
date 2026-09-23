@@ -66,12 +66,17 @@ def make_promotion_candidate(
     shadow_status: str,
     invariant_status: str,
     governance_decision: str,
+    authorization_scope: str = "",
+    authorization_target: str = "",
+    policy_version: str = "",
+    authorization_freshness: str = "",
 ) -> PromotionCandidate:
     if not candidate_id or not evidence_digest:
         raise ValueError("promotion candidate requires candidate_id and evidence_digest")
     raw = "|".join(
         (candidate_id, evidence_digest, evaluation_status, shadow_status,
-         invariant_status, governance_decision)
+         invariant_status, governance_decision, authorization_scope,
+         authorization_target, policy_version, authorization_freshness)
     )
     return PromotionCandidate(
         "promotion:" + hashlib.sha256(raw.encode()).hexdigest()[:24],
@@ -96,6 +101,9 @@ def evaluate_promotion_gate(
             reasons.append("explanation evidence is missing")
         if not tuple(evidence_roles.get("AUTHORIZATION", ())):
             reasons.append("authorization evidence is missing")
+    if evidence_roles is not None:
+        if not candidate.authorization_scope or not candidate.authorization_target:
+            reasons.append("authorization scope/target is missing")
     if not provenance_valid:
         reasons.append("provenance cross-check failed")
     if candidate.evaluation_status != REQUIRED_EVALUATION:
