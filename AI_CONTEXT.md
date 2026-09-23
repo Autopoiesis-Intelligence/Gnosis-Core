@@ -4719,3 +4719,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.27 — Partner Replay, Revocation & Contract-State Consistency:** DESIGNED / NOT_IMPLEMENTED. Replay is idempotent only for identical contribution/provenance/contract context; conflicting replay fails closed. Revocation changes current usability without deleting history. Existing evidence retains the contract revision under which it was evaluated; newer policy requires explicit revalidation rather than silent reinterpretation.
+
+
+- **E7.28 — Partner Contract Registry Runtime Synchronization:** DESIGNED / NOT_IMPLEMENTED. The partner contract registry is now specified as a provenance-preserving synchronized index. Drift detection must catch missing artifacts, stale commits, unsupported status promotion, unresolved dependencies and inconsistent supersession. Automatic synchronization is not yet claimed as implemented.
