@@ -136,6 +136,7 @@ Each contract record SHOULD contain:
 | E7.115 | DESIGNED / NOT_IMPLEMENTED | First Proof Run Environment & Reproducibility Attestation |
 | E7.116 | DESIGNED / NOT_IMPLEMENTED | First Proof Run Preflight Final Gate & Execution Authorization |
 | E7.117 | DESIGNED / NOT_IMPLEMENTED | First Authorized Proof Execution Record |
+| E7.118 | DESIGNED / NOT_IMPLEMENTED | First Proof Runtime Evidence Integrity & Artifact Sealing |
 
 ## Update rule
 
