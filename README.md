@@ -59,3 +59,27 @@ No capability should be described as verified solely because a document or test 
 ## Development principle
 
 > First discover the structure. Then formalize it. Then implement the smallest reusable mechanism. Then prove what it actually does.
+
+
+## Product boundary and current value
+
+Gnozis Core is intended to become a reusable foundation for specialized research kernels and user/commercial products. The current product-facing contract is deliberately narrower than the long-term vision:
+
+- preserve durable task/project context independently of the connected AI product;
+- keep evidence and provenance addressable independently of the interface that produced them;
+- distinguish observation, explanation, governance and authorization;
+- allow reflection to generate bounded proposals without allowing proposals to activate themselves;
+- preserve rejected, uncertain and insufficient-evidence outcomes as usable project history.
+
+This makes the current product direction a **governed knowledge/evolution substrate**, not an autonomous self-modifying assistant. Product features that require identity, memory, connectors, federation, encryption or autonomous activation remain explicitly outside the accepted Core capability set until their contracts and runtime evidence are completed.
+
+### Product improvement rule
+
+Every product-facing capability should answer four questions:
+
+1. What durable user value does it provide?
+2. What evidence establishes that it works?
+3. What authority does it receive, if any?
+4. What happens when evidence is missing, stale, conflicting or revoked?
+
+A connected AI product is a surface over the durable Gnozis context, not an alternative source of truth.
