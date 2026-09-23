@@ -2,6 +2,7 @@ import pytest
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, SQLiteExecutionCommitAdapter, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
+from gnosis.evolution.provenance import build_provenance
 
 
 def test_authority_request_requires_owner_and_grants_no_capability() -> None:
@@ -372,6 +373,12 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
     conn.close()
+
+
+def _provenance_for(candidate, parent_state, proposed_state_digest="state:proposed"):
+    from gnosis.evolution.provenance import canonical_digest
+    observations = {"candidate_id": candidate.candidate_id}
+    return build_provenance(candidate_id=candidate.candidate_id, parent_state_id=parent_state.state_id, parent_state_digest=canonical_digest(parent_state.elements), proposed_state_digest=proposed_state_digest, observations=observations, proposed_state_content_id="content:1", candidate_binding_digest="binding:1", evidence_digest=canonical_digest(observations), evaluation_status="PASS", shadow_status="UNCHANGED", invariant_status="PRESERVED", governance_decision="ALLOW")
 
 
 def test_execution_candidate_binding_rejects_same_content_with_wrong_parent_digest():
