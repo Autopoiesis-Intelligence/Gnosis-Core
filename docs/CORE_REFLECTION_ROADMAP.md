@@ -251,3 +251,18 @@ A generator and verifier may be implemented by the same component only when the 
 Verifier changes are authority-sensitive changes and require governed evaluation; the verifier must not silently redefine its own protected acceptance criteria.
 
 This remains a future adaptive/reflection constraint; the current CounterexampleEngine is not claimed to provide independent verifier separation.
+## E5.02 — Recursive verifier boundary
+
+Verifier evaluation may be recursive, but recursion depth is not itself evidence of truth or independence.
+
+Each verifier-evaluation record should preserve:
+- evaluator identity/version;
+- evaluated verifier identity/version;
+- assumptions;
+- dependencies/common-mode risks;
+- claim scope;
+- terminal trust/governance boundary.
+
+An explicit terminal boundary is required for any recursive verification architecture. The current reflection implementation does not claim such a recursive verifier hierarchy is implemented.
+
+Verifier changes remain governance-sensitive and cannot be justified solely by the verifier's own evaluation.
