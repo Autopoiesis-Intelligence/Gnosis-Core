@@ -44,7 +44,7 @@ def test_tampered_integration_identity_is_rejected() -> None:
 def test_e7_59_arbitrary_receipt_is_rejected():
     r=create_integration_record(accepted(), action="merge-approved-knowledge")
     with pytest.raises(TypeError, match="authenticated ExecutionReceipt"):
-        mark_executed(r, receipt="forged-receipt")
+        mark_executed(r, receipt="forged-receipt", request=_execution_fixture()[0])
 
 
 def test_e7_59_receipt_identity_must_match_integration():
@@ -91,7 +91,7 @@ def test_e7_60_real_execution_receipt_identity_is_not_integration_id():
     )
     assert receipt.execution_id != r.integration_id
     with pytest.raises(ValueError, match="execution receipt"):
-        mark_executed(r, receipt=receipt)
+        mark_executed(r, receipt=receipt, request=_execution_fixture()[0])
 
 
 def _execution_fixture():
