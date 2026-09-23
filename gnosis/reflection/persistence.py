@@ -281,14 +281,11 @@ def load_shadow_assessment(conn: sqlite3.Connection, assessment_id: str) -> dict
 
 
 def proposal_evolution_id(evolution: ProposalEvolution) -> str:
-    parts = (
-        evolution.finding_id,
-        evolution.parent_proposal_id or "none",
-        evolution.current_proposal_id or "none",
-        evolution.relation,
-        *evolution.evidence_refs,
-    )
-    return "proposal-evolution:" + hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:24]
+    payload = asdict(evolution)
+    payload.pop("evolution_id", None)
+    return "proposal-evolution:" + hashlib.sha256(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:24]
 
 
 def save_proposal_evolution(conn: sqlite3.Connection, evolution: ProposalEvolution, *, report_id: str | None = None) -> str:
