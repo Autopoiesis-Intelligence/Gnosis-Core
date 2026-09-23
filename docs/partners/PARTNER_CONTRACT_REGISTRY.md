@@ -106,6 +106,7 @@ Each contract record SHOULD contain:
 | E7.85 | DESIGNED / NOT_IMPLEMENTED | Collaboration Evidence Export & External Audit Package |
 | E7.86 | DESIGNED / NOT_IMPLEMENTED | External Auditor Verification & Attestation Boundary |
 | E7.87 | DESIGNED / NOT_IMPLEMENTED | External Audit Challenge, Dispute & Evidence Reconciliation |
+| E7.88 | DESIGNED / NOT_IMPLEMENTED | External Audit Resolution, Corrective Finding & Attestation Update |
 
 ## Update rule
 
