@@ -70,6 +70,7 @@ Each contract record SHOULD contain:
 | E7.49 | IMPLEMENTED / UNVERIFIED | Append-Only Self-Learning Evidence Ledger |
 | E7.50 | IMPLEMENTED / UNVERIFIED | Self-Learning Evidence Replay / Reconstruction |
 | E7.51 | IMPLEMENTED / UNVERIFIED | Learning Flow Integrity / Complete Contract Lifecycle |
+| E7.52 | IMPLEMENTED / UNVERIFIED | Governed Self-Learning Knowledge Update |
 
 ## Update rule
 
