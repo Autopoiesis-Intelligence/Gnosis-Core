@@ -10,6 +10,7 @@ REQUIRED = ("DATABASE","FINDING","PROPOSAL","VALIDATION","GOVERNANCE","EXECUTION
 @dataclass(frozen=True)
 class LifecycleResult:
     complete: bool
+    subject_id: str
     missing: tuple[str,...]
     errors: tuple[str,...]
 
@@ -27,4 +28,4 @@ def verify_lifecycle(events: Iterable[EvidenceEvent], subject_id: str) -> Lifecy
     for a,b in zip(REQUIRED,REQUIRED[1:]):
         if a in positions and b in positions and positions[a] >= positions[b]:
             errors.append(f"ORDER_VIOLATION:{a}>{b}")
-    return LifecycleResult(not errors, missing, tuple(sorted(set(errors))))
+    return LifecycleResult(not errors, subject_id, missing, tuple(sorted(set(errors))))
