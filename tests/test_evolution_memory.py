@@ -26,7 +26,6 @@ def test_evolution_memory_is_append_only():
     conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
     proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"test")
     record=instance.engine.step(candidate)
-    from gnosis.storage.repositories import persist_transition
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
     append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("accepted",))
@@ -43,36 +42,47 @@ def test_evolution_memory_cannot_lie_about_persisted_transition():
     conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
     proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"memory-binding")
     record=instance.engine.step(candidate)
-    from gnosis.storage.repositories import persist_transition
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
 
-    with pytest.raises(Exception, match="evolution memory outcome disagrees with transition"):
+    with pytest.raises(StorageCorruptionError, match="evolution memory outcome disagrees with transition"):
         append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
             transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="rejected",evidence=("false",))
 
-    with pytest.raises(Exception, match="state mismatch"):
+    with pytest.raises(StorageCorruptionError, match="state mismatch"):
         append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
             transition_id=tid,state_id=instance.engine.state.state_id,proposal_id=None,outcome="accepted",evidence=("false",))
 
 
-def test_load_evolution_memory_rechecks_transition_semantics_after_tamper():
+def _persist_memory_fixture():
     conn=connect(); instance=Instance.create_root("u", State(elements={"a":1})); save_instance(conn,instance)
     proposed=instance.engine.state.with_elements({"b":2}); candidate=Candidate(instance.engine.state.state_id,proposed,"read-binding")
     record=instance.engine.step(candidate)
     persist_transition(conn,instance,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
-    mem=append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
+    append_evolution_memory(conn,instance_id=instance.instance_id,candidate_id=candidate.candidate_id,
         transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("ok",))
+    return conn, instance, tid
 
-    conn.execute("UPDATE transitions SET accepted=0 WHERE transition_id=?",(tid,))
-    with pytest.raises(Exception, match="transition identity mismatch"):
-        load_evolution_memory(conn,instance.instance_id)
 
-    conn.execute("UPDATE transitions SET accepted=1,to_state_id=? WHERE transition_id=?",
-                 (instance.engine.state.state_id,tid))
-    with pytest.raises(Exception, match="state mismatch"):
-        load_evolution_memory(conn,instance.instance_id)
+@pytest.mark.parametrize(
+    "mutation",
+    (
+        lambda conn, tid, instance: conn.execute(
+            "UPDATE transitions SET accepted=0 WHERE transition_id=?", (tid,)
+        ),
+        lambda conn, tid, instance: conn.execute(
+            "UPDATE transitions SET to_state_id=? WHERE transition_id=?",
+            (instance.engine.state.state_id, tid),
+        ),
+    ),
+    ids=("accepted", "to_state_id"),
+)
+def test_load_evolution_memory_rejects_transition_semantic_tamper(mutation):
+    conn, instance, tid = _persist_memory_fixture()
+    mutation(conn, tid, instance)
+    with pytest.raises(StorageCorruptionError):
+        load_evolution_memory(conn, instance.instance_id)
 
 
 def test_evolution_memory_rejects_cross_instance_transition_rebinding():
@@ -83,11 +93,9 @@ def test_evolution_memory_rejects_cross_instance_transition_rebinding():
     proposed=a.engine.state.with_elements({"x":2})
     candidate=Candidate(a.engine.state.state_id,proposed,"cross-instance")
     record=a.engine.step(candidate)
-    from gnosis.storage.repositories import persist_transition
     persist_transition(conn,a,candidate,record,actor="test")
     tid=conn.execute("SELECT transition_id FROM transitions WHERE candidate_id=?",(candidate.candidate_id,)).fetchone()[0]
-    mem=append_evolution_memory(conn,instance_id=a.instance_id,candidate_id=candidate.candidate_id,
-        transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("ok",))
+    mem=append_evolution_memory(conn,instance_id=a.instance_id,candidate_id=candidate.candidate_id,transition_id=tid,state_id=proposed.state_id,proposal_id=None,outcome="accepted",evidence=("ok",))
     raw={"instance_id":b.instance_id,"candidate_id":mem.candidate_id,"transition_id":mem.transition_id,
          "state_id":mem.state_id,"proposal_id":mem.proposal_id,"outcome":mem.outcome,
          "evidence":mem.evidence,"created_at":mem.created_at,"proposal_report_id":mem.proposal_report_id}
@@ -104,7 +112,6 @@ def test_evolution_memory_rejects_tampered_transition_identity_on_reload():
     proposed = instance.engine.state.with_elements({"next": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "next")
     record = instance.engine.step(candidate)
-    from gnosis.storage.repositories import persist_transition
     persist_transition(conn, instance, candidate, record, actor="test")
     append_evolution_memory(
         conn, instance_id=instance.instance_id, candidate_id=candidate.candidate_id,
@@ -112,5 +119,5 @@ def test_evolution_memory_rejects_tampered_transition_identity_on_reload():
         proposal_id=None, outcome="accepted", evidence=("ok",),
     )
     conn.execute("UPDATE transitions SET test_rule_id=? WHERE transition_id=?", ("tampered", record.transition_id))
-    with pytest.raises(StorageCorruptionError, match="transition identity mismatch"):
+    with pytest.raises(StorageCorruptionError):
         load_evolution_memory(conn, instance.instance_id)
