@@ -245,7 +245,7 @@ def test_persisted_reflection_lineage_accepts_consistent_evolution():
         current_proposal_id="p-lineage",
         prior_proposals=(),
     )
-    save_proposal_evolution(conn, evolution)
+    save_proposal_evolution(conn, evolution, report_id=report_id)
     result = validate_reflection_lineage(conn, report_id)
     assert result["findings"] == 1
     assert result["proposals"] == 1
@@ -264,7 +264,7 @@ def test_persisted_reflection_lineage_rejects_foreign_evolution():
         current_proposal_id="foreign-proposal",
         prior_proposals=(),
     )
-    save_proposal_evolution(conn, evolution)
+    save_proposal_evolution(conn, evolution, report_id=report_id)
     with pytest.raises(RuntimeError, match="outside reflection lineage"):
         validate_reflection_lineage(conn, report_id)
 
@@ -330,3 +330,17 @@ def test_governance_lineage_rejects_decision_not_derived_from_evidence():
     save_governance_decision(conn, report_id, dishonest)
     with pytest.raises(RuntimeError, match="does not match persisted shadow/invariant evidence"):
         validate_reflection_lineage(conn, report_id)
+
+
+def test_reflection_lineage_rejects_cross_report_proposal_evolution():
+    conn = connect()
+    proposal = RuleProposal("same-proposal", "same-finding", "test-rule:v1", "hypothesis", (), "effect", "risk", "test")
+    finding = __import__("gnosis.reflection.analyzer", fromlist=["Finding"]).Finding(
+        "same-finding", "claim", (), (), 1, "condition"
+    )
+    report_a = save_reflection_report(conn, ReflectionReport(findings=(finding,), proposals=(proposal,)), created_at="2026-09-23T10:10:00+00:00")
+    report_b = save_reflection_report(conn, ReflectionReport(findings=(finding,), proposals=(proposal,)), created_at="2026-09-23T10:11:00+00:00")
+    evolution = evolve_proposal(finding_id="same-finding", current_proposal_id="same-proposal", prior_proposals=())
+    save_proposal_evolution(conn, evolution, report_id=report_a)
+    with pytest.raises(RuntimeError, match="proposal evolution belongs to another reflection report"):
+        validate_reflection_lineage(conn, report_b)
