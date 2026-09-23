@@ -139,3 +139,19 @@ research_ref:
   source_commit: 7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c
   relation: TEST_RATIONALE
 ```
+
+## Common-mode dependency boundary
+
+Evidence MUST NOT be treated as independent corroboration merely because it has different records, timestamps, agents, providers, or representations.
+
+Where known, evidence provenance should preserve shared dependencies such as:
+- common source or dataset;
+- common model/verifier;
+- common prompt or transformation;
+- common upstream observation;
+- shared evaluator;
+- shared failure mode.
+
+`RepeatedDetection != IndependentEvidence`.
+
+An independence claim is always relative to a declared failure class and evidence-generation process. This contract does not require a universal statistical independence metric.
