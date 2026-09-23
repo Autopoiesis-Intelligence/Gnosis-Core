@@ -17,3 +17,13 @@ def test_tampering_breaks_chain():
 def test_genesis_chain():
     a=create_event("DATABASE","db1",{"count":1})
     assert a.previous_event_digest=="GENESIS"
+
+
+def test_metadata_tampering_breaks_chain() -> None:
+    from dataclasses import replace
+
+    event = create_event("PROPOSAL", "p-metadata", {"x": 1})
+    tampered = replace(event, provenance="attacker-controlled-provenance")
+    ok, errors = verify_chain([tampered])
+    assert not ok
+    assert any(x.startswith("EVENT_DIGEST_MISMATCH") for x in errors)
