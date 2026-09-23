@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.89 — Corrective Finding Governance Review & Remediation Trigger
+
+E7.89 separates confirmed audit findings from governance decisions about remediation. Only an explicit REMEDIATION_REQUIRED decision may create a remediation-plan proposal; it does not authorize execution. Materiality, priority, containment and compensation remain separately governed.
+
+Contract artifact: `docs/architecture/PARTNER_CORRECTIVE_FINDING_GOVERNANCE_REMEDIATION_TRIGGER_CONTRACT.md`.
+Contract commit: `e374fe8daf267ca5ab11abbde4d29abcc6429007`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.88 — External Audit Resolution, Corrective Finding & Attestation Update
 
 E7.88 defines the governed transition from audit challenge reconciliation to corrective finding and, where justified, a new attestation revision. Historical evidence and prior attestations remain immutable; remediation follows its separate governed path.
