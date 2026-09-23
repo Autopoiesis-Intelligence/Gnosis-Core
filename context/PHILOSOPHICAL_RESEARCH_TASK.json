@@ -1,0 +1,139 @@
+{
+  "schema": "gnozis.research-task/v1",
+  "task_id": "PHIL-001",
+  "title": "Comparative Spiritual and High-Writings Research",
+  "status": "READY",
+  "priority": "P2",
+  "track": "PHILOSOPHICAL_RESEARCH",
+  "authority": "RESEARCH_ONLY",
+  "core_integration": "NOT_AUTHORIZED",
+  "objective": "Systematically study spiritual literature, religious/high writings, mythology, philosophy and related literary works to identify repeatable structures of knowledge formation, state transition, conflict, observation, transformation and self-organization.",
+  "research_question": "Which structural patterns recur across independent textual traditions, which are tradition-specific, and which—if any—can be formalized into falsifiable hypotheses relevant to Gnozis?",
+  "non_goals": [
+    "prove one religious tradition true",
+    "rank or score spiritual traditions",
+    "treat metaphor as engineering fact",
+    "infer consciousness, sentience or panpsychism from textual similarity",
+    "authorize changes to Psi-Core",
+    "convert philosophical interpretation directly into implementation"
+  ],
+  "source_classes": [
+    "primary religious and spiritual texts",
+    "philosophical works",
+    "mythological corpora",
+    "classical and modern literature with explicit philosophical or spiritual structure",
+    "secondary scholarship used only with provenance and clear separation from primary claims"
+  ],
+  "analysis_levels": [
+    "literal",
+    "historical_context",
+    "structural",
+    "dynamic",
+    "epistemic",
+    "ethical",
+    "metaphysical",
+    "cross-tradition_invariant",
+    "counterexample_and_boundary"
+  ],
+  "working_method": [
+    "record the source and provenance",
+    "extract claims without endorsing them",
+    "model entities, relations, transitions and information flows",
+    "compare only after preserving source-specific meaning",
+    "search actively for counterexamples and disanalogies",
+    "separate observation from interpretation",
+    "convert recurring patterns into explicit abstractions",
+    "formalize only when the abstraction is sufficiently precise",
+    "derive falsifiable consequences",
+    "test against counterexamples and existing Gnozis semantics",
+    "classify the result as RESEARCH_ONLY, HYPOTHESIS, FORMALIZED, or ENGINEERING_CANDIDATE"
+  ],
+  "research_to_engineering_gate": [
+    "textual observation",
+    "cross-source structural pattern",
+    "explicit abstraction",
+    "formal hypothesis",
+    "counterexample attack",
+    "falsifiable consequence",
+    "mapping to existing Gnozis semantics",
+    "architecture-gap determination",
+    "independent audit",
+    "implementation only after explicit acceptance"
+  ],
+  "candidate_structures": [
+    "source -> model -> guide -> observer -> state transition",
+    "error -> detection -> learning -> correction",
+    "tension -> boundary encounter -> information acquisition -> transformation",
+    "ignorance -> inquiry -> discrimination -> revised model",
+    "local conflict -> accumulated contradiction -> model change",
+    "possibility -> selection -> transition -> verification"
+  ],
+  "status_rules": {
+    "RESEARCH_ONLY": "descriptive or interpretive material with no formal engineering consequence",
+    "HYPOTHESIS": "explicit claim requiring counterexample or empirical/formal attack",
+    "FORMALIZED": "defined abstraction with stated assumptions and testable consequences",
+    "ENGINEERING_CANDIDATE": "formalized result mapped to a concrete architecture requirement but not yet accepted",
+    "ACCEPTED_ENGINEERING": "approved only after independent audit and evidence gate"
+  },
+  "core_boundary": {
+    "canonical_state": "Psi=(X,R)",
+    "rule": "This research task may challenge or illuminate interpretations of existing architecture, but cannot create a second Core state model or change Core semantics by analogy.",
+    "metaphysical_claims": "comparison context only"
+  },
+  "migration_plan": {
+    "phase_1": "Create a provenance-aware corpus index and source records.",
+    "phase_2": "Run source-by-source structural extraction using the fixed analysis levels.",
+    "phase_3": "Build a cross-tradition pattern matrix with counterexamples.",
+    "phase_4": "Promote only recurring, well-defined patterns to formal hypotheses.",
+    "phase_5": "Attack hypotheses against Gnozis-Core invariants and adversarial cases.",
+    "phase_6": "Create an engineering candidate only when a concrete capability or invariant is demonstrated.",
+    "phase_7": "Independent review before any implementation migration."
+  },
+  "initial_deliverables": [
+    "machine-readable source registry",
+    "source-specific analysis records",
+    "cross-tradition pattern matrix",
+    "counterexample register",
+    "formal hypothesis register",
+    "research-to-engineering migration proposals"
+  ],
+  "next_tasks": [
+    {
+      "task_id": "PHIL-002",
+      "title": "Corpus and Provenance Schema",
+      "status": "READY",
+      "priority": "P2"
+    },
+    {
+      "task_id": "PHIL-003",
+      "title": "First Comparative Text Matrix",
+      "status": "BLOCKED_UNTIL_PHIL-002",
+      "priority": "P2"
+    },
+    {
+      "task_id": "PHIL-004",
+      "title": "Cross-Tradition Invariant Extraction",
+      "status": "BLOCKED_UNTIL_PHIL-003",
+      "priority": "P2"
+    },
+    {
+      "task_id": "PHIL-005",
+      "title": "Adversarial Counterexample and Boundary Analysis",
+      "status": "BLOCKED_UNTIL_PHIL-004",
+      "priority": "P1"
+    },
+    {
+      "task_id": "PHIL-006",
+      "title": "Formalization and Gnozis Mapping Gate",
+      "status": "BLOCKED_UNTIL_PHIL-005",
+      "priority": "P1"
+    }
+  ],
+  "migration_rule": "No philosophical result migrates into Core because it is elegant, ancient, widespread or intuitively compelling. Migration requires explicit formalization, falsifiable consequences, architectural mapping, counterexample resistance and independent acceptance.",
+  "handoff": {
+    "primary_researcher": "AI agent under task registry",
+    "independent_reviewer": "Manus when available",
+    "integration_gate": "ChatGPT under project-owner authorization",
+    "implementation_agent": "Claude only after an accepted engineering task exists"
+  }
+}
