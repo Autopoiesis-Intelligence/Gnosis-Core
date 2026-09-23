@@ -19,6 +19,7 @@ class ProposalEvolution:
     relation: str
     rationale: str
     evidence_refs: tuple[str, ...]
+    current_proposal_id: str | None = None
     status: str = "PROPOSED"
 
 
@@ -74,4 +75,5 @@ def evolve_proposal(
         relation=relation,
         rationale=rationale,
         evidence_refs=evidence_refs,
+        current_proposal_id=current_proposal_id,
     )
