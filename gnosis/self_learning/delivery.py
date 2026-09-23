@@ -1,0 +1,29 @@
+"""Partner specialized Core delivery package specification."""
+from __future__ import annotations
+import hashlib, json
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class DeliveryManifest:
+    package_id: str
+    core_id: str
+    contract_refs: tuple[str, ...]
+    knowledge_scope: str
+    evidence_refs: tuple[str, ...]
+    excluded_components: tuple[str, ...]
+    revision: str
+    status: str = "PROPOSED"
+
+def create_delivery_manifest(*, core_id: str, contract_refs: tuple[str,...], knowledge_scope: str, evidence_refs: tuple[str,...], excluded_components: tuple[str,...], revision: str) -> DeliveryManifest:
+    if not core_id.strip() or not knowledge_scope.strip() or not revision.strip():
+        raise ValueError("delivery identity fields are required")
+    if not contract_refs or not evidence_refs or not excluded_components:
+        raise ValueError("delivery manifest must declare contracts, evidence and exclusions")
+    canonical={"core_id":core_id,"contract_refs":contract_refs,"knowledge_scope":knowledge_scope,"evidence_refs":evidence_refs,"excluded_components":excluded_components,"revision":revision}
+    pid="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    return DeliveryManifest(pid,core_id,contract_refs,knowledge_scope,evidence_refs,excluded_components,revision)
+
+def authorize_delivery(manifest: DeliveryManifest, *, allowed_scopes: set[str]) -> DeliveryManifest:
+    if manifest.knowledge_scope not in allowed_scopes:
+        raise PermissionError("delivery scope is not authorized")
+    return manifest
