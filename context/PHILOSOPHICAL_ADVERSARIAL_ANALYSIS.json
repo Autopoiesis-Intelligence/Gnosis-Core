@@ -1,0 +1,61 @@
+{
+  "schema": "gnozis.philosophical-adversarial-analysis/v1",
+  "task_id": "PHIL-005",
+  "parent_task": "PHIL-004",
+  "status": "READY",
+  "purpose": "Attack candidate cross-tradition invariants and determine their boundary conditions before any formal or engineering promotion.",
+  "adversarial_principle": "The module must try to falsify or narrow a candidate before trying to strengthen it.",
+  "targets": ["PAT-01", "PAT-02", "PAT-03", "PAT-04"],
+  "attack_sequence": [
+    "restate candidate minimally",
+    "identify hidden assumptions",
+    "construct smallest counterexample",
+    "search source-native negative cases",
+    "construct alternative explanation",
+    "test historical dependence",
+    "test abstraction sensitivity",
+    "test boundary conditions",
+    "identify required evidence",
+    "revise, bound or reject candidate"
+  ],
+  "counterexample_classes": [
+    "logical",
+    "textual",
+    "historical",
+    "cross-tradition",
+    "source-dependence",
+    "abstraction-induced",
+    "alternative-mechanism",
+    "boundary-condition"
+  ],
+  "adversarial_record": {
+    "candidate_id": "PAT-*",
+    "minimal_statement": "",
+    "assumptions": [],
+    "counterexamples": [],
+    "negative_cases": [],
+    "alternative_explanations": [],
+    "dependency_risks": [],
+    "abstraction_sensitivity": [],
+    "boundary_conditions": [],
+    "surviving_scope": "",
+    "required_evidence": [],
+    "status": "UNTESTED | SURVIVED | BOUNDED | REJECTED"
+  },
+  "promotion_rule": "A candidate cannot become FORMALIZED merely because no counterexample was found; the search space, evidence coverage and remaining uncertainty must be explicit.",
+  "important_distinction": {
+    "no_counterexample_found": "limited evidence",
+    "counterexample_absent_in_domain": "bounded support",
+    "counterexample_impossible_under_assumptions": "formal result only if assumptions are explicit and proof/test is valid"
+  },
+  "anti_confirmation_controls": [
+    "attempt disconfirming searches first",
+    "record rejected explanations rather than deleting them",
+    "retain negative examples",
+    "separate source-family dependence from independent convergence",
+    "repeat analysis under weaker and stronger abstractions",
+    "do not use Gnozis architecture as confirmation of a Gnozis-derived interpretation"
+  ],
+  "gnozis_boundary": "Adversarial analysis may expose an architectural analogy or gap, but cannot authorize Core modification.",
+  "next_task": "PHIL-006 — Formalization and Gnozis Mapping Gate"
+}
