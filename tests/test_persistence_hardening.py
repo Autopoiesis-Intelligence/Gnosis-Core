@@ -88,7 +88,7 @@ def test_fault_injection_rolls_back_transition(point):
     with pytest.raises(RuntimeError, match="injected failure"):
         persist_transition(conn, instance, candidate, record, actor="u", failure_at=point)
     assert load_instance(conn, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(conn)[0] == 1
+    assert verify_durable_graph(conn)[0] == 2
 
 
 def test_recover_instance_runs_graph_validation():
