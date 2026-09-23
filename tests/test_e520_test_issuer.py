@@ -196,3 +196,32 @@ def test_e524_sqlite_state_tamper_cannot_unconsume(tmp_path):
             parent_state_digest="parent-1",
             policy_version="policy:v1",
         )
+
+def test_e525_persistence_cannot_mint_new_authority(tmp_path):
+    db = tmp_path / "registry-only.sqlite3"
+    issuer = TestAuthorizationIssuer(secret=b"e5.25-test-secret")
+    forged = issuer.issue(
+        request_provenance="p1", evolution_identity="e1",
+        parent_state_digest="s1", policy_version="v1",
+        scope=("test:execute",), expires_at=100,
+    )
+    # Simulate a database-only fabricated record by replacing the signed payload.
+    fabricated = type(forged)(**{
+        **forged.__dict__,
+        "request_provenance": "p2",
+        "authorization_id": "auth:database-only",
+    })
+    conn = sqlite3.connect(db)
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, fabricated)
+    with pytest.raises(PermissionError, match="invalid test authorization"):
+        consume_test_authorization(
+            conn, issuer, fabricated, now=50,
+            request_provenance="p2", evolution_identity="e1",
+            parent_state_digest="s1", policy_version="v1",
+        )
+
+
+def test_e525_registry_has_no_issuance_operation():
+    from gnosis.reflection import test_issuer
+    assert not hasattr(test_issuer, "issue_test_authorization")
