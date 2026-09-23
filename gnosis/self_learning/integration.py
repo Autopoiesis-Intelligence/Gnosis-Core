@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib, json
 from dataclasses import dataclass
 from .promotion import PromotionProposal
-from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionReceipt, require_execution_receipt
+from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionReceipt, require_execution_receipt, require_execution_integration_context
 
 @dataclass(frozen=True)
 class IntegrationRecord:
@@ -39,6 +39,7 @@ def mark_executed(record: IntegrationRecord, *, receipt: ExecutionReceipt, reque
     if record.integration_id != expected:
         raise ValueError("integration identity does not match immutable integration fields")
     try:
+        require_execution_integration_context(request, record)
         require_execution_receipt(receipt, request)
     except PermissionError as exc:
         raise ValueError("execution receipt does not match authorized evolution") from exc
