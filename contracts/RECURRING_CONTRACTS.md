@@ -146,3 +146,33 @@ Acceptance:
 - exact-commit CI evidence required.
 
 Do not close based on helper-level tests alone.
+
+
+## RECUR-SELF-01 — Self-Evolution
+Status: ACTIVE / ORIENTATION
+Purpose: preserve self-directed improvement as a permanent architectural target without granting unrestricted mutation authority.
+Required path:
+Generate → Test → Verify → Select → Evolve → Authorization → Commit.
+Acceptance orientation:
+- improvement candidates are explicit and provenance-bound;
+- self-evolution cannot bypass trust boundary or commit authorization;
+- no self-change is accepted solely because the system generated it.
+
+## RECUR-SELF-02 — Self-Learning
+Status: ACTIVE / ORIENTATION
+Purpose: preserve self-learning as a distinct capability from code/architecture evolution.
+Required path:
+Observation/Experience → Evidence → Reflection → Knowledge/Rule Candidate → Test → Verify.
+Acceptance orientation:
+- learning artifacts retain provenance;
+- evidence and knowledge are distinguishable;
+- unverified observations cannot silently become authoritative rules.
+
+## RECUR-SELF-03 — Self-Limitation
+Status: ACTIVE / ORIENTATION
+Purpose: make recognition of insufficient evidence and inability to safely evolve a first-class behavior.
+Required invariant:
+InsufficientEvidence → NoCommit.
+The system must be able to preserve uncertainty rather than force an evolution or learning outcome.
+
+These three recurring contracts are architectural orientations and are excluded from the current ~49% Global Contract Progress until a documented weighting/acceptance scheme is established.
