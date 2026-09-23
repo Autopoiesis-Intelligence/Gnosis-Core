@@ -753,3 +753,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #42 merged by squash into `main` as `9db8e6eaefd298cd60fc865e0cd6645d158cdc20`.
 - Dependency Review #106 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.51 duplicate-stage integrity contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.52 lifecycle subject binding — integrated — 2026-09-23
+
+- PR #44 corrected the verification fixture; CI passed without production changes.
+- PR #45 exact candidate `8b37f38cade290000a4ff002aac392b9ba805fb2` passed CI #2001 and CodeQL #879.
+- `LifecycleResult` now carries the verified `subject_id`; governed knowledge updates must match it.
+- PR #45 merged by squash into `main` as `9f3631212ee1b7b460e763d7de735df6bda84b96`.
+- Dependency Review #110 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.52 subject-binding contract is INTEGRATED / CI + CodeQL VERIFIED.
