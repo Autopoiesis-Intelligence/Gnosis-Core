@@ -241,3 +241,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - This remains source/test evidence only; runtime/CI execution has not been observed for the new commit.
 
 - R2.OPT-10c replay boundary: fixed a real defect where an existing transition_id could return idempotently before replay content validation. Stored transition identity/content is now checked first; conflicting replay fails closed. Regression added for conflicting parent provenance. Commits: `87a3732e`, `c55a21c8`. Execution evidence remains UNVERIFIED.
+
+- R2.OPT-10c replay/recovery continuation: added exact-transition replay after SQLite reopen with a different delivery actor. The test requires one transition and one original audit event; the second delivery must not mutate the durable actor/audit record. This follows the ADR distinction that `actor` is audit context, not authorization. Latest test commit: `8df05bd6`. Execution evidence remains UNVERIFIED.
