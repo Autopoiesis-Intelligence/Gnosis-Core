@@ -7,7 +7,7 @@
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
 ## Current repository baseline
-- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `520d52850b07e6271b29cd374680ad381804e298` (context-refresh commit); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` was stale.
+- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `2c70235231fda9a84fc054b746b3325e9b6444f0` (2026-09-23 current main source head at the audit checkpoint).
 
 - Repository: `Mikhail-Kucheriavyi-23/Gnozis-V2`
 - Branch: `main`
@@ -17,6 +17,14 @@ Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / D
 - `context/PROJECT_CONTEXT.json` is the machine-readable project snapshot.
 - `docs/ARCHITECTURE_SEQUENCING.md` defines the boundaries between architecture tracks.
 - `docs/CORE_REFLECTION_ROADMAP.md` and `docs/CORE_REFLECTION_R1_TASK.md` define controlled self-reflection.
+
+## 2026-09-23 External Audit Reconciliation
+
+- Fresh external audit inspected current main at 2c70235231fda9a84fc054b746b3325e9b6444f0 and found a Python collection-blocking SyntaxError in gnosis/reflection/test_issuer.py caused by two malformed SQL string literals. This is a repository defect and blocks exact-commit CI verification.
+- A bounded repair was prepared on branch audit/p0-ci-syntax-2026-09-23, commit cc361f4989dd73ad587f63b9d06a5e9855a7e347, PR #14. No Core or persistence semantics were changed.
+- Historical P0 Issue #13 failures came from predecessor CI evidence. Current source contains duplicate-provenance fail-closed detection in gnosis/evolution/chain_verifier.py and transition identity recomputation in gnosis/storage/repositories.py; these remain UNVERIFIED until exact-commit runtime/CI evidence exists.
+- The separate GNV2-PERSIST-003 claim that verify_durable_graph() does not recompute transition_id is stale relative to current source: load_transition_records() reconstructs the canonical TransitionRecord and explicitly rejects identity mismatch. Keep the audit finding as historical provenance, not as a current defect unless fresh reproduction disproves this.
+- E7.74 remains PARTIAL / UNVERIFIED; no contract may be promoted to VERIFIED from implementation or documentation alone.
 
 ## Current implementation state
 
