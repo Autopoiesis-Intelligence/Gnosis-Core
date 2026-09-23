@@ -932,3 +932,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #66 merged by squash into `main` as `8469ba00f7ae829629d6dfdf406fbd3d281fcd07`.
 - Dependency Review #152 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.68 delivery manifest → specialized core binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.69 partner delivery authorization binding — integrated — 2026-09-24
+
+- PR #67 exact head `a844e13ceebe833adf08cac5fcdeec8f9e285f13` passed CI #2079 and CodeQL #957.
+- `validate_delivery_authorization_binding()` recomputes authorization identity and fails closed when release gate, build record, delivery manifest, partner, or knowledge scope differs from the expected context.
+- Adversarial coverage rejects tampered authorization identity and foreign build authorization.
+- PR #67 merged by squash into `main` as `debe34c199c1ada688a736898d8fcde4cdbf2f69`.
+- Dependency Review #153 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.69 partner delivery authorization binding is INTEGRATED / CI + CodeQL VERIFIED.
