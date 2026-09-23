@@ -145,5 +145,22 @@
       "module": "RESEARCH-PHIL-001",
       "module_status": "ARCHITECTURE_CANDIDATE / ANALYSIS_ONLY"
     }
+  },
+  "contract_execution": {
+    "self_learning": {
+      "priority": "P0",
+      "contracts": {
+        "E7_10": "DESIGNED / PARTIALLY COVERED",
+        "E7_11": "DESIGNED / PARTIALLY COVERED",
+        "E7_12": "DESIGNED / NOT_IMPLEMENTED",
+        "E7_13": "DESIGNED / NOT_IMPLEMENTED",
+        "E7_14": "DESIGNED / NOT_IMPLEMENTED",
+        "E7_15": "DESIGNED / NOT_IMPLEMENTED"
+      },
+      "vertical_slice": "Agent -> Identity -> Provenance -> Revision -> Independence -> Quarantine -> Finding -> Counterexample -> Proposal -> Shadow -> Verification -> Governance -> Commit -> Reopen -> Replay -> Re-evaluate",
+      "runtime_claim": "NOT_VERIFIED",
+      "evidence_rule": "Only exact commit + exact test command + result + persisted evidence may promote status to VERIFIED"
+    },
+    "repository_sync": "E7.15 added as verification gate for E7.10-E7.14"
   }
 }
