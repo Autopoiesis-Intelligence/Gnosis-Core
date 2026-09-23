@@ -55,6 +55,7 @@ Each contract record SHOULD contain:
 | E7.34 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Retention & Privacy Boundary |
 | E7.35 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Lifecycle & State Derivation |
 | E7.36 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Query & Reconstruction Protocol |
+| E7.37 | DESIGNED / NOT_IMPLEMENTED | Partner Evidence Export & Interoperability Protocol |
 
 ## Update rule
 
