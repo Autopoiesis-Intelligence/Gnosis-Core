@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.86 — External Auditor Verification & Attestation Boundary
+
+E7.86 separates external package verification from authority and from substantive conclusions. Verification is scoped to declared criteria; limitations remain explicit; attestations are separately versioned, withdrawable and supersedable without rewriting history.
+
+Contract artifact: `docs/architecture/PARTNER_EXTERNAL_AUDITOR_VERIFICATION_ATTESTATION_CONTRACT.md`.
+Contract commit: `7a19775ed285ff80874b7fe1a684d984fac71832`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.85 — Collaboration Evidence Export & External Audit Package
 
 E7.85 defines the controlled external audit-package boundary. Export is a read artifact and cannot transfer authority or source-data access. Packages bind exact evidence revisions, disclosure policy, recipient/purpose and integrity metadata; delivery is separately evidenced.
