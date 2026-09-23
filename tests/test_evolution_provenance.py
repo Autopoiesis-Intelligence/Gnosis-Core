@@ -460,3 +460,34 @@ def test_promotion_gate_rejects_stale_authorization_context():
     assert not gate.eligible
     assert "authorization policy version is stale or mismatched" in gate.reasons
     assert "authorization freshness is stale or mismatched" in gate.reasons
+
+
+def test_provenance_id_for_matches_model():
+    from gnosis.evolution.provenance import provenance_id_for
+    p = build_provenance(
+        candidate_id="candidate:identity",
+        parent_state_id="state:identity",
+        parent_state_digest="parent",
+        proposed_state_digest="proposed",
+        observations={"metric": 1},
+        evidence_digest=canonical_digest({"metric": 1}),
+        evaluation_status="PASS",
+        shadow_status="NO_BEHAVIORAL_CHANGE",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+    )
+    assert provenance_id_for(
+        execution_id=p.execution_id,
+        candidate_id=p.candidate_id,
+        parent_state_id=p.parent_state_id,
+        parent_state_digest=p.parent_state_digest,
+        proposed_state_digest=p.proposed_state_digest,
+        evidence_digest=p.evidence_digest,
+        evaluation_status=p.evaluation_status,
+        shadow_status=p.shadow_status,
+        invariant_status=p.invariant_status,
+        governance_decision=p.governance_decision,
+        status=p.status,
+        proposed_state_content_id=p.proposed_state_content_id,
+        candidate_binding_digest=p.candidate_binding_digest,
+    ) == p.provenance_id
