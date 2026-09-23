@@ -2847,3 +2847,81 @@ These are research capabilities, not claims that the current implementation alre
 ### Core boundary
 
 No external-world relation claim, structural candidate or research pattern automatically changes Ψ-Core. Any engineering consequence must pass explicit research-to-engineering translation, implementation, verification and governance gates.
+
+
+## 2026-09-23 EVOLUTION CONTRACT — MACHINE TRANSFER OPTIMIZATION
+
+TASK-ID: R2.XFER-1
+BLOCK: Research Machine / Second Repository Machine Transfer Optimization
+STATUS: ACTIVE
+PRIORITY: HIGH / PARALLEL
+OBJECTIVE: Optimize the machine-readable transfer process between Gnozis-V2 and the second Research Machine repository so that evolutionary findings, evidence, provenance, contracts and unresolved questions can be transmitted and reconstructed by another AI without relying on conversation history.
+
+TRIGGER:
+"Продолжить Evolution Contract" resumes both:
+- PRIMARY: R2.OPT-10b — Immutable Commit Authorization
+- PARALLEL: R2.XFER-1 — Machine Transfer Optimization
+
+OPERATING RULE:
+If a safe, evidence-backed V2 repository change exists, continue repository implementation. If no safe implementation change is currently justified, record the resulting research/engineering knowledge in the second repository in machine-readable form. Evolution must not stop merely because one repository is temporarily blocked.
+
+TRANSFER OBJECT:
+Each transferable record should preserve, where applicable:
+TRANSFER-ID
+SOURCE-REPO
+SOURCE-COMMIT
+CONTRACT-ID
+EVOLUTION-STAGE
+INPUT
+OBSERVATION
+FINDING
+EVIDENCE
+COUNTEREXAMPLE
+DECISION
+STATUS
+UNCERTAINTY
+DEPENDENCIES
+NEXT
+PROVENANCE
+
+EPISTEMIC STATUS:
+FACT / OBSERVATION / HYPOTHESIS / DERIVATION / AUDIT_FINDING / COUNTEREXAMPLE / PROPOSAL / UNVERIFIED / INSUFFICIENT_EVIDENCE must remain distinguishable. UNKNOWN is not silently converted to false or true.
+
+HARD BOUNDARIES:
+Transfer != Authority.
+Research != Core Truth.
+Hypothesis != Verified Knowledge.
+Stored != Canonical.
+Research output does not authorize Core mutation.
+A machine-readable record cannot grant filesystem, execution or governance authority.
+
+PROVENANCE RULE:
+Every material transferred finding must retain source repository, source commit or research identifier where available, originating contract/task, evidence status and revision history. If a source identifier is unavailable, record UNKNOWN rather than inventing one.
+
+FEEDBACK LOOP:
+Gnozis-V2 → Transfer Layer → Research Machine → structured analysis/feedback → explicit engineering admission → Gnozis-V2.
+
+TRANSFER ACCEPTANCE:
+A transfer format is useful only if a new AI can reconstruct:
+1. what was observed;
+2. what was inferred;
+3. what remains uncertain;
+4. which evidence supports it;
+5. which counterexamples exist;
+6. what contract produced it;
+7. what repository/commit it came from;
+8. what single next action is permitted.
+
+CONTRACT RELATION:
+R2.XFER-1 is parallel to R2.OPT-10b and must not bypass R2.OPT-10b or any existing Core authority boundary.
+
+REPORTING:
+Every substantial transfer/optimization pass ends with the standard Evolution Report containing active contract, substage, directional progress, implementation/evidence status, completed items, current gaps, next contract/action, repository/commit and whether mutation occurred.
+
+PERCENTAGE RULE:
+Percentages are directional estimates only unless a reproducible denominator exists. Never present them as test coverage, probability, quality score or proof.
+
+CURRENT STATE:
+Primary engineering remains R2.OPT-10b — Immutable Commit Authorization.
+Parallel machine-transfer contract is R2.XFER-1 — Machine Transfer Optimization.
+Filesystem mutation remains prohibited until the governed commit boundary itself is independently verified.
