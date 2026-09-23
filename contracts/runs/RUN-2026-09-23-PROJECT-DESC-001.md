@@ -30,3 +30,19 @@ Actual README/repository-description synchronization remains a separate executio
 2. Avoid unsupported implementation claims.
 3. Include the narrow OpenAI participation/IP note only where useful and legally accurate.
 4. Record exact resulting commit and CI evidence.
+
+
+## Repository description synchronization execution
+
+README.md was updated to remove an unqualified implementation claim about persistence and to point to STATUS.md for the current evidence state.
+
+STATUS.md was corrected from "Persistence IMPLEMENTED / ACCEPTED" to "Persistence IMPLEMENTED / UNVERIFIED" because the latest observed CI contained concrete persistence/recovery failures.
+
+The GitHub repository metadata description itself was not changed because the available repository connector exposes read access but no repository-metadata update operation. No unsupported claim is made about a metadata update.
+
+Result:
+- README synchronization: DONE on branch
+- STATUS synchronization: DONE on branch
+- GitHub metadata description: OPEN / TOOLING-BLOCKED
+- Evidence consistency: IMPROVED
+- Contract: ACTIVE
