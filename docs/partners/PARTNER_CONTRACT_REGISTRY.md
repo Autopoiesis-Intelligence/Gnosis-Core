@@ -83,6 +83,7 @@ Each contract record SHOULD contain:
 | E7.62 | PARTIAL / UNVERIFIED | Minimal Specialized Self-Evolving Core |
 | E7.63 | PARTIAL / UNVERIFIED | Partner Specialized Core Delivery Package |
 | E7.64 | PARTIAL / UNVERIFIED | Partner Training Intake |
+| E7.65 | PARTIAL / UNVERIFIED | Partner Training Execution Plan |
 
 ## Update rule
 
