@@ -3860,3 +3860,60 @@ Do not advance the mathematical freshness/replay contract into an acceptance cla
 ### Required next step
 
 E5.06: formalize issuer authority scope, key/credential lifecycle, revocation semantics and audit binding for the trusted authorization issuer, without introducing secrets into the repository or audit database.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.06: TRUSTED ISSUER AUTHORITY SCOPE AND CREDENTIAL LIFECYCLE
+
+Let `I` be the trusted issuer, `A` its authority scope, `K` its credential/key material and `τ` an authority-sensitive transition.
+
+### Authority scope
+
+The issuer may authorize only transitions within its declared authority scope:
+`Authorize_I(τ) -> τ ∈ A`.
+
+Authority scope must be explicit, versioned and non-self-expanding.
+
+### Separation of issuance and execution
+
+Issuance of authorization and execution of the authorized transition are distinct events:
+`Issue(I,τ) != Execute(τ)`.
+
+The issuer must not be treated as proof that the resulting transition is valid; execution still requires exact binding and protected invariants.
+
+### Credential lifecycle
+
+Credential validity is stateful:
+`ValidCredential(K,t) = Active(K,t) ∧ ¬Revoked(K,t) ∧ ¬Expired(K,t) ∧ ScopeValid(K,t)`.
+
+Credential rotation must not silently transfer authority beyond the declared scope.
+
+### Key secrecy boundary
+
+Secret key material must not be stored in repository source, ordinary audit records, or unprotected project persistence.
+
+`Audit(K_secret) = forbidden`.
+
+Audit records may contain non-secret key/credential identifiers, version, issuer identity, scope, and cryptographic verification metadata.
+
+### Revocation
+
+Revocation must dominate prior validity at the decision boundary when policy requires it:
+`Revoked(K,t) -> ¬ValidCredential(K,t)`.
+
+Historical authorization remains historical evidence; revocation does not rewrite history.
+
+### Non-self-expansion
+
+The issuer cannot use its own authorization mechanism to expand its own authority scope without a distinct governance transition.
+
+`SelfIssue(ExpandScope(I))` is not sufficient authorization.
+
+### Provenance
+
+Every authorization issuance must preserve issuer identity/version, authority-scope version, credential identifier/version, exact target evolution identity, policy version, decision provenance and validity bounds.
+
+### Current implementation boundary
+
+V2 currently has an explicit owner-approval type and fail-closed execution authorization checks, but the trusted owner-authority issuer is intentionally unimplemented. No credential/key lifecycle is claimed as implemented.
+
+### Required next step
+
+E5.07: formalize issuance signatures, key rotation, delegation limits and cryptographic verification without coupling secrets to Ψ-Core state.
