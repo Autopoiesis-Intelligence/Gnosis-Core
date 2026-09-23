@@ -724,3 +724,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #38 was merged by squash into `main` as `df7fbed5abdfa00fe4ac107875ac50a8c9ad81b2`.
 - Dependency Review #100 remains blocked by unavailable Dependency Graph and is not treated as evidence of a dependency vulnerability.
 - E7.50 payload-provenance tamper contract is INTEGRATED / candidate CI and CodeQL VERIFIED; post-merge evidence remains subject to the documented connector limitation.
+
+
+## E7.49 metadata-integrity fix — 2026-09-23
+
+- PR #40 head `1b30b38f5500cd4d0b4e531227ffb368431002fb` has CI #1988 PASS on Python 3.11 and 3.12.
+- CodeQL #866 is still in progress at this observation.
+- Dependency Review #102 remains blocked by unavailable Dependency Graph.
+- PR #40 is mergeable but is NOT merged yet. Do not mark E7.49 closed until CodeQL and compatibility/migration review are complete.
+- Production fix binds event identity to persisted `provenance` and `authority`; this changes the canonical digest format and therefore requires explicit legacy-evidence compatibility assessment before acceptance.
