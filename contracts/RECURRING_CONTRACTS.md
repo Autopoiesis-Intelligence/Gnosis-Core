@@ -92,3 +92,36 @@ STATUS
 NEXT
 
 A recurring contract is healthy only when its last run is traceable to an exact project state.
+
+
+## RECUR-PROJECT-DESCRIPTION-001 — Repository Project Description Synchronization
+
+Objective:
+Keep repository-facing project descriptions synchronized with the verified current project state.
+
+Scope:
+- GitHub repository description;
+- README project identity/summary where applicable;
+- AI_CONTEXT/STATUS references that describe repository roles;
+- Research Machine ↔ Gnozis-V2 relationship;
+- contract and mathematical-control-layer summary.
+
+Rules:
+1. Description is a derived representation, never the source of truth.
+2. Only verified repository/runtime/CI facts may be represented as implemented capabilities.
+3. Open, theoretical, hypothesis and unverified work must remain explicitly qualified.
+4. Historical/archive status must not be rewritten as current implementation.
+5. Changes to descriptions require a traceable contract run and exact source state.
+
+OpenAI / ChatGPT rights:
+- OpenAI/ChatGPT may be identified in project documentation as an AI participant, reviewer, architectural assistant, or contract actor only to the extent actually authorized by the project owner and available tooling.
+- Such mention does NOT imply ownership, endorsement, employment, partnership, legal authority, repository ownership, copyright transfer, or permission to make decisions outside the explicitly delegated project workflow.
+- OpenAI trademarks, logos, proprietary materials, model weights, APIs, or other OpenAI-controlled assets must not be represented as project assets merely because ChatGPT participated.
+- Any legal/IP statement about OpenAI rights must be treated as a factual/legal claim requiring verification from the applicable OpenAI terms or an explicit project agreement; the contract itself must not invent such rights.
+- Project authorship, repository ownership, and decisions remain attributable to the actual project owner/contributors unless explicitly documented otherwise.
+
+Acceptance:
+- project description matches the latest verified architecture and repository roles;
+- every capability statement has provenance;
+- OpenAI participation, if mentioned, is narrowly and accurately scoped;
+- no unsupported legal/IP claim is introduced.
