@@ -34,7 +34,7 @@ def test_receipt_digest_is_order_independent():
 
 def test_receipt_cannot_be_bound_to_a_different_plan():
     first=_plan("STATUS_DRIFT:E7.01:registry=X:artifact=Y")
-    second=_plan("STATUS_DRIFT:E7.02:registry=X:artifact=Z")
+    second=_plan("STATUS_DRIFT:E7.01:registry=X:artifact=Z")
     receipt=create_mutation_receipt(first,result="APPLIED",target="x",before_digest="a",after_digest="b",executor="e",authorization_reference="a",created_at="2026-09-23T12:00:00+00:00")
     with pytest.raises(PermissionError,match="plan identity mismatch"):
         validate_receipt_plan_binding(receipt,second)
