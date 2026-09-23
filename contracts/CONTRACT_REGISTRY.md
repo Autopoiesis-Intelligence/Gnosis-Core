@@ -69,3 +69,14 @@ Core rule:
 Self-evolution cannot bypass authorization/trust boundary.
 Self-learning cannot turn unverified observations into authoritative rules.
 Insufficient evidence implies no commit.
+
+
+## Machine-testable self-contracts — 2026-09-23
+
+Added:
+- RECUR-SELF-01A — Self-Evolution Candidate Integrity
+- RECUR-SELF-02A — Self-Learning Provenance Integrity
+- RECUR-SELF-03A — Self-Limitation No-Commit
+
+These remain ACTIVE until implementation and exact runtime evidence exist.
+They do not increase Global Contract Progress merely by being specified.
