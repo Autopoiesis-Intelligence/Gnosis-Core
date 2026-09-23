@@ -153,3 +153,31 @@ def test_replay_same_transition_id_after_restart_with_changed_candidate_is_rejec
     assert reopened.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
     verify_durable_graph(reopened)
     reopened.close()
+
+
+def test_replay_detects_tampered_persisted_state_before_idempotent_acceptance():
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    candidate = Candidate(
+        instance.engine.state.state_id,
+        instance.engine.state.with_elements({"b": 2}),
+        "persisted-state-tamper",
+    )
+    record = instance.engine.step(candidate)
+    persist_transition(conn, instance, candidate, record, actor="worker-a")
+
+    conn.execute(
+        "UPDATE states SET payload=? WHERE state_id=?",
+        ('{"elements":{"tampered":true},"version":1}', record.to_state_id),
+    )
+    conn.commit()
+
+    with pytest.raises(StorageCorruptionError, match="state hash mismatch"):
+        load_instance(conn, instance.instance_id)
+
+    assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
+    assert conn.execute(
+        "SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL"
+    ).fetchone()[0] == 1
+    conn.close()
