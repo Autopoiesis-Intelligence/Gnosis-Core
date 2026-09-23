@@ -35,8 +35,9 @@ def _json_value(value: Any) -> Any:
         return [_json_value(v) for v in value]
     return value
 
-def reflection_id(report: ReflectionReport) -> str:
-    return "reflection:" + hashlib.sha256(_json(report).encode("utf-8")).hexdigest()[:24]
+def reflection_id(report: ReflectionReport, created_at: str | None = None) -> str:
+    payload = {"payload": asdict(report), "created_at": created_at} if created_at is not None else asdict(report)
+    return "reflection:" + hashlib.sha256(_json(payload).encode("utf-8")).hexdigest()[:24]
 
 
 def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
@@ -170,7 +171,7 @@ def save_reflection_report(
     shadow_assessments: tuple[ShadowEvaluation, ...] = (),
 ) -> str:
     ensure_reflection_schema(conn)
-    report_key = reflection_id(report)
+    report_key = reflection_id(report, created_at)
     conn.execute(
         "INSERT OR IGNORE INTO reflection_reports(report_id,created_at,payload) VALUES(?,?,?)",
         (report_key, created_at, _json(report)),
