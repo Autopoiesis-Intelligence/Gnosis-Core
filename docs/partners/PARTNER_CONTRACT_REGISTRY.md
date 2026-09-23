@@ -68,6 +68,7 @@ Each contract record SHOULD contain:
 | E7.47 | IMPLEMENTED / UNVERIFIED | Governed Execution / Controlled Contract Application Plan |
 | E7.48 | IMPLEMENTED / UNVERIFIED | Controlled Execution Evidence / Mutation Receipt |
 | E7.49 | IMPLEMENTED / UNVERIFIED | Append-Only Self-Learning Evidence Ledger |
+| E7.50 | IMPLEMENTED / UNVERIFIED | Self-Learning Evidence Replay / Reconstruction |
 
 ## Update rule
 
