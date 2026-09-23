@@ -95,3 +95,19 @@ The Persistence phase is not ready for Final Gate if any of these remain unteste
 - current-head consistency;
 - secret exclusion;
 - unchanged Core test suite.
+
+## E4.98 — Coverage and blind-spot declaration
+
+The matrix is a bounded adversarial acceptance suite, not proof of exhaustive coverage of all possible failures.
+
+Each accepted verification claim must declare, where applicable:
+- failure class covered;
+- observation/representation boundary;
+- oracle or evaluator dependencies;
+- known shared failure modes;
+- untested or non-observable classes;
+- whether the result is PASS, REJECT, FAIL_CLOSED, IDEMPOTENT, or UNKNOWN/INSUFFICIENT_EVIDENCE.
+
+A passing test demonstrates behavior for the tested condition. It does not establish absence of failures outside the declared challenge space.
+
+Representation- or oracle-induced blind spots must remain explicit rather than being converted into PASS by lack of an observed counterexample.
