@@ -126,3 +126,26 @@ def test_e7_60_receipt_from_other_execution_is_rejected():
     foreign=replace(receipt, execution_id="exec:foreign")
     with pytest.raises(ValueError, match="authorized evolution"):
         mark_executed(r, receipt=foreign, request=request)
+
+
+def test_e7_61_execution_receipt_identity_is_deterministic():
+    request, receipt = _execution_fixture()
+    assert receipt.receipt_id == receipt.receipt_id
+    assert receipt.receipt_id.startswith("sha256:")
+    assert receipt.receipt_id != receipt.execution_id
+
+
+def test_e7_61_receipt_identity_changes_when_evidence_changes():
+    from dataclasses import replace
+    request, receipt = _execution_fixture()
+    tampered = replace(receipt, resulting_state_digest="sha256:other")
+    assert tampered.receipt_id != receipt.receipt_id
+
+
+def test_e7_61_integration_persists_receipt_identity_separately():
+    r=create_integration_record(accepted(), action="merge-approved-knowledge")
+    request, receipt=_execution_fixture()
+    done=mark_executed(r, receipt=receipt, request=request)
+    assert done.receipt_id == receipt.receipt_id
+    assert done.execution_id == receipt.execution_id
+    assert done.receipt_id != done.execution_id
