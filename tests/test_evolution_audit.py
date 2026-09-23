@@ -88,8 +88,7 @@ def test_recovery_detects_persisted_audit_tampering():
     ensure_reflection_schema(conn)
     record = append_evolution_audit(
         conn, event_type="EVOLUTION_RECORDED", candidate_id="c",
-        execution_id="e", provenance_id="p", parent_state_digest="pd",
-        proposed_state_digest="sd", evidence_digest="ed", payload={"x": 1},
+        execution_id="e", payload={"x": 1},
     )
     conn.execute("UPDATE evolution_audit SET evidence_digest='tampered'")
     audits = list_evolution_audit(conn)
