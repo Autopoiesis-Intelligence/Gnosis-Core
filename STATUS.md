@@ -219,7 +219,7 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 ## Immediate next step
 
-**End-to-end verification of the reflection foundation and persistence** is required. After that, the next architectural runtime step is **invariant-delta analysis for shadow evaluations**, followed by bounded Governance/Rollback. Autonomous rule activation remains prohibited.
+**End-to-end verification of the reflection foundation and persistence** is required. Current CI has concrete persistence/recovery failures recorded in the contract registry; they remain OPEN until corrected and re-tested. After that, the next architectural runtime step is **invariant-delta analysis for shadow evaluations**, followed by bounded Governance/Rollback. Autonomous rule activation remains prohibited.
 
 
 ## Contract and Mathematical Reconciliation Layer — 2026-09-23
