@@ -461,3 +461,23 @@ def test_promotion_gate_rejects_stale_authorization_context():
     assert not gate.eligible
     assert "authorization policy version is stale or mismatched" in gate.reasons
     assert "authorization freshness is stale or mismatched" in gate.reasons
+
+
+def test_provenance_lifecycle_status_does_not_change_identity() -> None:
+    observations = {"metric": 1}
+    base = build_provenance(
+        candidate_id="candidate:status",
+        parent_state_id="state:status",
+        parent_state_digest="parent:status",
+        proposed_state_digest="proposed:status",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+    )
+    from dataclasses import replace
+    consumed = replace(base, status="CONSUMED")
+    assert consumed.provenance_id == base.provenance_id
+    assert consumed.evolution_identity == base.evolution_identity
