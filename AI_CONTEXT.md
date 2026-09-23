@@ -4745,3 +4745,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.37 — Partner Evidence Export & Interoperability Protocol:** DESIGNED / NOT_IMPLEMENTED. External evidence packages preserve original event identity, revisions, corrections, revocations and retention state. Import creates evidence/context only; it cannot grant Core state, verification, admission, authorization or governance authority.
+
+
+- **E7.38 — Partner Specialized Core Provisioning & Inbound Trust Boundary:** DESIGNED / NOT_IMPLEMENTED. Commercial partner deployments may specialize knowledge and analytical orientation for domains such as finance, enterprise IT or game development. A specialized learning database is not Core authority; inbound evidence follows the protected admission path. Clone/fork lineage and specialization revisions remain traceable, and partner policy cannot override non-delegable Core invariants.
