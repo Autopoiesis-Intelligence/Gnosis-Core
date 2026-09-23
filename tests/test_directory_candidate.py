@@ -32,3 +32,14 @@ def test_duplicate_candidate_rejects_single_file() -> None:
         pass
     else:
         raise AssertionError("single-file candidate was accepted")
+
+
+def test_duplicate_candidate_binding_changes_when_usage_evidence_changes() -> None:
+    base = build_duplicate_candidate(["a", "b"], "digest", {
+        "b": DirectoryUsage("b", provenance_id="p1"),
+    })
+    changed = build_duplicate_candidate(["a", "b"], "digest", {
+        "b": DirectoryUsage("b", protected=True, provenance_id="p1"),
+    })
+    assert base.candidate_binding_digest != changed.candidate_binding_digest
+    assert base.candidate_id != changed.candidate_id
