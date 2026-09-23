@@ -655,3 +655,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Pre-merge exact candidate CI for `aa13d18821946626bbe73e026478d46b009543c8` was green for Python 3.11, Python 3.12 and CodeQL. Dependency Review remained UNVERIFIED because the GitHub Dependency Graph was unavailable.
 - GitHub commit-run lookup for the merge commit currently returns no workflow runs. Therefore post-merge runtime/CI acceptance is **PENDING**, and Issue #16 remains OPEN.
 - Do not transfer candidate-branch PASS automatically to the merge commit. The next gate is exact post-merge CI/evidence on `de113e1d...`.
+
+
+## Contract clarification — provenance lifecycle status — 2026-09-23
+
+- Source review confirms `status` is persisted as a lifecycle field but intentionally excluded from `provenance_id` and `evolution_identity` canonical identity payloads.
+- This is now explicitly covered by `test_provenance_lifecycle_status_does_not_change_identity` (commit `517a9968d4e5fe70a7aedae8a1a95d4063b27f56`).
+- No production semantic change was made; the change codifies the existing identity boundary in a regression test.
+- P0-R2 remains pending exact CI evidence for the current `main` after this test addition.
