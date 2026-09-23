@@ -696,3 +696,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - `.github/workflows/codeql.yml` declares `push` on `main`, `pull_request`, schedule, and manual dispatch.
 - `.github/workflows/dependency-review.yml` is intentionally PR-only.
 - Therefore a zero-run lookup for merge SHA `fca2812f...` is not explained by a missing `push: main` trigger. The resulting merge SHA remains a CI evidence gap requiring GitHub-side workflow/run verification rather than a code change.
+
+
+## Contract state reconciliation — PR #36 — 2026-09-23
+
+- PR #36 is MERGED into main as fca2812f202393d92589b2f1cc8a5844fdea6ece.
+- Its scoped shadow-assessment exact-replay regression was VERIFIED_BY_CI on candidate 0fd1fe8857ff07958f10fea5b1b0b10f4cd86d76 with Python 3.11/3.12 PASS.
+- Post-merge CI for the resulting merge SHA is not observable through the current commit-run connector because that connector only exposes pull-request-triggered runs. This is an evidence limitation, not a claim that post-merge CI did not execute.
+- PR #35 remains a separate candidate blocked by Dependency Graph / Dependency Review infrastructure.
+- Issue #16 remains OPEN; P0-R2 is not closed.
+- Repository rename remains NOT SAFE.
