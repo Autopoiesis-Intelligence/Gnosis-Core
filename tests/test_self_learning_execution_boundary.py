@@ -1,12 +1,12 @@
 import pytest
-from gnosis.self_learning.bridge import CoreMutationProposal
+from gnosis.self_learning.bridge import CoreMutationProposal, approve_core_mutation
 from gnosis.self_learning.execution import execute_approved_core_proposal
 from gnosis.reflection.authority import (
     ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot,
 )
 
 def test_execution_adapter_fails_closed_without_owner_authorization():
-    proposal=CoreMutationProposal("m","i","v","common-self-learning","merge","APPROVED")
+    proposal=approve_core_mutation(CoreMutationProposal("m","i","v","common-self-learning","merge"), approver="test")
     auth=ExecutionAuthorization(
         request_provenance="p",
         owner_approved=False,
