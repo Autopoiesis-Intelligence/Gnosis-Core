@@ -4776,3 +4776,5 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - **E7.46 implemented:** validated Self-Learning proposals can now be converted into explicit governance review records (ACCEPTED/REJECTED/DEFERRED) with reviewer, reason, validation digest, provenance and deterministic review ID for fixed inputs. The module records decisions but does not execute them or mutate contracts/Core/permissions/runtime. Governance remains the authority boundary.
 
 - **E7.47 implemented:** ACCEPTED governance records now produce a deterministic, declarative execution plan with explicit preconditions and external execution authority requirement. The plan itself cannot execute or mutate contracts/Core/permissions/runtime, preserving the governance→execution trust boundary.
+
+- **E7.48 implemented:** external execution outcomes can now be represented by deterministic mutation receipts linked to plan/review/proposal IDs, target before/after digests, executor and authorization reference. APPLIED requires an actual target digest change. Receipt layer is evidence-only and cannot execute or authorize mutations.
