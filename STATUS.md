@@ -952,3 +952,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #68 merged by squash into `main` as `7bd53b9e8c3c640b68b164ec248435fc01d00f29`.
 - Dependency Review #154 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.70 partner delivery receipt binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.71 feedback promotion proposal binding — integrated — 2026-09-24
+
+- PR #69 exact head `1c53acee31593d03db75b02e6a8a3121d628a649` passed CI #2085 and CodeQL #963.
+- `validate_feedback_proposal_binding()` recomputes proposal identity and fails closed when delivery receipt, partner, or source scope differs from the expected feedback context.
+- Adversarial coverage rejects tampered proposal identity and foreign delivery receipt.
+- PR #69 merged by squash into `main` as `14f75afd0836528020e0e297b3ad1c16228a5467`.
+- Dependency Review #155 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.71 feedback promotion proposal binding is INTEGRATED / CI + CodeQL VERIFIED.
