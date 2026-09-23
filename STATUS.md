@@ -434,3 +434,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.30 — Partner Contract Acceptance & Capability Negotiation:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `39ebd9d38ab39b344aa110a606d2b5b77f7ba158`. Defines explicit partner acceptance/rejection, partial acceptance, requested amendments, deterministic effective capability intersection and separation of capability from authority. Silence/import never equals acceptance.
+
+
+- **E7.31 — Partner Capability Enforcement & Runtime Scope Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `bf41eac43c24ee2cf02faefef1a7455ce55dbe96`. Defines fail-closed runtime authorization from declared/accepted/currently-valid capabilities to concrete resource/action scope, including cross-partner isolation, confused-deputy protection and authorization/mutation atomicity.
