@@ -228,3 +228,79 @@ On trigger invocation:
 10. emit the mandatory EVOLUTION REPORT.
 
 This contract is itself a workflow trigger, not proof that any listed capability is implemented.
+
+
+## Continuity rule — repository work never stalls
+
+The evolution process is continuous.
+
+When a safe repository change is available, implement the smallest bounded change and verify it. Do not wait for a later conversation merely because another check is pending.
+
+If repository modification is not currently justified, blocked, or would weaken evidence, continue the evolution process by recording important deductions, hypotheses, contracts, gaps, or relations in the machine-readable research repository:
+`Mikhail-Kucheriavyi-23/Gnozis/research_machine/`
+
+Such records must be explicitly classified (for example `RESEARCH_ONLY`, `HYPOTHESIS`, `OPEN`, `OBSERVED`) and must not be represented as implemented capability.
+
+## Autonomous contract selection
+
+The assistant is responsible for selecting the next contract after inspecting current repository evidence.
+
+The active self-optimization sequence currently includes:
+
+- R2.OPT-1 Resource Boundary
+- R2.OPT-2 Resource Exhaustion Semantics
+- R2.OPT-3 Directory Redundancy Detection
+- R2.OPT-4 Usage/Protection/Provenance Gate
+- R2.OPT-5 Candidate Integrity
+- R2.OPT-6 Evidence Binding
+- R2.OPT-7 Provenance/Audit Closure
+- R2.OPT-8 Shadow Optimization
+- R2.OPT-9 Governance
+- R2.OPT-10 Governed Commit
+
+The sequence is not a rigid queue. A higher-priority trust, evidence, adversarial, CI, provenance, recovery, or security gap can interrupt and supersede a lower-priority contract.
+
+## No artificial completion
+
+Never increase a contract percentage because code was written alone.
+
+Completion requires its explicit acceptance/evidence conditions.
+
+If CI is pending, partial, unavailable, or tied to an older SHA, report that exact state.
+
+## Research-machine continuity
+
+Important conclusions from the evolution process should be persisted to the machine-readable research repository when they have value beyond a single implementation step.
+
+A research record should preserve:
+- unique record ID;
+- statement;
+- status;
+- source commit(s);
+- relations/provenance;
+- engineering consequence;
+- unresolved gap;
+- core admissibility.
+
+Research records do not grant implementation authority.
+
+## Required continuity trigger
+
+The phrase:
+
+**GNOZIS EVOLUTION CONTINUE**
+
+means:
+
+```
+restore contract state
+→ inspect repository reality
+→ reconcile evidence
+→ select highest-priority contract
+→ implement or research-record the next safe step
+→ verify
+→ report
+→ continue
+```
+
+The trigger is valid in a new chat without requiring the user to reconstruct the previous conversation.
