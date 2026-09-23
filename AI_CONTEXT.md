@@ -4734,3 +4734,8 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.32 — Partner Action Audit & Evidence:** DESIGNED / NOT_IMPLEMENTED. Partner audit events distinguish authorization Decision (ALLOW/DENY) from execution Outcome (SUCCESS/FAILURE/INTERRUPTED/REVOKED/NOT_EXECUTED). Events preserve applicable contract/package/acceptance/policy revisions and denial evidence while never becoming capability tokens or authority sources.
+
+
+- **E7.33 — Partner Evidence Review, Dispute & Correction Protocol:** DESIGNED / NOT_IMPLEMENTED. Disputes reference immutable evidence; corrections append new events and never rewrite history. Review findings cannot directly mutate Core.
+- **E7.34 — Partner Evidence Retention & Privacy Boundary:** DESIGNED / NOT_IMPLEMENTED. Private payload retention/redaction/deletion is separated from immutable event history. Privacy actions are auditable and cannot resurrect deleted state.
+- **E7.35 — Partner Evidence Lifecycle & State Derivation:** DESIGNED / NOT_IMPLEMENTED. Current evidence state is deterministically derived from authoritative history plus applicable policy, contract, revocation and retention state; conflicting sources become explicit findings and protected actions fail closed.
