@@ -92,6 +92,7 @@ Each contract record SHOULD contain:
 | E7.71 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Proposal |
 | E7.72 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Validation |
 | E7.73 | PARTIAL / UNVERIFIED | Governed Feedback Promotion Record |
+| E7.74 | PARTIAL / UNVERIFIED | Self-Learning Collaboration Proposal Generator |
 
 ## Update rule
 
