@@ -105,7 +105,7 @@ def test_e520_bridge_preserves_exact_execution_boundary():
 def test_e522_issuer_binds_execution_intent_snapshot_exactly():
     from gnosis.reflection.authority import ExecutionIntentSnapshot, require_execution_intent_snapshot
     from gnosis.reflection.test_issuer import issue_for_provenance_for_test, to_execution_authorization_for_test
-    from tests.test_authority_boundary import _snapshot_provenance
+    from test_authority_boundary import _snapshot_provenance
 
     provenance = _snapshot_provenance()
     issuer = TestAuthorizationIssuer(secret=b"e5.22-test-secret")
