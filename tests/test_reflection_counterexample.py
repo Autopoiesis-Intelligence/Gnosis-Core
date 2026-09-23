@@ -62,7 +62,7 @@ def test_runtime_reflection_executes_counterexample_stage_without_mutating_histo
 
 def test_counterexample_result_rejects_foreign_candidate():
     from gnosis.reflection.counterexample import CounterexampleResult, validate_counterexample_result
-    history=(_record(0, False, "c1", "repeated failure"),)
+    history=(_record(0, False, "c1", "repeated failure"), _record(1, False, "c1", "repeated failure"))
     analyzer=ReflectionAnalyzer(history)
     report=analyzer.analyze()
     finding, candidate = report.findings[0], report.counterexamples[0]
@@ -87,7 +87,7 @@ def test_counterexample_result_rejects_nonaccepted_refuted_evidence():
         candidate_id=candidate.candidate_id,
         finding_id=finding.finding_id,
         status="REFUTED",
-        evidence_refs=("transition:0:c1",),
+        evidence_refs=(history[0].transition_id,),
         explanation="tampered",
     )
     with pytest.raises(ValueError, match="refuted counterexample evidence"):
