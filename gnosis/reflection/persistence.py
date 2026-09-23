@@ -12,7 +12,6 @@ from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
-from .proposal_lineage import ProposalEvolution
 from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
@@ -100,9 +99,11 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             evolution_id TEXT PRIMARY KEY,
             finding_id TEXT NOT NULL,
             parent_proposal_id TEXT,
+            current_proposal_id TEXT,
             relation TEXT NOT NULL,
             rationale TEXT NOT NULL,
-            evidence_refs TEXT NOT NULL
+            evidence_refs TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'PROPOSED'
         );
         CREATE TABLE IF NOT EXISTS reflection_governance_decisions (
             decision_id TEXT PRIMARY KEY,
@@ -121,6 +122,14 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             ON reflection_governance_decisions(report_id);
         """
     )
+    for column, definition in (
+        ("current_proposal_id", "TEXT"),
+        ("status", "TEXT NOT NULL DEFAULT 'PROPOSED'"),
+    ):
+        try:
+            conn.execute(f"ALTER TABLE reflection_proposal_evolutions ADD COLUMN {column} {definition}")
+        except sqlite3.OperationalError:
+            pass
     try:
         conn.execute("ALTER TABLE evolution_provenance ADD COLUMN evolution_identity TEXT NOT NULL DEFAULT ''")
     except sqlite3.OperationalError:
