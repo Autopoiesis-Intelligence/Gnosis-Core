@@ -440,3 +440,77 @@ def test_execution_receipt_rejects_tampered_resulting_state_digest():
     )
     with pytest.raises(PermissionError, match="execution receipt does not match committed evolution"):
         require_execution_receipt(receipt, request)
+
+
+def test_execution_commit_rejects_authorized_request_after_canonical_head_advanced() -> None:
+    """Authorization bound to an old parent must not commit after the head advances."""
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    parent_state_id = instance.engine.state.state_id
+
+    candidate_a = Candidate(
+        parent_state_id, instance.engine.state.with_elements({"a": 2}), "authorized-a"
+    )
+    observations = {"candidate": candidate_a.candidate_id}
+    provenance_a = build_provenance(
+        candidate_id=candidate_a.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=candidate_a.proposed_state.state_id,
+        observations=observations,
+        proposed_state_content_id=candidate_a.proposed_state.content_id,
+        candidate_binding_digest=candidate_a.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    request = ExecutionCommitRequest(
+        ExecutionAuthorization(
+            provenance_a.provenance_id, True, provenance_a.evolution_identity
+        ),
+        ExecutionIntentSnapshot.from_provenance(provenance_a),
+        provenance_a.provenance_id,
+        provenance_a.evolution_identity,
+        provenance_a,
+    )
+
+    # Another valid transition advances the canonical instance head after authorization.
+    candidate_b = Candidate(
+        parent_state_id, instance.engine.state.with_elements({"a": 3}), "advanced-head"
+    )
+    record_b = instance.engine.step(candidate_b)
+    SQLiteExecutionCommitAdapter().commit(
+        conn, instance, candidate_b, record_b,
+        _make_execution_commit_request(_provenance_for(candidate_b, instance.engine.state, candidate_b.proposed_state)),
+        actor="user-1",
+    )
+    advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
+    assert advanced_head == candidate_b.proposed_state.state_id
+
+    # The old authorization remains structurally valid but is stale at commit time.
+    record_a = TransitionRecord(
+        from_state_id=parent_state_id,
+        to_state_id=candidate_a.proposed_state.state_id,
+        candidate_id=candidate_a.candidate_id,
+        test_result=TestResult(True, ("authorized-test",)),
+        accepted=True,
+        reason="committed",
+    )
+    with pytest.raises(ValueError, match="stale instance head"):
+        SQLiteExecutionCommitAdapter().commit(
+            conn, instance, candidate_a, record_a, request, actor="user-1"
+        )
+
+    current = load_instance(conn, instance.instance_id)
+    assert current.engine.state.state_id == advanced_head
+    assert conn.execute(
+        "SELECT count(*) FROM transitions WHERE candidate_id=?", (candidate_a.candidate_id,)
+    ).fetchone()[0] == 0
+    conn.close()
