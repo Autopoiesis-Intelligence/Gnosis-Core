@@ -413,3 +413,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Required invariant set: `DeclaredCapability != GrantedCapability`, `Contribution != Authority`, `Manifest != Verification`, `Admission != ExecutionPermission`.
 - No runtime partner ingestion, schema validator, quarantine engine or authority integration is claimed by this contract.
 - Current self-learning integrated proof remains unchanged until runtime evidence exists.
+
+
+- **E7.24 — Partner Contribution Validation & Quarantine:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/PARTNER_CONTRIBUTION_VALIDATION_QUARANTINE_CONTRACT.md` at commit `7724c1234d0e7f428ec7f7ab487845c664266f5e`. Defines identity, schema, integrity, provenance, scope, policy, freshness and replay validation before admission. Quarantine is evidence-preserving isolation; validation does not grant authority. No runtime capability is claimed.
