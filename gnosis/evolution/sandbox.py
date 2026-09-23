@@ -142,15 +142,30 @@ def run_sandbox(
             "exit_code": process.exitcode,
         }
 
+    observations = dict(observations)
+    observations["resource_elapsed_seconds"] = elapsed
+
     if status == "COMPLETED" and budget.max_memory_bytes is not None and observations.get("resource_memory_peak_bytes", 0) > budget.max_memory_bytes:
-        observations = dict(observations)
         observations["resource_limit"] = "memory"
         observations["resource_limit_bytes"] = budget.max_memory_bytes
-        observations["resource_elapsed_seconds"] = elapsed
         status = "RESOURCE_EXHAUSTED"
 
     if status != "COMPLETED":
         return SandboxResult(
+            SandboxExecution(
+                candidate.candidate_id,
+                state.state_id,
+                state.content_id,
+                candidate.proposed_state.content_id,
+                1,
+                status,
+                _digest(observations),
+                observations,
+            ),
+            False,
+        )
+
+    return SandboxResult(
             SandboxExecution(
                 candidate.candidate_id,
                 state.state_id,
