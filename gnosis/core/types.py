@@ -53,13 +53,31 @@ class Relation:
 
 @dataclass(frozen=True)
 class State:
+    """Canonical runtime representation of Ψ=(X,R) plus lineage metadata.
+
+    Mathematical content is exactly the pair (elements, relations).
+    version is lineage/runtime metadata and is deliberately excluded from
+    content_id. Relations are canonicalized as a set-like, immutable
+    collection: duplicate relation identities are removed and ordering is
+    normalized. This makes the runtime representation agree with R as a
+    mathematical relation set rather than an ordered event list.
+    """
+
     elements: Mapping[str, Any] = field(default_factory=dict)
     relations: Sequence[Relation] = field(default_factory=tuple)
     version: int = 0
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "elements", deep_freeze(dict(self.elements)))
-        object.__setattr__(self, "relations", tuple(self.relations))
+        frozen_elements = deep_freeze(dict(self.elements))
+        unique_relations = {relation.relation_id: relation for relation in self.relations}
+        canonical_relations = tuple(
+            unique_relations[relation_id]
+            for relation_id in sorted(unique_relations)
+        )
+        if self.version < 0:
+            raise ValueError("State.version must be non-negative")
+        object.__setattr__(self, "elements", frozen_elements)
+        object.__setattr__(self, "relations", canonical_relations)
 
     @property
     def state_id(self) -> str:
@@ -67,7 +85,16 @@ class State:
 
     @property
     def content_id(self) -> str:
-        return _stable_hash({"elements": self.elements, "relations": sorted(r.relation_id for r in self.relations)})
+        """Stable identity of the mathematical Ψ=(X,R), excluding version."""
+        return _stable_hash({
+            "elements": self.elements,
+            "relations": [r.relation_id for r in self.relations],
+        })
+
+    @property
+    def psi_id(self) -> str:
+        """Explicit mathematical identity alias for Ψ content."""
+        return self.content_id
 
     def with_elements(self, elements: Mapping[str, Any]) -> "State":
         merged = dict(self.elements)
