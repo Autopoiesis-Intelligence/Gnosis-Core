@@ -4783,3 +4783,14 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 - **Partner architecture clarified:** Gnozis Core remains the common minimal foundation. The completed Self-Learning direction must support both (1) Core-initiated identification of commercially relevant development opportunities and governed partner-contract proposals, and (2) partner-initiated specialization from a partner project repository/specification into a bounded commercial specialized core. Specialized cores are not second authority roots. Private partner/user data remains bounded; only explicitly shareable, validated and generalizable evidence may feed common Self-Learning.
 - **E7.50 implemented:** evidence ledger sequences can be deterministically replayed and structurally validated. Replay detects broken chain, missing genesis linkage and subject mixing and never repairs or executes history.
+
+## 2026-09-23 AUDIT RECONCILIATION — EXTERNAL AUDITOR ADDITION
+
+- Fresh audit target: current main HEAD 2c70235231fda9a84fc054b746b3325e9b6444f0.
+- Blocking defect reproduced by source inspection: gnosis/reflection/test_issuer.py contains two malformed SQL string literals in lifecycle UPDATE statements; Python collection therefore fails before the E7.74 test suite can execute.
+- Bounded repair commit: cc361f4989dd73ad587f63b9d06a5e9855a7e347 on audit/p0-ci-syntax-2026-09-23; PR #14. Scope is syntax-only; no Core/persistence semantic change.
+- Historical P0 Issue #13 remains OPEN as a verification gate. Current source already contains duplicate-provenance fail-closed detection in gnosis/evolution/chain_verifier.py and explicit transition identity validation through load_transition_records() in gnosis/storage/repositories.py. These source findings are not runtime PASS evidence.
+- GNV2-PERSIST-003 must be treated as stale as written: current source recomputes TransitionRecord identity and rejects mismatch before durable-graph acceptance. Preserve the audit as historical evidence unless fresh reproduction demonstrates a bypass.
+- Fresh audit also identified STATUS.md drift, 12 PytestCollectionWarning instances, missing lint/mypy/secret-scan/coverage-threshold/dependency-lock gates, and an unprotected main branch. These are repository-hardening findings, not evidence that the canonical Core semantics are broken.
+- E7.74 Self-Learning Collaboration Proposal Generator remains PARTIAL / UNVERIFIED. Global contract progress remains approximately 49% until acceptance gates gain exact-commit runtime/CI evidence.
+- Rule: implementation, documentation and auditor assertions remain distinct from verification. Exact current commit CI/runtime evidence is required before VERIFIED.
