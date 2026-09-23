@@ -217,3 +217,20 @@ Documentation drift is recorded as a gap; it does not become proof of implementa
 
 ### Gate ordering
 E5.05-B may be formalized in parallel, but end-to-end acceptance remains blocked until the trusted issuer (E5.05-A) and real verification evidence (E5.05-C) are closed.
+## E5.06 — Trusted issuer boundary
+
+A future trusted issuer must have an explicit, versioned authority scope and may issue authorization only for transitions inside that scope.
+
+`Authorize_I(tau) -> tau in A_I`.
+
+Issuance and execution remain separate events. The issuer does not bypass exact evolution binding or protected invariants.
+
+Credential/key validity must account for active state, expiry, revocation and scope. Rotation must preserve explicit provenance and must not silently expand authority.
+
+Secret credentials/keys must never be persisted in repository source, ordinary audit events, or unprotected project database state. Audit may retain non-secret identifiers and verification metadata.
+
+Revocation invalidates future use according to policy without rewriting historical audit evidence.
+
+The issuer must not self-authorize an expansion of its own authority.
+
+Current owner-authority issuance remains intentionally unimplemented; this contract defines the required boundary and does not claim runtime completion.
