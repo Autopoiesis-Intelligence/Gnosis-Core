@@ -4742,3 +4742,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.36 — Partner Evidence Query & Reconstruction Protocol:** DESIGNED / NOT_IMPLEMENTED. Evidence reconstruction is derived from immutable history plus query context, policy and contract revisions. Historical and current state are distinct; redacted/unavailable/conflicted/incomplete results are explicit; query results cannot grant authority.
+
+
+- **E7.37 — Partner Evidence Export & Interoperability Protocol:** DESIGNED / NOT_IMPLEMENTED. External evidence packages preserve original event identity, revisions, corrections, revocations and retention state. Import creates evidence/context only; it cannot grant Core state, verification, admission, authorization or governance authority.
