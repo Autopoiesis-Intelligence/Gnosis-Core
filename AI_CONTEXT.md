@@ -4757,3 +4757,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.41 — Distributed Clone Learning, Privacy & Network Integration:** DESIGNED / NOT_IMPLEMENTED. Network = CommonFoundations + SpecializedClones + GovernedInteroperability. Clone-local/private learning may produce privacy-checked, provenance-bound candidates for approved sharing. PrivateData_i -> Learning_i does not imply PrivateData_i -> Network. Shared artifacts retain classification and provenance; Core promotion follows E7.40.
+
+
+- **E7.42 — Self-Learning Contract Aggregation, Synthesis & Privacy Boundary:** DESIGNED / NOT_IMPLEMENTED. Self-Learning maintains a contract knowledge graph and partner contract database views, distinguishes source facts/findings/hypotheses/proposals/verified results/governance decisions, and performs the Observe->Retrieve->Compare->Find->Hypothesize->Propose->Validate->Govern->Record->Learn loop. Private/partner-restricted source material remains isolated unless explicitly authorized for abstraction/sharing.
