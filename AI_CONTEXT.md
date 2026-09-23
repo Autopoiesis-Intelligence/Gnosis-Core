@@ -4673,3 +4673,8 @@ Verified learning results are classified as OBSERVATION_ONLY, TEST_ONLY, HYPOTHE
 ## E7.18 — Learned Rule Revocation, Rollback and Supersession
 
 Promoted learned rules may transition ACTIVE -> SUSPENDED, REVOKED, SUPERSEDED or ROLLED_BACK after controlled re-evaluation. Triggers include counterexamples, source changes/revocation, failed regression, invariant violation, policy change, parent-state incompatibility or newly discovered provenance dependency. Revocation is fail-closed for active execution and is not retroactive authorization. Rollback/supersession preserves immutable history and creates explicit replacement lineage.
+
+
+## E7.19 — Learning Dependency Graph and Impact Analysis
+
+Learning lineage is modeled as a directed graph of sources, revisions, evidence, findings, counterexamples, candidates, proposals, evaluations, tests, rules, policies and transitions. Changes require impact closure over dependent artifacts. Missing provenance/edges are treated as revalidation failures, not proof of independence. Partner revisions are new source nodes. Source, agent capability, policy, invariant or parent-state changes require impact analysis before affected learned rules remain active.
