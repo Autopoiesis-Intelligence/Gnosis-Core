@@ -25,3 +25,16 @@ def test_unapproved_proposal_is_blocked():
     p=CoreMutationProposal("m","i","v","common-self-learning","merge","PROPOSED")
     with pytest.raises(PermissionError):
         bind_core_proposal(p,req())
+
+
+def test_e7_58_tampered_proposal_identity_is_rejected_before_approval():
+    p=CoreMutationProposal(
+        "sha256:tampered",
+        "sha256:i",
+        "sha256:v",
+        "common-self-learning",
+        "merge",
+        "PROPOSED",
+    )
+    with pytest.raises(ValueError, match="proposal identity"):
+        approve_core_mutation(p, approver="test")
