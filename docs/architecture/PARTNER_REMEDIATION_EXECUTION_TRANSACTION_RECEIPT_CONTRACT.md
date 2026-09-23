@@ -90,7 +90,7 @@ UNKNOWN MUST NOT be normalized to FAILED or COMMITTED without new evidence.
 
 ABORTED means execution was intentionally stopped before the governed mutation completed.
 
-ROLLLED_BACK/ROLLED_BACK means compensating action was recorded, not that the original execution never happened.
+ROLLED_BACK means compensating action was recorded, not that the original execution never happened.
 
 ## Partial execution
 
