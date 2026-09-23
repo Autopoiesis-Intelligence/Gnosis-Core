@@ -4615,3 +4615,16 @@ Core invariants: AgentClaim != CoreTruth; AgentChallenge != CoreInvalidation; Ag
 Dialogue can trigger a normal evidence/candidate/test cycle but has no direct dialogue-to-canonical-state mutation path. Unknown or revoked agents remain historical evidence only.
 
 Status: DESIGNED / NOT_IMPLEMENTED.
+## R2.DOC-2 — Repository Information Synchronization
+
+Repository-facing information is a derived projection of verified implementation, not an independent source of truth.
+Canonical claim basis: Code + Tests + Runtime Evidence + Immutable Commit.
+Documentation updates must preserve implementation and verification status, bind current claims to commit SHA, preserve conflicts, and identify affected contracts/evidence surfaces.
+External/partner information remains evidence with provenance; it cannot promote implementation status or authority by itself.
+Contract: docs/architecture/REPOSITORY_INFORMATION_SYNC_CONTRACT.md.
+
+## Future-agent hidden-contract discovery
+
+Added preliminary inventory: docs/agents/PRELIMINARY_HIDDEN_CONTRACT_INVENTORY.md.
+Initial candidates include identity continuity, capability negotiation, provenance, revocation/supersession, proposal freshness, dataset revision binding, sandbox boundaries, cross-agent communication provenance, escalation/stop conditions, repository capability drift, learning feedback boundaries and audit replay.
+Inventory status: DISCOVERY / PRELIMINARY. Candidate contracts require explicit scope, invariants, evidence and acceptance tests before activation.
