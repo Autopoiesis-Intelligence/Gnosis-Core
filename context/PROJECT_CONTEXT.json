@@ -3,7 +3,7 @@
   "context_id": "gnozis-core-canonical-project",
   "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
   "branch": "main",
-  "snapshot_of_canonical_source_head": "b97a3058233b6e47dea342f73bfd5606dc1e5cd8",
+  "snapshot_of_canonical_source_head": "e9e56b610e10911d3a197a539df1840acbbd00ca",
   "current_operating_scope": "SINGLE OWNER / SINGLE ACCOUNT / SINGLE CANONICAL PROJECT",
   "implementation_state": {
     "psi_core": "IMPLEMENTED",
@@ -108,8 +108,8 @@
   "next_permitted_actions": [
     "Run real pytest/CI against the current reflection foundation",
     "verify reflection persistence and proposal lineage end-to-end",
-    "implement invariant-delta analysis for shadow evaluations",
-    "then define bounded Governance/Rollback",
+    "continue adversarial R2 trust-boundary contract work with exact current-head evidence",
+    "update public/project descriptions only from current source and verified evidence",
     "do not activate or self-modify rules"
   ],
   "rule": "Conversation history is non-canonical. Current source, reproducible tests/CI, accepted contracts and independent audit evidence outrank AI reports. Reflection may propose and evolve evidence-linked hypotheses, but has no activation authority over canonical Core.",
@@ -131,7 +131,8 @@
     "The philosophical research workflow is now generalized into a candidate bounded Hypothesis Reverse-Analysis Module. It may analyze heterogeneous hypotheses but has no Core modification or activation authority.",
     "PHIL-004 defines invariant extraction as a bounded structural comparison problem, requiring negative cases, preserved source differences, independence assessment and explicit abstraction boundaries.",
     "PHIL-005 establishes adversarial-first analysis: candidate patterns must be attacked with counterexamples, negative cases, alternative explanations and abstraction-sensitivity tests before promotion.",
-    "PHIL-006 defines the formalization-to-Gnozis migration gate. The philosophical track now has a complete research-contract stack; domain-independent module extraction is the next architectural phase."
+    "PHIL-006 defines the formalization-to-Gnozis migration gate. The philosophical track now has a complete research-contract stack; domain-independent module extraction is the next architectural phase.",
+    "2026-09-23 contract execution checkpoint: canonical main verified at e9e56b610e10911d3a197a539df1840acbbd00ca; prior b97a3058 snapshot was stale by 721 commits. Contract progress remains approximate and must not be inferred from documentation alone."
   ],
   "research_tracks": {
     "philosophical_research": {
