@@ -351,3 +351,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - E5.30 boundary: `Identity != Trust != Authority`; `Discussion != Authorization`; agent consensus is not proof; PartnerData has no direct path to CanonicalState. AI_CONTEXT `162bb527`; architecture contract `ff884aba`.
 - Partnership extension remains non-production: no credentials, execution authority, automatic model training or automatic code execution are enabled by the template itself.
 - Overall contract progress remains ~50%; E5.29 remains DESIGNED / NOT_IMPLEMENTED, while E5.30 template artifact is now implemented.
+- E5.30 continuation: machine-readable JSON Schema `docs/partners/PARTNER_AGENT_PARTICIPATION.schema.json` (`b42e28f2`) added for mechanical intake validation. Schema validation is not access authorization.
+- E5.31 Agent Contract Dialogue Protocol: DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/AGENT_CONTRACT_DIALOGUE_PROTOCOL.md` (`96270156`). Dialogue preserves agent identity, contract revision, message lineage, evidence/counterexamples, scope, provenance and resolution; no direct canonical-state mutation. AI_CONTEXT `3dec5217`.
+- Partner-agent runtime identity, dialogue persistence and deterministic replay remain NOT_IMPLEMENTED/UNVERIFIED. New contracts are not counted as production implementation until runtime tests exist.
