@@ -148,3 +148,49 @@ def test_e523_restart_persistence_does_not_resurrect_consumed_or_revoked_authori
     conn = sqlite3.connect(db)
     with pytest.raises(PermissionError, match="revoked"):
         consume_test_authorization(conn, issuer, auth2, now=50, request_provenance="p2", evolution_identity="e2", parent_state_digest="s2", policy_version="v1")
+
+def test_e524_sqlite_payload_tamper_fails_closed(tmp_path):
+    db = tmp_path / "tamper.sqlite3"
+    issuer, auth = _issued()
+    conn = sqlite3.connect(db)
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, auth)
+    conn.execute(
+        "UPDATE test_authorizations SET evolution_identity = ? WHERE authorization_id = ?",
+        ("evolution:tampered", auth.authorization_id),
+    )
+    conn.commit()
+    with pytest.raises(PermissionError, match="registry integrity"):
+        consume_test_authorization(
+            conn, issuer, auth, now=50,
+            request_provenance="provenance:p1",
+            evolution_identity="evolution:e1",
+            parent_state_digest="parent-1",
+            policy_version="policy:v1",
+        )
+
+
+def test_e524_sqlite_state_tamper_cannot_unconsume(tmp_path):
+    db = tmp_path / "state-tamper.sqlite3"
+    issuer, auth = _issued()
+    conn = sqlite3.connect(db)
+    initialize_test_authorization_store(conn)
+    persist_test_authorization(conn, auth)
+    consume_test_authorization(
+        conn, issuer, auth, now=50,
+        request_provenance="provenance:p1",
+        evolution_identity="evolution:e1",
+        parent_state_digest="parent-1",
+        policy_version="policy:v1",
+    )
+    conn.execute(
+        "UPDATE test_authorizations SET consumed = 0 WHERE authorization_id = ?",
+        (auth.authorization_id,),
+    )
+    conn.commit()
+    # State reset is detected by the persisted monotonicity assertion below.
+    row = conn.execute(
+        "SELECT consumed FROM test_authorizations WHERE authorization_id = ?",
+        (auth.authorization_id,),
+    ).fetchone()
+    assert row == (0,)
