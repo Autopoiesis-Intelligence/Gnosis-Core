@@ -1,0 +1,30 @@
+name: Refresh Current Partner Contract Block
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Refresh generated partner contract block
+        run: python scripts/update_partner_contract_block.py --source-revision "$GITHUB_SHA"
+      - name: Commit refresh when changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: refresh current partner contract block"
+          git push
