@@ -49,6 +49,7 @@ def test_provenance_rejects_tampered_observations():
 
 def test_provenance_persists_and_reloads_without_activation():
     import sqlite3
+import pytest
     from gnosis.evolution.provenance import canonical_digest
     from gnosis.reflection.persistence import (
         ensure_reflection_schema,
@@ -277,7 +278,7 @@ def test_state_content_identity_changes_with_content():
 
 
 def test_list_evolution_provenance_candidate_scope_preserves_binding_digest() -> None:
-    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.evolution.provenance import build_provenance, canonical_digest, provenance_id_for
     from gnosis.reflection.persistence import ensure_reflection_schema, list_evolution_provenance, save_evolution_provenance
     from gnosis.storage import connect
 
