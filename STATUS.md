@@ -824,3 +824,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #56 merged by squash into `main` as `4cb2582773768fa813a7ae7f9b8d8c0e14e8b12e`.
 - Dependency Review #128 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.58 governance-boundary contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.59 authenticated execution receipt — integrated — 2026-09-23
+
+- PR #57 exact candidate `168ff6eb781068554eeba3651a8e281e5fe2d575` passed CI #2036 and CodeQL #914.
+- The prior integration boundary accepted arbitrary non-empty receipt strings as execution evidence.
+- `mark_executed()` now requires the existing authenticated `ExecutionReceipt` type and verifies its execution identity against the integration record.
+- Regression tests reject forged/string receipts and mismatched execution identity.
+- PR #57 merged by squash into `main` as `9dc4af688ee769c9acf2b4179261f43f77071a44`.
+- Dependency Review #131 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.59 authenticated execution receipt contract is INTEGRATED / CI + CodeQL VERIFIED.
