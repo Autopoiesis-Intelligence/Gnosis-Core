@@ -3356,3 +3356,63 @@ The evidence layer should represent conflict as a relation among durable evidenc
 ### Required next step
 
 E4.97: formalize evidence independence and common-mode correlation, including when multiple apparently distinct sources are not independent evidence.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.97: EVIDENCE INDEPENDENCE AND COMMON-MODE CORRELATION
+
+Let `E={e1,...,en}` be evidence items supporting claim `C`.
+
+### Distinctness is not independence
+
+`Distinct(e_i,e_j)` does not imply `Independent(e_i,e_j)`.
+
+Evidence may differ in representation, provider, agent, or timestamp while sharing a common upstream source, model, assumption, dataset, evaluator, prompt, transformation, or failure mode.
+
+### Dependency graph
+
+Represent evidence as a dependency graph `G=(V,E)` with evidence nodes and explicit dependency/common-cause relations.
+
+If multiple evidence items depend on a common cause `z`, then apparent multiplicity may overstate effective evidential diversity.
+
+`CommonCause(e_i,e_j) -> not Independent(e_i,e_j)` under the declared failure model.
+
+### Common-mode failure
+
+If a failure mechanism `F` can invalidate multiple evidence paths simultaneously, repetition across those paths does not establish robustness against `F`.
+
+`SharedFailureMode(F,E_subset) -> CorrelatedRisk(E_subset)`.
+
+### Effective evidence
+
+No universal scalar formula for effective sample size is assumed. Any independence or correlation estimate is conditional on a declared failure model and evidence-generation process.
+
+### Independence claims
+
+An independence claim must specify:
+- independence relative to which failure class;
+- evidence-generation process;
+- shared inputs/dependencies;
+- common evaluator or verifier;
+- common transformations or prompts;
+- known correlation mechanisms;
+- scope and limitations.
+
+### Verification implication
+
+`RepeatedDetection(C,n)` does not imply `IndependentEvidence(C,n)`.
+
+Correlated verification can create false confidence even when each individual check passes.
+
+### Proposition E4.97.1
+
+If all verification paths share a common failure mode capable of producing the same false positive, increasing the number of such paths alone cannot establish adequacy against that failure mode.
+
+### Boundary
+
+E4.97 does not require statistical independence in the strong probabilistic sense for every evidence set. It requires explicit dependency accounting sufficient to avoid treating correlated repetition as independent corroboration.
+
+### Engineering consequence
+
+Evidence records should be able to preserve dependency/common-cause metadata or references. Verification adequacy analysis must inspect diversity of failure modes, not only count evidence items.
+
+### Required next step
+
+E4.98: formalize adversarial coverage and blind-spot sets: what the current verification system cannot test, observe, or falsify.
