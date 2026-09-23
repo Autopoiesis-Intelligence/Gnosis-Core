@@ -96,6 +96,7 @@ Each contract record SHOULD contain:
 | E7.75 | DESIGNED / NOT_IMPLEMENTED | Governed Collaboration Proposal Review & Acceptance |
 | E7.76 | DESIGNED / NOT_IMPLEMENTED | Collaboration Execution Authorization & External Action Boundary |
 | E7.77 | DESIGNED / NOT_IMPLEMENTED | External Collaboration Execution Evidence & Result Reconciliation |
+| E7.78 | DESIGNED / NOT_IMPLEMENTED | External Collaboration Failure, Compensation & Recovery Boundary |
 
 ## Update rule
 
