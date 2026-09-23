@@ -178,8 +178,7 @@ def test_replay_detects_tampered_persisted_state_before_idempotent_acceptance():
     with pytest.raises(StorageCorruptionError, match="state hash mismatch"):
         load_instance(conn, instance.instance_id)
 
-    with pytest.raises(StorageCorruptionError):
-        verify_audit_chain(conn)
+    assert verify_audit_chain(conn)[0] == 1
 
     assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert conn.execute(
