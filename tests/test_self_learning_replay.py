@@ -21,3 +21,13 @@ def test_replay_detects_broken_chain():
     b = create_event("PROPOSAL", "flow-1", {"x": 2}, "sha256:wrong")
     result = replay([a, b])
     assert result.complete is False
+
+
+def test_replay_rejects_tampered_event_digest() -> None:
+    from dataclasses import replace
+
+    event = create_event("DATABASE", "flow-tamper", {"x": 1})
+    tampered = replace(event, event_digest="sha256:tampered")
+    result = replay([tampered], expected_subject_id="flow-tamper")
+    assert result.complete is False
+    assert any(x.startswith("EVENT_DIGEST_MISMATCH") for x in result.errors)
