@@ -39,6 +39,11 @@ def recover_evolution_audit(
     provenance_rows = [row for row in rows if row["provenance_id"] == provenance_id]
     if not provenance_rows:
         return RecoveryReport(len(records), False, False, None, None, ("provenance record missing",))
+    if len(provenance_rows) > 1:
+        return RecoveryReport(
+            len(records), False, False, None, None,
+            ("multiple provenance records linked to provenance",),
+        )
     if observations is None:
         return RecoveryReport(len(records), False, False, None, None, ("observations required for independent recovery verification",))
     if proposed_state is None:
