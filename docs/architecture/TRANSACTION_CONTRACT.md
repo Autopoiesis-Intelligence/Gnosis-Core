@@ -251,3 +251,20 @@ Unknown/revoked/expired keys, invalid signatures, unsupported algorithms, malfor
 Ψ-Core must not contain secret signing material and must not become the cryptographic root of trust.
 
 Trusted issuer, key rotation and delegation runtime remain NOT_IMPLEMENTED unless separately verified.
+## E5.08 — Canonical authorization identity and replay boundary
+
+Authorization identity must be deterministic over a canonical, domain-separated representation:
+`AuthID = H(Domain || Version || CanonicalPayload)`.
+
+All security-relevant fields must be included in the canonical/signature domain. Nonce uniqueness is required within the applicable issuer authority domain, but nonce uniqueness alone cannot replace binding to target, parent state, scope and policy.
+
+Replay analysis must cover same-authorization reuse, cross-evolution reuse, parent-state mismatch, policy-version mismatch and cross-protocol reinterpretation.
+
+Authorization domains and protocol versions require explicit separation and compatibility rules; no implicit cross-protocol or cross-version acceptance.
+
+Hash-derived identity is not equivalent to authorization validity:
+`AuthIDMatch != AuthorizationValid`.
+
+Legitimate idempotent retries must be explicitly distinguished from replay of a consumed authorization.
+
+Current runtime does not claim completed canonical serialization, nonce registry or cross-protocol replay enforcement.
