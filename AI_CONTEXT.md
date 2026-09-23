@@ -2603,3 +2603,118 @@ The repository is now treated as an engineering specimen. We use reverse-analysi
 ### Session recovery anchor
 
 If this context must be reconstructed in a new session, resume from RM-CORE-R1, not from the beginning of E7.x. The immediate job is repository restructuring toward Gnozis Core + Gnozis Research Machine, using the existing AI Knowledge Interface and preserving the dual-track Research/Engineering workflow.
+
+## 2026-09-23 EXTERNAL-WORLD ANALYTICAL BRANCH — RELATION STRUCTURE
+
+A separate analytical branch is now part of the Research Machine history. Its purpose is not to produce investment advice or optimize trading decisions. Financial analysis, market analysis and other external-world observations are used as research domains for understanding the structure of relations in dynamic systems.
+
+### Scope
+
+The branch studies:
+- financial systems and markets;
+- work and human activity;
+- production;
+- business and organizational systems;
+- other observable external-world patterns that may contain theoretically improvable relations or processes.
+
+The central research object is not the domain-specific event itself but the relation structure that can generate or transform the observed state.
+
+Working abstraction:
+
+`X + R + State + Constraints + Environment → Transition → X' + R'`
+
+where X represents relevant elements, R relations among them, State represents the current configuration, Constraints bound possible transitions, and Environment provides external conditions/evidence.
+
+### Analytical progression
+
+The current exploratory sequence is:
+
+`Philosophy → Work → Production → Business → Markets → cross-domain relation analysis`
+
+The domains are deliberately kept distinct in provenance. They are compared for structural similarity, not collapsed into one dataset or one assumed theory.
+
+### Current relation-pattern candidates
+
+The first cross-domain reverse pass identified the following candidate structures:
+
+- Local Optimization
+- Bottleneck Migration
+- Uncertainty Propagation
+- Irreversibility Boundary
+- Constraint Coupling
+- Feedback Loop
+- Dependency Concentration
+- Information Asymmetry
+- Trust / Verification tension
+- Capacity / Resource Slack
+- Information Timing
+
+These are research candidates, not established universal laws or invariants.
+
+A pattern becomes a cross-domain candidate only when its structural form can be reconstructed independently in multiple domains. A stronger invariant claim requires further adversarial testing.
+
+### Pattern record rule
+
+Each relation-pattern record should preserve:
+
+`Pattern ID → Domain → Observations → Elements → Relations → Conditions → Constraints → Alternative Explanations → Counterexamples → Tests → Temporal/Regime Behavior → Potential Intervention → Verification Status → History`
+
+The history must preserve revisions, rejected interpretations, insufficient evidence and failed counterexample attempts. Historical presence does not establish truth.
+
+### Critical epistemic boundary
+
+Preserve:
+
+`Observation ≠ Interpretation ≠ Relation Hypothesis ≠ Causal Explanation ≠ Improvement Claim`
+
+and:
+
+`Pattern ≠ Proof`
+`Correlation ≠ Causation`
+`Potential Improvement ≠ Demonstrated Improvement`
+
+An external-world pattern may generate a research hypothesis or a bounded improvement candidate, but it does not receive automatic authority over Gnozis Core.
+
+### Relation-first improvement model
+
+A potential improvement should be formulated as a change to a relation/configuration under explicit conditions:
+
+`Current Structure → Candidate Relation Change → Predicted State Change`
+
+The candidate must then be attacked with counterexamples and tested against relevant constraints and alternative explanations.
+
+Local improvement must not be assumed to equal system-level improvement. In particular, the research branch should explicitly test for:
+- bottleneck migration;
+- side effects;
+- constraint coupling;
+- objective misalignment;
+- uncertainty propagation;
+- regime dependence;
+- hidden dependency concentration;
+- irreversible downstream effects.
+
+### Cross-domain classification
+
+Use three provisional classes:
+
+`DOMAIN_PATTERN` — primarily supported within one domain.
+
+`CROSS_DOMAIN_CANDIDATE` — independently observed in multiple domains with materially similar structure.
+
+`STRUCTURAL_CANDIDATE` — an abstraction whose structure remains meaningful after domain-specific content is removed and whose boundary conditions have survived adversarial analysis.
+
+Do not label a result `INVARIANT` merely because it appears in several examples.
+
+### Research-machine role
+
+This branch is a laboratory for reconstructing external relation structures and accumulating provenance-bearing knowledge.
+
+Its intended path is:
+
+`External Observation → Research → Relation Model → Hypothesis → Counterexample/Test → Verification → Historical Knowledge → Potential Candidate → Explicit Engineering/Action Gate`
+
+The Research Machine remains separate from Core authority. The knowledge interface is the bridge; research results do not directly authorize canonical or active mutation.
+
+### Current frontier
+
+The immediate analytical task is to continue the cross-domain reverse pass by testing whether the candidate relation patterns remain valid when moving between philosophy, work, production, business and markets, with explicit attention to conditions, counterconditions, state transitions and regime changes.
