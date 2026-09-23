@@ -4700,6 +4700,14 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 `Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
 
 
+## E7.82 — Remediation Result Verification & Governed Closure
+
+E7.82 defines the verification and closure boundary after remediation execution. Closure requires evidence that the declared objective was achieved; PARTIAL/UNKNOWN remain visible and contradictory later evidence can reopen the incident. Verification and closure do not create authority or erase history.
+
+Contract artifact: `docs/architecture/PARTNER_REMEDIATION_RESULT_VERIFICATION_CLOSURE_CONTRACT.md`.
+Contract commit: `1ec75ed27081416c14d4ec514985b8e538172972`.
+Status: DESIGNED / NOT_IMPLEMENTED.
+
 ## E7.81 — Remediation Execution Authorization & Controlled Compensation Execution
 
 E7.81 defines the controlled execution boundary after an accepted remediation/compensation plan. Only an ACTIVE authorization bound to the exact plan revision may execute the exact action on the exact target/scope. Authorization, execution and evidence remain separate layers.
