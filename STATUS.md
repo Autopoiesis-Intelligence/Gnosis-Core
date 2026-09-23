@@ -416,3 +416,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.24 — Partner Contribution Validation & Quarantine:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/PARTNER_CONTRIBUTION_VALIDATION_QUARANTINE_CONTRACT.md` at commit `7724c1234d0e7f428ec7f7ab487845c664266f5e`. Defines identity, schema, integrity, provenance, scope, policy, freshness and replay validation before admission. Quarantine is evidence-preserving isolation; validation does not grant authority. No runtime capability is claimed.
+
+
+- **E7.25 — Partner Provenance Binding & Immutable Contribution Lineage:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `75c96b4dd670c3358740dd7163ecad5f00c38bd3`. Defines immutable provenance tuples, lineage closure, multi-source derived-artifact lineage, provenance-preserving quarantine/revocation and conflict-safe replay. Provenance establishes origin, not authority.
