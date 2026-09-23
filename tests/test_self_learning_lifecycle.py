@@ -26,3 +26,11 @@ def test_order_violation_is_reported():
     result=verify_lifecycle(swapped,"flow-1")
     assert result.complete is False
     assert any(x.startswith("ORDER_VIOLATION") for x in result.errors)
+
+
+def test_duplicate_required_stage_is_rejected() -> None:
+    events=make_flow()
+    duplicate=create_event("FINDING","flow-1",{"i":"duplicate"},events[1].event_digest)
+    result=verify_lifecycle([events[0],events[1],duplicate,*events[2:]],"flow-1")
+    assert result.complete is False
+    assert any(x.startswith("DUPLICATE_STAGE:FINDING") for x in result.errors)
