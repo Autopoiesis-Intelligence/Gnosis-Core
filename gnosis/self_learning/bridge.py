@@ -28,4 +28,8 @@ def approve_core_mutation(proposal: CoreMutationProposal, *, approver: str) -> C
         raise ValueError("only PROPOSED bridge proposals may be approved")
     if not approver.strip():
         raise ValueError("approver is required")
+    canonical={"integration_id":proposal.integration_id,"version_id":proposal.version_id,"target":proposal.target,"action":proposal.action}
+    expected="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    if proposal.mutation_id != expected:
+        raise ValueError("proposal identity does not match immutable bridge fields")
     return CoreMutationProposal(proposal.mutation_id,proposal.integration_id,proposal.version_id,proposal.target,proposal.action,"APPROVED",proposal.authority)
