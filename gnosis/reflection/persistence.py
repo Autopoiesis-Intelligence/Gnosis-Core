@@ -11,6 +11,7 @@ from .counterexample import CounterexampleResult
 from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
+from .proposal_lineage import ProposalEvolution
 from gnosis.evolution.provenance import EvidenceProvenance, crosscheck_provenance
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
@@ -94,6 +95,14 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_evolution_provenance_digest
             ON evolution_provenance(evidence_digest);
 
+        CREATE TABLE IF NOT EXISTS reflection_proposal_evolutions (
+            evolution_id TEXT PRIMARY KEY,
+            finding_id TEXT NOT NULL,
+            parent_proposal_id TEXT,
+            relation TEXT NOT NULL,
+            rationale TEXT NOT NULL,
+            evidence_refs TEXT NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS reflection_governance_decisions (
             decision_id TEXT PRIMARY KEY,
             report_id TEXT NOT NULL,
