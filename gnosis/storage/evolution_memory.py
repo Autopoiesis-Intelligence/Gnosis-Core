@@ -118,7 +118,29 @@ def load_evolution_memory(conn, instance_id: str, *, limit: int = 100) -> tuple[
             if not any(item.get("proposal_id") == rec.proposal_id for item in proposals if isinstance(item, dict)):
                 raise StorageCorruptionError("evolution memory references proposal outside report")
 
-        # Read-side verification uses the canonical transition reconstruction path.
+        # Read-side verification binds the memory record to the raw persisted
+        # transition and candidate before reconstructing the transition object.
+        # This closes the semantic-tamper boundary even if reconstruction code
+        # is later refactored.
+        raw_transition = conn.execute(
+            "SELECT candidate_id,from_state_id,to_state_id,accepted "
+            "FROM transitions WHERE transition_id=? AND instance_id=?",
+            (rec.transition_id, rec.instance_id),
+        ).fetchone()
+        if raw_transition is None:
+            raise StorageCorruptionError("evolution memory references missing transition")
+        raw_candidate = conn.execute(
+            "SELECT parent_state_id,candidate_state_id FROM candidates WHERE candidate_id=?",
+            (raw_transition[0],),
+        ).fetchone()
+        if raw_candidate is None:
+            raise StorageCorruptionError("evolution memory references missing candidate")
+        if raw_transition[1] != raw_candidate[0] or raw_transition[2] != raw_candidate[1]:
+            raise StorageCorruptionError("evolution memory transition/candidate mismatch")
+        if raw_transition[0] != rec.candidate_id:
+            raise StorageCorruptionError("evolution memory transition identity mismatch")
+        if raw_transition[2] != rec.state_id:
+            raise StorageCorruptionError("evolution memory state mismatch")
         transitions = {record.transition_id: record for record in load_transition_records(conn, rec.instance_id)}
         transition = transitions.get(rec.transition_id)
         if transition is None:
