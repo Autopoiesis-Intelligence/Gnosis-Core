@@ -911,3 +911,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #64 merged by squash into `main` as `dcbcfee7024abb42b631e42f43b648d5d23f3671`.
 - Dependency Review #148 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.66 execution receipt → plan binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.67 specialized core build record binding — integrated — 2026-09-24
+
+- PR #65 exact final head `a0a9847bdd7d7b9de1d94a14b775563e200a2569` passed CI #2073 and CodeQL #951.
+- `validate_build_record_identity()` recomputes the canonical Build Record identity and fails closed on tampering.
+- `validate_build_receipt_binding()` fails closed when the Build Record references a receipt other than the expected Training Execution Receipt.
+- Adversarial coverage rejects both tampered build records and foreign receipt binding.
+- PR #65 merged by squash into `main` as `28ddf18d25f4b0dd8be52c8f49613cafc12189c9`.
+- Dependency Review #151 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.67 specialized core build record binding is INTEGRATED / CI + CodeQL VERIFIED.
