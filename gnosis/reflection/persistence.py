@@ -332,7 +332,6 @@ def classify_evolution_provenance(row: dict[str, Any]) -> str:
 
 def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
     """Persist immutable provenance metadata; never activates the candidate."""
-    ensure_reflection_schema(conn)
     provenance_id = provenance.provenance_id
     evolution_identity = provenance.evolution_identity
     payload = _json(provenance)
