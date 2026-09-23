@@ -3685,3 +3685,52 @@ V2 does not claim a fully implemented recursive verifier hierarchy or a formal f
 ### Required next step
 
 E5.03: formalize governance of the terminal boundary and verifier updates, including protected invariants that cannot be changed by the verifier under evaluation.
+## 2026-09-23 MATHEMATICAL CONTRACT — E5.03: GOVERNANCE OF TERMINAL TRUST BOUNDARY
+
+Let `T` be the declared terminal trust/governance boundary and `P` the protected invariant set.
+
+### Non-self-expansion
+
+An evaluated verifier `V` must not be able to unilaterally expand its own authority by changing `T` or `P` solely through its own evaluation result.
+
+`SelfEvaluation(V) ->/= Authorization(Change(T,P))`.
+
+### Boundary change as a new transition
+
+A change `T -> T'` or `P -> P'` is a new governance-sensitive transition requiring explicit authorization and provenance.
+
+`BoundaryChange -> Candidate -> Verify -> Authorize -> Commit`.
+
+### Protected invariants
+
+Protected invariants cannot be weakened merely because a verifier, selector, reflection process, or adaptive agent reports that the change is useful.
+
+Utility is not authority.
+
+`Useful(Change) != Authorized(Change)`.
+
+### Authority separation
+
+The actor proposing a boundary change, the evidence evaluating the change, and the authority authorizing the change should be distinguishable where the threat model requires it. Shared components are permitted only with explicit common-mode accounting.
+
+### Rollback/revocation
+
+A boundary change must retain previous boundary state, provenance, authorization record and a revocation/rollback path where applicable.
+
+### Monotonicity is not assumed
+
+Adding more capabilities is not automatically a valid evolution. Boundary evolution may be restrictive, unchanged, or rejected.
+
+`CapabilityGain >= 0` is not an acceptance criterion.
+
+### Proposition E5.03.1
+
+If a system can modify the definition of its own terminal trust boundary and then use the modified boundary to validate that modification without external governance, the boundary ceases to function as a protected trust boundary.
+
+### Current implementation boundary
+
+V2 currently documents protected invariants and governance contracts but does not claim a complete runtime governance authority for terminal-boundary changes. This contract therefore constrains future implementation rather than asserting current capability.
+
+### Required next step
+
+E5.04: formalize governance evidence, authorization provenance, and non-repudiable audit requirements for boundary-sensitive changes.
