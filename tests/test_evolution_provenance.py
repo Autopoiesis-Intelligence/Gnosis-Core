@@ -481,3 +481,24 @@ def test_provenance_lifecycle_status_does_not_change_identity() -> None:
     consumed = replace(base, status="CONSUMED")
     assert consumed.provenance_id == base.provenance_id
     assert consumed.evolution_identity == base.evolution_identity
+
+
+def test_provenance_lifecycle_status_changes_preserve_identity_across_multiple_states() -> None:
+    observations = {"metric": 2}
+    base = build_provenance(
+        candidate_id="candidate:status-sequence",
+        parent_state_id="state:status-sequence",
+        parent_state_digest="parent:status-sequence",
+        proposed_state_digest="proposed:status-sequence",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+    )
+    from dataclasses import replace
+    for lifecycle_state in ("CONSUMED", "REVOKED", "SUPERSEDED"):
+        updated = replace(base, status=lifecycle_state)
+        assert updated.provenance_id == base.provenance_id
+        assert updated.evolution_identity == base.evolution_identity
