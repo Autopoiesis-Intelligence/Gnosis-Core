@@ -85,6 +85,7 @@ Each contract record SHOULD contain:
 | E7.64 | PARTIAL / UNVERIFIED | Partner Training Intake |
 | E7.65 | PARTIAL / UNVERIFIED | Partner Training Execution Plan |
 | E7.66 | PARTIAL / UNVERIFIED | Training Execution Receipt |
+| E7.67 | PARTIAL / UNVERIFIED | Specialized Core Build Record |
 
 ## Update rule
 
