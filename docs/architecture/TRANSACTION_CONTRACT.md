@@ -380,3 +380,18 @@ READ_RESEARCH, SUBMIT_EVIDENCE, SUBMIT_CANDIDATE, SUBMIT_TEST, REQUEST_REVIEW, P
 The first six are research collaboration capabilities; EXECUTION_AUTHORITY remains under the Root-of-Trust contracts.
 
 Status: DESIGNED / NOT_IMPLEMENTED.
+
+## E5.30 — Agent identity and contract discussion boundary
+
+A participant enters Gnozis through the machine-readable participation template. Submission is not access, identity is not trust, trust is not authority, and discussion is not authorization.
+
+Required conceptual lifecycle:
+PARTICIPATION_SUBMISSION -> NORMALIZE -> IDENTITY_CHECK -> PROVENANCE/AUDIT -> QUARANTINE -> CAPABILITY_GRANT -> CONTRACT_DISCUSSION -> CORE_VERIFICATION.
+
+Accepted agents receive stable scoped identity/provenance records. Discussion records preserve agent_id, contract/version, claim, evidence references, challenge/response and resolution status.
+
+Agents may submit evidence, candidates and tests or discuss contracts without receiving execution authority. Consensus among agents is evidence for comparison, never an implicit proof or issuer.
+
+PartnerData -> CanonicalState has no direct path.
+
+Status: DESIGNED / TEMPLATE IMPLEMENTED; runtime identity/discussion infrastructure NOT_IMPLEMENTED.
