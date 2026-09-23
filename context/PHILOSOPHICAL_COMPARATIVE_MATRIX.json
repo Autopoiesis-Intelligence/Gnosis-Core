@@ -1,0 +1,94 @@
+{
+  "schema": "gnozis.philosophical-comparative-matrix/v1",
+  "task_id": "PHIL-003",
+  "parent_task": "PHIL-001",
+  "depends_on": "PHIL-002",
+  "status": "READY",
+  "purpose": "Define the first controlled comparative matrix for identifying structural similarities and differences across heterogeneous spiritual, philosophical and literary sources without collapsing source-specific meaning.",
+  "comparison_unit": "source_record + passage_record",
+  "dimensions": [
+    "source_and_provenance",
+    "literal_claim",
+    "entities",
+    "relations",
+    "state_variables",
+    "state_transition",
+    "knowledge_or_epistemic_change",
+    "observer_or_guide_role",
+    "conflict_or_tension",
+    "transformation",
+    "error_detection_and_correction",
+    "boundary_or_threshold",
+    "agency_and_authority",
+    "possibility_and_constraint",
+    "social_or_environmental_coupling",
+    "counterexample_or_disanalogy"
+  ],
+  "coding_rules": [
+    "Use source-native description before abstract labels.",
+    "An empty field means not established, not that the phenomenon is absent.",
+    "A similarity requires a stated structural reason.",
+    "Vocabulary similarity alone is insufficient.",
+    "Chronological proximity must not be treated as causal influence without evidence.",
+    "A modern Gnozis term may be used only as an analysis label and must not be attributed to the source.",
+    "Contradictory structures must remain visible rather than averaged away.",
+    "Negative cases are first-class records.",
+    "Each cross-source relation carries confidence and provenance.",
+    "Interpretive convergence and historical influence are separate relation types."
+  ],
+  "matrix_record": {
+    "matrix_id": "stable identifier",
+    "source_ids": [],
+    "dimension_values": {},
+    "similarity_claims": [
+      {
+        "claim_id": "stable identifier",
+        "sources": [],
+        "dimension": "dimension name",
+        "structural_basis": "why the structures are comparable",
+        "source_specific_differences": [],
+        "confidence": "HIGH | MEDIUM | LOW",
+        "status": "OBSERVED | HYPOTHESIS | REJECTED"
+      }
+    ],
+    "disanalogies": [
+      {
+        "sources": [],
+        "dimension": "dimension name",
+        "reason": "why apparent similarity fails"
+      }
+    ],
+    "candidate_invariants": [],
+    "open_questions": []
+  },
+  "controlled_corpus_strategy": {
+    "rule": "Start with a deliberately heterogeneous pilot corpus before expanding.",
+    "selection_axes": [
+      "different historical periods",
+      "different cultural regions",
+      "different genres",
+      "different metaphysical commitments",
+      "different textual transmission histories"
+    ],
+    "minimum_pilot": "At least 5 source families with materially different origins; exact selection is a research decision recorded with provenance."
+  },
+  "anti_overfitting": {
+    "required": [
+      "positive cases",
+      "negative cases",
+      "explicit disanalogies",
+      "independent source context",
+      "repeated extraction by more than one analytical pass when practical"
+    ],
+    "failure_condition": "If a pattern appears only after broad abstraction and disappears when source-specific context is restored, classify it as abstraction-induced similarity."
+  },
+  "output_classes": [
+    "SOURCE_SPECIFIC",
+    "POSSIBLE_STRUCTURAL_PATTERN",
+    "CROSS_SOURCE_PATTERN",
+    "FORMALIZATION_CANDIDATE",
+    "REJECTED_ANALOGY"
+  ],
+  "migration_gate": "No matrix pattern becomes an engineering requirement without PHIL-004 invariant extraction and PHIL-005 adversarial counterexample analysis.",
+  "next_task": "PHIL-004 — Cross-Tradition Invariant Extraction"
+}
