@@ -7,6 +7,7 @@
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
 ## Current repository baseline
+- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `520d52850b07e6271b29cd374680ad381804e298` (context-refresh commit); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` was stale.
 
 - Repository: `Mikhail-Kucheriavyi-23/Gnozis-V2`
 - Branch: `main`
@@ -220,3 +221,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 ## Immediate next step
 
 **End-to-end verification of the reflection foundation and persistence** is required. After that, the next architectural runtime step is **invariant-delta analysis for shadow evaluations**, followed by bounded Governance/Rollback. Autonomous rule activation remains prohibited.
+
+## Contract execution checkpoint — 2026-09-23
+
+- Global contract progress: **~49%** (directional analytical estimate; unchanged until a contract reaches its acceptance gate).
+- Current contract work: adversarial trust-boundary continuation and public-description evidence audit.
+- Repository correction completed: `context/PROJECT_CONTEXT.json` was refreshed to the current canonical `main` lineage; the previous pinned snapshot was 721 commits behind the verified main head.
+- Current source evidence confirms the earlier core remediation is present in source (`deep_freeze`, meaningful-change invariant, strict `TestResult.passed`, Select stage), but this is **source evidence, not fresh runtime/CI verification**.
+- Reflection/authority boundary remains non-authoritative; execution authorization is fail-closed and bound to exact evolution provenance/intent snapshots in the current source.
+- No autonomous rule activation, self-modification, or trust-boundary bypass was introduced by this checkpoint.
