@@ -22,3 +22,17 @@ def test_execution_requires_receipt():
     r=create_integration_record(accepted(),action="merge-approved-knowledge")
     done=mark_executed(r,receipt_id="receipt-1")
     assert done.status=="EXECUTED"
+
+
+def test_execution_record_must_retain_receipt_identity() -> None:
+    r = create_integration_record(accepted(), action="merge-approved-knowledge")
+    done = mark_executed(r, receipt_id="receipt-1")
+    assert done.receipt_id == "receipt-1"
+
+
+def test_tampered_integration_identity_is_rejected() -> None:
+    from dataclasses import replace
+    r = create_integration_record(accepted(), action="merge-approved-knowledge")
+    tampered = replace(r, integration_id="sha256:tampered")
+    with pytest.raises(ValueError, match="integration identity"):
+        mark_executed(tampered, receipt_id="receipt-1")
