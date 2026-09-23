@@ -306,3 +306,25 @@ Autonomous power must be bounded by an explicit cumulative budget. Restart, dele
 Human approval is valid only for the exact bound intent, parent state, domain policy and validity window. Material changes require re-approval.
 
 These gates do not authorize a Ψ-Core redesign. They define requirements for bridges, delegation, activation and external-effect layers.
+## E5.09 — Integrated trust/external-action acceptance
+
+E5.09 integrates E5.05–E5.19 into one acceptance predicate:
+`E5.09_ACCEPT = Foundation ∧ Control ∧ Interaction ∧ Isolation ∧ Verification`.
+
+Foundation = trusted issuer, authority scope, cryptographic issuance and canonical authorization identity. Control = capability attenuation, generation fence, domain policy, delegation and cumulative budget. Interaction = external gateway, local approval, side-effect reconciliation and approval freshness. Isolation = multi-domain persistence separation. Verification = exact-commit CI/adversarial evidence.
+
+Required end-to-end sequence:
+`IntentCreated -> PolicyEvaluated -> AuthorizationIssued -> AuthorizationPersisted -> AuthorizationVerified -> CapabilityConsumed -> GatewayAdmitted -> ExternalEffect -> ReceiptCaptured -> Reconciled`.
+
+`Persisted != Active`; recovery must not resurrect revoked authority or reset cumulative autonomous budget.
+
+For derived capabilities/actions: `Authority(child) ⊆ Authority(parent)`.
+
+For each domain/time window: `Σ PowerImpact(executions) <= B_domain`.
+
+Approval remains valid only when the execution intent, parent state, policy version and validity window match the approved snapshot.
+
+Unknown external outcome enters `UNKNOWN_EXTERNAL_OUTCOME`; non-idempotent retry requires explicit reconciliation/idempotency policy.
+
+### Acceptance status
+E5.09 formal integration contract is CLOSED. Runtime integration remains BLOCKED/UNVERIFIED until a trusted issuer, cryptographic issuance path, delegation/gateway runtime and exact-commit CI evidence exist.
