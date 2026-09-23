@@ -181,12 +181,12 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     observations = {"result": "ok"}
     provenance = build_provenance(
         candidate_id=candidate.candidate_id,
-        parent_state_id=instance.engine.state.state_id,
-        parent_state_digest=instance.engine.state.state_id,
+        parent_state_id=initial_state_id,
+        parent_state_digest=initial_state_id,
         proposed_state_digest=proposed.state_id,
         observations=observations,
         proposed_state_content_id=proposed.content_id,
-        candidate_binding_digest=candidate.binding_digest(instance.engine.state.state_id),
+        candidate_binding_digest=candidate.binding_digest(initial_state_id),
         evidence_digest=canonical_digest(observations),
         evaluation_status="PASS", shadow_status="UNCHANGED",
         invariant_status="PRESERVED", governance_decision="ALLOW",
