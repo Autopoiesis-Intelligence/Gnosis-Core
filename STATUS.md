@@ -901,3 +901,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #63 merged by squash into `main` as `8768c8feda362a3b5cf91f61094dd5679674309f`.
 - Dependency Review #145 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.65 training plan identity verification is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.66 execution receipt → plan binding — integrated — 2026-09-23
+
+- PR #64 exact head `a4d66414eaf11a11d71638c7238f3850320b7c3c` passed CI #2067 and CodeQL #945.
+- `validate_receipt_plan_binding()` now fails closed when a MutationReceipt does not match the expected ExecutionPlan on `plan_id`, `review_id`, or `proposal_id`.
+- Adversarial regression coverage rejects cross-plan receipt substitution.
+- PR #64 merged by squash into `main` as `dcbcfee7024abb42b631e42f43b648d5d23f3671`.
+- Dependency Review #148 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
+- E7.66 execution receipt → plan binding is INTEGRATED / CI + CodeQL VERIFIED.
