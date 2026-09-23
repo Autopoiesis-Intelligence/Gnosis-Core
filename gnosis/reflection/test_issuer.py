@@ -113,6 +113,10 @@ class TestAuthorizationIssuer:
         return hmac.compare_digest(authorization.signature, _sign(self._secret, authorization.payload()))
 
 
+def _registry_digest(authorization: TestAuthorization) -> str:
+    return canonical_digest(authorization.payload())
+
+
 def initialize_test_authorization_store(conn: sqlite3.Connection) -> None:
     conn.execute(
         """CREATE TABLE IF NOT EXISTS test_authorizations (
@@ -127,10 +131,15 @@ def initialize_test_authorization_store(conn: sqlite3.Connection) -> None:
             expires_at INTEGER NOT NULL,
             scope_json TEXT NOT NULL,
             signature TEXT NOT NULL,
+            integrity_digest TEXT NOT NULL,
             consumed INTEGER NOT NULL DEFAULT 0,
             revoked INTEGER NOT NULL DEFAULT 0
         )"""
     )
+    try:
+        conn.execute("ALTER TABLE test_authorizations ADD COLUMN integrity_digest TEXT")
+    except sqlite3.OperationalError:
+        pass
     conn.commit()
 
 
@@ -139,15 +148,15 @@ def persist_test_authorization(conn: sqlite3.Connection, authorization: TestAuth
         """INSERT INTO test_authorizations
         (authorization_id, issuer_id, issuer_version, request_provenance,
          evolution_identity, parent_state_digest, policy_version, nonce,
-         expires_at, scope_json, signature)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+         expires_at, scope_json, signature, integrity_digest)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             authorization.authorization_id, authorization.issuer_id,
             authorization.issuer_version, authorization.request_provenance,
             authorization.evolution_identity, authorization.parent_state_digest,
             authorization.policy_version, authorization.nonce,
             authorization.expires_at, json.dumps(list(authorization.scope)),
-            authorization.signature,
+            authorization.signature, _registry_digest(authorization),
         ),
     )
     conn.commit()
@@ -173,14 +182,40 @@ def consume_test_authorization(
     if now > authorization.expires_at:
         raise PermissionError("test authorization expired")
     row = conn.execute(
-        "SELECT consumed, revoked FROM test_authorizations WHERE authorization_id = ?",
+        """SELECT issuer_id, issuer_version, request_provenance, evolution_identity,
+                  parent_state_digest, policy_version, nonce, expires_at,
+                  scope_json, signature, integrity_digest, consumed, revoked
+           FROM test_authorizations WHERE authorization_id = ?""",
         (authorization.authorization_id,),
     ).fetchone()
     if row is None:
         raise PermissionError("test authorization is not persisted")
-    if row[1]:
+    if row[10] != _registry_digest(authorization):
+        raise PermissionError("test authorization registry integrity failure")
+    stored = {
+        "issuer_id": row[0], "issuer_version": row[1],
+        "request_provenance": row[2], "evolution_identity": row[3],
+        "parent_state_digest": row[4], "policy_version": row[5],
+        "nonce": row[6], "expires_at": row[7],
+        "scope": json.loads(row[8]), "signature": row[9],
+    }
+    expected = {
+        "issuer_id": authorization.issuer_id,
+        "issuer_version": authorization.issuer_version,
+        "request_provenance": authorization.request_provenance,
+        "evolution_identity": authorization.evolution_identity,
+        "parent_state_digest": authorization.parent_state_digest,
+        "policy_version": authorization.policy_version,
+        "nonce": authorization.nonce,
+        "expires_at": authorization.expires_at,
+        "scope": list(authorization.scope),
+        "signature": authorization.signature,
+    }
+    if stored != expected:
+        raise PermissionError("test authorization registry payload mismatch")
+    if row[12]:
         raise PermissionError("test authorization revoked")
-    if row[0]:
+    if row[11]:
         raise PermissionError("test authorization already consumed")
     cur = conn.execute(
         "UPDATE test_authorizations SET consumed = 1 WHERE authorization_id = ? AND consumed = 0 AND revoked = 0",
