@@ -54,3 +54,18 @@ Acceptance remains OPEN until the exact resulting commit is executed and evidenc
 
 ### Priority rule
 P0 persistence/recovery defects remain higher priority than accepting R2.OPT-10c. R2 work may continue in parallel only where it does not bypass the P0 evidence gate.
+
+
+## Self-evolution / self-learning recurring orientation — 2026-09-23
+
+Added as persistent recurring architectural orientations:
+- RECUR-SELF-01 Self-Evolution — ACTIVE / ORIENTATION
+- RECUR-SELF-02 Self-Learning — ACTIVE / ORIENTATION
+- RECUR-SELF-03 Self-Limitation — ACTIVE / ORIENTATION
+
+These are not included in the ~49% Global Contract Progress baseline until weighting and acceptance criteria are formalized.
+
+Core rule:
+Self-evolution cannot bypass authorization/trust boundary.
+Self-learning cannot turn unverified observations into authoritative rules.
+Insufficient evidence implies no commit.
