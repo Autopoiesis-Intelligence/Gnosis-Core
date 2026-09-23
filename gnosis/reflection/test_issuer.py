@@ -199,3 +199,19 @@ def revoke_test_authorization(conn: sqlite3.Connection, authorization_id: str) -
     if cur.rowcount != 1:
         raise KeyError("unknown test authorization")
     conn.commit()
+
+
+def to_execution_authorization_for_test(
+    issuer: TestAuthorizationIssuer,
+    authorization: TestAuthorization,
+):
+    """Adapt verified test authority into the existing fail-closed boundary only."""
+    if not issuer.verify(authorization):
+        raise PermissionError("invalid test authorization")
+    from .authority import ExecutionAuthorization
+    return ExecutionAuthorization(
+        request_provenance=authorization.request_provenance,
+        owner_approved=True,
+        evolution_identity=authorization.evolution_identity,
+        approval_id=authorization.authorization_id,
+    )
