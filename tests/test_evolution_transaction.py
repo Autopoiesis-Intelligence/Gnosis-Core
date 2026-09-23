@@ -215,4 +215,5 @@ def test_crosscheck_stored_provenance_includes_binding_fields() -> None:
     report = crosscheck_stored_provenance(conn, p.provenance_id, observations=observations)
     assert not report.valid
     assert "candidate_binding_digest mismatch" in report.reasons
+    assert "provenance_id mismatch" in report.reasons
     conn.close()
