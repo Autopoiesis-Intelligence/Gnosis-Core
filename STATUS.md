@@ -382,3 +382,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.16 — Self-Learning Evidence Quarantine & Promotion:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/SELF_LEARNING_EVIDENCE_QUARANTINE_PROMOTION_CONTRACT.md` (`4e182fb2`). Defines the explicit evidence state machine, illegal-promotion boundary, conflict preservation, idempotent ingestion and re-evaluation triggers.
 - **P0 self-learning integrated proof:** remains ~20%. E7.16 architectural coverage ~45%, verification coverage ~5%. No VERIFIED claim is made without current runtime evidence.
+
+- **E7.17 — Learning Rule Promotion Governance:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_RULE_PROMOTION_GOVERNANCE_CONTRACT.md` (`09315cf2`). Defines explicit promotion classes, evidence/policy separation, promotion prerequisites, invariant regression protection and immutable supersession.
+- **P0 self-learning integrated proof:** remains ~20%. E7.17 architectural coverage ~45%, verification coverage ~5%. No automatic promotion is permitted from repeated success, agent consensus or partner reputation.
