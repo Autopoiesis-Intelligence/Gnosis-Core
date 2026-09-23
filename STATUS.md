@@ -617,4 +617,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.113 — First Verification Batch Actual Proof Run:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `6d76f2a79faf9792e1c93ed1a8131e56679399f9`. Defines the first bounded executable proof run, exact-commit execution, durable evidence, failure preservation, criterion-level mapping and the prohibition on artificial progress before acceptance/reconciliation.
 
-- **E7.114 — First Actual Proof Run Scope Lock & Target Commit Record:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `7e81b591e62e078a3eb2be2a201a3ae07232f7a7`. Defines the concrete pre-execution scope lock, exact target SHA, criterion/path mapping, preflight validation, immutable scope and invalidation/revision behavior.
+- **E7.114 — First Actual Proof Run Scope Lock & Target Commit Record:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `7e81b591e62e078a3eb2e201a3ae07232f7a7`. Defines the concrete pre-execution scope lock, exact target SHA, criterion/path mapping, preflight validation, immutable scope and invalidation/revision behavior.
+
+- **E7.115 — First Proof Run Environment & Reproducibility Attestation:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `9ade6d9ae1d0a2f5d38a970932c3319310b5b5d3`. Defines environment identity, exact-commit binding, reproducibility classification, material drift detection, deterministic execution metadata, external dependency recording and secret exclusion.
