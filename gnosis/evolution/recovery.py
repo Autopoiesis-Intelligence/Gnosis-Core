@@ -28,6 +28,8 @@ def recover_evolution_audit(
     provenance_id: str | None = None,
     observations: dict[str, Any] | None = None,
     proposed_state: State | None = None,
+    authorization_valid: bool = False,
+    authorization_revoked: bool = False,
 ) -> RecoveryReport:
     """Recover persisted evolution and fail closed unless its identity chain verifies."""
     records = list(list_evolution_audit(conn))
@@ -55,6 +57,8 @@ def recover_evolution_audit(
     provenance_class = classify_evolution_provenance(provenance_row)
     content_identity_valid = proposed_state.content_id == provenance_row.get("proposed_state_content_id", "")
     replay_valid = result.valid and actual_digest == expected_digest and provenance_class == "canonical" and content_identity_valid
+    if authorization_revoked or not authorization_valid:
+        replay_valid = False
     identity_valid = True
     if persisted_identity:
         try:
@@ -85,4 +89,8 @@ def recover_evolution_audit(
         reasons.append("proposed state content identity mismatch")
     if not identity_valid:
         reasons.append("recovery evolution identity mismatch")
+    if authorization_revoked:
+        reasons.append("recovery authorization was revoked")
+    elif not authorization_valid:
+        reasons.append("recovery authorization is not valid")
     return RecoveryReport(len(records), result.valid, replay_valid, expected_digest, actual_digest, tuple(dict.fromkeys(reasons)))
