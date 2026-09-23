@@ -4778,3 +4778,5 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - **E7.47 implemented:** ACCEPTED governance records now produce a deterministic, declarative execution plan with explicit preconditions and external execution authority requirement. The plan itself cannot execute or mutate contracts/Core/permissions/runtime, preserving the governance→execution trust boundary.
 
 - **E7.48 implemented:** external execution outcomes can now be represented by deterministic mutation receipts linked to plan/review/proposal IDs, target before/after digests, executor and authorization reference. APPLIED requires an actual target digest change. Receipt layer is evidence-only and cannot execute or authorize mutations.
+
+- **E7.49 implemented:** Self-Learning evidence now has an append-only hash-linked ledger substrate with GENESIS root, previous-event linkage, tamper detection and deterministic chain digest. It stores metadata/digests only and remains evidence-only; it does not authorize, execute, mutate contracts or Core.
