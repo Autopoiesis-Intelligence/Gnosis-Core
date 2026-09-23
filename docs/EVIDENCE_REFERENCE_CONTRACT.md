@@ -214,3 +214,29 @@ Evidence ↛ Ψ-Core mutation
 This document does not authorize implementation of authentication, authorization, encryption, federation, autonomous self-modification, or changes to Ψ-Core semantics.
 
 Any implementation derived from this contract requires an explicit bounded task and independent verification.
+
+## 11. Cross-lineage conflict resolution
+
+Conflicting evidence from different lineages must remain separately addressable by stable evidence identity and provenance.
+
+`Evidence(A) ≠ Evidence(B)` even when both concern the same claim.
+
+A conflict resolver may classify the relation, request additional evidence, or construct a new synthesis candidate. It must not silently overwrite either parent evidence item.
+
+### Non-destructive resolution
+
+`Resolve(A,B) -> C` does not imply deletion or invalidation of `A` or `B`.
+
+The resolution record must retain links to both parent evidence branches and identify the rule, assumptions, scope and evidence used to derive `C`.
+
+### Precedence
+
+Recency, source identity, or connector priority must not be treated as universal truth precedence. Any precedence rule must be explicit, scoped, and itself provenance-addressable.
+
+### Verification
+
+A synthesized result `C` is not independently verified merely because `A` and `B` were each previously verified. The verification claim for `C` requires its own scope and evidence.
+
+### Authority boundary
+
+Conflict resolution produces information or a candidate interpretation. It does not itself authorize Core mutation or broaden operational authority.
