@@ -403,3 +403,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **Repository role baseline:** `Gnozis-V2` = canonical Core/source of truth. Future second repository = **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**, holding theory, mathematics, evidence, context and machine-readable self-optimization material; it is not a second Core. Historical `Gnozis` remains legacy/research/archive.
 - Added `docs/architecture/REPOSITORY_ROLE_AND_NAMING_CONTRACT.md` (`85cccebf`).
+
+
+## E7.23 — Partner Contribution Machine-Readable Manifest
+
+- **Status:** DESIGNED / NOT_IMPLEMENTED.
+- Added `docs/architecture/PARTNER_CONTRIBUTION_MACHINE_READABLE_MANIFEST_CONTRACT.md` at commit `c7fecc91ca7620226a814923476d0114de4728ec`.
+- The manifest defines machine-readable partner contribution declarations, source revision binding, provenance, declared versus granted scope, quarantine, lifecycle and explicit non-implication of authority.
+- Required invariant set: `DeclaredCapability != GrantedCapability`, `Contribution != Authority`, `Manifest != Verification`, `Admission != ExecutionPermission`.
+- No runtime partner ingestion, schema validator, quarantine engine or authority integration is claimed by this contract.
+- Current self-learning integrated proof remains unchanged until runtime evidence exists.
