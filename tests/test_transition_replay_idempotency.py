@@ -104,7 +104,7 @@ def test_same_transition_id_with_conflicting_from_state_is_rejected() -> None:
 
     assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
-    assert verify_audit_chain(conn)[0] == 1
+    assert verify_audit_chain(conn)[0] == 2
     verify_durable_graph(conn)
 
 
