@@ -519,3 +519,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.63 — Partner Specialized Core Delivery Package:** PARTIAL / UNVERIFIED. Added a deterministic delivery manifest binding specialized Core identity, contract/evidence references, knowledge scope, explicit private-component exclusions and revision. Unauthorized delivery scope is rejected. CI coverage added; exact-commit PASS pending.
 
 - **E7.64 — Partner Training Intake:** PARTIAL / UNVERIFIED. Added a deterministic, authorization-bound intake connecting a partner contract to a domain, scoped knowledge repository references, constraints and requested revision. Unauthorized partner or knowledge scope is rejected; intake remains PROPOSED and cannot grant execution authority. CI coverage added; exact-commit PASS pending.
+
+- **E7.65 — Partner Training Execution Plan:** PARTIAL / UNVERIFIED. Added a deterministic training plan bound to an authorized intake, explicitly declaring allowed data references, learning objectives, Core invariant references, test requirements and acceptance criteria. Scope expansion is rejected. CI coverage added; exact-commit PASS pending.
