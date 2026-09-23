@@ -214,3 +214,23 @@ Before implementation, the implementer must inspect current source, tests and CI
 - embedding an external AI model into Ψ-Core;
 - introducing a second canonical state representation;
 - implementing multi-user federation during the single-owner phase.
+
+## E5.00 — Adaptive adversarial expansion boundary
+
+Reflection may expand its challenge set when new findings, counterexamples, dependencies or blind spots are discovered.
+
+Adaptive expansion must preserve:
+- the original finding/claim under challenge;
+- the acceptance predicate and protected invariants;
+- challenge provenance and rationale;
+- execution result and limitations;
+- residual blind spots;
+- the distinction between `NO_COUNTEREXAMPLE_OBSERVED`, `INSUFFICIENT_EVIDENCE`, and `SUPPORTED_WITHIN_SCOPE`.
+
+The selector may prioritize challenges but cannot redefine the success criterion it is evaluating.
+
+`SelectChallenges != DefineAcceptance`.
+
+Stopping an adaptive challenge sequence requires an explicit bounded rationale (objective, budget, coverage assumptions, and residual uncertainty).
+
+This is a governance/epistemic contract; it does not claim that the current reflection runtime already implements adaptive challenge generation.
