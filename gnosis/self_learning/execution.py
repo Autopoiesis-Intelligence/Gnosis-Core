@@ -106,15 +106,6 @@ class BoundCoreExecution:
     evolution_identity: str
     binding_digest: str
 
-def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest) -> BoundCoreExecution:
-    if proposal.status != "APPROVED":
-        raise PermissionError("Core mutation proposal is not approved")
-    if not request.evolution_identity:
-        raise ValueError("execution evolution identity is required")
-    canonical={"mutation_id":proposal.mutation_id,"integration_id":proposal.integration_id,"version_id":proposal.version_id,"evolution_identity":request.evolution_identity}
-    binding="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
-    return BoundCoreExecution(proposal.mutation_id,request.evolution_identity,binding)
-
 def execute_approved_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest, conn: object, instance: object, candidate: object, record: object, *, actor: str) -> ExecutionCommitResult:
     bind_core_proposal(proposal, request)
     return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
