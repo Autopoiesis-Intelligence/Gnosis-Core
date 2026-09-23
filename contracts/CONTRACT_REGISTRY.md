@@ -84,3 +84,18 @@ EVIDENCE: GitHub Dependency Review run 4.
 FINDING: GitHub reports Dependency Review unsupported because Dependency graph is not enabled.
 IMPLICATION: workflow cannot currently provide its intended evidence.
 NEXT: repository-security configuration task; do not misclassify as a code dependency vulnerability.
+
+
+## 2026-09-23 P0 priority update
+
+P0 evidence gate has been instantiated as Issue #13.
+
+Priority order:
+1. P0 persistence/recovery semantic-integrity failures from CI.
+2. P0 fixed-point semantics correction.
+3. P0 fresh full regression on the exact resulting commit.
+4. P0 R2 adversarial trust-boundary continuation.
+5. P0 RM-CORE-R1 Research Machine/Core boundary.
+6. Recurring mathematical reconciliation and exhaustive mathematical reconstruction continue in parallel where they do not mutate Core.
+
+No lower-priority task may be used to bypass an unresolved P0 runtime failure.
