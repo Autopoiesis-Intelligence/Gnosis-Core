@@ -114,6 +114,7 @@ Each contract record SHOULD contain:
 | E7.93 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Admission & Preflight Gate |
 | E7.94 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Transaction & Mutation Receipt |
 | E7.95 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Result Reconciliation & Outcome Verification |
+| E7.96 | DESIGNED / NOT_IMPLEMENTED | Remediation Closure & Residual Risk Governance |
 
 ## Update rule
 
