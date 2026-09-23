@@ -803,3 +803,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #53 merged by squash into `main` as `6c682d38a739fcea5840c75ab4849b7192f3f5fe`.
 - Dependency Review #119 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
 - E7.56 protected bridge identity contract is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.57 shadowed bridge binding — integrated — 2026-09-23
+
+- PR #55 exact candidate `4b9b0ed5fdeb71957af9024a9869a8a708249fd5` passed CI #2027 and CodeQL #905.
+- The adversarial regression confirmed that a duplicate `bind_core_proposal()` definition shadowed the E7.56 identity verification on the active execution path.
+- The duplicate definition was removed; positive-path fixtures were aligned with the canonical `create_core_mutation_proposal() → approve_core_mutation() → bind_core_proposal()` path.
+- PR #55 merged by squash into `main` as `3c127ae055d3de28639d571d6b151b6dae063985`.
+- Dependency Review #126 remains blocked by unavailable Dependency Graph and is not treated as a vulnerability finding.
+- E7.57 shadowed-bridge cleanup contract is INTEGRATED / CI + CodeQL VERIFIED.
