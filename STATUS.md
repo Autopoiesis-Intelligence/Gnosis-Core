@@ -663,3 +663,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - This is now explicitly covered by `test_provenance_lifecycle_status_does_not_change_identity` (commit `517a9968d4e5fe70a7aedae8a1a95d4063b27f56`).
 - No production semantic change was made; the change codifies the existing identity boundary in a regression test.
 - P0-R2 remains pending exact CI evidence for the current `main` after this test addition.
+
+
+## PR #35 exact-head CI evidence — 2026-09-23
+
+- Exact head `4b209216c785d20cb888e2acb0047ff209f587d6` passed CI run **1969**: Python 3.11 and Python 3.12 test jobs PASS.
+- CodeQL run **847** PASS.
+- Dependency Review run **96** remains FAIL/UNVERIFIED because the repository Dependency Graph is unavailable; this is not evidence of a dependency vulnerability.
+- PR #35 is therefore VERIFIED_BY_CI for its scoped provenance lifecycle identity regression. It remains unmerged pending integration and post-merge verification.
+- This evidence does not yet close Issue #16 or P0-R2.
