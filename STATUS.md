@@ -598,3 +598,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.103 — Self-Learning Evidence-to-Contract Verification Matrix:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `9ca277536c630b12cb5afa762bf8fe1db876247b`. Defines criterion-level proof mapping, explicit proof-gap classification, bounded verification batches, deterministic promotion rules, progress integration and regression preservation.
 
 - **E7.104 — First Self-Learning Verification Batch & Baseline Evidence Gate:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `2c5a74eeba9d0d1445b6494692d4264a8daa3097`. Defines immutable baseline capture, conservative first-batch selection, exact-commit execution, actual runtime/test evidence, criterion-level outcomes and reproducible before/after progress deltas.
+
+- **E7.105 — First Verification Batch Selection & Baseline Freeze:** DESIGNED / NOT_IMPLEMENTED. Contract artifact added at commit `40fd2266c666e4ea9f452c7c4317dc21d3c6c0fa`. Defines deterministic candidate assessment, immutable baseline freeze, exact target commit, batch identity, scope-freeze enforcement and target-commit invalidation.
