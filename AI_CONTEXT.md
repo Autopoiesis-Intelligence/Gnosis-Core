@@ -4683,3 +4683,8 @@ Learning lineage is modeled as a directed graph of sources, revisions, evidence,
 ## E7.20 — Learning Memory Retention, Compaction and Replay
 
 Self-learning artifacts require explicit retention classes: CORE_REQUIRED, REPLAY_REQUIRED, PROVENANCE_REQUIRED, AUDIT_REQUIRED, REFERENCE_ONLY or EXPIRED. Compaction must preserve semantic reconstructability and cannot alter prior decision meaning. Hash/content identifiers may compact large evidence but a hash is integrity identity, not evidence content. Active-rule dependencies, open counterexamples and pending re-evaluation require replay-safe retention. Partner revisions remain immutable historical nodes.
+
+
+## E7.21 — Learning Memory Trust Boundary
+
+Memory domains are separated into immutable Core K, governed learning workspace W, partner repository revisions P_i and external/archive storage A. Allowed learning flow is P_i/A -> W -> Verification -> Governance -> K. Direct partner/archive -> Core and workspace -> Core without verification/governance are forbidden. Knowledge storage is separate from authorization storage. Recovery must not substitute unverified cached/archive content.
