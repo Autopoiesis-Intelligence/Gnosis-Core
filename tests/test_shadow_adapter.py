@@ -132,3 +132,45 @@ def test_shadow_adapter_rejects_empty_candidate_evidence():
             lambda state, candidate: True,
             registry,
         )
+
+
+def test_learning_proposal_requires_verified_shadow_before_authority():
+    proposal = RuleProposal(
+        proposal_id="proposal:learning:unverified",
+        finding_id="finding:1",
+        target="rule:test",
+        hypothesis="learned change",
+        evidence_refs=("transition:c1",),
+        expected_effect="improve",
+        regression_risk="unknown",
+        required_test="shadow",
+        rule_id="test-rule:v1",
+        current_version=1,
+        proposed_version=2,
+    )
+    candidate = Candidate(
+        parent_state_id="parent",
+        proposed_state=State(elements={"x": 2}),
+        origin="self-learning",
+        seed=1,
+    )
+    registry = RuleRegistry()
+    registry.register(RuleMetadata(
+        rule_id="test-rule:v1",
+        rule_version=1,
+        rule_type="test_policy",
+        scope="test",
+        implementation_ref="test",
+        spec_ref="test",
+        provenance="test",
+    ))
+    assessment = evaluate_proposal_shadow(
+        proposal,
+        (candidate,),
+        lambda _: False,
+        lambda _: False,
+        registry,
+    )
+    assert assessment.evaluation.active_outcome is False
+    assert assessment.evaluation.shadow_outcome is False
+    assert not hasattr(assessment, "authorization")
