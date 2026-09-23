@@ -394,3 +394,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **E7.20 — Learning Memory Retention / Compaction / Replay:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_MEMORY_RETENTION_COMPACTION_REPLAY_CONTRACT.md` (`c6a6e38b`). Defines retention classes, semantic reconstruction invariant, content-addressed archival, active-rule protection and partner revision retention.
 - **P0 self-learning integrated proof:** remains ~20%. E7.20 architectural coverage ~40%, verification coverage ~5%.
+
+- **E7.21 — Learning Memory Trust Boundary:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/LEARNING_MEMORY_TRUST_BOUNDARY_CONTRACT.md` (`f28cda9d`). Defines Core K, learning workspace W, partner revisions P_i and archive A with explicit allowed/forbidden flows and cross-domain leakage tests.
+- **P0 self-learning integrated proof:** remains ~20%. E7.21 architectural coverage ~40%, verification coverage ~5%.
