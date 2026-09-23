@@ -243,7 +243,7 @@ def validate_reloaded_counterexample_evidence(result: CounterexampleResult, tran
 
 
 def shadow_assessment_id(report_id: str, assessment: ShadowEvaluation, proposal_id: str | None = None) -> str:
-    digest = hashlib.sha256(_json({"proposal_id": proposal_id, "assessment": assessment}).encode("utf-8")).hexdigest()[:24]
+    digest = hashlib.sha256(_json(assessment).encode("utf-8")).hexdigest()[:24]
     return f"{report_id}:shadow:{digest}"
 
 
