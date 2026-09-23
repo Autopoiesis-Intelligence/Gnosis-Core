@@ -149,7 +149,7 @@ def test_recovery_fails_closed_on_duplicate_provenance_audit_links():
             proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest)
            VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
         (2, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-         row[10], __import__("gnosis.evolution.audit", fromlist=["audit_record_digest"]).audit_record_digest(sequence=2,event_type=row[0],candidate_id=row[1],execution_id=row[2],provenance_id=row[3],parent_state_digest=row[4],proposed_state_digest=row[5],evidence_digest=row[6],payload_digest=row[7],previous_digest=row[9])),
+         __import__("gnosis.evolution.audit", fromlist=["audit_record_digest"]).audit_record_digest(sequence=2,event_type=row[0],candidate_id=row[1],execution_id=row[2],provenance_id=row[3],parent_state_digest=row[4],proposed_state_digest=row[5],evidence_digest=row[6],payload_digest=row[7],previous_digest=row[8])),
     )
     report = recover_evolution_audit(
         conn, provenance_id=pid, observations=observations, proposed_state=state
