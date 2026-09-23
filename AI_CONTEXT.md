@@ -4707,3 +4707,6 @@ E7.23 extends the partner admission boundary with a machine-readable contributio
 Hard distinctions remain: DeclaredCapability != GrantedCapability; Contribution != Authority; Manifest != Verification; Admission != ExecutionPermission. A partner declaration cannot expand its own scope or create Core mutation authority.
 
 The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validation, quarantine and replay must be implemented and evidenced before any promotion to a verified capability.
+
+
+- **E7.24 — Partner Contribution Validation & Quarantine:** DESIGNED / NOT_IMPLEMENTED. The contract establishes the validation gate between partner submissions and learning/admission. Mandatory predicates include identity, schema, integrity, provenance, scope, policy and freshness. Failed validation remains auditable and quarantined; conflicting replay fails closed. No direct PartnerContribution -> CoreState or PartnerContribution -> ExecutionAuthority path is permitted.
