@@ -379,3 +379,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Repository search confirms existing component-level reflection/persistence/shadow/replay tests and SQLite durable records, but no fresh current-HEAD runtime/CI execution was performed in this step; therefore no VERIFIED promotion is made.
 - `context/PROJECT_CONTEXT.json` synchronized with the E7.10–E7.15 P0 self-learning chain (`a2e04313`).
 - **P0 self-learning integrated proof:** remains ~20%; E7.15 architectural coverage ~50%, verification coverage ~10%. This percentage is a contract/evidence estimate, not a test pass rate.
+
+- **E7.16 — Self-Learning Evidence Quarantine & Promotion:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/SELF_LEARNING_EVIDENCE_QUARANTINE_PROMOTION_CONTRACT.md` (`4e182fb2`). Defines the explicit evidence state machine, illegal-promotion boundary, conflict preservation, idempotent ingestion and re-evaluation triggers.
+- **P0 self-learning integrated proof:** remains ~20%. E7.16 architectural coverage ~45%, verification coverage ~5%. No VERIFIED claim is made without current runtime evidence.
