@@ -4639,3 +4639,7 @@ External/partner evidence is revision-bound and scope-bound. Copied/common-origi
 Self-learning may expand candidate/test/rule hypotheses but cannot directly activate production behavior or mutate canonical state.
 
 Status: DESIGNED / PARTIALLY COVERED; end-to-end runtime proof NOT_IMPLEMENTED.
+
+## E7.11 — Learning Freshness, Lineage and Replay
+
+Learning-derived Findings, Counterexamples, Candidates and RuleProposals must be bound to source revision, evidence, relevant state/parent hash, contract revision and provenance lineage. Historical existence does not imply current validity. Replayed transport/session identity does not create new evidence. Supersession creates a new revision and preserves history. Learning-specific end-to-end freshness/replay verification remains NOT_IMPLEMENTED.
