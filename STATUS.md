@@ -476,3 +476,5 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.43 repository operationalization:** added CLI generator `scripts/generate_partner_contract_database.py`, CI workflow `.github/workflows/contract-database.yml`, machine-readable schema and runtime generation/update log paths. CI execution for the current HEAD is not yet observable through the available workflow-run lookup, so no PASS is claimed.
 
 - **E7.44 — Self-Learning Findings to Contract Proposal Engine:** IMPLEMENTED / UNVERIFIED. Added deterministic, deduplicated, SHA-256 identified bounded proposals from Self-Learning findings. Proposals remain PROPOSED and cannot mutate contracts, Core, permissions, partner access, or runtime state. Tests added; fresh CI verification remains pending.
+
+- **E7.45 — Self-Learning Proposal Validation / Counterexample Gate:** IMPLEMENTED / UNVERIFIED. Added deterministic validation of proposal status, SHA-256 identity, source-finding provenance, finding classification and known contract membership, with machine-readable failures and validation digest. No governance/Core mutation. Fresh CI verification remains pending.
