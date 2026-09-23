@@ -343,9 +343,23 @@ def validate_reflection_lineage(conn: sqlite3.Connection, report_id: str) -> dic
         (report_id,),
     ).fetchall()
     shadows = conn.execute(
-        "SELECT assessment_id FROM reflection_shadow_assessments WHERE report_id=?",
+        "SELECT assessment_id,proposal_id,status FROM reflection_shadow_assessments WHERE report_id=?",
         (report_id,),
     ).fetchall()
+    for assessment_id, proposal_id, _status in shadows:
+        if proposal_id is not None and proposal_id not in proposal_ids:
+            raise RuntimeError("shadow assessment proposal is outside reflection lineage")
+        load_shadow_assessment(conn, assessment_id)
+
+    governance = conn.execute(
+        "SELECT decision_id,decision FROM reflection_governance_decisions WHERE report_id=?",
+        (report_id,),
+    ).fetchall()
+    for decision_id, decision_name in governance:
+        decision = load_governance_decision(conn, decision_id)
+        if decision["decision"] != decision_name:
+            raise RuntimeError("governance decision lineage identity mismatch")
+
     evolutions = conn.execute(
         "SELECT evolution_id,finding_id,parent_proposal_id,current_proposal_id FROM reflection_proposal_evolutions"
     ).fetchall()
