@@ -106,8 +106,9 @@ def check_meaningful_change(current: State, candidate: Candidate) -> InvariantRe
     types.py::State.content_id). A candidate is rejected here iff its
     proposed state's content is identical to the current state's content,
     regardless of what `version` claims. Changing `elements` OR `relations`
-    (even a single key, even relation ordering that changes the actual
-    relation set) makes content_id differ and this check passes.
+    (even a single key or relation) makes content_id differ and this
+    check passes. Relation ordering is not semantic because State canonicalizes
+    R as a set-like collection.
     """
     if candidate.proposed_state.content_id == current.content_id:
         return InvariantResult(
