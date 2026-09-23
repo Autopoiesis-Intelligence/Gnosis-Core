@@ -528,7 +528,7 @@ def load_reflection_report(conn: sqlite3.Connection, stored_report_id: str) -> d
     if row is None:
         raise KeyError(stored_report_id)
     payload = json.loads(row[2])
-    report_digest = "reflection:" + hashlib.sha256(_json(payload).encode("utf-8")).hexdigest()[:24]
+    report_digest = reflection_id(ReflectionReport(**payload), row[1])
     if report_digest != row[0]:
         raise RuntimeError("reflection persistence integrity mismatch")
     return {"report_id": row[0], "created_at": row[1], "payload": payload}
