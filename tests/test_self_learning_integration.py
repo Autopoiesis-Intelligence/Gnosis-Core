@@ -149,3 +149,13 @@ def test_e7_61_integration_persists_receipt_identity_separately():
     assert done.receipt_id == receipt.receipt_id
     assert done.execution_id == receipt.execution_id
     assert done.receipt_id != done.execution_id
+
+
+def test_e7_62_authorized_execution_cannot_execute_different_integration_context():
+    from dataclasses import replace
+    request, receipt = _execution_fixture()
+    original=create_integration_record(accepted(), action="merge-approved-knowledge")
+    foreign_proposal=replace(accepted(), proposal_id="proposal:foreign", version_id="version:foreign")
+    foreign=create_integration_record(foreign_proposal, action="merge-approved-knowledge")
+    with pytest.raises(ValueError):
+        mark_executed(foreign, receipt=receipt, request=request)
