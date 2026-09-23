@@ -2847,3 +2847,58 @@ These are research capabilities, not claims that the current implementation alre
 ### Core boundary
 
 No external-world relation claim, structural candidate or research pattern automatically changes Ψ-Core. Any engineering consequence must pass explicit research-to-engineering translation, implementation, verification and governance gates.
+
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.87: EVIDENCE INDEPENDENCE AND COMMON-MODE FAILURE
+
+### Definition
+
+Let a verification claim be `H`, with evidence set `E = {e1, e2, ..., en}`.
+Evidence items are not assumed independent merely because they are distinct records, tests, tools, runs, agents, or sources.
+
+Define an evidence dependency relation `D(ei, ej)` meaning that the validity or failure mode of two evidence items shares a material common cause, assumption, implementation dependency, data source, oracle, transformation, or environment.
+
+### Common-mode failure
+
+A common-mode failure exists when one latent condition `c` can cause multiple evidence items to fail together:
+
+`c → {¬e1, ¬e2, ...}`
+
+Therefore `|E| > 1` does not imply independent corroboration.
+
+### Independence is conditional
+
+Evidence independence is always relative to a specified failure model `F`: `Independent(E | F)`.
+Different labels, test names, tools, or agents do not by themselves establish independence.
+
+Two tests using the same implementation defect may share the same blind spot. Two agents using the same source may reproduce the same false conclusion.
+
+### Effective evidence
+
+For a claim `H`, define `E_eff(H,F)` as the subset or dependency structure of evidence that remains materially informative after accounting for dependencies under failure model `F`.
+No universal numerical formula is assumed.
+
+### Proposition E4.87.1
+
+If there exists a common latent failure mode `c` such that `c → ¬e1` and `c → ¬e2`, then observing `e1 ∧ e2` does not by itself establish that `c` is absent.
+
+### Counterexample
+
+Suppose `T1` and `T2` are independent test cases at the input level but both depend on the same faulty oracle `O`. Then `T1 = pass ∧ T2 = pass` does not independently validate `O`.
+
+### Consequence
+
+Verification adequacy must include dependency analysis:
+
+`Evidence → Dependencies → Failure Modes → Blind Spots → Coverage Claim`
+
+rather than:
+
+`Evidence Count → Confidence`.
+
+### Boundary
+
+This contract does not claim that all correlated evidence is useless. Correlated evidence can still establish a bounded claim; it simply cannot be treated as independent confirmation without a justified independence model.
+
+### Required next step
+
+E4.88: formalize evidence diversity and failure-mode coverage without reducing verification quality to a single scalar score.
