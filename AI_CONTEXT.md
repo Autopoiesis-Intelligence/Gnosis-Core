@@ -4035,3 +4035,124 @@ V2 does not claim completed canonical authorization serialization, nonce registr
 ### Required next step
 
 E5.09: define the minimum Root-of-Trust implementation and test contract, including issuer state, authorization registry, revocation state, persistence/recovery and adversarial CI evidence.
+## EXTERNAL AUDIT — ADDITIONAL EVOLUTION CONTRACT SET (2026-09-23)
+
+The supplied systemic audit introduces architectural requirements not fully covered by E5.00–E5.08. The following contracts are added as distinct evolution gates. The audit's statement that the project is exactly '~50%' and that CI is failing is not treated as verified evidence; current repository evidence remains the source of truth.
+
+### E5.09 — Root-of-Trust implementation closure
+
+Unify E5.05-A through E5.08 into one end-to-end acceptance gate: issuer state, authorization registry, revocation state, canonical signed authorization, exact transition binding, persistence/recovery, replay protection and adversarial CI evidence must form one closed path.
+
+`Issue -> Persist -> Verify -> Consume -> Execute -> Audit -> Recover`.
+
+Partial completion of individual controls must not be reported as end-to-end authorization.
+
+### E5.10 — Capability attenuation and domain isolation
+
+For any delegated capability `c_d` derived from parent capability `c_p`:
+`Authority(c_d) ⊆ Authority(c_p)` and `Scope(c_d) ⊆ Scope(c_p)`.
+
+Capabilities belonging to different domains must not become mutually usable merely because they share a storage layer or process. A domain identifier and policy context must bind every capability use.
+
+Database co-location must not imply authority co-location.
+
+### E5.11 — External API Trust Boundary
+
+External credentials are authority-bearing assets, not ordinary configuration.
+
+Ψ-Core and autonomous evolution must never receive unrestricted static external credentials when a scoped broker/gateway can enforce capability boundaries.
+
+External action must follow:
+`Intent -> PolicyCheck -> Authorization -> Gateway -> ExternalEffect -> Receipt -> Audit`.
+
+External API responses are untrusted evidence and cannot directly authorize further Core mutation.
+
+### E5.12 — Generation Fence / Activation Integrity
+
+A generation fence must prevent experimental or untrusted mutations from acquiring stable operational authority merely by persistence, lineage or restart.
+
+`ExperimentalState -> StableState` requires the same protected transition/activation semantics as any authority-sensitive mutation.
+
+Restart/recovery must not resurrect authority that was invalidated after the persisted snapshot.
+
+External API calls crossing a generation boundary must be explicitly bound to the active generation and authorization context.
+
+### E5.13 — Local Approval Gateway
+
+When an execution exceeds autonomous risk/authority scope, the system must emit an immutable `ExecutionIntentSnapshot` and require an explicit governed approval before the external side effect.
+
+`PowerImpact > AutonomousLimit -> ApprovalRequired`.
+
+Approval must produce provenance-bound `AuthEvidence`; the gateway must not silently transform a user acknowledgement into unrestricted authority.
+
+Timeout, malformed approval, identity mismatch, stale intent or changed parent state must fail closed.
+
+### E5.14 — Domain Risk / Autonomy Matrix
+
+Autonomy limits must be domain-specific rather than a single global risk threshold.
+
+For domain `d`, define:
+`Omega_d = (allowed_actions, max_power_impact, spending/quantity limits, approval_rules, rate_limits, rollback_policy, evidence_requirements)`.
+
+An action is autonomous only if it satisfies the active domain policy and all protected invariants.
+
+`Autonomous(d,a) -> a ∈ Omega_d`.
+
+Domain labels such as low/medium/high are descriptive policy metadata, not universal truth; each threshold requires explicit rationale and evidence.
+
+### E5.15 — Delegation lineage, revocation and non-transitive authority
+
+Every delegation token must form an explicit lineage:
+`Root -> D1 -> D2 -> ... -> Dn`.
+
+For every edge:
+`Scope(D_{i+1}) ⊆ Scope(D_i)`.
+
+Revocation of an ancestor must invalidate descendants according to policy unless a separately authorized continuity rule exists.
+
+Delegation depth, expiry, audience/domain and intended action class must be explicit. A token's storage location must not activate it.
+
+### E5.16 — Multi-domain persistence isolation
+
+Persistence used by multiple domains must enforce domain separation at the data and authorization layers.
+
+`Read/Write(d1) ->/=> Authority(d2)`.
+
+Cross-domain references require explicit authorization and provenance. A shared SQLite file, shared process or shared audit chain must not silently create cross-domain capability.
+
+Recovery must restore domain state and authority consistently; a partial restore must fail closed rather than combine states from incompatible domains.
+
+### E5.17 — External side-effect commit boundary
+
+External effects cannot be treated as ordinary internal commits because the external system is outside the atomic transaction boundary.
+
+Required semantic sequence:
+`PrepareIntent -> Authorize -> ExecuteExternalEffect -> ObtainReceipt -> PersistReceipt -> Reconcile`.
+
+If execution outcome is unknown after transport failure, the system must enter an explicit `UNKNOWN_EXTERNAL_OUTCOME` state and must not blindly retry a non-idempotent effect.
+
+Idempotency keys, external receipts and reconciliation policy are required where the external API supports or requires them.
+
+### E5.18 — Autonomous budget / blast-radius monotonicity
+
+Autonomous operation must have an explicit bounded power budget `B` over the applicable time/domain scope.
+
+`ConsumedPower <= B` must hold for every autonomous execution sequence.
+
+An evolution, delegation, restart or capability refresh must not silently reset or increase the budget unless an explicitly authorized transition does so.
+
+Blast radius must be evaluated over cumulative effects, not only per-action size.
+
+### E5.19 — Human approval freshness and intent binding
+
+Human approval must bind to the exact `ExecutionIntentSnapshot`, parent-state identity, domain policy version and validity window.
+
+`Approve(I_t) -> Execute(I_t)` only while the bound intent remains unchanged and valid.
+
+Any material change to target, quantity, destination, parent state, policy or power impact invalidates the approval and requires a new decision.
+
+### Evolution ordering
+
+E5.09 is the integration gate. E5.10–E5.19 may be developed in parallel where dependencies permit, but no external autonomous side-effect capability should be accepted before E5.09, E5.11, E5.12, E5.13, E5.17 and E5.19 are closed with real evidence.
+
+These contracts extend the existing trust-boundary work; they do not authorize redesign of Ψ-Core without an implementation-level invariant gap.
