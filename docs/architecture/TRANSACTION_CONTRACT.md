@@ -328,3 +328,7 @@ Unknown external outcome enters `UNKNOWN_EXTERNAL_OUTCOME`; non-idempotent retry
 
 ### Acceptance status
 E5.09 formal integration contract is CLOSED. Runtime integration remains BLOCKED/UNVERIFIED until a trusted issuer, cryptographic issuance path, delegation/gateway runtime and exact-commit CI evidence exist.
+
+## E5.21 — Test authority boundary bridge
+
+A verified test authorization may be adapted into the existing `ExecutionAuthorization` boundary only inside the test/development authority surface. The adapter must preserve exact `request_provenance` and `evolution_identity` and must continue to pass through `require_execution_authorization`. It must not implement the production owner issuer or grant real external authority.
