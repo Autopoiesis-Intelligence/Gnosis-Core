@@ -346,3 +346,7 @@ For test/development authorization persistence, recovery must preserve monotonic
 ## E5.25 — Persistence is not an issuer
 
 `Persist(Store,a)` does not imply authorization. Stored authority remains valid only when issuer verification, exact context binding, and registry integrity all hold. The test registry must not expose an independent issuance path.
+
+## E5.26 — Monotonic authority lifecycle
+
+Test authority lifecycle must not reverse terminal execution states. Expiry cannot extend validity; consumed and revoked authority cannot return to an executable state. Any future re-issuance must create a new authorization identity and independent issuer evidence.
