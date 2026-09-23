@@ -110,6 +110,7 @@ Each contract record SHOULD contain:
 | E7.89 | DESIGNED / NOT_IMPLEMENTED | Corrective Finding Governance Review & Remediation Trigger |
 | E7.90 | DESIGNED / NOT_IMPLEMENTED | Governance Outcome & Remediation Plan Intake |
 | E7.91 | DESIGNED / NOT_IMPLEMENTED | Remediation Plan Validation & Acceptance Gate |
+| E7.92 | DESIGNED / NOT_IMPLEMENTED | Remediation Plan Authorization Boundary |
 
 ## Update rule
 
