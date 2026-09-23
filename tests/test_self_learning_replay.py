@@ -31,3 +31,13 @@ def test_replay_rejects_tampered_event_digest() -> None:
     result = replay([tampered], expected_subject_id="flow-tamper")
     assert result.complete is False
     assert any(x.startswith("EVENT_DIGEST_MISMATCH") for x in result.errors)
+
+
+def test_replay_rejects_tampered_payload_digest() -> None:
+    from dataclasses import replace
+
+    event = create_event("DATABASE", "flow-payload-tamper", {"x": 1})
+    tampered = replace(event, payload_digest="sha256:tampered-payload")
+    result = replay([tampered], expected_subject_id="flow-payload-tamper")
+    assert result.complete is False
+    assert any(x.startswith("EVENT_DIGEST_MISMATCH") for x in result.errors)
