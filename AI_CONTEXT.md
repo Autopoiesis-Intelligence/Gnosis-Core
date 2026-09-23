@@ -4751,3 +4751,6 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 
 - **E7.39 — Core Minimality & Specialized Knowledge/Learning Layer Boundary:** DESIGNED / NOT_IMPLEMENTED. Core is a minimal common mechanism, not a universal knowledge repository. A governed deployment is modeled as Core + specialization layers. Domain usefulness alone is insufficient to move functionality into canonical Core; Core changes require evidence of domain-independent necessity and governed verification.
+
+
+- **E7.41 — Distributed Clone Learning, Privacy & Network Integration:** DESIGNED / NOT_IMPLEMENTED. Network = CommonFoundations + SpecializedClones + GovernedInteroperability. Clone-local/private learning may produce privacy-checked, provenance-bound candidates for approved sharing. PrivateData_i -> Learning_i does not imply PrivateData_i -> Network. Shared artifacts retain classification and provenance; Core promotion follows E7.40.
