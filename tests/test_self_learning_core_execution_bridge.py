@@ -19,3 +19,11 @@ def test_unapproved_proposal_is_blocked():
     p=CoreMutationProposal("m","i","v","common-self-learning","merge","PROPOSED")
     with pytest.raises(PermissionError):
         bind_core_proposal(p,req())
+
+
+def test_tampered_bridge_proposal_identity_is_rejected() -> None:
+    from dataclasses import replace
+    p=CoreMutationProposal("m","i","v","common-self-learning","merge","PROPOSED")
+    tampered=replace(p, mutation_id="sha256:tampered")
+    with pytest.raises(ValueError, match="proposal identity"):
+        bind_core_proposal(tampered, req())
