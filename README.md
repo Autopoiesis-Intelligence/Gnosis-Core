@@ -94,3 +94,18 @@ Canonical engineering role: **Core**.
 Temporary second repository role: **Self-Learning Archive / Self-Learning Research & Learning Archive**.
 
 The `Gnozis-V2` GitHub repository name is a current repository identifier, not the product/version identity. Physical GitHub renaming is an account-level repository operation and is not represented as completed by documentation alone.
+
+## Partnership and specialized commercial cores
+
+Gnozis Core is the common minimal engineering foundation. Self-Learning is intended to support two complementary partnership paths:
+
+1. **Core-initiated development:** the Core identifies validated opportunities, missing capabilities or commercially relevant development directions and, through the governed contract pipeline, can prepare partner-facing development proposals.
+2. **Partner-initiated specialization:** a partner may provide a project repository/specification and an agreed learning scope. The common Core can then serve as the minimal foundation for a separately specialized commercial core tuned to that partner's first tasks.
+
+A specialized commercial core is not a second canonical Core. It is a bounded specialization:
+
+`Gnozis Core + partner project specification + authorized learning/evidence -> specialized commercial core`
+
+Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate Ψ-Core.
+
+The current partner-facing contract map is maintained in `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md` and refreshed by `scripts/update_partner_contract_block.py`. It is an index/briefing surface, not an authority or learning-proof artifact.
