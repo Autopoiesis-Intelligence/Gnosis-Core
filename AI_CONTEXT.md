@@ -4156,3 +4156,63 @@ Any material change to target, quantity, destination, parent state, policy or po
 E5.09 is the integration gate. E5.10–E5.19 may be developed in parallel where dependencies permit, but no external autonomous side-effect capability should be accepted before E5.09, E5.11, E5.12, E5.13, E5.17 and E5.19 are closed with real evidence.
 
 These contracts extend the existing trust-boundary work; they do not authorize redesign of Ψ-Core without an implementation-level invariant gap.
+## E5.09 EXECUTION PASS — INTEGRATED TRUST / EXTERNAL-ACTION GATE
+
+E5.09 is now treated as the integration contract for E5.05–E5.19, not merely another isolated design item.
+
+### Dependency classes
+
+FOUNDATION: E5.05-A, E5.06, E5.07, E5.08.
+CONTROL: E5.10, E5.12, E5.14, E5.15, E5.18.
+INTERACTION: E5.11, E5.13, E5.17, E5.19.
+ISOLATION: E5.16.
+VERIFICATION: E5.05-C and exact-commit adversarial evidence.
+
+### Integrated acceptance predicate
+
+`E5.09_ACCEPT = Foundation ∧ Control ∧ Interaction ∧ Isolation ∧ Verification`.
+
+Every conjunct is scoped to the same implementation boundary and evidence epoch. A verified subsystem at an older commit cannot satisfy a current-commit conjunct without compatibility evidence.
+
+### End-to-end state machine
+
+`IntentCreated -> PolicyEvaluated -> AuthorizationIssued -> AuthorizationPersisted -> AuthorizationVerified -> CapabilityConsumed -> GatewayAdmitted -> ExternalEffect -> ReceiptCaptured -> Reconciled`.
+
+Any failure before external effect produces no external effect. If the external outcome is unknown after dispatch, the state becomes `UNKNOWN_EXTERNAL_OUTCOME` and reconciliation is mandatory before any non-idempotent retry.
+
+### Authority non-escalation invariant
+
+For every derived capability/action context `c'` from `c`:
+`Authority(c') ⊆ Authority(c)`.
+
+For every domain boundary:
+`Authority(d1) ∩ usable_scope(d2) = ∅` unless an explicit cross-domain governance rule authorizes the intersection.
+
+### Activation invariant
+
+`Persisted != Active` and `Canonical != OperationalAuthority` for authority-sensitive effects.
+
+Recovery may restore state/history, but it must not restore revoked authority or silently reset cumulative autonomous budget.
+
+### Budget invariant
+
+For each domain/time window:
+`Σ PowerImpact(executions) <= B_d`.
+
+Budget state is part of the protected decision context. Fork, restart, delegation and credential rotation cannot implicitly reset it.
+
+### Approval freshness invariant
+
+`ApprovalValid -> Hash(IntentSnapshot_at_approval) = Hash(IntentSnapshot_at_execution)` plus matching parent-state, policy-version and validity-window constraints.
+
+Material change invalidates the approval.
+
+### E5.09 current result
+
+Formal integration is COMPLETE. Runtime integration is NOT_VERIFIED because the trusted issuer, cryptographic issuance service, delegation runtime, external gateway and current CI evidence are not established as an end-to-end executable chain.
+
+Therefore E5.09 remains BLOCKED for runtime acceptance, while its mathematical/architectural contract is CLOSED for implementation decomposition.
+
+### Next implementation contract
+
+E5.20 — Minimal Trusted Issuer Vertical Slice: implement the smallest non-production local issuer/approval path needed to exercise E5.05–E5.09 without granting unrestricted external authority. It must be explicitly marked test/development authority, use ephemeral test credentials, bind exact intent/provenance, support revocation/consumption, and produce CI-testable evidence.
