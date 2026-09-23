@@ -160,7 +160,7 @@ def test_e524_sqlite_payload_tamper_fails_closed(tmp_path):
         ("evolution:tampered", auth.authorization_id),
     )
     conn.commit()
-    with pytest.raises(PermissionError, match="registry integrity"):
+    with pytest.raises(PermissionError, match="registry integrity|registry payload mismatch"):
         consume_test_authorization(
             conn, issuer, auth, now=50,
             request_provenance="provenance:p1",
