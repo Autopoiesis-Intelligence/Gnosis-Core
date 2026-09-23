@@ -451,3 +451,6 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 
 - **E7.37 — Partner Evidence Export & Interoperability Protocol:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `f45900206e30b6e351a33722b0c47d644f4f33e4`. Defines deterministic scoped export/import of evidence with provenance, revision, integrity, confidentiality, compatibility, conflict and stale/revoked package semantics. Imported evidence never becomes Core authority automatically.
+
+
+- **E7.38 — Partner Specialized Core Provisioning & Inbound Trust Boundary:** DESIGNED / NOT_IMPLEMENTED. Contract commit: `fdb56e027211ba5dedee219415a83fa93df998da`. Defines governed commercial specialization of a Core instance around partner-specific learning databases, domain profiles, authorized populations and capabilities, while requiring all inbound evidence to pass identity, integrity, provenance, validation, quarantine/policy and admission boundaries.
