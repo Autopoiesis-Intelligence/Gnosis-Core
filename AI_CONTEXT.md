@@ -3249,3 +3249,54 @@ Current V2 contains capability contracts and an authority-free `CapabilityHypoth
 ### Required next step
 
 E4.95: formalize cross-lineage merge authority and conflict resolution without union-by-default authority.
+## 2026-09-23 MATHEMATICAL CONTRACT — E4.95: CROSS-LINEAGE MERGE AUTHORITY
+
+Let `A` and `B` be independently valid lineages and let `M(A,B)` be a proposed merge.
+
+### No union-by-default
+
+`Valid(A) ∧ Valid(B) does not imply Valid(M(A,B))`.
+
+Likewise:
+`Authority(A) ∪ Authority(B)` is not automatically an authority grant for the merge.
+
+### Merge as candidate transition
+
+A cross-lineage merge is a new candidate transition requiring its own validation, provenance, conflict analysis and authorization.
+
+`Merge(A,B) -> Candidate(M)`
+
+not:
+`Merge(A,B) -> Canonical(M)`.
+
+### Authority scope
+
+If the merge is authorized by a principal whose authority is bounded by `S`, the resulting operational authority must not exceed the explicitly granted merge scope.
+
+`Scope(M) ⊆ GrantedMergeScope`.
+
+Parent lineage validity does not create merge authority.
+
+### Conflict independence
+
+Even when both lineages are internally valid, conflicting state/evidence/assumptions must remain explicit.
+
+`Valid(A) ∧ Valid(B) ∧ Conflict(A,B) -> Merge requires resolution evidence`.
+
+Silently choosing one lineage is not equivalent to proving the merge.
+
+### Revocation
+
+A merge must evaluate current authority for every authority-sensitive parent contribution. Historical validity of a parent does not automatically make its current delegated authority valid.
+
+### Proposition E4.95.1
+
+If a system can obtain broader operational authority merely by combining two individually valid lineages, it violates non-escalation unless an explicit policy defines and authorizes that composition.
+
+### Current implementation boundary
+
+V2 contains persistent fork/lineage verification and independent instance heads. No accepted cross-lineage merge authority subsystem was found in the current runtime search. Therefore merge remains a candidate architectural capability, not an implemented product/security claim.
+
+### Required next step
+
+E4.96: formalize evidence conflict, precedence and non-destructive resolution across lineages, including preservation of both provenance branches.
