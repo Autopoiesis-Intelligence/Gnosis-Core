@@ -91,6 +91,7 @@ Each contract record SHOULD contain:
 | E7.70 | PARTIAL / UNVERIFIED | Partner Delivery Receipt |
 | E7.71 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Proposal |
 | E7.72 | PARTIAL / UNVERIFIED | Partner Feedback Promotion Validation |
+| E7.73 | PARTIAL / UNVERIFIED | Governed Feedback Promotion Record |
 
 ## Update rule
 
