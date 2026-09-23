@@ -18,6 +18,9 @@ def verify_lifecycle(events: Iterable[EvidenceEvent], subject_id: str) -> Lifecy
     errors=list(verify_chain(ordered)[1])
     errors.extend(replay(ordered, expected_subject_id=subject_id).errors)
     types={e.event_type for e in ordered}
+    counts={stage: sum(1 for e in ordered if e.event_type == stage) for stage in REQUIRED}
+    duplicates=tuple(stage for stage in REQUIRED if counts[stage] > 1)
+    if duplicates: errors.extend(f"DUPLICATE_STAGE:{stage}" for stage in duplicates)
     missing=tuple(x for x in REQUIRED if x not in types)
     if missing: errors.append("MISSING_STAGES:"+",".join(missing))
     positions={e.event_type:i for i,e in enumerate(ordered)}
