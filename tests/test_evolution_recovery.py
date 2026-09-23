@@ -149,7 +149,7 @@ def test_recovery_fails_closed_on_duplicate_provenance_audit_links():
             proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest)
            VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
         (1, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-         row[9], row[10], row[10]),
+         row[8], row[9], row[10]),
     )
     report = recover_evolution_audit(
         conn, provenance_id=pid, observations=observations, proposed_state=state
