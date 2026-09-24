@@ -187,3 +187,28 @@ def test_shadow_evaluation_mixed_results_are_inconclusive():
     proposal = propose_rule(extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED"))
     result = evaluate_rule_shadow(proposal, (ShadowCase("c1", True, True, True), ShadowCase("c2", True, True, False)))
     assert result.outcome == "INCONCLUSIVE"
+
+
+def test_only_accepted_shadow_result_enters_governance_review():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    from gnosis.self_learning.rule_proposals import propose_rule
+    from gnosis.self_learning.shadow_evaluation import ShadowCase, evaluate_rule_shadow
+    from gnosis.self_learning.governance_gate import prepare_governance_review
+    item = evidence()
+    proposal = propose_rule(extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED"))
+    evaluation = evaluate_rule_shadow(proposal, (ShadowCase("c1", True, True, True),))
+    review = prepare_governance_review(proposal, evaluation)
+    assert review.decision == "REVIEW_REQUIRED"
+    assert review.scope == "SELF_LEARNING_ONLY"
+
+
+def test_rejected_shadow_result_cannot_enter_governance():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    from gnosis.self_learning.rule_proposals import propose_rule
+    from gnosis.self_learning.shadow_evaluation import ShadowCase, evaluate_rule_shadow
+    from gnosis.self_learning.governance_gate import prepare_governance_review
+    item = evidence()
+    proposal = propose_rule(extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED"))
+    evaluation = evaluate_rule_shadow(proposal, (ShadowCase("c1", True, True, False),))
+    with pytest.raises(ValueError):
+        prepare_governance_review(proposal, evaluation)
