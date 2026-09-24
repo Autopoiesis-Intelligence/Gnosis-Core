@@ -1134,3 +1134,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Patterns and relations are canonicalized and bound to the normalized input digest/revision; rejected extraction cannot generate candidate contracts.
 - Candidate generation and full runtime/replay proof remain separate gates.
+
+## E7.91 candidate contract generation — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/candidate_contract.py` as the proposal boundary from extracted patterns/relations to explicit development contracts.
+- Added `tests/test_candidate_contract.py` and connected it to Self-Diagnostic CI in `24a0afcbdbc79a57d8ab472936978bdb9981dc8a`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Candidates are deterministically bound to extraction, pattern/relation references and evidence, with explicit objective and scope.
+- Candidate generation never grants execution authority and proposed candidates must pass the later shadow-evaluation gate.
