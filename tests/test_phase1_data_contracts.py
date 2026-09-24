@@ -45,7 +45,14 @@ def test_tenant_mismatch_rejected():
     assert validate_task_context(bad, make_identity(), make_scope()) == "TENANT_MISMATCH"
 
 def test_missing_capability_rejected():
-    assert authorize_operation(make_envelope(), "state:commit:apply", make_scope(), NOW) == "UNAUTHORIZED_CAPABILITY"
+    envelope = make_envelope()
+    missing = Capabilities(())
+    bad = OperationEnvelope(
+        envelope.envelope_id, envelope.schema_version, envelope.timestamp_ms,
+        envelope.identity, envelope.task_context, missing, envelope.action,
+        envelope.payload, envelope.target_resource, envelope.evidence,
+    )
+    assert authorize_operation(bad, "state:test:execute", make_scope(), NOW) == "UNAUTHORIZED_CAPABILITY"
 
 def test_unknown_capability_rejected():
     assert authorize_operation(make_envelope(), "state:unknown", make_scope(), NOW) == "UNKNOWN_CAPABILITY"
