@@ -1397,3 +1397,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Therefore E8.11–E8.21 remains a contract/test layer, not an observed end-to-end runtime path.
 - Added `docs/architecture/E822_RUNTIME_INTEGRATION_AUDIT.md`; E8.22 Registry status is PARTIAL / UNVERIFIED.
 - Next implementation must add explicit adapters, canonical provenance binding, durable SQLite/audit persistence and failure-injection recovery tests before any IMPLEMENTED claim.
+
+## E8.23 canonical partner commit adapter — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/partner_learning_adapter.py` as the single adapter boundary from an admitted partner candidate to the existing canonical commit path.
+- Added `tests/test_partner_learning_adapter.py` and connected it to Self-Diagnostic CI in `5db4f6b7e2e3af6a0055fb8e30b4ebc61623280e`.
+- Added `docs/architecture/E823_CANONICAL_PARTNER_COMMIT_ADAPTER.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- The request binds candidate ID, result ID, contract ID, provenance digest, evidence and exact state digest.
+- The adapter performs no persistence/execution/audit itself; the existing Core commit authority remains the sole final authority.
