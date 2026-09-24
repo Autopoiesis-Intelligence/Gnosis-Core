@@ -158,7 +158,7 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                     raise StorageCorruptionError("audit/transition semantic mismatch")
     return chain
 
-def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
+def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
     def inject(point: str)->None:
         if failure_at==point: raise RuntimeError(f"injected failure at {point}")
     if candidate.parent_state_id!=record.from_state_id: raise ValueError("candidate parent does not match transition source")
