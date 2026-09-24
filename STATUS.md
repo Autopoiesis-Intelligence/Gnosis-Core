@@ -1190,3 +1190,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Memory admission requires VERIFIED outcome, exact observed/verified state digest equality, evidence and explicit learning scope.
 - Rejected or blocked entries cannot feed the next learning cycle; memory admission does not grant execution authority.
+
+## E7.98 learning-cycle re-entry — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/learning_cycle.py` as the provenance-preserving re-entry boundary from admitted Evolution Memory into the next learning cycle.
+- Added `tests/test_learning_cycle.py` and connected it to Self-Diagnostic CI in `e5ad084e8c34e60fe6057950eaea0f0232ae9b40`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- New cycles require ADMITTED memory, preserve parent memory identity and verified state digest, and carry explicit input references and scope.
+- Memory/state substitution breaks provenance continuity; cycle creation never grants execution authority.
