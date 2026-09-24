@@ -59,7 +59,7 @@ def generate() -> None:
                 seed=i,
             )
             record = instance.engine.step(candidate)
-            __persist_transition(conn, instance, candidate, record, actor="diagnostic-corpus")
+            _persist_transition(conn, instance, candidate, record, actor="diagnostic-corpus")
 
         accepted = Candidate(
             parent_state_id=instance.engine.state.state_id,
