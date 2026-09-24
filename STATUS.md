@@ -1110,3 +1110,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Resolution requires matching package digest and explicit resolution evidence; challenge history is preserved and challenge state does not grant/revoke execution authority.
 - Independent runtime/replay/dispute evidence remains pending.
+
+## E7.88 verified evidence admission — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/learning_evidence_admission.py` as a gate between audited collaboration evidence and the generalized self-learning corpus.
+- Added `tests/test_learning_evidence_admission.py` and connected it to Self-Diagnostic CI in `437a9a7a6ddf5450fa2b84775ff4bd4c44520a80`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Admission requires verification references, evidence references, stable digest, explicit learning scope and PUBLIC/SHAREABLE_ABSTRACTION/REDACTED privacy classification.
+- Admission never creates execution authority; private or unverified evidence is blocked from this generalized corpus boundary.
