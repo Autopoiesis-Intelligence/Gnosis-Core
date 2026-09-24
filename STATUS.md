@@ -1222,3 +1222,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Every reclassification preserves previous level, proposed level, evidence references, reason and status; same-level changes are treated as no-ops.
 - Reclassification can move opportunities between low relevance, research relevance and commercial classification, but never creates execution authority or a contract by itself.
+
+## E8.02 evidence-gated contract formation — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/contract_formation.py` to form and route contract candidates from evidence-backed opportunity classifications.
+- Added `tests/test_contract_formation.py` and connected it to Self-Diagnostic CI in `18e3726d1087719e6be2e49f76ca952bfdf0d65c`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- LOW_RELEVANCE routes to GENERAL_OPEN; RESEARCH_RELEVANT routes to RESEARCH_LEGAL; COMMERCIAL requires explicit financial evidence and a `partner:` scope before COMMERCIAL_PARTNER formation.
+- Contract formation never grants execution authority.
