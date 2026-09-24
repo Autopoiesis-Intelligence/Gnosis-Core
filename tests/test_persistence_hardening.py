@@ -1,3 +1,5 @@
+from gnosis.storage.repositories import _persist_transition
+
 import json
 import sqlite3
 import threading
@@ -13,8 +15,7 @@ from gnosis.storage import (
     append_audit,
     connect,
     load_instance,
-    persist_transition,
-    recover_instance,
+recover_instance,
     save_instance,
     verify_durable_graph,
 )
@@ -58,7 +59,7 @@ def test_budget_and_history_survive_restart():
     proposed = instance.engine.state.with_elements({"b": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="u")
+    _persist_transition(conn, instance, candidate, record, actor="u")
     recovered = load_instance(conn, instance.instance_id)
     assert recovered.engine.budget.spent == instance.engine.budget.spent
     assert verify_durable_graph(conn)[0] == 2
@@ -86,7 +87,7 @@ def test_fault_injection_rolls_back_transition(point):
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
     with pytest.raises(RuntimeError, match="injected failure"):
-        persist_transition(conn, instance, candidate, record, actor="u", failure_at=point)
+        _persist_transition(conn, instance, candidate, record, actor="u", failure_at=point)
     assert load_instance(conn, instance.instance_id).engine.state.state_id == original_state_id
     assert verify_durable_graph(conn)[0] == 1
 
@@ -106,7 +107,7 @@ def test_after_commit_failure_leaves_committed_transition_durable():
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
     with pytest.raises(RuntimeError, match="injected failure"):
-        persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_commit")
+        _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_commit")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == proposed.state_id
     assert verify_durable_graph(conn)[0] == 2
 
@@ -118,7 +119,7 @@ def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
     a1 = root.engine.state.with_elements({"a1": 1})
     ca1 = Candidate(root.engine.state.state_id, a1, "root-step")
     ra1 = root.engine.step(ca1)
-    persist_transition(conn, root, ca1, ra1, actor="u")
+    _persist_transition(conn, root, ca1, ra1, actor="u")
 
     # Simulated restart: recover A at A1 before creating the fork.
     recovered_a = recover_instance(conn, root.instance_id)
@@ -128,12 +129,12 @@ def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
     a2 = recovered_a.engine.state.with_elements({"a2": 2})
     ca2 = Candidate(recovered_a.engine.state.state_id, a2, "a-branch")
     ra2 = recovered_a.engine.step(ca2)
-    persist_transition(conn, recovered_a, ca2, ra2, actor="u")
+    _persist_transition(conn, recovered_a, ca2, ra2, actor="u")
 
     b1 = child.engine.state.with_elements({"b1": 1})
     cb1 = Candidate(child.engine.state.state_id, b1, "b-branch")
     rb1 = child.engine.step(cb1)
-    persist_transition(conn, child, cb1, rb1, actor="u")
+    _persist_transition(conn, child, cb1, rb1, actor="u")
 
     recovered_a2 = recover_instance(conn, recovered_a.instance_id)
     recovered_b1 = recover_instance(conn, child.instance_id)
@@ -162,9 +163,9 @@ def test_a27_direct_persistence_stale_head_is_rejected():
     stale_instance = load_instance(conn, instance.instance_id)
     first_candidate, first_record = _transition(instance, "first")
     stale_candidate, stale_record = _transition(stale_instance, "stale")
-    persist_transition(conn, instance, first_candidate, first_record, actor="u")
+    _persist_transition(conn, instance, first_candidate, first_record, actor="u")
     with pytest.raises(ValueError, match="stale instance head"):
-        persist_transition(conn, instance, stale_candidate, stale_record, actor="u")
+        _persist_transition(conn, instance, stale_candidate, stale_record, actor="u")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == first_candidate.proposed_state.state_id
     assert verify_durable_graph(conn)[0] == 2
 
@@ -216,7 +217,7 @@ def test_a35_multiple_instances_interleaved_commits_keep_independent_heads():
     save_instance(conn, second)
     for instance, key in ((first, "first-next"), (second, "second-next"), (first, "first-final"), (second, "second-final")):
         candidate, record = _transition(instance, key)
-        persist_transition(conn, instance, candidate, record, actor="u")
+        _persist_transition(conn, instance, candidate, record, actor="u")
     recovered_first = recover_instance(conn, first.instance_id)
     recovered_second = recover_instance(conn, second.instance_id)
     assert recovered_first.engine.state.elements["first-final"] == 1
@@ -242,7 +243,7 @@ def test_a36_concurrent_same_head_allows_one_accepted_transition(tmp_path):
         conn = connect(path)
         barrier.wait()
         try:
-            persist_transition(conn, instance, candidate, record, actor="writer")
+            _persist_transition(conn, instance, candidate, record, actor="writer")
             results.append("accepted")
         except ValueError as exc:
             results.append(str(exc))
@@ -273,7 +274,7 @@ def test_a37_concurrent_different_heads_keep_instance_isolation(tmp_path):
         conn = connect(path)
         barrier.wait()
         try:
-            persist_transition(conn, instance, candidate, record, actor="writer")
+            _persist_transition(conn, instance, candidate, record, actor="writer")
         except Exception as exc:
             errors.append(exc)
         finally:
@@ -368,7 +369,7 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
         reason="rejected",
         test_rule_id="test-rule",
     )
-    persist_transition(conn, instance, candidate, rejected, actor="u")
+    _persist_transition(conn, instance, candidate, rejected, actor="u")
 
     recovered = recover_instance(conn, instance.instance_id)
     assert recovered.engine.state.state_id == original_head
@@ -401,7 +402,7 @@ def test_transition_reload_rejects_identity_tampering():
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
     candidate, record = _transition(instance, "next")
-    persist_transition(conn, instance, candidate, record, actor="u")
+    _persist_transition(conn, instance, candidate, record, actor="u")
     conn.execute(
         "UPDATE transitions SET test_rule_id=? WHERE transition_id=?",
         ("tampered-rule", record.transition_id),
@@ -416,7 +417,7 @@ def test_transition_reload_identity_is_independent_of_created_at():
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
     candidate, record = _transition(instance, "next")
-    persist_transition(conn, instance, candidate, record, actor="u")
+    _persist_transition(conn, instance, candidate, record, actor="u")
     conn.execute(
         "UPDATE transitions SET created_at=? WHERE transition_id=?",
         ("2099-01-01T00:00:00+00:00", record.transition_id),
