@@ -1356,3 +1356,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/PARTNER_RESULT_LEARNING_CANDIDATE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - Learning entry requires received delivery, result evidence, Core verification and a SUCCESS_SIGNAL or COUNTEREXAMPLE outcome.
 - INCONCLUSIVE results do not enter durable learning; this boundary does not itself commit learning or grant execution authority.
+
+## E8.18 partner result provenance replay — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/partner_replay.py` to verify that returned partner results correspond to the exact delivered core and contract chain.
+- Added `tests/test_partner_replay.py` and connected it to Self-Diagnostic CI in `e1d767512565edc0d4244776a60acfc4ce2c43cf`.
+- Added `docs/architecture/PARTNER_RESULT_PROVENANCE_REPLAY_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- Replay requires exact matches for core digest, delivery ID, manifest ID and contract ID plus evidence references.
+- Any mismatch is `REPLAY_REJECTED`; verified replay establishes provenance only and does not itself commit learning or grant execution authority.
