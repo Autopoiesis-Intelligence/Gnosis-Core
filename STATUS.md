@@ -1501,3 +1501,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Correction commit: `66fcac59`.
 - E8.30 remains unverified; current CI evidence is integration bootstrap failure, not contract execution.
 - Next gate: rerun CI on `66fcac59`; if collection passes, inspect actual test execution and E8.30 failures.
+
+
+## E8.30 actual test execution — first substantive failures and corrections — 2026-09-24
+
+- CI on `c5851f288acc2ed049f7b4ebfbff9b628e61d5bb` finally executed the suite: **816 passed / 17 failed** on Python 3.11; the Python 3.12 job was cancelled after the failure.
+- E8.30 failures were substantive: recovery fixtures lacked canonical instance-creation audit evidence; two tamper cases violated SQLite foreign keys before reaching recovery; partner replay produced a different memory ID; memory tamper test hit the append-only trigger instead of verification.
+- Additional pre-existing/integration failures were observed in collaboration, diagnostic execution and trust-boundary tests. The trust-boundary failure was caused by the temporary public `persist_transition` export introduced during the previous CI correction.
+- Corrections applied: partner replay is now idempotent by stable request/audit identity; E8.29/E8.30 fixtures use canonical `save_instance` creation evidence; E8.30 tamper mutations are FK-safe; memory tamper disables both append-only triggers for the adversarial fixture; authoritative transition persistence is restored to internal `_persist_transition` and removed from public `gnosis.storage` exports.
+- Correction commits: `73ceb439`, `c83ab35e`, `076f320e`, `4bf53d75`, `694fb980`.
+- E8.30 remains **PARTIAL / UNVERIFIED**. First substantive runtime evidence exists, but no PASS is claimed while the current CI has not rerun after corrections.
+- Next gate: rerun CI and classify remaining failures by E8.30 vs pre-existing contract regressions before further implementation.
