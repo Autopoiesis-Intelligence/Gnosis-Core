@@ -161,3 +161,29 @@ def test_counterexample_generates_shadow_only_rule_proposal():
     assert proposal.mode == "SHADOW"
     assert proposal.status == "PROPOSED"
     assert proposal.proposal_id.endswith(ce.fingerprint.split(":", 1)[1])
+
+
+def test_shadow_evaluation_is_deterministic_and_non_authorizing():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    from gnosis.self_learning.rule_proposals import propose_rule
+    from gnosis.self_learning.shadow_evaluation import ShadowCase, evaluate_rule_shadow
+    item = evidence()
+    proposal = propose_rule(extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED"))
+    cases = (
+        ShadowCase("c1", True, True, True),
+        ShadowCase("c2", True, False, False),
+    )
+    result = evaluate_rule_shadow(proposal, cases)
+    assert result.outcome == "ACCEPT_FOR_GOVERNANCE"
+    assert result.cases_passed == 2
+    assert result.scope == "SELF_LEARNING_ONLY"
+
+
+def test_shadow_evaluation_mixed_results_are_inconclusive():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    from gnosis.self_learning.rule_proposals import propose_rule
+    from gnosis.self_learning.shadow_evaluation import ShadowCase, evaluate_rule_shadow
+    item = evidence()
+    proposal = propose_rule(extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED"))
+    result = evaluate_rule_shadow(proposal, (ShadowCase("c1", True, True, True), ShadowCase("c2", True, True, False)))
+    assert result.outcome == "INCONCLUSIVE"
