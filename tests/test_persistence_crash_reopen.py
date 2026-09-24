@@ -50,7 +50,7 @@ def test_after_commit_reopen_has_complete_new_state(tmp_path):
     path = tmp_path / "after-commit.sqlite"
     conn, instance, candidate, record, proposed, _old_state_id = _prepare(path)
     with pytest.raises(RuntimeError, match="injected failure"):
-        persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_commit")
+        _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_commit")
     conn.close()
 
     reopened = connect(path)
