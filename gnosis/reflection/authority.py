@@ -11,7 +11,8 @@ from dataclasses import dataclass
 
 from .governance import GovernanceDecision
 from gnosis.evolution.provenance import canonical_digest
-from gnosis.storage import load_state, persist_transition
+from gnosis.storage import load_state
+from gnosis.storage.repositories import _persist_transition
 
 
 @dataclass(frozen=True)
@@ -307,7 +308,7 @@ class SQLiteExecutionCommitAdapter:
         require_execution_candidate_binding(request, candidate, record)
         if str(request.provenance.evolution_identity) != request.evolution_identity:
             raise PermissionError("execution commit identity mismatch")
-        persist_transition(conn, instance, candidate, record, actor=actor)
+        _persist_transition(conn, instance, candidate, record, actor=actor)
         resulting = load_state(conn, record.to_state_id)
         if resulting.state_id != str(request.provenance.proposed_state_digest):
             raise PermissionError("persisted resulting state does not match authorized evolution")
