@@ -102,7 +102,7 @@ Each contract record SHOULD contain:
 | E7.81 | PARTIAL / UNVERIFIED | Remediation Execution Authorization & Controlled Compensation Execution |
 | E7.82 | PARTIAL / UNVERIFIED | Remediation Result Verification & Governed Closure |
 | E7.83 | PARTIAL / UNVERIFIED | Governed Collaboration Lifecycle Closure & Contract Retirement |
-| E7.84 | DESIGNED / NOT_IMPLEMENTED | Lifecycle Retention, Evidence Preservation & Controlled Data Disposal |
+| E7.84 | PARTIAL / UNVERIFIED | Lifecycle Retention, Evidence Preservation & Controlled Data Disposal |
 | E7.85 | DESIGNED / NOT_IMPLEMENTED | Collaboration Evidence Export & External Audit Package |
 | E7.86 | DESIGNED / NOT_IMPLEMENTED | External Auditor Verification & Attestation Boundary |
 | E7.87 | DESIGNED / NOT_IMPLEMENTED | External Audit Challenge, Dispute & Evidence Reconciliation |
