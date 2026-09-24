@@ -148,3 +148,16 @@ def test_different_attempt_is_not_counterexample():
     from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
     with pytest.raises(ValueError):
         extract_evidence_counterexample(evidence(), "attempt-2", "FAILED")
+
+
+def test_counterexample_generates_shadow_only_rule_proposal():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    from gnosis.self_learning.rule_proposals import propose_rule
+    item = evidence()
+    ce = extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED")
+    proposal = propose_rule(ce)
+    assert proposal.source_counterexample_id == ce.counterexample_id
+    assert proposal.scope == "SELF_LEARNING_ONLY"
+    assert proposal.mode == "SHADOW"
+    assert proposal.status == "PROPOSED"
+    assert proposal.proposal_id.endswith(ce.fingerprint.split(":", 1)[1])
