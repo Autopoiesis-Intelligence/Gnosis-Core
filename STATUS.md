@@ -1713,3 +1713,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - This validates the synchronized machine-readable context change against the repository test/security pipeline.
 - It does **not** by itself satisfy Reflection R1 acceptance; Reflection-specific persistence, provenance, lineage, shadow-evaluation, immutability and no-activation evidence still require explicit acceptance tests/evidence.
 - Cross-contract audit therefore advances from infrastructure verification to explicit R1 evidence collection. No production Reflection mutation is authorized merely by green CI.
+
+
+## R1 source audit correction — 2026-09-24
+
+- Strict source search corrected the previous audit conclusion: Reflection runtime and persistence components **do exist**. Verified paths include `gnosis/reflection/analyzer.py`, `runtime.py`, `persistence.py`, `gate.py`, `shadow_adapter.py`, `history.py`, and `tests/test_reflection_foundation.py`, `test_reflection_gate.py`, `test_shadow_adapter.py`.
+- The absence of specifically named files `test_reflection_acceptance.py` / `test_reflection_persistence.py` was not sufficient evidence that the acceptance requirements were missing; tests are distributed across the existing reflection test suite.
+- Source inspection confirms frozen reflection records, provenance validation, durable persistence with integrity identity checks, a read-only gate, and no activation/commit API on `RuleProposal`.
+- R1 is still **NOT ACCEPTED** because the required acceptance evidence must be tied to the current HEAD and current CI/runtime results, including persistence reload, append-only/audit, canonical-state immutability, proposal non-activation, and independent review.
+- Previous reduction of Reflection implementation based solely on missing filenames is withdrawn. No production code change is made from this audit correction.
