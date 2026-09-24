@@ -1722,3 +1722,22 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Source inspection confirms frozen reflection records, provenance validation, durable persistence with integrity identity checks, a read-only gate, and no activation/commit API on `RuleProposal`.
 - R1 is still **NOT ACCEPTED** because the required acceptance evidence must be tied to the current HEAD and current CI/runtime results, including persistence reload, append-only/audit, canonical-state immutability, proposal non-activation, and independent review.
 - Previous reduction of Reflection implementation based solely on missing filenames is withdrawn. No production code change is made from this audit correction.
+
+
+## R1 acceptance matrix — source-level evidence checkpoint — 2026-09-24
+
+| R1 requirement | Source evidence | Status |
+|---|---|---|
+| Read-only observation / no Core mutation | `test_reflection_foundation.py`; `runtime.py`; `gate.py` | PRESENT |
+| Deterministic IDs / provenance | reflection tests + `persistence.py` integrity IDs | PRESENT |
+| Tamper rejection | provenance mismatch tests; gate evolution-audit tamper test | PRESENT |
+| Durable persistence / reload | `persistence.py` save/load paths; gate invokes recovery | PRESENT — runtime acceptance still required |
+| Lineage validation | `validate_reflection_lineage()` | PRESENT — runtime acceptance still required |
+| Shadow evaluation without activation | `test_shadow_adapter.py`; registry remains version 1 | PRESENT |
+| Proposal non-activation | explicit no-activation test; gate authority READ_ONLY | PRESENT |
+| Append-only/audit integrity | evolution audit + recovery path | PRESENT — dedicated acceptance evidence still required |
+| Canonical-state immutability across gate | gate implementation + foundation tests | PRESENT — end-to-end evidence still required |
+| Independent review | external audit evidence not contained in current source tree | **OPEN** |
+
+- Source-level matrix is now complete. R1 remains **NOT ACCEPTED** because several requirements have implementation/tests but lack a single current-HEAD acceptance run and independent review evidence.
+- No production code change is made at this checkpoint.
