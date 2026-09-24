@@ -56,7 +56,7 @@ def test_exact_accepted_review_can_issue_authorization():
         {"review_decision": "REJECTED"},
         {"review_proposal_revision": "r0"},
         {"proposal_revision": "r2"},
-        {"action_class": "SEND_INVITATION", "target_resource": "repo:other"},
+        {"action_class": "UNSUPPORTED_ACTION"},
         {"privacy_classification": "UNKNOWN"},
         {"stale": True},
         {"revoked": True},
