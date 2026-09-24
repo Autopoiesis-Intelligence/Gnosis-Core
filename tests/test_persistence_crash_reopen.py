@@ -2,7 +2,7 @@ import pytest
 
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
-from gnosis.storage import connect, load_instance, persist_transition, save_instance, verify_durable_graph
+from gnosis.storage import connect, load_instance, save_instance, verify_durable_graph
 
 
 CHECKPOINTS = [
@@ -32,7 +32,7 @@ def test_crash_checkpoint_reopen_has_only_old_durable_state(tmp_path, point):
     path = tmp_path / f"{point}.sqlite"
     conn, instance, candidate, record, proposed, old_state_id = _prepare(path)
     with pytest.raises(RuntimeError, match="injected failure"):
-        persist_transition(conn, instance, candidate, record, actor="u", failure_at=point)
+        _persist_transition(conn, instance, candidate, record, actor="u", failure_at=point)
     conn.close()
 
     reopened = connect(path)
@@ -61,3 +61,5 @@ def test_after_commit_reopen_has_complete_new_state(tmp_path):
     assert reopened.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 1
     assert reopened.execute("SELECT COUNT(*) FROM states").fetchone()[0] == 2
     assert verify_durable_graph(reopened)[0] == 2
+
+from gnosis.storage.repositories import _persist_transition
