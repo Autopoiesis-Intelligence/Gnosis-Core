@@ -26,7 +26,7 @@ CREATE TRIGGER IF NOT EXISTS audit_events_no_update BEFORE UPDATE ON audit_event
 CREATE TRIGGER IF NOT EXISTS audit_events_no_delete BEFORE DELETE ON audit_events BEGIN SELECT RAISE(ABORT,'audit_events are append-only'); END;
 CREATE TABLE IF NOT EXISTS execution_evidence (evidence_id TEXT PRIMARY KEY, authorization_id TEXT NOT NULL, authorization_digest TEXT NOT NULL, review_id TEXT NOT NULL, review_digest TEXT NOT NULL, proposal_id TEXT NOT NULL, proposal_revision TEXT NOT NULL, action_class TEXT NOT NULL, target_resource TEXT NOT NULL, authorized_scope TEXT NOT NULL, executor_id TEXT NOT NULL, execution_attempt_id TEXT NOT NULL, execution_order TEXT NOT NULL, result_status TEXT NOT NULL, target_before_revision TEXT NOT NULL, target_after_revision TEXT NOT NULL, privacy_classification TEXT NOT NULL, reconciliation_status TEXT NOT NULL, provenance_refs TEXT NOT NULL, observed_scope TEXT NOT NULL, expected_preconditions TEXT NOT NULL, evidence_digest TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS idx_execution_evidence_authorization ON execution_evidence(authorization_id);
-CREATE INDEX IF NOT EXISTS idx_execution_evidence_attempt ON execution_evidence(execution_attempt_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_execution_evidence_attempt ON execution_evidence(execution_attempt_id);
 CREATE TRIGGER IF NOT EXISTS execution_evidence_no_update BEFORE UPDATE ON execution_evidence BEGIN SELECT RAISE(ABORT,'execution_evidence is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS execution_evidence_no_delete BEFORE DELETE ON execution_evidence BEGIN SELECT RAISE(ABORT,'execution_evidence is append-only'); END;
 """
