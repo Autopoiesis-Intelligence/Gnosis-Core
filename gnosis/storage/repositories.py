@@ -210,47 +210,31 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
 
 
 def _save_execution_evidence_in_transaction(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
-    """Persist immutable E7.77 evidence atomically; exact replay is idempotent."""
+    """Persist immutable E7.77 evidence inside an existing transaction."""
     created_at = created_at or utc_now()
-    payload = {
-        "evidence_id": evidence.evidence_id,
-        "authorization_id": evidence.authorization_id,
-        "authorization_digest": evidence.authorization_digest,
-        "review_id": evidence.review_id,
-        "review_digest": evidence.review_digest,
-        "proposal_id": evidence.proposal_id,
-        "proposal_revision": evidence.proposal_revision,
-        "action_class": evidence.action_class,
-        "target_resource": evidence.target_resource,
-        "authorized_scope": evidence.authorized_scope,
-        "executor_id": evidence.executor_id,
-        "execution_attempt_id": evidence.execution_attempt_id,
-        "execution_order": evidence.execution_order,
-        "result_status": evidence.result_status,
-        "target_before_revision": evidence.target_before_revision,
-        "target_after_revision": evidence.target_after_revision,
-        "privacy_classification": evidence.privacy_classification,
-        "reconciliation_status": evidence.reconciliation_status,
-        "provenance_refs": evidence.provenance_refs,
-        "observed_scope": evidence.observed_scope,
-        "expected_preconditions": evidence.expected_preconditions,
-        "evidence_digest": evidence.evidence_digest,
-    }
-            existing = conn.execute(
-            "SELECT * FROM execution_evidence WHERE evidence_id=?", (evidence.evidence_id,)
-        ).fetchone()
-        if existing is not None:
-            columns = [d[0] for d in conn.execute("SELECT * FROM execution_evidence LIMIT 0").description]
-            stored = dict(zip(columns, existing))
-            for key, value in payload.items():
-                if key in {"provenance_refs", "expected_preconditions"}:
-                    value = canonical_json(value)
-                if stored[key] != value:
-                    raise StorageCorruptionError("conflicting execution evidence replay")
-            return evidence.evidence_id
-        try:
-            conn.execute(
-                """INSERT INTO execution_evidence
+    payload = {k: getattr(evidence, k) for k in (
+        "evidence_id", "authorization_id", "authorization_digest", "review_id", "review_digest",
+        "proposal_id", "proposal_revision", "action_class", "target_resource", "authorized_scope",
+        "executor_id", "execution_attempt_id", "execution_order", "result_status",
+        "target_before_revision", "target_after_revision", "privacy_classification",
+        "reconciliation_status", "provenance_refs", "observed_scope", "expected_preconditions",
+        "evidence_digest",
+    )}
+    existing = conn.execute(
+        "SELECT * FROM execution_evidence WHERE evidence_id=?", (evidence.evidence_id,)
+    ).fetchone()
+    if existing is not None:
+        columns = [d[0] for d in conn.execute("SELECT * FROM execution_evidence LIMIT 0").description]
+        stored = dict(zip(columns, existing))
+        for key, value in payload.items():
+            if key in {"provenance_refs", "expected_preconditions"}:
+                value = canonical_json(value)
+            if stored[key] != value:
+                raise StorageCorruptionError("conflicting execution evidence replay")
+        return evidence.evidence_id
+    try:
+        conn.execute(
+            """INSERT INTO execution_evidence
             (evidence_id,authorization_id,authorization_digest,review_id,review_digest,
              proposal_id,proposal_revision,action_class,target_resource,authorized_scope,
              executor_id,execution_attempt_id,execution_order,result_status,
@@ -258,7 +242,7 @@ def _save_execution_evidence_in_transaction(conn: sqlite3.Connection, evidence: 
              reconciliation_status,provenance_refs,observed_scope,expected_preconditions,
              evidence_digest,created_at)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (payload["evidence_id"], payload["authorization_id"], payload["authorization_digest"],
+            (payload["evidence_id"], payload["authorization_id"], payload["authorization_digest"],
              payload["review_id"], payload["review_digest"], payload["proposal_id"],
              payload["proposal_revision"], payload["action_class"], payload["target_resource"],
              payload["authorized_scope"], payload["executor_id"], payload["execution_attempt_id"],
@@ -266,12 +250,11 @@ def _save_execution_evidence_in_transaction(conn: sqlite3.Connection, evidence: 
              payload["target_after_revision"], payload["privacy_classification"],
              payload["reconciliation_status"], canonical_json(payload["provenance_refs"]),
              payload["observed_scope"], canonical_json(payload["expected_preconditions"]),
-                 payload["evidence_digest"], created_at),
-            )
-        except sqlite3.IntegrityError as exc:
-            raise StorageCorruptionError("conflicting execution evidence replay") from exc
+             payload["evidence_digest"], created_at),
+        )
+    except sqlite3.IntegrityError as exc:
+        raise StorageCorruptionError("conflicting execution evidence replay") from exc
     return evidence.evidence_id
-
 
 def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
     with transaction(conn):
