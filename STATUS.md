@@ -1758,3 +1758,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Thus the current HEAD has green CI + CodeQL evidence.
 - This closes the infrastructure/security gate for the current R1 checkpoint, but R1 itself remains **NOT ACCEPTED** until the explicit acceptance matrix is backed by current-HEAD end-to-end evidence and independent review.
 - No production Reflection mutation made.
+
+
+## R1 E2E evidence traceability checkpoint — 2026-09-24 — SHA 46225edf
+
+- Current main SHA: `46225edf7b15e2f172880014823ebad6fca2bacf`.
+- CI run `36038055229`: **SUCCESS**; CodeQL run `36038055203`: **SUCCESS**.
+- Reflection acceptance requirements map to distributed tests: foundation/read-only, gate/durable recovery, evidence gate, history/lineage, counterexample, rule registry, shadow evaluation and shadow adapter.
+- Current repository pipeline is therefore green with the Reflection test suite present. This raises current-HEAD evidence, but does not create independent review evidence.
+- R1 remains **NOT ACCEPTED** solely because the acceptance contract requires independent review evidence in addition to repository-owned tests. No production Reflection code change is justified by the current audit.
