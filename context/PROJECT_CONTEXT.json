@@ -3,7 +3,7 @@
   "context_id": "gnozis-core-canonical-project",
   "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
   "branch": "main",
-  "snapshot_of_canonical_source_head": "e9e56b610e10911d3a197a539df1840acbbd00ca",
+  "snapshot_of_canonical_source_head": "722e3df0639b21155733ec9850ae1402dd62bc59",
   "current_operating_scope": "SINGLE OWNER / SINGLE ACCOUNT / SINGLE CANONICAL PROJECT",
   "implementation_state": {
     "psi_core": "IMPLEMENTED",
@@ -79,6 +79,7 @@
     "unreviewed Core semantic changes"
   ],
   "open_findings": [
+    "Cross-contract documentation drift was detected and synchronized at checkpoint 722e3df0639b21155733ec9850ae1402dd62bc59",
     "Memory H-01 cross-scope supersession",
     "Memory H-03 supersession cycles",
     "Memory H-04 provenance validation on write path",
@@ -107,6 +108,7 @@
   ],
   "next_permitted_actions": [
     "Run real pytest/CI against the current reflection foundation",
+    "Continue cross-contract self-audit from current main HEAD; do not inherit evidence from stale snapshots",
     "verify reflection persistence and proposal lineage end-to-end",
     "continue adversarial R2 trust-boundary contract work with exact current-head evidence",
     "update public/project descriptions only from current source and verified evidence",
