@@ -7,7 +7,7 @@ from gnosis.control.envelope import EvidenceReceipt, OperationEnvelope
 from gnosis.control.validators import authorize_operation, sha256_payload, validate_task_context
 from gnosis.domain.identity.types import Identity
 from gnosis.domain.scope.types import Scope
-from gnosis.domain.task_context.types import ReflectionBudget, TaskContext
+from gnosis.domain.task_context.model import ReflectionBudget, TaskContext
 
 NOW = 1_700_000_000_000
 
