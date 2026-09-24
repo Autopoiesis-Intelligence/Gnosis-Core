@@ -1413,3 +1413,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/E824_PARTNER_SQLITE_AUDIT_TRANSACTION_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - The adapter defines rollback requirements and post-reopen commit proof without creating a second persistence model.
 - Direct runtime wiring into the existing repository transaction and failure-injection evidence remain open.
+
+## E8.25 runtime SQLite transaction integration — 2026-09-24
+
+- Located the canonical transaction boundary in `gnosis/storage/database.py`: `BEGIN IMMEDIATE`, rollback on exception, commit on success.
+- Implemented `gnosis/self_learning/partner_transaction.py` as a probe that reuses this canonical boundary; no second transaction model was introduced.
+- Added `tests/test_partner_transaction.py` with real SQLite failure injection for write/audit/head/commit stages; connected to Self-Diagnostic CI in `029184e0d65d48730118a691e09cf72da7ae55f7`.
+- Added `docs/architecture/E825_RUNTIME_TRANSACTION_INTEGRATION.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- This proves the transaction boundary probe, not yet the complete production persistence path for a partner learning candidate.
