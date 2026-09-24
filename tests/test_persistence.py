@@ -43,7 +43,7 @@ def test_accepted_transition_atomically_advances_head():
     proposed = instance.engine.state.with_elements({"b": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
     loaded = load_instance(conn, instance.instance_id)
     assert record.accepted
     assert loaded.engine.state.state_id == proposed.state_id
@@ -298,7 +298,7 @@ def test_a13_process_exit_after_commit_reopens_valid_database(tmp_path):
     script = """
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
-from gnosis.storage import connect, persist_transition, save_instance
+from gnosis.storage import connect, save_instance
 conn = connect(r'{path}')
 instance = Instance.create_root('u', State(elements={{'a': 1}}))
 save_instance(conn, instance)
@@ -412,3 +412,5 @@ def test_a51_audit_action_and_result_mismatch_fails_durable_graph_verification()
     )
     with pytest.raises(StorageCorruptionError, match="audit/transition semantic mismatch"):
         verify_durable_graph(conn)
+
+from gnosis.storage.repositories import _persist_transition
