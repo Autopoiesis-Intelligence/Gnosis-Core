@@ -31,7 +31,7 @@ def test_partner_learning_survives_close_reopen(tmp_path):
     assert len(memory)==1 and memory[0].transition_id==tr.transition_id
 
 def test_audit_tamper_is_detected_on_recovery(tmp_path):
-    path=tmp_path/"gnozis.db"; fixture(str(path))
+    path=tmp_path/"gnozis.db"; tr,instance_id=fixture(str(path))
     conn=connect(str(path))
     row=conn.execute("SELECT event_id FROM audit_events ORDER BY sequence DESC LIMIT 1").fetchone()
     conn.execute("DROP TRIGGER audit_events_no_update")
@@ -40,7 +40,7 @@ def test_audit_tamper_is_detected_on_recovery(tmp_path):
     with pytest.raises(Exception): recover_partner_learning(str(path),instance_id)
 
 def test_memory_tamper_is_detected_on_recovery(tmp_path):
-    path=tmp_path/"gnozis.db"; fixture(str(path))
+    path=tmp_path/"gnozis.db"; tr,instance_id=fixture(str(path))
     conn=connect(str(path))
     row=conn.execute("SELECT memory_id FROM evolution_memory LIMIT 1").fetchone()
     conn.execute("DROP TRIGGER evolution_memory_no_update")
