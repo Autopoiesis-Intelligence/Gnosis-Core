@@ -1590,3 +1590,15 @@ A later commit inherits no verification claim from an earlier commit until the a
 - **Current E8.30 status: PARTIAL / UNVERIFIED.** Runtime evidence is improving, but no PASS is claimed.
 - Hash rule: each correction SHA requires its own CI result; no prior result is inherited.
 - Next: CI against latest correction SHA → classify exact failures → correction → new hash checkpoint.
+
+
+## E8.30 strict checkpoint — CI 36034228326 — 2026-09-24
+
+- Exact source SHA: `9b2ff444bb26be26a229b76c76bd8106ac3df8e4`.
+- CI: **FAIL**, Python 3.11 **819 passed / 14 failed**; Python 3.12 cancelled. Coverage reported 89% but this is not contract evidence.
+- E8.30 failures were narrowed: learning fixtures manually inserted transitions without the required transition audit evidence; crash-process fixture lacked an import of the internal persistence primitive; diagnostic subprocess referenced stale `__persist_transition`; one candidate-tamper fixture passed a State object to SQLite instead of its ID.
+- Collaboration failures (5) are outside the E8.30 correction boundary and remain separately classified.
+- Corrections applied: learning fixtures now use canonical `_persist_transition` so transition audit evidence is produced by the authoritative path; crash/diagnostic subprocesses explicitly import that internal primitive; canonical instance identity is preserved; E8.30 candidate tamper uses state IDs at the SQLite boundary.
+- Correction SHAs: `3e63df21`, `41d2baf30`, `848889d3`, `5caf3645`, `7327a470`.
+- E8.30 remains **PARTIAL / UNVERIFIED**. Evidence advances only after CI on the corrected SHA.
+- Next hash-bound checkpoint: CI on latest correction SHA → exact failure classification → correction or acceptance.
