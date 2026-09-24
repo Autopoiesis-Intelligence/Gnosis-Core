@@ -298,6 +298,7 @@ def test_a13_process_exit_after_commit_reopens_valid_database(tmp_path):
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.storage import connect, save_instance
+from gnosis.storage.repositories import _persist_transition
 conn = connect(r'{path}')
 instance = Instance.create_root('u', State(elements={{'a': 1}}))
 save_instance(conn, instance)
