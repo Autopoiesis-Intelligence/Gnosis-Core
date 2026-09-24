@@ -992,3 +992,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #72 was squash-merged into `main` as `0268d872588f4f71a772bcd213d7001bfba3197c`.
 - Dependency Review #160 remains affected by the known Dependency Graph infrastructure limitation.
 - Post-merge workflow evidence for `0268d872588f4f71a772bcd213d7001bfba3197c` is pending.
+
+
+## E7.75 governed collaboration review — integrated — 2026-09-24
+
+- PR #73 exact head `1dce9ef09f19ce994b5f77d98fcdea6dd9a362c0` passed CI #2099 and CodeQL #977.
+- E7.75 implements deterministic immutable review records bound to exact proposal revision, with ACCEPTED/REJECTED/DEFERRED/RETURNED_FOR_REVISION decisions, privacy/scope/freshness checks, replay/tamper resistance, and no execution/publication/Core authority.
+- PR #73 was squash-merged into `main` as `0f13a34e92981021e4201a798573bdaae2edf106`.
+- Dependency Review #161 remains affected by the known Dependency Graph infrastructure limitation.
+- Post-merge workflow evidence for `0f13a34e92981021e4201a798573bdaae2edf106` is pending.
