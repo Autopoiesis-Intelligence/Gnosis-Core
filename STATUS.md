@@ -1008,3 +1008,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Audit recommendation status: evidence-gated; no automatic adoption of GPLv3, strict mypy, uv/Poetry or AI-editor config requirements.
 - pyproject.toml is present with setuptools; root LICENSE was not found during this inspection pass and therefore remains UNVERIFIED/MISSING until confirmed.
 - No new self-learning percentage is credited from documentation-only contracts. Integrated runtime proof remains ~20%.
+
+## E7.76 collaboration execution authorization — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/collaboration_execution_authorization.py` with exact review/proposal/action/resource/scope/privacy binding and fail-closed rejection for non-ACCEPTED, unknown, revoked, expired or stale authorization states.
+- Added `tests/test_collaboration_execution_authorization.py` covering exact tuple binding, non-accepted review rejection, stale/revoked/expired denial, unknown action rejection and deterministic identity.
+- Added the test to Self-Diagnostic CI in commit `bc6fb1c0f3f8a53ed57e44c832601e8d196be392`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Exact CI PASS and full runtime/recovery evidence remain pending; external execution adapter is intentionally not part of this contract.
