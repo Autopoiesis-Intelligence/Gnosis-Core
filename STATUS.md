@@ -1348,3 +1348,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/PARTNER_DELIVERY_RECEIPT_EVIDENCE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - Delivery records capture partner scope, exact core/evidence digests, delivery reference and receipt reference.
 - Partner-result return path is blocked until receipt status is `RECEIVED`; delivery evidence itself grants no execution or learning authority.
+
+## E8.17 partner result → learning candidate — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/partner_result.py` to return partner outcomes into the common learning pipeline without merging partner runtime into Core.
+- Added `tests/test_partner_result.py` and connected it to Self-Diagnostic CI in `f789cd7c5a1f2901a45ecdb8e356e37060ccd7df`.
+- Added `docs/architecture/PARTNER_RESULT_LEARNING_CANDIDATE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- Learning entry requires received delivery, result evidence, Core verification and a SUCCESS_SIGNAL or COUNTEREXAMPLE outcome.
+- INCONCLUSIVE results do not enter durable learning; this boundary does not itself commit learning or grant execution authority.
