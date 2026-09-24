@@ -1301,3 +1301,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Opportunity updates require evidence and a learning-commit reference and can apply only after verified/admitted learning.
 - Promotion to COMMERCIAL is deliberately blocked here; it requires a dedicated commercial-evidence gate. Updating an opportunity never creates a contract.
+
+## E8.11 commercial evidence gate — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/commercial_evidence_gate.py` as a dedicated boundary for commercial eligibility.
+- Added `tests/test_commercial_evidence_gate.py` and connected it to Self-Diagnostic CI in `10fdeca921d6e5151cc10e37c764fd012538d629`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Commercial eligibility requires general evidence, explicit financial evidence, a concrete `partner:` scope and rationale.
+- Positive learning alone cannot promote an opportunity to commercial; the gate itself never creates or executes a contract.
