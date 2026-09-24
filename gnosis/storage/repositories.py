@@ -193,7 +193,7 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
             if db.engine.state.state_id != record.to_state_id:
                 raise ValueError("replayed transition has inconsistent canonical head")
             if evidence is not None:
-                save_execution_evidence(conn, evidence, created_at=utc_now())
+                _save_execution_evidence_in_transaction(conn, evidence, created_at=utc_now())
             return
         if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
         save_candidate(conn,candidate); inject("after_candidate")
@@ -209,7 +209,7 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
     inject("after_commit")
 
 
-def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
+def _save_execution_evidence_in_transaction(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
     """Persist immutable E7.77 evidence atomically; exact replay is idempotent."""
     created_at = created_at or utc_now()
     payload = {
@@ -236,8 +236,7 @@ def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_
         "expected_preconditions": evidence.expected_preconditions,
         "evidence_digest": evidence.evidence_digest,
     }
-    with transaction(conn):
-        existing = conn.execute(
+            existing = conn.execute(
             "SELECT * FROM execution_evidence WHERE evidence_id=?", (evidence.evidence_id,)
         ).fetchone()
         if existing is not None:
@@ -272,6 +271,11 @@ def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_
         except sqlite3.IntegrityError as exc:
             raise StorageCorruptionError("conflicting execution evidence replay") from exc
     return evidence.evidence_id
+
+
+def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
+    with transaction(conn):
+        return _save_execution_evidence_in_transaction(conn, evidence, created_at=created_at)
 
 
 def load_execution_evidence(conn: sqlite3.Connection, evidence_id: str) -> Any:
