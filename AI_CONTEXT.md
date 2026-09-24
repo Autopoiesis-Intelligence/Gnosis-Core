@@ -5184,3 +5184,17 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 - Shadow-assessment exact replay is VERIFIED_BY_CI on candidate 0fd1fe8857ff07958f10fea5b1b0b10f4cd86d76 and integrated.
 - Post-merge CI cannot currently be verified through the available commit-run connector because it exposes PR-triggered runs only; do not infer absence of execution.
 - Issue #16 remains OPEN and P0-R2 remains PARTIAL.
+
+
+## External Audit — Core Hardening Contracts (2026-09)
+
+An external audit proposed checks around state isolation, transition guards, recursive stability, strict typing, reproducible environments, AI-tool configuration, licensing and ADRs. These are now evidence-gated contracts, not assumed facts. Strict mypy, uv/Poetry and Aider/Codeium configuration are not mandatory by auditor assertion alone; reproducibility and explicit engineering policy are the requirements. GPLv3 is not assumed because project licensing must reflect the intended research/commercial policy.
+
+Added contracts:
+- EXTERNAL_AUDIT_CORE_HARDENING_CONTRACT.md
+- CORE_STATE_TRANSITION_PURITY_CONTRACT.md
+- CORE_RECURSIVE_STABILITY_CONTRACT.md
+- CORE_TYPING_AND_REPRODUCIBILITY_CONTRACT.md
+- ARCHITECTURE_DECISION_AND_LICENSING_CONTRACT.md
+
+Current evidence from repository inspection: pyproject.toml exists and uses setuptools; public Core structure was not verified from a directory listing in this audit pass; LICENSE was not found at repository root through the file fetch; therefore licensing status remains UNVERIFIED/MISSING until inspected and decided. No claim is made that mypy --strict or a lockfile is currently present.
