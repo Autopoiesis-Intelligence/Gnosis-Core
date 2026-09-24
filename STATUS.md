@@ -1636,3 +1636,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Correction SHAs: `ee4e3904`, `02f02fb4`.
 - E8.30 remains **PARTIAL / UNVERIFIED** until CI validates these exact corrections.
 - Current chain: `f4c5c562` → exact CI 826/7 → corrections → new SHA → new CI.
+
+
+## E8.30 checkpoint — 2026-09-24 — CI 2528 closed
+
+- CI run `36035008069` on `a44c26205d080463738a7b71f7b182fd302c351a`: **826 passed / 7 failed**; Python 3.11 failure was authoritative, Python 3.12 was cancelled; CodeQL run `36035008118`: **PASS**.
+- The exact E8.30 failures were the already-classified candidate SQLite State binding and memory-tamper recovery assertion. Both are corrected on the new SHA `85692364337263f3bf2be317df8fc5274ed52f1c`.
+- The recovery tamper test now explicitly requires fail-closed recovery on `StorageCorruptionError`; no corrupted memory may be silently converted into an empty memory result.
+- Five collaboration failures remain independent and are not folded into E8.30.
+- E8.30 remains PARTIAL / UNVERIFIED pending CI on the correction SHA.
