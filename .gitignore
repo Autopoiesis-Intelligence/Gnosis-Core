@@ -1,0 +1,12 @@
+# Evidence & Replay Local Artifacts
+.evidence/
+.replay-cache/
+*.receipt.json
+
+# State Plane Local Overrides
+.state-snapshots/
+*.candidate.tmp
+
+# CI & Validation Outputs
+coverage/
+.test-results/
