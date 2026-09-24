@@ -1776,3 +1776,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Existing prior audit material may be used only if its reviewed SHA and scope are explicitly traceable; otherwise the gate remains OPEN.
 - No production Reflection change is authorized solely to satisfy the independent-review requirement.
 - Contract transition: R1 moves to **EVIDENCE-COMPLETE / INDEPENDENT-REVIEW-BLOCKED** until a traceable independent review is attached to the exact reviewed source state.
+
+
+## Independent-review traceability checkpoint — 2026-09-24
+
+- Search of the current repository found roadmap/context references naming **Manus** as the intended independent reviewer, but did not find a review artifact that binds an independent review to the exact current R1 source SHA.
+- Existing Claude/AI audit references are project-context evidence, not independent review by themselves; they must not be promoted to an independent verdict without a traceable artifact.
+- Therefore the R1 independent-review gate remains **OPEN**.
+- The current source context also correctly states that reflection is IMPLEMENTED / UNVERIFIED and that independent review is required. This is consistent with the present evidence classification.
+- No production change is justified. Next permitted operation is acquisition/traceability of an independent adversarial review against the exact reviewed SHA.
