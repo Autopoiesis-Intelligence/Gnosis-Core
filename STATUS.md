@@ -1340,3 +1340,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/PARTNER_CORE_TRANSFER_BOUNDARY_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - Transfer requires approved manifest plus ready contract, minimal core artifacts, evidence artifacts and explicit exclusions.
 - `AI_CONTEXT` and `Research-Memory` are structurally blocked from the transferable core artifact set; transfer does not grant execution authority.
+
+## E8.16 partner delivery & receipt evidence — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/delivery_receipt.py` to bind delivery evidence to the exact transfer manifest and contract.
+- Added `tests/test_delivery_receipt.py` and connected it to Self-Diagnostic CI in `50e9723815b438539827a74cbcca34d413de483c`.
+- Added `docs/architecture/PARTNER_DELIVERY_RECEIPT_EVIDENCE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- Delivery records capture partner scope, exact core/evidence digests, delivery reference and receipt reference.
+- Partner-result return path is blocked until receipt status is `RECEIVED`; delivery evidence itself grants no execution or learning authority.
