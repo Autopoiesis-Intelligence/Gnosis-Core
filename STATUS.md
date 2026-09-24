@@ -1285,3 +1285,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Replay requires identical chain order, references and exact digests; mutation or reordering invalidates the replay match.
 - Closure verification never grants execution authority.
+
+## E8.09 learning outcome commit gate — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/learning_commit_gate.py` to prevent unverified execution outcomes from becoming durable learning memory.
+- Added `tests/test_learning_commit_gate.py` and connected it to Self-Diagnostic CI in `bee3ca031667f53606960ad3aafca0734885af4c`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Durable learning commit requires verified provenance closure, feedback identity, evidence and an admitted LEARNING_SIGNAL or COUNTEREXAMPLE class.
+- Commit never grants execution authority.
