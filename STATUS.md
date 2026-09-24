@@ -973,3 +973,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Dependency Review #156 remains blocked by the known Dependency Graph infrastructure limitation and is not treated as a vulnerability finding.
 - E7.72 feedback validation → proposal binding is INTEGRATED / CI + CodeQL VERIFIED.
 - Post-merge main verification is recorded separately from candidate verification; this STATUS update is the first synchronization commit after the E7.72 merge.
+
+
+## E7.73 provenance binding — integrated — 2026-09-24
+
+- PR #71 exact head `793f244f94648df95ac83b14ffb44eb76cb78924` passed CI #2091 and CodeQL #969.
+- Adversarial tests bind validation, proposal, delivery receipt, knowledge revision, promoted findings, and exclusions to the promotion-record identity and reject semantic/foreign-provenance tampering.
+- PR #71 was merged by squash into `main` as `96e521ae21998c9a00cd0e7719e42fd812745e47`.
+- Dependency Review #157 remains blocked by the known Dependency Graph infrastructure limitation and is not treated as a vulnerability finding.
+- E7.73 is INTEGRATED; post-merge workflow evidence for merge commit `96e521ae21998c9a00cd0e7719e42fd812745e47` is pending.
