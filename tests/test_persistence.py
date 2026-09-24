@@ -13,8 +13,7 @@ from gnosis.storage import (
     append_audit,
     connect,
     load_instance,
-    persist_transition,
-    recover_instance,
+recover_instance,
     save_candidate,
     save_instance,
     verify_audit_chain,
@@ -58,7 +57,7 @@ def test_rejected_transition_does_not_advance_head():
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     rejected = TransitionRecord(instance.engine.state.state_id, proposed.state_id, candidate.candidate_id,
                                  TestResult(False, ("rejected",)), False, "rejected")
-    persist_transition(conn, instance, candidate, rejected, actor="test")
+    _persist_transition(conn, instance, candidate, rejected, actor="test")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
     assert verify_audit_chain(conn)[0] == 2
 
@@ -164,7 +163,7 @@ def _persisted_transition():
     proposed = instance.engine.state.with_elements({"b": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
     return conn, instance, record
 
 
@@ -200,7 +199,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     path = tmp_path / "rejected.sqlite"
     conn = connect(path)
     instance, candidate, record = _rejected_transition_fixture(conn)
-    persist_transition(conn, instance, candidate, record, actor="u")
+    _persist_transition(conn, instance, candidate, record, actor="u")
     original = instance.engine.state.state_id
     conn.close()
     reopened = connect(path)
@@ -217,7 +216,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     candidate = Candidate(instance.engine.state.state_id, noop, "noop")
     record = instance.engine.step(candidate)
     assert record.accepted is False
-    persist_transition(conn, instance, candidate, record, actor="u")
+    _persist_transition(conn, instance, candidate, record, actor="u")
     assert recover_instance(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
     assert verify_durable_graph(conn)[0] == 2
 
@@ -226,7 +225,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     path = tmp_path / "rejected-head.sqlite"
     conn = connect(path)
     instance, candidate, record = _rejected_transition_fixture(conn)
-    persist_transition(conn, instance, candidate, record, actor="u")
+    _persist_transition(conn, instance, candidate, record, actor="u")
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
@@ -289,7 +288,7 @@ def test_a30_atomicity_rolls_back_after_audit_before_commit(monkeypatch):
     record = instance.engine.step(candidate)
 
     with pytest.raises(RuntimeError, match="injected failure at after_audit"):
-        persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_audit")
+        _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_audit")
     assert recover_instance(conn, instance.instance_id).engine.state.state_id == original_state_id
 
 
@@ -305,7 +304,7 @@ save_instance(conn, instance)
 proposed = instance.engine.state.with_elements({{'b': 2}})
 candidate = Candidate(instance.engine.state.state_id, proposed, 'crash')
 record = instance.engine.step(candidate)
-persist_transition(conn, instance, candidate, record, actor='u')
+_persist_transition(conn, instance, candidate, record, actor='u')
 conn.close()
 """.format(path=path)
     completed = subprocess.run([sys.executable, "-c", script], cwd=Path(__file__).parents[1], check=False)
@@ -386,7 +385,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     candidate = Candidate(instance.engine.state.state_id, proposed, "rollback")
     record = instance.engine.step(candidate)
     with pytest.raises(RuntimeError, match="injected failure"):
-        persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
+        _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
     assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
