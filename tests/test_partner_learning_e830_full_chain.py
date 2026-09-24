@@ -30,7 +30,7 @@ def test_full_chain_survives_reopen(tmp_path):
 
 @pytest.mark.parametrize("mutation",["audit_result","memory_evidence","transition_candidate","transition_state"])
 def test_full_chain_tamper_matrix_fails_closed(tmp_path,mutation):
-    path=tmp_path/f"{mutation}.db"; tr,result=build_chain(str(path)); conn=connect(str(path))
+    path=tmp_path/f"{mutation}.db"; tr,result,instance_id=build_chain(str(path)); conn=connect(str(path))
     if mutation=="audit_result":
         conn.execute("DROP TRIGGER audit_events_no_update"); row=conn.execute("SELECT event_id FROM audit_events WHERE event_id LIKE 'partner-learning:%'").fetchone(); conn.execute("UPDATE audit_events SET result=? WHERE event_id=?",("tamper",row[0]))
     elif mutation=="memory_evidence":
@@ -41,13 +41,13 @@ def test_full_chain_tamper_matrix_fails_closed(tmp_path,mutation):
     else:
         row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("UPDATE transitions SET to_state_id=? WHERE transition_id=?",(tr.from_state_id,row[0]))
     conn.commit(); conn.close()
-    with pytest.raises(Exception): recover_partner_learning(str(path),"i")
+    with pytest.raises(Exception): recover_partner_learning(str(path),instance_id)
 
 def test_full_chain_exact_replay_after_reopen_is_idempotent(tmp_path):
-    path=tmp_path/"replay.db"; tr,result=build_chain(str(path)); recover_partner_learning(str(path),"i")
+    path=tmp_path/"replay.db"; tr,result,instance_id=build_chain(str(path)); recover_partner_learning(str(path),instance_id)
     conn=connect(str(path)); admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     request=build_request(candidate_id=(conn.execute("SELECT candidate_id FROM transitions WHERE transition_id=?",(tr.transition_id,)).fetchone()[0]),result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=tr.to_state_id,admission_verified=True)
-    again=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+    again=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
     assert again.memory_id==result.memory_id
     assert conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]==1
     assert conn.execute("SELECT count(*) FROM audit_events WHERE event_id LIKE 'partner-learning:%'").fetchone()[0]==1
