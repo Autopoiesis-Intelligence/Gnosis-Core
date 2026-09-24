@@ -1,7 +1,7 @@
 import pytest
 
 from gnosis.core import Candidate, TestResult, TransitionRecord
-from gnosis.storage import StorageCorruptionError, connect, load_instance, persist_transition, save_instance, verify_audit_chain, verify_durable_graph
+from gnosis.storage import StorageCorruptionError, connect, load_instance, save_instance, verify_audit_chain, verify_durable_graph
 from gnosis.instances.instance import Instance
 from gnosis.core import State
 
@@ -14,7 +14,7 @@ def test_same_transition_replay_is_idempotent():
     candidate = Candidate(instance.engine.state.state_id, proposed, "replay-test")
     record = instance.engine.step(candidate)
 
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
     transition_count = conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0]
     audit_count = conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0]
     head = conn.execute("SELECT current_state_id FROM instances WHERE instance_id=?", (instance.instance_id,)).fetchone()[0]
@@ -185,3 +185,5 @@ def test_replay_detects_tampered_persisted_state_before_idempotent_acceptance():
         "SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()[0] == 1
     conn.close()
+
+from gnosis.storage.repositories import _persist_transition
