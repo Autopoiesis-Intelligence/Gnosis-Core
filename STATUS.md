@@ -1704,3 +1704,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - User/task/context runtime remains **NOT IMPLEMENTED**.
 - Autonomous activation, direct self-modification and second Core authority remain forbidden.
 - Corrective action: synchronize machine-readable project context to current main HEAD, then continue the cross-contract audit from the current source rather than stale snapshots.
+
+
+## R1 verification checkpoint — 2026-09-24
+
+- Exact CI run `36037021059` for `bc5443f1f6e0588a12fce46370a73ea45bbd2897`: **SUCCESS**.
+- Exact CodeQL run `36037021054`: **SUCCESS**.
+- This validates the synchronized machine-readable context change against the repository test/security pipeline.
+- It does **not** by itself satisfy Reflection R1 acceptance; Reflection-specific persistence, provenance, lineage, shadow-evaluation, immutability and no-activation evidence still require explicit acceptance tests/evidence.
+- Cross-contract audit therefore advances from infrastructure verification to explicit R1 evidence collection. No production Reflection mutation is authorized merely by green CI.
