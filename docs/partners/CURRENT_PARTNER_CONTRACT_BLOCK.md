@@ -3,9 +3,9 @@
 > GENERATED FILE — update with scripts/update_partner_contract_block.py.
 > This block is the current machine-readable partner contract index. It is not an authority root and does not grant access or execution rights.
 
-- Generated at (UTC): 2026-09-24T10:28:14.116026+00:00
-- Source revision: fe494c707218097fe26e797cde09776865339272
-- Contract index digest: sha256:9536741040bc305517f688a34b5824d566d9137d1640ffa2268806dceed98ed6
+- Generated at (UTC): 2026-09-24T11:27:45.940122+00:00
+- Source revision: 24022f14d7e98087969b89b395c7f1b31d00a986
+- Contract index digest: sha256:6f5918e7f5534f79e2fc8857dde038ee245185e7669a0bf2d92dc3238b110d46
 - Authority: index_only
 - Provenance: partner-contract-current-block
 
@@ -86,18 +86,18 @@
 | E7.73 | PARTIAL / UNVERIFIED | Governed Feedback Promotion Record |
 | E7.74 | PARTIAL / UNVERIFIED | Self-Learning Collaboration Proposal Generator |
 | E7.75 | DESIGNED / NOT_IMPLEMENTED | Governed Collaboration Proposal Review & Acceptance |
-| E7.76 | DESIGNED / NOT_IMPLEMENTED | Collaboration Execution Authorization & External Action Boundary |
-| E7.77 | DESIGNED / NOT_IMPLEMENTED | External Collaboration Execution Evidence & Result Reconciliation |
-| E7.78 | DESIGNED / NOT_IMPLEMENTED | External Collaboration Failure, Compensation & Recovery Boundary |
-| E7.79 | DESIGNED / NOT_IMPLEMENTED | Governed External Collaboration Incident & Conflict Resolution |
-| E7.80 | DESIGNED / NOT_IMPLEMENTED | Governed Remediation Plan & Compensation Authorization |
-| E7.81 | DESIGNED / NOT_IMPLEMENTED | Remediation Execution Authorization & Controlled Compensation Execution |
-| E7.82 | DESIGNED / NOT_IMPLEMENTED | Remediation Result Verification & Governed Closure |
-| E7.83 | DESIGNED / NOT_IMPLEMENTED | Governed Collaboration Lifecycle Closure & Contract Retirement |
-| E7.84 | DESIGNED / NOT_IMPLEMENTED | Lifecycle Retention, Evidence Preservation & Controlled Data Disposal |
-| E7.85 | DESIGNED / NOT_IMPLEMENTED | Collaboration Evidence Export & External Audit Package |
-| E7.86 | DESIGNED / NOT_IMPLEMENTED | External Auditor Verification & Attestation Boundary |
-| E7.87 | DESIGNED / NOT_IMPLEMENTED | External Audit Challenge, Dispute & Evidence Reconciliation |
+| E7.76 | PARTIAL / UNVERIFIED | Collaboration Execution Authorization & External Action Boundary |
+| E7.77 | PARTIAL / UNVERIFIED | External Collaboration Execution Evidence & Result Reconciliation |
+| E7.78 | PARTIAL / UNVERIFIED | External Collaboration Failure, Compensation & Recovery Boundary |
+| E7.79 | PARTIAL / UNVERIFIED | Governed External Collaboration Incident & Conflict Resolution |
+| E7.80 | PARTIAL / UNVERIFIED | Governed Remediation Plan & Compensation Authorization |
+| E7.81 | PARTIAL / UNVERIFIED | Remediation Execution Authorization & Controlled Compensation Execution |
+| E7.82 | PARTIAL / UNVERIFIED | Remediation Result Verification & Governed Closure |
+| E7.83 | PARTIAL / UNVERIFIED | Governed Collaboration Lifecycle Closure & Contract Retirement |
+| E7.84 | PARTIAL / UNVERIFIED | Lifecycle Retention, Evidence Preservation & Controlled Data Disposal |
+| E7.85 | PARTIAL / UNVERIFIED | Collaboration Evidence Export & External Audit Package |
+| E7.86 | PARTIAL / UNVERIFIED | External Auditor Verification & Attestation Boundary |
+| E7.87 | PARTIAL / UNVERIFIED | External Audit Challenge, Dispute & Evidence Reconciliation |
 | E7.88 | DESIGNED / NOT_IMPLEMENTED | External Audit Resolution, Corrective Finding & Attestation Update |
 | E7.89 | DESIGNED / NOT_IMPLEMENTED | Corrective Finding Governance Review & Remediation Trigger |
 | E7.90 | DESIGNED / NOT_IMPLEMENTED | Governance Outcome & Remediation Plan Intake |
