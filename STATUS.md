@@ -1277,3 +1277,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - PASS/positive evidence may become `LEARNING_SIGNAL`; evidence-backed FAIL may become `COUNTEREXAMPLE`; ambiguous results require review and cannot silently become positive learning.
 - Admission never grants execution authority.
+
+## E8.08 provenance closure & replay — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/provenance_closure.py` for deterministic closure of Proposal → Contract → Execution → Verification → Learning.
+- Added `tests/test_provenance_closure.py` and connected it to Self-Diagnostic CI in `eccab9c7ab082aaeaf4e63fbec904f5b4ca930b3`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Replay requires identical chain order, references and exact digests; mutation or reordering invalidates the replay match.
+- Closure verification never grants execution authority.
