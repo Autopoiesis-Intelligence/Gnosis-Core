@@ -200,3 +200,91 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
         if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
         inject("before_commit")
     inject("after_commit")
+
+
+def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
+    """Persist immutable E7.77 evidence atomically; exact replay is idempotent."""
+    created_at = created_at or utc_now()
+    payload = {
+        "evidence_id": evidence.evidence_id,
+        "authorization_id": evidence.authorization_id,
+        "authorization_digest": evidence.authorization_digest,
+        "review_id": evidence.review_id,
+        "review_digest": evidence.review_digest,
+        "proposal_id": evidence.proposal_id,
+        "proposal_revision": evidence.proposal_revision,
+        "action_class": evidence.action_class,
+        "target_resource": evidence.target_resource,
+        "authorized_scope": evidence.authorized_scope,
+        "executor_id": evidence.executor_id,
+        "execution_attempt_id": evidence.execution_attempt_id,
+        "execution_order": evidence.execution_order,
+        "result_status": evidence.result_status,
+        "target_before_revision": evidence.target_before_revision,
+        "target_after_revision": evidence.target_after_revision,
+        "privacy_classification": evidence.privacy_classification,
+        "reconciliation_status": evidence.reconciliation_status,
+        "provenance_refs": evidence.provenance_refs,
+        "observed_scope": evidence.observed_scope,
+        "expected_preconditions": evidence.expected_preconditions,
+        "evidence_digest": evidence.evidence_digest,
+    }
+    with transaction(conn):
+        existing = conn.execute(
+            "SELECT * FROM execution_evidence WHERE evidence_id=?", (evidence.evidence_id,)
+        ).fetchone()
+        if existing is not None:
+            columns = [d[0] for d in conn.execute("SELECT * FROM execution_evidence LIMIT 0").description]
+            stored = dict(zip(columns, existing))
+            for key, value in payload.items():
+                if key in {"provenance_refs", "expected_preconditions"}:
+                    value = canonical_json(value)
+                if stored[key] != value:
+                    raise StorageCorruptionError("conflicting execution evidence replay")
+            return evidence.evidence_id
+        conn.execute(
+            """INSERT INTO execution_evidence
+            (evidence_id,authorization_id,authorization_digest,review_id,review_digest,
+             proposal_id,proposal_revision,action_class,target_resource,authorized_scope,
+             executor_id,execution_attempt_id,execution_order,result_status,
+             target_before_revision,target_after_revision,privacy_classification,
+             reconciliation_status,provenance_refs,observed_scope,expected_preconditions,
+             evidence_digest,created_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (payload["evidence_id"], payload["authorization_id"], payload["authorization_digest"],
+             payload["review_id"], payload["review_digest"], payload["proposal_id"],
+             payload["proposal_revision"], payload["action_class"], payload["target_resource"],
+             payload["authorized_scope"], payload["executor_id"], payload["execution_attempt_id"],
+             payload["execution_order"], payload["result_status"], payload["target_before_revision"],
+             payload["target_after_revision"], payload["privacy_classification"],
+             payload["reconciliation_status"], canonical_json(payload["provenance_refs"]),
+             payload["observed_scope"], canonical_json(payload["expected_preconditions"]),
+             payload["evidence_digest"], created_at),
+        )
+    return evidence.evidence_id
+
+
+def load_execution_evidence(conn: sqlite3.Connection, evidence_id: str) -> Any:
+    from gnosis.self_learning.collaboration_evidence import ExecutionEvidence
+    row = conn.execute("SELECT * FROM execution_evidence WHERE evidence_id=?", (evidence_id,)).fetchone()
+    if row is None:
+        raise StorageCorruptionError(f"execution evidence not found: {evidence_id}")
+    values = dict(row)
+    try:
+        values["provenance_refs"] = tuple(json.loads(values["provenance_refs"]))
+        values["expected_preconditions"] = tuple(json.loads(values["expected_preconditions"]))
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise StorageCorruptionError("malformed execution evidence payload") from exc
+    values.pop("created_at", None)
+    evidence = ExecutionEvidence(**values)
+    if evidence.evidence_id != evidence_id:
+        raise StorageCorruptionError("execution evidence identity mismatch")
+    return evidence
+
+
+def verify_execution_evidence(conn: sqlite3.Connection) -> int:
+    count = 0
+    for row in conn.execute("SELECT evidence_id FROM execution_evidence ORDER BY evidence_id"):
+        load_execution_evidence(conn, row[0])
+        count += 1
+    return count
