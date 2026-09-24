@@ -1142,3 +1142,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Candidates are deterministically bound to extraction, pattern/relation references and evidence, with explicit objective and scope.
 - Candidate generation never grants execution authority and proposed candidates must pass the later shadow-evaluation gate.
+
+## E7.92 shadow evaluation — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/shadow_evaluation.py` as a non-committing evaluation boundary for generated candidate contracts.
+- Added `tests/test_shadow_evaluation.py` and connected it to Self-Diagnostic CI in `32d3fb6dffad89199cf55c7003989588a5871f77`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Evaluation binds candidate/base/projected state digests plus invariant, regression and evidence results.
+- PASS requires explicit PASS evidence and a changed projected state; shadow evaluation never grants execution authority or commits the candidate.
