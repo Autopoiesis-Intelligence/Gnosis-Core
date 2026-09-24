@@ -242,8 +242,9 @@ def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_
                 if stored[key] != value:
                     raise StorageCorruptionError("conflicting execution evidence replay")
             return evidence.evidence_id
-        conn.execute(
-            """INSERT INTO execution_evidence
+        try:
+            conn.execute(
+                """INSERT INTO execution_evidence
             (evidence_id,authorization_id,authorization_digest,review_id,review_digest,
              proposal_id,proposal_revision,action_class,target_resource,authorized_scope,
              executor_id,execution_attempt_id,execution_order,result_status,
@@ -251,7 +252,7 @@ def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_
              reconciliation_status,provenance_refs,observed_scope,expected_preconditions,
              evidence_digest,created_at)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-            (payload["evidence_id"], payload["authorization_id"], payload["authorization_digest"],
+                (payload["evidence_id"], payload["authorization_id"], payload["authorization_digest"],
              payload["review_id"], payload["review_digest"], payload["proposal_id"],
              payload["proposal_revision"], payload["action_class"], payload["target_resource"],
              payload["authorized_scope"], payload["executor_id"], payload["execution_attempt_id"],
@@ -259,8 +260,10 @@ def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_
              payload["target_after_revision"], payload["privacy_classification"],
              payload["reconciliation_status"], canonical_json(payload["provenance_refs"]),
              payload["observed_scope"], canonical_json(payload["expected_preconditions"]),
-             payload["evidence_digest"], created_at),
-        )
+                 payload["evidence_digest"], created_at),
+            )
+        except sqlite3.IntegrityError as exc:
+            raise StorageCorruptionError("conflicting execution evidence replay") from exc
     return evidence.evidence_id
 
 
