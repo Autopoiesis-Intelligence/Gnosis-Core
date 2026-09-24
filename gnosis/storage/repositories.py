@@ -200,3 +200,7 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
         if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
         inject("before_commit")
     inject("after_commit")
+
+
+# Backward-compatible internal alias; the canonical implementation is public persist_transition.
+_persist_transition = persist_transition
