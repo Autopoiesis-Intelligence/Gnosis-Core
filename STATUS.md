@@ -1206,3 +1206,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Inputs are classified as GENERAL, CORE_PRIVATE or PARTNER_PRIVATE and carry deterministic provenance digests.
 - PARTNER_PRIVATE inputs cannot cross into another learning scope; only ADMITTED inputs with evidence may enter learning.
+
+## E8.00 opportunity value grid — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/opportunity_grid.py` as a deterministic classification/routing boundary for discovered development opportunities.
+- Added `tests/test_opportunity_grid.py` and connected it to Self-Diagnostic CI in `4160452c93dd84e4eab8f8daccde5956611053b6`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Value levels: LOW_RELEVANCE → GENERAL_BACKLOG; RESEARCH_RELEVANT → RESEARCH_CONTRACT; COMMERCIAL → PARTNER_CONTRACT.
+- Commercial routing requires a partner-scoped destination; classification itself never grants execution authority.
