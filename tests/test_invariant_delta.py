@@ -62,3 +62,19 @@ def test_missing_current_state_is_unknown_not_failure():
 
     assert delta.status == "INSUFFICIENT_EVIDENCE"
     assert candidate.candidate_id in delta.unknown
+
+
+
+def test_empty_shadow_evaluation_is_insufficient_evidence():
+    from gnosis.reflection.shadow import ShadowEvaluation
+
+    evaluation = ShadowEvaluation(cases=())
+    delta = analyze_invariant_delta(
+        evaluation,
+        (),
+        {},
+        DEFAULT_INVARIANTS,
+    )
+
+    assert delta.status == "INSUFFICIENT_EVIDENCE"
+    assert delta.unknown == ("<no-evaluation-cases>",)
