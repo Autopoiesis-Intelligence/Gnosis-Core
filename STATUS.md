@@ -1613,3 +1613,14 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Correction SHAs: `a7456078`, `691ff7e1`, `006c736f`, `1df747f0`, `b01d871d`.
 - E8.30 remains **PARTIAL / UNVERIFIED**. No runtime evidence is inherited by these new SHAs until CI reruns.
 - Next: CI against the latest correction SHA, then exact failure classification and next hash checkpoint.
+
+
+## E8.30 exact CI classification — 2026-09-24
+
+- CI run `36034558692` on exact SHA `a6cf547b1e1d65fa198de0ee0a18cfb40dd9956f`: **825 passed / 8 failed**; CodeQL `36034558664`: **PASS**.
+- E8.30-related failures were isolated to 3 tests: conflicting partner replay did not reuse the same request identity; candidate tamper used a replacement candidate with identical state binding and therefore was not actually adversarial; recovery memory-tamper fixture lost the canonical instance ID.
+- 5 collaboration failures are separately classified and are not counted as E8.30 evidence.
+- Corrections applied: replay tamper now preserves request identity while altering provenance; candidate tamper now changes the proposed State so durable-graph candidate binding is genuinely violated; recovery tamper fixtures preserve the canonical instance ID.
+- Correction SHAs: `64cdb60d`, `cca8cb65`, `51c26abf`.
+- E8.30 remains **PARTIAL / UNVERIFIED** until CI runs against these exact correction states.
+- Hash invariant preserved: no evidence is transferred from `a6cf547b` to any correction SHA.
