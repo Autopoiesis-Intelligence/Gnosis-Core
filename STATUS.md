@@ -1086,3 +1086,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Raw data may be disposed only through an explicit gated decision; durable evidence references remain part of the audit trail.
 - Exact runtime/replay/disposal evidence remains pending.
+
+## E7.85 collaboration evidence export — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/audit_package.py` with deterministic package identity, source digest, export revision, evidence references and explicit privacy classification.
+- Added `tests/test_audit_package.py` and connected it to Self-Diagnostic CI in `ab58fa556e5f831826d0bb700756b8d1a573b5bf`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Audit packages are not public-safe by default; only PUBLIC/SHAREABLE_ABSTRACTION/REDACTED classifications pass the public-safe gate.
+- Sealed packages are required before an export is considered auditable; external auditor verification remains a separate E7.86 gate.
