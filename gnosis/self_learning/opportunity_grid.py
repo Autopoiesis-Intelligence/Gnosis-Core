@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib,json
 from dataclasses import dataclass
 LEVELS=("LOW_RELEVANCE","RESEARCH_RELEVANT","COMMERCIAL")
+# Priority semantics: low = latent additional value; research = relevant with legal/research framing; commercial = explicit financial component.
 @dataclass(frozen=True)
 class Opportunity:
     opportunity_id:str; source_refs:tuple[str,...]; evidence_refs:tuple[str,...]; value_level:str; scope:str; rationale:str; contract_kind:str; status:str
