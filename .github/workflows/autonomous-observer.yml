@@ -1,0 +1,69 @@
+name: Autonomous Evolution Observer
+
+on:
+  schedule:
+    - cron: "0 0,6,12,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: autonomous-observer-main
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package + dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Capture exact checkpoint
+        run: |
+          {
+            echo "AUTONOMOUS OBSERVER"
+            echo "timestamp_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "sha=$(git rev-parse HEAD)"
+            echo "branch=$(git branch --show-current)"
+            echo "status_file=$(git rev-parse HEAD:STATUS.md)"
+          } | tee autonomous-observer-report.txt
+
+      - name: Run full regression
+        run: |
+          set +e
+          pytest -q > autonomous-tests.txt 2>&1
+          rc=$?
+          cat autonomous-tests.txt
+          echo "pytest_exit_code=$rc" | tee -a autonomous-observer-report.txt
+          if [ "$rc" -ne 0 ]; then
+            echo "RESULT=FAIL" | tee -a autonomous-observer-report.txt
+            exit "$rc"
+          fi
+          echo "RESULT=PASS" | tee -a autonomous-observer-report.txt
+
+      - name: Run self-diagnostic corpus
+        run: |
+          python diagnostic_corpus/generate.py
+          test -f diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
+
+      - name: Publish autonomous checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autonomous-observer-${{ github.run_id }}
+          path: |
+            autonomous-observer-report.txt
+            autonomous-tests.txt
+            diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
+          retention-days: 14
