@@ -158,7 +158,7 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                     raise StorageCorruptionError("audit/transition semantic mismatch")
     return chain
 
-def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
+def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None,evidence: Any|None=None)->None:
     def inject(point: str)->None:
         if failure_at==point: raise RuntimeError(f"injected failure at {point}")
     if candidate.parent_state_id!=record.from_state_id: raise ValueError("candidate parent does not match transition source")
@@ -192,11 +192,18 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
                 raise StorageCorruptionError("conflicting candidate replay")
             if db.engine.state.state_id != record.to_state_id:
                 raise ValueError("replayed transition has inconsistent canonical head")
+            if evidence is not None:
+                save_execution_evidence(conn, evidence, created_at=utc_now())
             return
         if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
         save_candidate(conn,candidate); inject("after_candidate")
         conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,candidate.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
         append_audit(conn,actor=actor,action="transition.commit" if record.accepted else "transition.reject",resource=instance.instance_id,result="accepted" if record.accepted else "rejected",event_key=f"transition:{tid}",transition_id_value=tid); inject("after_audit")
+        if evidence is not None:
+            if not record.accepted or evidence.reconciliation_status != "RECONCILED":
+                raise StorageCorruptionError("non-reconciled execution evidence cannot accompany committed transition")
+            save_execution_evidence(conn, evidence, created_at=utc_now())
+            inject("after_evidence")
         if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
         inject("before_commit")
     inject("after_commit")
