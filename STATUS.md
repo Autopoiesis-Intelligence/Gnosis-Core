@@ -1309,3 +1309,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Commercial eligibility requires general evidence, explicit financial evidence, a concrete `partner:` scope and rationale.
 - Positive learning alone cannot promote an opportunity to commercial; the gate itself never creates or executes a contract.
+
+## E8.12 partnership proposal generator — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/partnership_proposal.py` to generate an evidence-bound commercial partnership proposal only after an admitted commercial evidence decision.
+- Added `tests/test_partnership_proposal.py` and connected it to Self-Diagnostic CI in `3f6f2739cefa87d6371ae0bb2783f5c06784addc`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Proposal records partner scope, minimal core scope, expected result, constraints, evidence and commercial decision reference.
+- Generator cannot bypass the commercial gate, create a contract or grant execution authority; review/acceptance remains separate.
