@@ -1253,3 +1253,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Decisions are ACCEPT, REJECT or REQUEST_CHANGES; only ACCEPT on the exact PROPOSED artifact may activate it.
 - Review itself never grants execution authority.
+
+## E8.05 contract execution boundary — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/execution_boundary.py` to separate contract acceptance from execution authorization.
+- Added `tests/test_execution_boundary.py` and connected it to Self-Diagnostic CI in `67fb49fa20180118d2c846ade1852b6827a304e0`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Execution authorization binds the exact contract ID, contract digest, scope, task reference and expected result.
+- Wrong digest or scope blocks execution; authorization cannot create or modify contracts.
