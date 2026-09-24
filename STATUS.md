@@ -1261,3 +1261,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Execution authorization binds the exact contract ID, contract digest, scope, task reference and expected result.
 - Wrong digest or scope blocks execution; authorization cannot create or modify contracts.
+
+## E8.06 execution result & verification feedback — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/verification_feedback.py` to return execution outcomes to the learning boundary as evidence-bound feedback.
+- Added `tests/test_verification_feedback.py` and connected it to Self-Diagnostic CI in `651351193a70a59f3b0eeabf7601fbb3a6a70082`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Feedback binds exact contract ID, contract digest, execution ID and scope and records expected result, actual result, deviation, verdict and evidence.
+- Evidence-backed feedback may re-enter learning; feedback never grants execution authority.
