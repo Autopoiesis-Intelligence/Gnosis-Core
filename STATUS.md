@@ -1102,3 +1102,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Only a VERIFIED attestation matching the exact package digest is valid; attestation never grants execution authority.
 - Independent external verification and replay evidence remain pending.
+
+## E7.87 audit challenge and reconciliation — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/audit_challenge.py` with durable challenge identity, challenged package digest, claim evidence and explicit resolution evidence.
+- Added `tests/test_audit_challenge.py` and connected it to Self-Diagnostic CI in `5a6c3e27b3f2528e294229cfc45e7f0e3ea6e1eb`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Resolution requires matching package digest and explicit resolution evidence; challenge history is preserved and challenge state does not grant/revoke execution authority.
+- Independent runtime/replay/dispute evidence remains pending.
