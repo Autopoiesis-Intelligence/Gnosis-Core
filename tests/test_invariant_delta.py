@@ -68,7 +68,15 @@ def test_missing_current_state_is_unknown_not_failure():
 def test_empty_shadow_evaluation_is_insufficient_evidence():
     from gnosis.reflection.shadow import ShadowEvaluation
 
-    evaluation = ShadowEvaluation(cases=())
+    evaluation = ShadowEvaluation(
+        cases=(),
+        changed_cases=0,
+        accepted_by_active=0,
+        accepted_by_shadow=0,
+        regressions=0,
+        improvements=0,
+        status="NO_INPUT",
+    )
     delta = analyze_invariant_delta(
         evaluation,
         (),
