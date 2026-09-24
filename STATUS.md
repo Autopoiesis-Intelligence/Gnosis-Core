@@ -1158,3 +1158,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Proposal creation requires PASS shadow outcome, evidence and an explicit objective/scope; the proposal remains bound to the evaluated base-state digest.
 - Proposal creation never grants execution authority; governance/commit remains a later gate.
+
+## E7.94 governance decision — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/governance_decision.py` as the controlled decision boundary after a passing E7.93 proposal.
+- Added `tests/test_governance_decision.py` and connected it to Self-Diagnostic CI in `c53f8d77f750d51654fecdb13de279500b46ca26`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Commit eligibility requires explicit evidence, sufficient approvals, APPROVED outcome, and an unchanged proposal/current state digest; state changes make the decision stale.
+- Governance decision itself does not create general execution authority; controlled commit remains a separate gate.
