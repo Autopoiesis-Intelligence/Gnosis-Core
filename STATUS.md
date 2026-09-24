@@ -1230,3 +1230,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - LOW_RELEVANCE routes to GENERAL_OPEN; RESEARCH_RELEVANT routes to RESEARCH_LEGAL; COMMERCIAL requires explicit financial evidence and a `partner:` scope before COMMERCIAL_PARTNER formation.
 - Contract formation never grants execution authority.
+
+## E8.03 self-analysis test — proposal generated — 2026-09-24
+
+- Ran a repository-level structural self-analysis of the current E7.97–E8.02 learning/contract chain.
+- The analysis identifies the primary gap as missing end-to-end orchestration and a persistent auditable proposal artifact, plus typed financial evidence and reclassification-evidence continuity.
+- Added `gnosis/self_learning/self_analysis.py` and `tests/test_self_analysis.py`; connected the test to Self-Diagnostic CI in `607dd677105c3dff9ea7f12a0beab27042bdc251`.
+- Added the machine-readable proposal at `docs/architecture/E8.03_SELF_ANALYSIS_PROPOSAL.md`.
+- E8.03 remains PROPOSED / PARTIAL: the analysis produced the improvement proposal, but the proposed orchestration engine is intentionally not yet claimed as implemented.
