@@ -1,0 +1,49 @@
+import pytest
+from gnosis.core import Candidate, State, TestResult, TransitionRecord
+from gnosis.storage.database import connect
+from gnosis.storage.repositories import save_state, save_candidate, verify_durable_graph
+from gnosis.self_learning.partner_learning_adapter import build_request
+from gnosis.self_learning.partner_learning_gate import admit_partner_candidate
+from gnosis.self_learning.partner_learning_runtime import commit_admitted_partner_learning
+from gnosis.self_learning.partner_learning_recovery import recover_partner_learning
+
+def build_chain(path):
+    conn=connect(path); parent=State(elements={"v":1}); proposed=parent.with_elements({"v":2})
+    save_state(conn,parent); candidate=Candidate(parent.state_id,proposed,"partner:test",1); save_candidate(conn,candidate)
+    tr=TransitionRecord(parent.state_id,proposed.state_id,candidate.candidate_id,TestResult(True,("ok",)),True,"committed","test:partner")
+    conn.execute("INSERT INTO instances(instance_id,parent_instance_id,owner_id,root_state_id,current_state_id,generation,status,budget_total,budget_spent,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)",("i",None,"o",parent.state_id,proposed.state_id,0,"active",10,1,"t"))
+    conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tr.transition_id,"i",candidate.candidate_id,parent.state_id,proposed.state_id,1,'["ok"]',"test:partner","t"))
+    admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
+    request=build_request(candidate_id=candidate.candidate_id,result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=proposed.state_id,admission_verified=True)
+    result=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+    conn.close(); return tr,result
+
+def test_full_chain_survives_reopen(tmp_path):
+    path=tmp_path/"g.db"; tr,result=build_chain(str(path))
+    instance,memory=recover_partner_learning(str(path),"i")
+    assert instance.engine.state.state_id==tr.to_state_id
+    assert len(memory)==1 and memory[0].memory_id==result.memory_id
+
+@pytest.mark.parametrize("mutation",["audit_result","memory_evidence","transition_candidate","transition_state"])
+def test_full_chain_tamper_matrix_fails_closed(tmp_path,mutation):
+    path=tmp_path/f"{mutation}.db"; tr,result=build_chain(str(path)); conn=connect(str(path))
+    if mutation=="audit_result":
+        conn.execute("DROP TRIGGER audit_events_no_update"); row=conn.execute("SELECT event_id FROM audit_events WHERE event_id LIKE 'partner-learning:%'").fetchone(); conn.execute("UPDATE audit_events SET result=? WHERE event_id=?",("tamper",row[0]))
+    elif mutation=="memory_evidence":
+        conn.execute("DROP TRIGGER evolution_memory_no_update"); row=conn.execute("SELECT memory_id FROM evolution_memory LIMIT 1").fetchone(); conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?",("[\"tamper\"]",row[0]))
+    elif mutation=="transition_candidate":
+        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("DROP TRIGGER audit_events_no_update"); conn.execute("UPDATE transitions SET candidate_id=? WHERE transition_id=?",("tampered",row[0]))
+    else:
+        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("DROP TRIGGER audit_events_no_update"); conn.execute("UPDATE transitions SET to_state_id=? WHERE transition_id=?",("tampered-state",row[0]))
+    conn.commit(); conn.close()
+    with pytest.raises(Exception): recover_partner_learning(str(path),"i")
+
+def test_full_chain_exact_replay_after_reopen_is_idempotent(tmp_path):
+    path=tmp_path/"replay.db"; tr,result=build_chain(str(path)); recover_partner_learning(str(path),"i")
+    conn=connect(str(path)); admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
+    request=build_request(candidate_id=(conn.execute("SELECT candidate_id FROM transitions WHERE transition_id=?",(tr.transition_id,)).fetchone()[0]),result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=tr.to_state_id,admission_verified=True)
+    again=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+    assert again.memory_id==result.memory_id
+    assert conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]==1
+    assert conn.execute("SELECT count(*) FROM audit_events WHERE event_id LIKE 'partner-learning:%'").fetchone()[0]==1
+    conn.close()
