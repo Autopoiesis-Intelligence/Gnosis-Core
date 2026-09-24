@@ -1245,3 +1245,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `tests/test_improvement_proposal.py` and connected it to Self-Diagnostic CI in `f1264dda8ad41ad64e0992c55e93a863fadede1e`.
 - Registry status changed to PARTIAL / UNVERIFIED.
 - Commercial proposals require explicit financial evidence and a `partner:` scope; proposal formation never grants execution authority.
+
+## E8.04 proposal review & acceptance gate — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/proposal_gate.py` to bind human/partner review decisions to the exact proposal digest.
+- Added `tests/test_proposal_gate.py` and connected it to Self-Diagnostic CI in `7a81a8c173e5a9ca1111e57ff4c2472657ebc081`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Decisions are ACCEPT, REJECT or REQUEST_CHANGES; only ACCEPT on the exact PROPOSED artifact may activate it.
+- Review itself never grants execution authority.
