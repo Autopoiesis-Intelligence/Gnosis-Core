@@ -1094,3 +1094,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Audit packages are not public-safe by default; only PUBLIC/SHAREABLE_ABSTRACTION/REDACTED classifications pass the public-safe gate.
 - Sealed packages are required before an export is considered auditable; external auditor verification remains a separate E7.86 gate.
+
+## E7.86 external auditor attestation — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/auditor_attestation.py` with auditor identity, package digest binding, verification scope and evidence references.
+- Added `tests/test_auditor_attestation.py` and connected it to Self-Diagnostic CI in `a1356b3cf51d00ca349e213d9cf8da8eeae16b1c`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Only a VERIFIED attestation matching the exact package digest is valid; attestation never grants execution authority.
+- Independent external verification and replay evidence remain pending.
