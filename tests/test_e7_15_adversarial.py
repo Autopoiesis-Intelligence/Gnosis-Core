@@ -7,14 +7,14 @@ from gnosis.self_learning.governance import create_review
 from gnosis.self_learning.receipts import create_mutation_receipt, validate_receipt_plan_binding
 
 
-def _plan():
+def _plan(*, reviewer="adversarial-test"):
     finding = "STATUS_DRIFT:E7.43:registry=IMPLEMENTED:artifact=IMPLEMENTED / UNVERIFIED"
     proposal = propose_from_finding(finding)
     validation = validate_proposal(
         proposal, known_contract_ids=("E7.43",), known_findings=(finding,)
     )
     review = create_review(
-        proposal, validation, decision="ACCEPTED", reviewer="adversarial-test",
+        proposal, validation, decision="ACCEPTED", reviewer=reviewer,
         reason="deterministic failure-injection", created_at="2026-01-01T00:00:00+00:00",
     )
     return create_execution_plan(review)
@@ -22,7 +22,7 @@ def _plan():
 
 def test_receipt_cross_plan_substitution_is_rejected():
     plan = _plan()
-    other = _plan()
+    other = _plan(reviewer="other-reviewer")
     receipt = create_mutation_receipt(
         plan, result="APPLIED", target="target", before_digest="before",
         after_digest="after", executor="test", authorization_reference="auth",
