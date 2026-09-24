@@ -9,7 +9,7 @@ from gnosis.control.capabilities import ALLOWED_CAPABILITIES, CapabilityToken
 from gnosis.control.envelope import OperationEnvelope
 from gnosis.domain.identity.types import Identity
 from gnosis.domain.scope.types import Scope
-from gnosis.domain.task_context.types import TaskContext
+from gnosis.domain.task_context.model import TaskContext
 
 def _canonical_bytes(value: Any) -> bytes:
     if is_dataclass(value):
@@ -63,9 +63,6 @@ def validate_envelope(envelope: OperationEnvelope, now_ms: int) -> str | None:
     identity_error = validate_identity(envelope.identity, now_ms)
     if identity_error:
         return identity_error
-    scope_error = validate_scope(envelope.task_context_scope, envelope.identity, now_ms) if hasattr(envelope, "task_context_scope") else None
-    if scope_error:
-        return scope_error
     expected = sha256_payload(envelope.payload)
     if envelope.evidence.payload_hash != expected:
         return "INVALID_EVIDENCE_HASH"
