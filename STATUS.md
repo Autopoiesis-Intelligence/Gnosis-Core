@@ -1673,3 +1673,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Source inspection confirms the implementation already exposes keyword-only APIs: `recovery_allows_learning(*, record=...)` and `resolution_grants_authority(*, record=...)`. The current tests call these two functions positionally, causing the observed failures; this is a test contract mismatch, not evidence of an authority leak.
 - `resolution_grants_authority` is explicitly fail-closed (`False`), and learning safety requires RECORDED status plus an allowed confirmed resolution/evidence set.
 - Next correction is limited to the tests: align calls with the authoritative keyword-only API, then rerun CI. No production collaboration logic is changed at this checkpoint.
+
+
+## Collaboration / E8.30 checkpoint — 2026-09-24 — CI 2536
+
+- CI run `36036485718` on `a6d6eb7d4a6aa6e0039171004d3e4b5b85518917`: **831 passed / 2 failed / 18 warnings**; Python 3.12 cancelled. CodeQL `36036485731` was still running at observation.
+- Failure 1: collaboration conflict test expected `make("CONFLICT")` to raise, although the fixture supplied valid conflicting evidence. The production constructor correctly rejects only missing conflict evidence. Test corrected to assert valid conflict evidence and separately test the missing-evidence rejection.
+- Failure 2: E8.30 candidate tamper used a non-existent candidate ID, so SQLite correctly rejected the mutation with a foreign-key error before durable-graph verification. Test corrected to create a valid alternate candidate with a different proposed state, then replace the transition binding; this exercises the intended graph-binding verification path.
+- Corrections: `955e3a6d`, `84644fbe`.
+- No production logic changed. E8.30 remains scoped-verified; collaboration moves to verification after the correction CI.
