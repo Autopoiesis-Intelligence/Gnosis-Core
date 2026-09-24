@@ -11,12 +11,13 @@ from gnosis.instances.instance import Instance
 from gnosis.reflection.diagnostic_artifact import serialize_artifact
 from gnosis.reflection.self_diagnostic import diagnose
 from gnosis.storage import (
+
     connect,
     load_transition_records,
-    persist_transition,
     save_instance,
     verify_durable_graph,
 )
+from gnosis.storage.repositories import _persist_transition
 
 OUT = Path(__file__).parent / "SELF-DIAGNOSTIC-0001"
 
@@ -58,7 +59,7 @@ def generate() -> None:
                 seed=i,
             )
             record = instance.engine.step(candidate)
-            persist_transition(conn, instance, candidate, record, actor="diagnostic-corpus")
+            _persist_transition(conn, instance, candidate, record, actor="diagnostic-corpus")
 
         accepted = Candidate(
             parent_state_id=instance.engine.state.state_id,
