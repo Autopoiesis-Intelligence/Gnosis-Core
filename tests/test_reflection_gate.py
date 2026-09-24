@@ -13,7 +13,7 @@ def test_reflection_gate_reaches_durable_read_only_evidence():
     proposed = instance.engine.state.with_elements({"a": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
 
     result = run_reflection_gate(instance.engine, conn, instance.instance_id)
 
@@ -70,3 +70,5 @@ def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
     assert not result.passed
     assert "evolution provenance/audit recovery failed" in result.reasons
     conn.close()
+
+from gnosis.storage.repositories import _persist_transition
