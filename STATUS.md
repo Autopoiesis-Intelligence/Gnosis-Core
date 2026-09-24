@@ -1388,3 +1388,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/E821_PARTNER_LEARNING_INTEGRATION_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - The integration model requires the complete commercial → proposal → contract → transfer → delivery → result → replay → classification → admission → durable commit chain.
 - Defined tamper points fail closed; an unverified durable commit also blocks final admission.
+
+## E8.22 runtime integration audit — 2026-09-24
+
+- Audited E8.11–E8.21 against the existing execution-authorization, durable learning commit and EvolutionMemory boundaries.
+- Existing canonical commit and EvolutionMemory gates are present and remain authoritative.
+- The newly added partner modules are not yet proven runtime-integrated with those canonical persistence/audit paths; repository search did not find runtime imports/usages connecting the chain.
+- Therefore E8.11–E8.21 remains a contract/test layer, not an observed end-to-end runtime path.
+- Added `docs/architecture/E822_RUNTIME_INTEGRATION_AUDIT.md`; E8.22 Registry status is PARTIAL / UNVERIFIED.
+- Next implementation must add explicit adapters, canonical provenance binding, durable SQLite/audit persistence and failure-injection recovery tests before any IMPLEMENTED claim.
