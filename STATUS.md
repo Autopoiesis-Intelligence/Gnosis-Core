@@ -1364,3 +1364,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/PARTNER_RESULT_PROVENANCE_REPLAY_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - Replay requires exact matches for core digest, delivery ID, manifest ID and contract ID plus evidence references.
 - Any mismatch is `REPLAY_REJECTED`; verified replay establishes provenance only and does not itself commit learning or grant execution authority.
+
+## E8.19 partner learning feedback classification — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/feedback_classification.py` to classify verified partner outcomes before learning admission.
+- Added `tests/test_feedback_classification.py` and connected it to Self-Diagnostic CI in `d1fc4418a9433c1a648e2511a54ffb2edb6e1f4f`.
+- Added `docs/architecture/PARTNER_LEARNING_FEEDBACK_CLASSIFICATION_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- `SUCCESS_SIGNAL` and `COUNTEREXAMPLE` route to LEARNING_CANDIDATE; `FAILURE` is DIAGNOSTIC_ONLY; `INCONCLUSIVE` is HOLD.
+- Classification never commits durable learning.
