@@ -1462,3 +1462,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Implementation commits: `daa65f92`, `435d88467`.
 - E8.29 remains **PARTIAL / UNVERIFIED** until exact runtime/CI evidence is observed.
 - Next gate: full E8.23–E8.29 chain execution with SQLite reopen and tamper matrix; only observed runtime evidence can promote the contract.
+
+
+## E8.30 full E8.23–E8.29 adversarial chain — 2026-09-24
+
+- Added an end-to-end test composing admission → canonical request → transition binding → EvolutionMemory → audit → close/reopen recovery.
+- Added tamper matrix for audit result, memory evidence, transition candidate binding and transition state binding; recovery must fail closed for each mutation.
+- Added exact replay-after-reopen idempotency test; no duplicate EvolutionMemory or partner-learning audit event is permitted.
+- Added `docs/architecture/E830_FULL_PARTNER_LEARNING_CHAIN.md`.
+- Implementation commits: `6db1d4c8`, `2b4a3d5d`.
+- E8.30 remains **PARTIAL / UNVERIFIED** until actual runtime/CI execution is observed.
+- Next gate: run the exact full-chain test on current main; inspect failures before any further contract expansion.
