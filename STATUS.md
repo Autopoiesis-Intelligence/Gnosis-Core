@@ -1317,3 +1317,10 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Proposal records partner scope, minimal core scope, expected result, constraints, evidence and commercial decision reference.
 - Generator cannot bypass the commercial gate, create a contract or grant execution authority; review/acceptance remains separate.
+
+## E8.13 open / commercial collaboration proposal boundary — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/collaboration_proposal.py` to keep open non-commercial and commercial collaboration proposals structurally separate.
+- Added `tests/test_collaboration_proposal.py` and connected it to Self-Diagnostic CI in `d068737cc8b44b669db076f401bf3ad0dead6717`.
+- Added `docs/architecture/COLLABORATION_PROPOSAL_BOUNDARY_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- Open proposals cannot carry financial references; commercial proposals require explicit financial evidence. Neither proposal type creates a contract or execution authority.
