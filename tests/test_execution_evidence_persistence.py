@@ -73,8 +73,8 @@ def test_tamper_fails_recovery(tmp_path):
     conn = connect(path)
     item = evidence()
     save_execution_evidence(conn, item)
+    conn.execute("DROP TRIGGER execution_evidence_no_update")
     conn.execute("UPDATE execution_evidence SET observed_scope='issue:update' WHERE evidence_id=?", (item.evidence_id,))
-    conn.commit()
     with pytest.raises((StorageCorruptionError, ValueError)):
         load_execution_evidence(conn, item.evidence_id)
     conn.close()
