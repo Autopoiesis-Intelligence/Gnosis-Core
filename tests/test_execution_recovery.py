@@ -33,9 +33,10 @@ def test_new_evidence_can_reconcile_only_under_new_authorized_attempt():
     d = reconcile_after_restart(
         make("UNKNOWN"), new_result_status="SUCCEEDED",
         new_target_after_revision="r2", new_evidence_present=True, retry_authorized=True,
+        new_attempt_id="attempt-2",
     )
     assert d.disposition == "RECONCILE_WITH_NEW_EVIDENCE"
-    assert d.attempt_id == "attempt-1"
+    assert d.attempt_id == "attempt-2"
 
 
 def test_recovery_cannot_authorize_retry():
@@ -44,3 +45,19 @@ def test_recovery_cannot_authorize_retry():
         retry_authorized=False,
     )
     assert d.disposition == "REJECT_RETRY"
+
+
+def test_retry_without_distinct_attempt_is_rejected():
+    d = reconcile_after_restart(
+        make("UNKNOWN"), new_result_status="SUCCEEDED",
+        new_evidence_present=True, retry_authorized=True,
+        new_attempt_id="attempt-1",
+    )
+    assert d.disposition == "REJECT_RETRY"
+
+
+def test_recovery_does_not_execute_or_mutate_prior_evidence():
+    prior = make("UNKNOWN")
+    d = reconcile_after_restart(prior, new_result_status="SUCCEEDED", new_evidence_present=True, retry_authorized=False)
+    assert d.disposition == "REJECT_RETRY"
+    assert prior.result_status == "UNKNOWN"
