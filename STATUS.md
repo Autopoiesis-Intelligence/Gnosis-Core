@@ -1070,3 +1070,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Non-verified outcomes cannot close an incident; verified closure requires observed scope to equal authorized scope.
 - Exact external runtime/replay/independent verification evidence remains pending.
+
+## E7.83 lifecycle closure and contract retirement — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/collaboration_lifecycle_closure.py` with durable closure state, verification reference, evidence references and optional successor contract linkage.
+- Added `tests/test_collaboration_lifecycle_closure.py` and connected it to Self-Diagnostic CI in `0e5468c202879eccfe9f5345820b993964772878`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Reopened or blocked contracts are not retired; retirement never grants execution authority and does not delete historical evidence.
+- Exact runtime/replay/lifecycle evidence remains pending.
