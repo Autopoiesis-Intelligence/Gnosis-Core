@@ -7,7 +7,7 @@
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
 ## Current repository baseline
-- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `520d52850b07e6271b29cd374680ad381804e298` (context-refresh commit); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` was stale.
+- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `d10de2a32b7c1daeec3678dd127e8542afead8ef` (current audited main); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` is stale.
 
 - Repository: `Mikhail-Kucheriavyi-23/Gnozis-V2`
 - Branch: `main`
@@ -1692,3 +1692,15 @@ A later commit inherits no verification claim from an earlier commit until the a
 - No production collaboration logic was changed in the final correction chain; the corrections were confined to test/API alignment and adversarial fixture validity.
 - E8.30 remains scoped-verified; collaboration recovery/resolution is now runtime-verified at repository CI level.
 - Next contract transition: move from failure-remediation into cross-contract architectural self-audit and evidence consolidation. No new implementation change is assumed until that audit identifies a concrete gap.
+
+
+## Cross-contract architectural self-audit checkpoint — 2026-09-24
+
+- Canonical `main` HEAD verified: `d10de2a32b7c1daeec3678dd127e8542afead8ef`.
+- Repository-wide CI is green at this checkpoint: Python 3.11 PASS, Python 3.12 PASS; CodeQL PASS.
+- Cross-contract audit found a documentation/context synchronization gap: this STATUS baseline and `context/PROJECT_CONTEXT.json` still referenced older canonical source snapshots despite subsequent verified main evolution. This is documentation drift, not evidence of a runtime defect.
+- Reflection remains **IMPLEMENTED / UNVERIFIED**. The green CI checkpoint above closed the E8.30 and collaboration contracts; it does not by itself promote reflection persistence, lineage or shadow evaluation to VERIFIED unless the exact reflection acceptance tests are observed.
+- Memory remains **NOT ACCEPTED / NOT MERGED** with H-01/H-03/H-04/M-01/M-02 open.
+- User/task/context runtime remains **NOT IMPLEMENTED**.
+- Autonomous activation, direct self-modification and second Core authority remain forbidden.
+- Corrective action: synchronize machine-readable project context to current main HEAD, then continue the cross-contract audit from the current source rather than stale snapshots.
