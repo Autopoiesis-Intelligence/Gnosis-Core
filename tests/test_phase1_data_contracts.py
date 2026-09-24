@@ -75,7 +75,10 @@ def test_restricted_resource_rejected():
     assert validate_envelope(bad, scope, NOW) == "RESOURCE_OUT_OF_SCOPE"
 
 def test_action_capability_mismatch_rejected():
-    assert authorize_operation(make_envelope(), "state:commit:apply", make_scope(), NOW) == "CAPABILITY_ACTION_MISMATCH"
+    e = make_envelope()
+    bad = OperationEnvelope(e.envelope_id, e.schema_version, e.timestamp_ms, e.identity, e.task_context,
+                            e.capabilities, "state.commit.apply", e.payload, e.target_resource, e.evidence)
+    assert authorize_operation(bad, "state:test:execute", make_scope(), NOW) == "CAPABILITY_ACTION_MISMATCH"
 
 def test_unknown_action_rejected():
     e = make_envelope()
