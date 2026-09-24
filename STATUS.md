@@ -1793,3 +1793,14 @@ A later commit inherits no verification claim from an earlier commit until the a
 - This is now classified as an **evidence availability gap**, not an implementation gap.
 - No self-generated audit artifact is promoted to independent evidence.
 - R1 remains BLOCKED at the independent-review gate; all repository-owned evidence remains valid but cannot satisfy this external evidence class.
+
+
+## R1 adversarial finding — corrected at source — 2026-09-24
+
+- A prior independent audit artifact (`GNOZIS_V2_AUDIT_2026-09-17.md`) was located in the project Library. It is genuinely independent of the current self-audit, but it targets an older source state and therefore cannot certify current R1.
+- The audit's concrete finding was rechecked against current `main`: `InvariantDelta.status` still classified an empty `ShadowEvaluation.cases` as `PRESERVED`.
+- This is a real fail-open evidence defect: no evaluation cases must not imply invariant preservation.
+- Corrective production change: `gnosis/reflection/invariant_delta.py` now returns `INSUFFICIENT_EVIDENCE` for empty evaluation cases.
+- Regression test added in `tests/test_invariant_delta.py`.
+- Commits: `4a09fdef` (production fix), `8cf527fe` (regression test).
+- R1 remains blocked pending CI/CodeQL for the corrected SHA and independent review of this corrected state. The 2026-09-17 audit is now useful as traceable adversarial evidence, but its finding demonstrates why stale review cannot be promoted to current verification.
