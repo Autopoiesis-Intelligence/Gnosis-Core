@@ -982,3 +982,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #71 was merged by squash into `main` as `96e521ae21998c9a00cd0e7719e42fd812745e47`.
 - Dependency Review #157 remains blocked by the known Dependency Graph infrastructure limitation and is not treated as a vulnerability finding.
 - E7.73 is INTEGRATED; post-merge workflow evidence for merge commit `96e521ae21998c9a00cd0e7719e42fd812745e47` is pending.
+
+
+## E7.74 proposal integrity boundary — integrated — 2026-09-24
+
+- PR #72 exact head `af4bcf8c62ded54ba6df803cf5880dc3b33ad161` passed CI #2096 and CodeQL #974.
+- E7.74 now recomputes and validates proposal identity from canonical content and rejects semantic/forged tampering.
+- Proposal records remain immutable, `PROPOSED`, and `proposal-only`; no publication or Core mutation capability is introduced.
+- PR #72 was squash-merged into `main` as `0268d872588f4f71a772bcd213d7001bfba3197c`.
+- Dependency Review #160 remains affected by the known Dependency Graph infrastructure limitation.
+- Post-merge workflow evidence for `0268d872588f4f71a772bcd213d7001bfba3197c` is pending.
