@@ -285,3 +285,11 @@ def verify_execution_evidence(conn: sqlite3.Connection) -> int:
         load_execution_evidence(conn, row[0])
         count += 1
     return count
+
+
+def list_execution_evidence_for_attempt(conn: sqlite3.Connection, execution_attempt_id: str) -> list[Any]:
+    rows = conn.execute(
+        "SELECT evidence_id FROM execution_evidence WHERE execution_attempt_id=? ORDER BY execution_order",
+        (execution_attempt_id,),
+    ).fetchall()
+    return [load_execution_evidence(conn, row[0]) for row in rows]
