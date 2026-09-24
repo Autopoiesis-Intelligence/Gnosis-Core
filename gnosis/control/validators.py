@@ -55,6 +55,16 @@ def validate_task_context(context: TaskContext, identity: Identity, scope: Scope
         return "INVALID_BUDGET"
     return None
 
+ACTION_REQUIRED_CAPABILITY: dict[str, CapabilityToken] = {
+    "control.policy.read": "control:policy:read",
+    "control.policy.evaluate": "control:policy:evaluate",
+    "evidence.event.append": "evidence:event:append",
+    "state.candidate.propose": "state:candidate:propose",
+    "state.test.execute": "state:test:execute",
+    "state.verify.evaluate": "state:verify:evaluate",
+    "state.commit.apply": "state:commit:apply",
+}
+
 def _resource_allowed(scope: Scope, resource: str) -> bool:
     return resource in scope.allowed_resources and all(not resource.startswith(path) for path in scope.restricted_paths)
 
@@ -84,6 +94,11 @@ def authorize_operation(envelope: OperationEnvelope, required_capability: Capabi
         return identity_error
     if required_capability not in ALLOWED_CAPABILITIES:
         return "UNKNOWN_CAPABILITY"
+    expected_capability = ACTION_REQUIRED_CAPABILITY.get(envelope.action)
+    if expected_capability is None:
+        return "UNAUTHORIZED_ACTION"
+    if required_capability != expected_capability:
+        return "CAPABILITY_ACTION_MISMATCH"
     if required_capability not in envelope.capabilities.granted_capabilities:
         return "UNAUTHORIZED_CAPABILITY"
     if envelope.identity.tenant_id != envelope.task_context.tenant_id:
