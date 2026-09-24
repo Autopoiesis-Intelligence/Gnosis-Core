@@ -1512,3 +1512,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Correction commits: `73ceb439`, `c83ab35e`, `076f320e`, `4bf53d75`, `694fb980`.
 - E8.30 remains **PARTIAL / UNVERIFIED**. First substantive runtime evidence exists, but no PASS is claimed while the current CI has not rerun after corrections.
 - Next gate: rerun CI and classify remaining failures by E8.30 vs pre-existing contract regressions before further implementation.
+
+
+## Strict hash checkpoint + E8.30 correction — 2026-09-24
+
+- **Canonical Git SHA:** `70c265517cc621bccdf58c61b14ee835136723c6`.
+- **Previous CI evidence correction:** the run at `5dad06f8` did **not** produce 816 passed / 17 failed; its actual log shows **830 collected / 1 collection error** because `tests/test_reflection_gate.py` imported public `persist_transition` while the current trust boundary intentionally keeps transition persistence internal.
+- Corrected the test to import the authoritative internal `_persist_transition` from `gnosis.storage.repositories`, removing the contradictory public API requirement.
+- This correction preserves the architecture: persistence primitive remains outside the public storage surface; the test now exercises the same internal path used by the canonical persistence layer.
+- **Evidence status:** E8.30 remains PARTIAL / UNVERIFIED; no PASS inferred from source changes.
+- **Hash policy:** every contract checkpoint is anchored to the exact Git commit SHA; CI result is recorded against that SHA and never transferred to a later SHA without a new run.
+- Next: CI on `70c2655` → inspect actual E8.30 execution → hash the resulting checkpoint SHA.
