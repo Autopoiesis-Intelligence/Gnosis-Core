@@ -26,6 +26,7 @@ def reconcile_after_restart(
     new_target_after_revision: str | None = None,
     new_evidence_present: bool = False,
     retry_authorized: bool = False,
+    new_attempt_id: str | None = None,
 ) -> RecoveryDecision:
     """Recover facts only; never retry or inflate an uncertain result.
 
@@ -49,9 +50,9 @@ def reconcile_after_restart(
             "REJECT_RETRY",
             "new result claims require independently captured evidence",
         )
-    if retry_authorized:
+    if retry_authorized and new_attempt_id and new_attempt_id != evidence.execution_attempt_id:
         return RecoveryDecision(
-            evidence.execution_attempt_id,
+            new_attempt_id,
             evidence.result_status,
             evidence.reconciliation_status,
             "RECONCILE_WITH_NEW_EVIDENCE",
