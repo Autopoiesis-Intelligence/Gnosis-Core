@@ -1126,3 +1126,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Facts are deduplicated and sorted; redaction metadata is preserved; normalized evidence remains bound to source digest and schema version.
 - Only ACCEPTED normalized evidence can enter the pattern-extraction boundary; runtime corpus replay remains pending.
+
+## E7.90 pattern and relation extraction — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/pattern_extraction.py` as a deterministic boundary after accepted canonical evidence.
+- Added `tests/test_pattern_extraction.py` and connected it to Self-Diagnostic CI in `35315dbbe20022e36547d3a402a8cb2992e6e053`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Patterns and relations are canonicalized and bound to the normalized input digest/revision; rejected extraction cannot generate candidate contracts.
+- Candidate generation and full runtime/replay proof remain separate gates.
