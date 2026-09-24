@@ -6,7 +6,7 @@ from typing import Any
 from gnosis.control.capabilities import Capabilities
 from gnosis.domain.identity.types import Identity
 from gnosis.domain.scope.types import Scope
-from gnosis.domain.task_context.types import TaskContext
+from gnosis.domain.task_context.model import TaskContext
 
 @dataclass(frozen=True)
 class EvidenceReceipt:
