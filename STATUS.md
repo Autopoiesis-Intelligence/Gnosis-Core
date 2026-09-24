@@ -1293,3 +1293,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Durable learning commit requires verified provenance closure, feedback identity, evidence and an admitted LEARNING_SIGNAL or COUNTEREXAMPLE class.
 - Commit never grants execution authority.
+
+## E8.10 learning commit → opportunity update — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/opportunity_update.py` to feed durable learning outcomes back into the opportunity-value grid.
+- Added `tests/test_opportunity_update.py` and connected it to Self-Diagnostic CI in `25411960ce6680ca52f2ab32cdbe5a1ea37b7624`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Opportunity updates require evidence and a learning-commit reference and can apply only after verified/admitted learning.
+- Promotion to COMMERCIAL is deliberately blocked here; it requires a dedicated commercial-evidence gate. Updating an opportunity never creates a contract.
