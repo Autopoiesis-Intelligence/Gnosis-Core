@@ -43,7 +43,7 @@ def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
     proposed = instance.engine.state.with_elements({"a": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "test")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
 
     from gnosis.evolution.provenance import build_provenance, canonical_digest
     from gnosis.reflection.persistence import append_evolution_audit, ensure_reflection_schema, save_evolution_provenance
