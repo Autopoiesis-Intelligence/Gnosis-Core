@@ -94,7 +94,7 @@ Each contract record SHOULD contain:
 | E7.73 | PARTIAL / UNVERIFIED | Governed Feedback Promotion Record |
 | E7.74 | PARTIAL / UNVERIFIED | Self-Learning Collaboration Proposal Generator |
 | E7.75 | DESIGNED / NOT_IMPLEMENTED | Governed Collaboration Proposal Review & Acceptance |
-| E7.76 | DESIGNED / NOT_IMPLEMENTED | Collaboration Execution Authorization & External Action Boundary |
+| E7.76 | PARTIAL / UNVERIFIED | Collaboration Execution Authorization & External Action Boundary |
 | E7.77 | DESIGNED / NOT_IMPLEMENTED | External Collaboration Execution Evidence & Result Reconciliation |
 | E7.78 | DESIGNED / NOT_IMPLEMENTED | External Collaboration Failure, Compensation & Recovery Boundary |
 | E7.79 | DESIGNED / NOT_IMPLEMENTED | Governed External Collaboration Incident & Conflict Resolution |
