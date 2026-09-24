@@ -1602,3 +1602,14 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Correction SHAs: `3e63df21`, `41d2baf30`, `848889d3`, `5caf3645`, `7327a470`.
 - E8.30 remains **PARTIAL / UNVERIFIED**. Evidence advances only after CI on the corrected SHA.
 - Next hash-bound checkpoint: CI on latest correction SHA → exact failure classification → correction or acceptance.
+
+
+## E8.30 correction checkpoint — 2026-09-24
+
+- Exact CI run `36034392299`, source SHA `00c78a484efa8c5b2e596b75b4d063630ba739b1`: **815 passed / 18 failed**; Python 3.12 cancelled. CodeQL for the same SHA was still in progress at observation.
+- E8.30 failures narrowed to stale instance-head setup in learning fixtures, diagnostic stale symbol `__persist_transition`, and crash-process fixture missing the internal persistence import. The collaboration failures remain separate.
+- Root cause of the E8.30 stale-head cluster: fixtures manually advanced the database `current_state_id` before invoking the authoritative persistence primitive while the in-memory Instance remained on the parent state. This contradicted the persistence authority boundary and caused legitimate `stale instance head` rejection.
+- Correction: fixtures now let canonical `_persist_transition` advance the durable instance head. Diagnostic generator now consistently calls `_persist_transition`. Crash-process fixture explicitly imports the same primitive.
+- Correction SHAs: `a7456078`, `691ff7e1`, `006c736f`, `1df747f0`, `b01d871d`.
+- E8.30 remains **PARTIAL / UNVERIFIED**. No runtime evidence is inherited by these new SHAs until CI reruns.
+- Next: CI against the latest correction SHA, then exact failure classification and next hash checkpoint.
