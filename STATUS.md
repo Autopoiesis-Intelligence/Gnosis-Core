@@ -1372,3 +1372,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/PARTNER_LEARNING_FEEDBACK_CLASSIFICATION_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - `SUCCESS_SIGNAL` and `COUNTEREXAMPLE` route to LEARNING_CANDIDATE; `FAILURE` is DIAGNOSTIC_ONLY; `INCONCLUSIVE` is HOLD.
 - Classification never commits durable learning.
+
+## E8.20 partner learning commit gate integration — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/partner_learning_gate.py` as the admission boundary between partner learning candidates and durable learning.
+- Added `tests/test_partner_learning_gate.py` and connected it to Self-Diagnostic CI in `fbed09bbd8d0b0bd4773a3555fc63ccd60332440`.
+- Added `docs/architecture/PARTNER_LEARNING_COMMIT_GATE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- Admission requires verified classification, provenance replay, received delivery, Core verification, candidate identity and evidence.
+- Admission is not persistence; the existing durable commit and audit mechanism remains the final state-transition boundary.
