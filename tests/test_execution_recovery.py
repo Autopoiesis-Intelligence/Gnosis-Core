@@ -2,6 +2,7 @@ import pytest
 
 from gnosis.self_learning.collaboration_evidence import record_execution_evidence
 from gnosis.self_learning.execution_recovery import reconcile_after_restart
+from gnosis.storage import connect, list_execution_evidence_for_attempt, save_execution_evidence
 
 
 def make(status="UNKNOWN"):
@@ -61,3 +62,18 @@ def test_recovery_does_not_execute_or_mutate_prior_evidence():
     d = reconcile_after_restart(prior, new_result_status="SUCCEEDED", new_evidence_present=True, retry_authorized=False)
     assert d.disposition == "REJECT_RETRY"
     assert prior.result_status == "UNKNOWN"
+
+
+def test_persisted_attempt_survives_restart(tmp_path):
+    evidence = make("UNKNOWN")
+    path = tmp_path / "recovery.sqlite"
+    conn = connect(path)
+    save_execution_evidence(conn, evidence)
+    conn.close()
+    reopened = connect(path)
+    recovered = list_execution_evidence_for_attempt(reopened, evidence.execution_attempt_id)
+    assert [item.evidence_id for item in recovered] == [evidence.evidence_id]
+    decision = reconcile_after_restart(recovered[0])
+    assert decision.disposition == "PRESERVE"
+    assert decision.prior_status == "UNKNOWN"
+    reopened.close()
