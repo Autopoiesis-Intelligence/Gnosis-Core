@@ -1579,3 +1579,14 @@ A later commit inherits no verification claim from an earlier commit until the a
 - E8.30 remains **PARTIAL / UNVERIFIED**. No PASS is inferred from source correction.
 - Hash rule remains active: every correction creates a new SHA and requires a new CI result before evidence can advance.
 - Next: run CI against the latest correction SHA and classify only failures actually produced by that exact SHA.
+
+
+## E8.30 execution checkpoint — 2026-09-24 — 819/17 exact result
+
+- CI run `36034083711` on source SHA `3072a4676160e67f55974d323526623f547c6173`: Python 3.12 **816 passed / 17 failed**; Python 3.11 remained in progress at observation time. CodeQL run `36034083762` was in progress.
+- Exact E8.30-related failures: transition audit evidence was missing in hand-built fixtures; E8.30 tamper/replay tests still unpacked the old 2-value fixture return; recovery used a hard-coded instance ID; diagnostic execution still failed because `__persist_transition` was undefined; persistence crash test failed because the generated subprocess had the same stale symbol.
+- Correction applied: E8.30 fixture now preserves and propagates canonical `instance_id`; tamper/replay recovery uses that exact identity; diagnostic source remains bound to authoritative internal `_persist_transition`.
+- Correction SHAs: `cc3f2aa2`, `a68425ac`, `b127f3aa`.
+- **Current E8.30 status: PARTIAL / UNVERIFIED.** Runtime evidence is improving, but no PASS is claimed.
+- Hash rule: each correction SHA requires its own CI result; no prior result is inherited.
+- Next: CI against latest correction SHA → classify exact failures → correction → new hash checkpoint.
