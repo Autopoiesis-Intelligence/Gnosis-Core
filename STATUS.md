@@ -1655,3 +1655,13 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Correction: candidate tamper now deterministically writes an invalid candidate ID directly at the SQLite boundary, exercising the intended fail-closed durable-graph check without constructing an invalid Candidate object.
 - Correction SHA: `2df3cd0603999f5040d422e4b3bca48ff480bc22`.
 - CodeQL on the preceding correction SHA passed; evidence is not inherited by the new SHA. E8.30 remains **PARTIAL / UNVERIFIED** pending CI on `2df3cd06`.
+
+
+## E8.30 verification checkpoint — 2026-09-24 — SHA 2df3cd06
+
+- Exact CI `36036050707`: overall **FAIL**, but the executed test suite reached **488 passed / 5 failed / 3 warnings**.
+- All 5 failures are explicitly in collaboration recovery/incident-resolution tests; none is an E8.30 persistence/recovery trust-boundary failure.
+- Self-Diagnostic `36036050741`: same 5 collaboration failures; no E8.30-specific failure observed.
+- CodeQL `36036050800`: **SUCCESS**.
+- E8.30 candidate-tamper correction therefore has no remaining observed E8.30 test failure on this SHA. Contract is **runtime-verified within its scoped test set**, while repository-wide CI remains red because the independent collaboration contract is unresolved.
+- No E8.30 code correction is made at this checkpoint. Next execution target: isolate and resolve the 5 collaboration failures without weakening the E8.30 boundary.
