@@ -122,3 +122,53 @@ def validate_observation_against_authorization(
         evidence.authorized_scope == authorized_scope, evidence.observed_scope == observed_scope == authorized_scope,
         evidence.execution_attempt_id == execution_attempt_id, evidence.result_status == result_status == "SUCCEEDED",
     ))
+
+
+@dataclass(frozen=True)
+class EvidenceCounterexample:
+    counterexample_id: str
+    invariant: str
+    prior_evidence_id: str
+    conflicting_attempt_id: str
+    observed_prior_status: str
+    observed_conflicting_status: str
+    provenance_refs: tuple[str, ...]
+    fingerprint: str
+    learning_scope: str = "SELF_LEARNING_ONLY"
+
+    def __post_init__(self) -> None:
+        if not all(v.strip() for v in (self.counterexample_id, self.invariant, self.prior_evidence_id, self.conflicting_attempt_id, self.fingerprint)):
+            raise ValueError("counterexample identity fields are required")
+        if self.learning_scope != "SELF_LEARNING_ONLY":
+            raise ValueError("counterexample cannot authorize core mutation")
+
+
+def extract_evidence_counterexample(
+    prior: ExecutionEvidence,
+    conflicting_attempt_id: str,
+    conflicting_status: str,
+    *,
+    invariant: str = "ONE_IMMUTABLE_EVIDENCE_PER_EXECUTION_ATTEMPT",
+    provenance_refs: tuple[str, ...] = (),
+) -> EvidenceCounterexample:
+    if conflicting_attempt_id != prior.execution_attempt_id:
+        raise ValueError("different attempt is not an attempt-history counterexample")
+    if conflicting_status == prior.result_status:
+        raise ValueError("identical observation is not a counterexample")
+    fingerprint = _digest({
+        "invariant": invariant,
+        "prior_evidence_id": prior.evidence_id,
+        "attempt_id": conflicting_attempt_id,
+        "prior_status": prior.result_status,
+        "conflicting_status": conflicting_status,
+    })
+    return EvidenceCounterexample(
+        counterexample_id="counterexample:" + fingerprint.split(":", 1)[1],
+        invariant=invariant,
+        prior_evidence_id=prior.evidence_id,
+        conflicting_attempt_id=conflicting_attempt_id,
+        observed_prior_status=prior.result_status,
+        observed_conflicting_status=conflicting_status,
+        provenance_refs=provenance_refs or prior.provenance_refs,
+        fingerprint=fingerprint,
+    )

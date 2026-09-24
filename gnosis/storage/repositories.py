@@ -158,7 +158,7 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                     raise StorageCorruptionError("audit/transition semantic mismatch")
     return chain
 
-def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
+def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None,evidence: Any|None=None)->None:
     def inject(point: str)->None:
         if failure_at==point: raise RuntimeError(f"injected failure at {point}")
     if candidate.parent_state_id!=record.from_state_id: raise ValueError("candidate parent does not match transition source")
@@ -192,11 +192,104 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
                 raise StorageCorruptionError("conflicting candidate replay")
             if db.engine.state.state_id != record.to_state_id:
                 raise ValueError("replayed transition has inconsistent canonical head")
+            if evidence is not None:
+                _save_execution_evidence_in_transaction(conn, evidence, created_at=utc_now())
             return
         if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
         save_candidate(conn,candidate); inject("after_candidate")
         conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,candidate.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
         append_audit(conn,actor=actor,action="transition.commit" if record.accepted else "transition.reject",resource=instance.instance_id,result="accepted" if record.accepted else "rejected",event_key=f"transition:{tid}",transition_id_value=tid); inject("after_audit")
+        if evidence is not None:
+            if not record.accepted or evidence.reconciliation_status != "RECONCILED":
+                raise StorageCorruptionError("non-reconciled execution evidence cannot accompany committed transition")
+            _save_execution_evidence_in_transaction(conn, evidence, created_at=utc_now())
+            inject("after_evidence")
         if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
         inject("before_commit")
     inject("after_commit")
+
+
+def _save_execution_evidence_in_transaction(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
+    """Persist immutable E7.77 evidence inside an existing transaction."""
+    created_at = created_at or utc_now()
+    payload = {k: getattr(evidence, k) for k in (
+        "evidence_id", "authorization_id", "authorization_digest", "review_id", "review_digest",
+        "proposal_id", "proposal_revision", "action_class", "target_resource", "authorized_scope",
+        "executor_id", "execution_attempt_id", "execution_order", "result_status",
+        "target_before_revision", "target_after_revision", "privacy_classification",
+        "reconciliation_status", "provenance_refs", "observed_scope", "expected_preconditions",
+        "evidence_digest",
+    )}
+    existing = conn.execute(
+        "SELECT * FROM execution_evidence WHERE evidence_id=?", (evidence.evidence_id,)
+    ).fetchone()
+    if existing is not None:
+        columns = [d[0] for d in conn.execute("SELECT * FROM execution_evidence LIMIT 0").description]
+        stored = dict(zip(columns, existing))
+        for key, value in payload.items():
+            if key in {"provenance_refs", "expected_preconditions"}:
+                value = canonical_json(value)
+            if stored[key] != value:
+                raise StorageCorruptionError("conflicting execution evidence replay")
+        return evidence.evidence_id
+    try:
+        conn.execute(
+            """INSERT INTO execution_evidence
+            (evidence_id,authorization_id,authorization_digest,review_id,review_digest,
+             proposal_id,proposal_revision,action_class,target_resource,authorized_scope,
+             executor_id,execution_attempt_id,execution_order,result_status,
+             target_before_revision,target_after_revision,privacy_classification,
+             reconciliation_status,provenance_refs,observed_scope,expected_preconditions,
+             evidence_digest,created_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (payload["evidence_id"], payload["authorization_id"], payload["authorization_digest"],
+             payload["review_id"], payload["review_digest"], payload["proposal_id"],
+             payload["proposal_revision"], payload["action_class"], payload["target_resource"],
+             payload["authorized_scope"], payload["executor_id"], payload["execution_attempt_id"],
+             payload["execution_order"], payload["result_status"], payload["target_before_revision"],
+             payload["target_after_revision"], payload["privacy_classification"],
+             payload["reconciliation_status"], canonical_json(payload["provenance_refs"]),
+             payload["observed_scope"], canonical_json(payload["expected_preconditions"]),
+             payload["evidence_digest"], created_at),
+        )
+    except sqlite3.IntegrityError as exc:
+        raise StorageCorruptionError("conflicting execution evidence replay") from exc
+    return evidence.evidence_id
+
+def save_execution_evidence(conn: sqlite3.Connection, evidence: Any, *, created_at: str | None = None) -> str:
+    with transaction(conn):
+        return _save_execution_evidence_in_transaction(conn, evidence, created_at=created_at)
+
+
+def load_execution_evidence(conn: sqlite3.Connection, evidence_id: str) -> Any:
+    from gnosis.self_learning.collaboration_evidence import ExecutionEvidence
+    row = conn.execute("SELECT * FROM execution_evidence WHERE evidence_id=?", (evidence_id,)).fetchone()
+    if row is None:
+        raise StorageCorruptionError(f"execution evidence not found: {evidence_id}")
+    values = dict(row)
+    try:
+        values["provenance_refs"] = tuple(json.loads(values["provenance_refs"]))
+        values["expected_preconditions"] = tuple(json.loads(values["expected_preconditions"]))
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise StorageCorruptionError("malformed execution evidence payload") from exc
+    values.pop("created_at", None)
+    evidence = ExecutionEvidence(**values)
+    if evidence.evidence_id != evidence_id:
+        raise StorageCorruptionError("execution evidence identity mismatch")
+    return evidence
+
+
+def verify_execution_evidence(conn: sqlite3.Connection) -> int:
+    count = 0
+    for row in conn.execute("SELECT evidence_id FROM execution_evidence ORDER BY evidence_id"):
+        load_execution_evidence(conn, row[0])
+        count += 1
+    return count
+
+
+def list_execution_evidence_for_attempt(conn: sqlite3.Connection, execution_attempt_id: str) -> list[Any]:
+    rows = conn.execute(
+        "SELECT evidence_id FROM execution_evidence WHERE execution_attempt_id=? ORDER BY execution_order",
+        (execution_attempt_id,),
+    ).fetchall()
+    return [load_execution_evidence(conn, row[0]) for row in rows]
