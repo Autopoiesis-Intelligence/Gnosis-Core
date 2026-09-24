@@ -1749,3 +1749,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - CodeQL run `36037560593`: still **IN PROGRESS** at this observation. No security PASS is claimed yet.
 - Therefore the current-HEAD R1 evidence is: repository test pipeline green; CodeQL pending; R1 acceptance still **NOT ACCEPTED**.
 - No production code change made. Next step remains CodeQL completion followed by explicit R1 acceptance decision and independent-review evidence.
+
+
+## R1 security/CI closure — 2026-09-24 — SHA 2cf1582b
+
+- Repository CI run `36037665457`: **SUCCESS**.
+- CodeQL run `36037665483`: **SUCCESS**.
+- Thus the current HEAD has green CI + CodeQL evidence.
+- This closes the infrastructure/security gate for the current R1 checkpoint, but R1 itself remains **NOT ACCEPTED** until the explicit acceptance matrix is backed by current-HEAD end-to-end evidence and independent review.
+- No production Reflection mutation made.
