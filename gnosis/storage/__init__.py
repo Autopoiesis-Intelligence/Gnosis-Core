@@ -6,6 +6,7 @@ from .repositories import (
     append_audit,
     load_candidate,
     load_execution_evidence,
+    list_execution_evidence_for_attempt,
     load_instance,
     recover_instance,
     load_state,
@@ -23,7 +24,7 @@ from .repositories import (
 __all__ = [
     "GENESIS_HASH", "SCHEMA_VERSION", "connect", "close", "transaction",
     "SecretMaterialError", "StorageCorruptionError",
-    "append_audit", "load_candidate", "load_execution_evidence", "load_instance", "recover_instance", "load_state",
+    "append_audit", "load_candidate", "load_execution_evidence", "list_execution_evidence_for_attempt", "load_instance", "recover_instance", "load_state",
     "load_transition_records", "persist_transition", "save_candidate", "save_execution_evidence", "save_instance", "save_state",
     "verify_audit_chain", "verify_durable_graph", "verify_execution_evidence",
     "EvolutionMemoryRecord", "append_evolution_memory", "load_evolution_memory",
