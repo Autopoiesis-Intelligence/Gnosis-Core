@@ -1001,3 +1001,10 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #73 was squash-merged into `main` as `0f13a34e92981021e4201a798573bdaae2edf106`.
 - Dependency Review #161 remains affected by the known Dependency Graph infrastructure limitation.
 - Post-merge workflow evidence for `0f13a34e92981021e4201a798573bdaae2edf106` is pending.
+
+
+## External audit hardening
+- Audit-derived contracts added: state/transition purity, recursive stability, typing/reproducibility, ADR/licensing, plus audit reconciliation.
+- Audit recommendation status: evidence-gated; no automatic adoption of GPLv3, strict mypy, uv/Poetry or AI-editor config requirements.
+- pyproject.toml is present with setuptools; root LICENSE was not found during this inspection pass and therefore remains UNVERIFIED/MISSING until confirmed.
+- No new self-learning percentage is credited from documentation-only contracts. Integrated runtime proof remains ~20%.
