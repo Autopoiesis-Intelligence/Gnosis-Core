@@ -36,7 +36,7 @@ def test_full_chain_tamper_matrix_fails_closed(tmp_path,mutation):
         conn.execute("DROP TRIGGER evolution_memory_no_update");
         conn.execute("DROP TRIGGER evolution_memory_no_delete"); row=conn.execute("SELECT memory_id FROM evolution_memory LIMIT 1").fetchone(); conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?",("[\"tamper\"]",row[0]))
     elif mutation=="transition_candidate":
-        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("UPDATE transitions SET candidate_id=? WHERE transition_id=?",("tampered-candidate-id",row[0]))
+        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); other_state=State(elements={"v":99}); save_state(conn, other_state); other=Candidate(tr.from_state_id, other_state, "tampered", 99); save_candidate(conn, other); conn.execute("UPDATE transitions SET candidate_id=? WHERE transition_id=?",(other.candidate_id,row[0]))
     else:
         row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("UPDATE transitions SET to_state_id=? WHERE transition_id=?",(tr.from_state_id,row[0]))
     conn.commit(); conn.close()
