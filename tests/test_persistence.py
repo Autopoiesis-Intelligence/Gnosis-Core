@@ -19,7 +19,7 @@ recover_instance,
     verify_audit_chain,
     verify_durable_graph,
 )
-from gnosis.storage.repositories import _audit_hash
+from gnosis.storage.repositories import _audit_hash, _persist_transition
 
 
 def root():
