@@ -1198,3 +1198,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - New cycles require ADMITTED memory, preserve parent memory identity and verified state digest, and carry explicit input references and scope.
 - Memory/state substitution breaks provenance continuity; cycle creation never grants execution authority.
+
+## E7.99 learning input provenance & evidence isolation — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/learning_input.py` as the input boundary for source, evidence, learning scope and confidentiality.
+- Added `tests/test_learning_input.py` and connected it to Self-Diagnostic CI in `fda4f11c076515f71cc9cbc847691804bbdfed60`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Inputs are classified as GENERAL, CORE_PRIVATE or PARTNER_PRIVATE and carry deterministic provenance digests.
+- PARTNER_PRIVATE inputs cannot cross into another learning scope; only ADMITTED inputs with evidence may enter learning.
