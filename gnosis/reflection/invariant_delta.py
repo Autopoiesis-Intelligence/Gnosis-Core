@@ -71,6 +71,16 @@ def analyze_invariant_delta(
 ) -> InvariantDelta:
     """Compare invariant violations among active- and shadow-accepted candidates."""
     candidate_map = {candidate.candidate_id: candidate for candidate in candidates}
+    if not evaluation.cases:
+        return InvariantDelta(
+            preserved=(),
+            violated=(),
+            improved=(),
+            unknown=("<no-evaluation-cases>",),
+            active_violations={},
+            shadow_violations={},
+        )
+
     active_ids = {case.candidate_id for case in evaluation.cases if case.active.passed}
     shadow_ids = {case.candidate_id for case in evaluation.cases if case.shadow.passed}
 
