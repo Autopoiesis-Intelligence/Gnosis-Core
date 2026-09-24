@@ -1214,3 +1214,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Value levels: LOW_RELEVANCE → GENERAL_BACKLOG; RESEARCH_RELEVANT → RESEARCH_CONTRACT; COMMERCIAL → PARTNER_CONTRACT.
 - Commercial routing requires a partner-scoped destination; classification itself never grants execution authority.
+
+## E8.01 dynamic opportunity reclassification — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/opportunity_reclassification.py` for evidence-backed changes to opportunity value classification.
+- Added `tests/test_opportunity_reclassification.py` and connected it to Self-Diagnostic CI in `2fd86bd38786dfc6175428fa43a891236268942e`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Every reclassification preserves previous level, proposed level, evidence references, reason and status; same-level changes are treated as no-ops.
+- Reclassification can move opportunities between low relevance, research relevance and commercial classification, but never creates execution authority or a contract by itself.
