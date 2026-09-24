@@ -54,3 +54,29 @@ def test_unaccepted_governance_cannot_create_execution_plan():
     )
     with pytest.raises(ValueError, match="ACCEPTED"):
         create_execution_plan(review)
+
+
+def test_tampered_receipt_identity_is_rejected():
+    from dataclasses import replace
+    plan = _plan()
+    receipt = create_mutation_receipt(
+        plan, result="APPLIED", target="target", before_digest="before",
+        after_digest="after", executor="test", authorization_reference="auth",
+        created_at="2026-01-01T00:00:01+00:00",
+    )
+    tampered = replace(receipt, proposal_id="sha256:forged-proposal")
+    with pytest.raises(PermissionError, match="proposal identity mismatch"):
+        validate_receipt_plan_binding(tampered, plan)
+
+
+def test_tampered_receipt_review_identity_is_rejected():
+    from dataclasses import replace
+    plan = _plan()
+    receipt = create_mutation_receipt(
+        plan, result="APPLIED", target="target", before_digest="before",
+        after_digest="after", executor="test", authorization_reference="auth",
+        created_at="2026-01-01T00:00:01+00:00",
+    )
+    tampered = replace(receipt, review_id="sha256:forged-review")
+    with pytest.raises(PermissionError, match="review identity mismatch"):
+        validate_receipt_plan_binding(tampered, plan)
