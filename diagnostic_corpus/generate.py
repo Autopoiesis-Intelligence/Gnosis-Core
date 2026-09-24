@@ -68,7 +68,7 @@ def generate() -> None:
             seed=99,
         )
         record = instance.engine.step(accepted)
-        persist_transition(conn, instance, accepted, record, actor="diagnostic-corpus")
+        _persist_transition(conn, instance, accepted, record, actor="diagnostic-corpus")
 
         verify_durable_graph(conn)
         recovered_history = load_transition_records(conn, instance.instance_id)
