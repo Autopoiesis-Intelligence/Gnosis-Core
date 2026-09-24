@@ -1473,3 +1473,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Implementation commits: `6db1d4c8`, `2b4a3d5d`.
 - E8.30 remains **PARTIAL / UNVERIFIED** until actual runtime/CI execution is observed.
 - Next gate: run the exact full-chain test on current main; inspect failures before any further contract expansion.
+
+
+## E8.30 runtime gate — first CI failure and correction — 2026-09-24
+
+- Exact CI for E8.30 was observed on HEAD `729f710235ac6a8b5184db339939e7d91829535f`: CodeQL passed, but the main CI test jobs failed during collection before executing the full suite.
+- Root cause from CI logs: `tests/test_reflection_gate.py` imports `persist_transition` from `gnosis.storage`, while the canonical implementation existed only as `_persist_transition` in repositories and was not exported by `gnosis/storage/__init__.py`.
+- Corrected the public storage export without introducing a second persistence implementation.
+- Correction commit: `445ddfc63d5070bdf72457468facdd2f63b8f361`.
+- E8.30 evidence is now **NON-PASS / BLOCKED** pending CI rerun; the failure was infrastructure/API-surface collection, not evidence that the adversarial chain passed or failed.
+- Next: rerun exact CI, then classify the E8.30 chain from actual test execution results.
