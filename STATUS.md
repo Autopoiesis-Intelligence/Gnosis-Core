@@ -1078,3 +1078,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Reopened or blocked contracts are not retired; retirement never grants execution authority and does not delete historical evidence.
 - Exact runtime/replay/lifecycle evidence remains pending.
+
+## E7.84 retention/disposal boundary — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/evidence_retention.py` with explicit retain/archive/dispose/legal-hold/minimize policies.
+- Added `tests/test_evidence_retention.py` and connected it to Self-Diagnostic CI in `8dd66d7c92161c2a6181cee176ed290c1639a524`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Raw data may be disposed only through an explicit gated decision; durable evidence references remain part of the audit trail.
+- Exact runtime/replay/disposal evidence remains pending.
