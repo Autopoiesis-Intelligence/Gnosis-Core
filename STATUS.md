@@ -1118,3 +1118,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Admission requires verification references, evidence references, stable digest, explicit learning scope and PUBLIC/SHAREABLE_ABSTRACTION/REDACTED privacy classification.
 - Admission never creates execution authority; private or unverified evidence is blocked from this generalized corpus boundary.
+
+## E7.89 evidence normalization — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/evidence_normalization.py` as a deterministic canonicalization boundary after E7.88 admission.
+- Added `tests/test_evidence_normalization.py` and connected it to Self-Diagnostic CI in `3ef899d570c7e96275b27fa9e42dddc4def7115a`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Facts are deduplicated and sorted; redaction metadata is preserved; normalized evidence remains bound to source digest and schema version.
+- Only ACCEPTED normalized evidence can enter the pattern-extraction boundary; runtime corpus replay remains pending.
