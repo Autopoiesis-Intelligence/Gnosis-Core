@@ -8,7 +8,10 @@ def test_unknown_resolution_is_learning_safe_as_unknown():
     assert resolution_is_learning_safe(record=make())
 
 def test_conflict_requires_conflicting_evidence():
-    with pytest.raises(ValueError): make("CONFLICT")
+    record=make("CONFLICT")
+    assert record.conflicting_evidence_refs==("evidence:2",)
+    with pytest.raises(ValueError):
+        create_incident_resolution(incident_id="incident:1",evidence_refs=("evidence:1",),conflicting_evidence_refs=(),original_scope="public:proposal",observed_scope="public:proposal",incident_state="CONFLICT",resolution="CONFIRMED_UNKNOWN",rationale="missing conflict evidence",resolver_id="reviewer",resolution_revision="r1")
 
 def test_resolution_never_grants_authority():
     assert not resolution_grants_authority(record=make())
