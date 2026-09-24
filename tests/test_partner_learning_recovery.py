@@ -31,7 +31,7 @@ def test_audit_tamper_is_detected_on_recovery(tmp_path):
     path=tmp_path/"gnozis.db"; fixture(str(path))
     conn=connect(str(path))
     row=conn.execute("SELECT event_id FROM audit_events ORDER BY sequence DESC LIMIT 1").fetchone()
-    conn.execute("PRAGMA ignore_check_constraints=ON")
+    conn.execute("DROP TRIGGER audit_events_no_update")
     conn.execute("UPDATE audit_events SET result=? WHERE event_id=?",("tampered",row[0]))
     conn.commit(); conn.close()
     with pytest.raises(Exception): recover_partner_learning(str(path),"i")
@@ -45,4 +45,5 @@ def test_memory_tamper_is_detected_on_recovery(tmp_path):
     conn.commit(); conn.close()
     # Durable graph remains valid, but the learning evidence is now absent; recovery must not fabricate it.
     instance,memory=recover_partner_learning(str(path),"i")
-    assert instance.engine.state.state_id==row[0] or memory==tuple() or len(memory)==0
+    assert instance.engine.state.state_id
+    assert memory == tuple()
