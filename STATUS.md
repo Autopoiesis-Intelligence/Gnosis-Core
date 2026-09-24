@@ -1682,3 +1682,13 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Failure 2: E8.30 candidate tamper used a non-existent candidate ID, so SQLite correctly rejected the mutation with a foreign-key error before durable-graph verification. Test corrected to create a valid alternate candidate with a different proposed state, then replace the transition binding; this exercises the intended graph-binding verification path.
 - Corrections: `955e3a6d`, `84644fbe`.
 - No production logic changed. E8.30 remains scoped-verified; collaboration moves to verification after the correction CI.
+
+
+## Full CI closure checkpoint — 2026-09-24 — SHA d0a4440b
+
+- CI run `36036609614`: **PASS**, Python 3.11 and 3.12 both passed.
+- CodeQL run `36036609705`: **PASS**.
+- This closes the previously observed 5 collaboration failures together with the E8.30 scoped runtime verification: the repository CI is green at this checkpoint.
+- No production collaboration logic was changed in the final correction chain; the corrections were confined to test/API alignment and adversarial fixture validity.
+- E8.30 remains scoped-verified; collaboration recovery/resolution is now runtime-verified at repository CI level.
+- Next contract transition: move from failure-remediation into cross-contract architectural self-audit and evidence consolidation. No new implementation change is assumed until that audit identifies a concrete gap.
