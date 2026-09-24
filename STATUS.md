@@ -1741,3 +1741,11 @@ A later commit inherits no verification claim from an earlier commit until the a
 
 - Source-level matrix is now complete. R1 remains **NOT ACCEPTED** because several requirements have implementation/tests but lack a single current-HEAD acceptance run and independent review evidence.
 - No production code change is made at this checkpoint.
+
+
+## R1 CI closure checkpoint — 2026-09-24 — SHA 1cd9b1a3
+
+- CI run `36037560675`: **SUCCESS**; Python 3.11 and 3.12 both passed.
+- CodeQL run `36037560593`: still **IN PROGRESS** at this observation. No security PASS is claimed yet.
+- Therefore the current-HEAD R1 evidence is: repository test pipeline green; CodeQL pending; R1 acceptance still **NOT ACCEPTED**.
+- No production code change made. Next step remains CodeQL completion followed by explicit R1 acceptance decision and independent-review evidence.
