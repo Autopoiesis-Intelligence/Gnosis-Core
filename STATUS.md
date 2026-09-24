@@ -1380,3 +1380,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/PARTNER_LEARNING_COMMIT_GATE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - Admission requires verified classification, provenance replay, received delivery, Core verification, candidate identity and evidence.
 - Admission is not persistence; the existing durable commit and audit mechanism remains the final state-transition boundary.
+
+## E8.21 end-to-end partner learning adversarial integration — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/e821_integration.py` as an end-to-end contract over E8.11–E8.20.
+- Added `tests/test_e821_integration.py` and connected it to Self-Diagnostic CI in `0887655e3b6e9050133e33109f7a7981d05efce5`.
+- Added `docs/architecture/E821_PARTNER_LEARNING_INTEGRATION_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- The integration model requires the complete commercial → proposal → contract → transfer → delivery → result → replay → classification → admission → durable commit chain.
+- Defined tamper points fail closed; an unverified durable commit also blocks final admission.
