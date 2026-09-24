@@ -1566,3 +1566,16 @@ NEXT
 `Contract state + exact source SHA + verification result = one immutable checkpoint`.
 
 A later commit inherits no verification claim from an earlier commit until the applicable verification is rerun.
+
+
+## E8.30 CI checkpoint — 2026-09-24 — hash-bound correction cycle
+
+- Exact CI run `36033764815` was executed against source SHA `0829d859942de59eef4eabfff1bf8217ea18e266`.
+- CodeQL for the same SHA: **PASS** (run `36033764699`). Main CI: **FAIL**; Python 3.12 executed the suite and reported **819 passed / 14 failed**. Python 3.11 was cancelled after the failure.
+- The previous claim of 816/17 for this SHA is superseded by the exact CI log and must not be reused.
+- E8.30-related failures: canonical instance creation audit evidence was invalidated by fixtures renaming the persisted instance after creation; candidate tamper fixture passed state IDs instead of State objects; memory tamper fixture hit the append-only trigger before recovery verification.
+- Corrections applied: E8.29/E8.30/recovery fixtures now preserve the canonical `Instance.create_root` identity and audit evidence; candidate tamper uses canonical loaded State objects; memory tamper explicitly disables append-only guards only inside the adversarial fixture before mutation.
+- Correction SHAs: `04725e6d`, `9e9fa7d4`, `1f61e7cd`.
+- E8.30 remains **PARTIAL / UNVERIFIED**. No PASS is inferred from source correction.
+- Hash rule remains active: every correction creates a new SHA and requires a new CI result before evidence can advance.
+- Next: run CI against the latest correction SHA and classify only failures actually produced by that exact SHA.
