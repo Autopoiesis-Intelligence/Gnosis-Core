@@ -1054,3 +1054,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Accepted remediation plans remain proposals for the next authorization gate; they cannot execute by themselves.
 - Exact CI/runtime/replay evidence remains pending.
+
+## E7.81 remediation execution authorization — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/remediation_execution_authorization.py` with exact binding to plan, incident, action, target, scope and privacy classification.
+- Added `tests/test_remediation_execution_authorization.py` and connected it to Self-Diagnostic CI in `35b2a0b5f64eb62b0ad6f7e0ab27da401f475b7e`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Only AUTHORIZED permits the next execution boundary; REVOKED, EXPIRED and BLOCKED fail closed. Authorization itself performs no external action.
+- Exact runtime/replay/external execution evidence remains pending.
