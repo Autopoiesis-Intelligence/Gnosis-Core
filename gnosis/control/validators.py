@@ -55,7 +55,10 @@ def validate_task_context(context: TaskContext, identity: Identity, scope: Scope
         return "INVALID_BUDGET"
     return None
 
-def validate_envelope(envelope: OperationEnvelope, now_ms: int) -> str | None:
+def _resource_allowed(scope: Scope, resource: str) -> bool:
+    return resource in scope.allowed_resources and all(not resource.startswith(path) for path in scope.restricted_paths)
+
+def validate_envelope(envelope: OperationEnvelope, scope: Scope, now_ms: int) -> str | None:
     if envelope.schema_version != "2.0.0":
         return "UNSUPPORTED_SCHEMA_VERSION"
     if not envelope.envelope_id or not envelope.action or not envelope.target_resource:
@@ -63,6 +66,13 @@ def validate_envelope(envelope: OperationEnvelope, now_ms: int) -> str | None:
     identity_error = validate_identity(envelope.identity, now_ms)
     if identity_error:
         return identity_error
+    scope_error = validate_scope(scope, envelope.identity, now_ms)
+    if scope_error:
+        return scope_error
+    if envelope.task_context.scope_id != scope.scope_id:
+        return "SCOPE_MISMATCH"
+    if not _resource_allowed(scope, envelope.target_resource):
+        return "RESOURCE_OUT_OF_SCOPE"
     expected = sha256_payload(envelope.payload)
     if envelope.evidence.payload_hash != expected:
         return "INVALID_EVIDENCE_HASH"
@@ -79,5 +89,7 @@ def authorize_operation(envelope: OperationEnvelope, required_capability: Capabi
     if envelope.identity.tenant_id != envelope.task_context.tenant_id:
         return "TENANT_MISMATCH"
     if envelope.task_context.scope_id == "":
+        return "INVALID_SCOPE"
+    if not envelope.task_context.scope_id:
         return "INVALID_SCOPE"
     return None
