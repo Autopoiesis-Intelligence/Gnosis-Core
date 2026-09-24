@@ -202,7 +202,7 @@ def persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Ca
         if evidence is not None:
             if not record.accepted or evidence.reconciliation_status != "RECONCILED":
                 raise StorageCorruptionError("non-reconciled execution evidence cannot accompany committed transition")
-            save_execution_evidence(conn, evidence, created_at=utc_now())
+            _save_execution_evidence_in_transaction(conn, evidence, created_at=utc_now())
             inject("after_evidence")
         if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
         inject("before_commit")
