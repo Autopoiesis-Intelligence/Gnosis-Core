@@ -1645,3 +1645,13 @@ A later commit inherits no verification claim from an earlier commit until the a
 - The recovery tamper test now explicitly requires fail-closed recovery on `StorageCorruptionError`; no corrupted memory may be silently converted into an empty memory result.
 - Five collaboration failures remain independent and are not folded into E8.30.
 - E8.30 remains PARTIAL / UNVERIFIED pending CI on the correction SHA.
+
+
+## E8.30 exact CI checkpoint — SHA 85692364 — 2026-09-24
+
+- CI run `36035841513` on exact correction SHA `85692364337263f3bf2be317df8fc5274ed52f1c`: **827 passed / 6 failed** on Python 3.11; Python 3.12 cancelled. CodeQL run `36035841632`: **PASS**. Self-Diagnostic also failed on this SHA.
+- Exact E8.30 failure: `test_full_chain_tamper_matrix_fails_closed[transition_candidate]` attempted to bind a `State` object into SQLite. This is a fixture defect, not evidence that the durable graph accepted the tamper.
+- Five remaining failures are collaboration tests and remain a separate contract boundary.
+- Correction: candidate tamper now deterministically writes an invalid candidate ID directly at the SQLite boundary, exercising the intended fail-closed durable-graph check without constructing an invalid Candidate object.
+- Correction SHA: `2df3cd0603999f5040d422e4b3bca48ff480bc22`.
+- CodeQL on the preceding correction SHA passed; evidence is not inherited by the new SHA. E8.30 remains **PARTIAL / UNVERIFIED** pending CI on `2df3cd06`.
