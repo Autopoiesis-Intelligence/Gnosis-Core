@@ -962,3 +962,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - PR #69 merged by squash into `main` as `14f75afd0836528020e0e297b3ad1c16228a5467`.
 - Dependency Review #155 remains blocked by the known Dependency Graph infrastructure limitation; not treated as a vulnerability finding.
 - E7.71 feedback promotion proposal binding is INTEGRATED / CI + CodeQL VERIFIED.
+
+
+## E7.72 feedback validation → proposal binding — integrated — 2026-09-24
+
+- PR #70 exact head `fa914a4c016164fdeeab8eea5bebbb367f093044` passed CI #2088 and CodeQL #966.
+- The fix recomputes validation identity from the bound proposal context and fails closed when validation references a foreign `PartnerFeedbackProposal`.
+- Adversarial coverage rejects semantic tampering and foreign-proposal validation binding.
+- PR #70 merged by squash into `main` as `173c145627e79ca69bf18e085480dbe7da96577f`.
+- Dependency Review #156 remains blocked by the known Dependency Graph infrastructure limitation and is not treated as a vulnerability finding.
+- E7.72 feedback validation → proposal binding is INTEGRATED / CI + CodeQL VERIFIED.
+- Post-merge main verification is recorded separately from candidate verification; this STATUS update is the first synchronization commit after the E7.72 merge.
