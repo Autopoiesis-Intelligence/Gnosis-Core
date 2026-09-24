@@ -1452,3 +1452,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Implementation commits: `cec3e98b`, `5606392c`, `5a551cae`, with tamper-test hardening `3eca3335`.
 - E8.28 remains **PARTIAL / UNVERIFIED** until exact runtime/CI evidence is observed.
 - Next gate: adversarially verify cross-layer binding and conflicting replay after reopen, then run the full E8.23–E8.28 chain.
+
+
+## E8.29 cross-layer binding + conflicting replay after reopen — 2026-09-24
+
+- Added post-recovery adversarial tests for conflicting provenance replay and candidate/request binding mismatch.
+- Tests explicitly cross the public recovery boundary before attempting tampered re-entry.
+- Added `docs/architecture/E829_CROSS_LAYER_REOPEN_BINDING.md`.
+- Implementation commits: `daa65f92`, `435d88467`.
+- E8.29 remains **PARTIAL / UNVERIFIED** until exact runtime/CI evidence is observed.
+- Next gate: full E8.23–E8.29 chain execution with SQLite reopen and tamper matrix; only observed runtime evidence can promote the contract.
