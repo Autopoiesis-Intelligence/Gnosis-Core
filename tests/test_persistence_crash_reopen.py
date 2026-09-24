@@ -82,6 +82,7 @@ def _evidence(record):
 def test_transition_and_evidence_rollback_together(tmp_path):
     path = tmp_path / "atomic-evidence.sqlite"
     conn, instance, candidate, record, proposed, old_state_id = _prepare(path)
+    conn.commit()
     evidence = _evidence(record)
     with pytest.raises(RuntimeError, match="injected failure"):
         persist_transition(conn, instance, candidate, record, actor="u", evidence=evidence, failure_at="after_evidence")
@@ -96,6 +97,7 @@ def test_transition_and_evidence_rollback_together(tmp_path):
 def test_transition_commit_contains_evidence_atomically(tmp_path):
     path = tmp_path / "atomic-evidence-commit.sqlite"
     conn, instance, candidate, record, proposed, _old_state_id = _prepare(path)
+    conn.commit()
     evidence = _evidence(record)
     persist_transition(conn, instance, candidate, record, actor="u", evidence=evidence)
     assert load_execution_evidence(conn, evidence.evidence_id) == evidence
