@@ -1046,3 +1046,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Resolution never grants execution authority; deferred/conflicting evidence is not silently converted into positive learning.
 - Exact CI/runtime/replay evidence remains pending.
+
+## E7.80 remediation plan boundary — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/remediation_plan.py` with bounded plan types, explicit scope/privacy/evidence/preconditions and a hard separation between plan acceptance and execution authority.
+- Added `tests/test_remediation_plan.py` and connected it to Self-Diagnostic CI in `f84665edb048ebd0090f5cf3ce0af054be97caac`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Accepted remediation plans remain proposals for the next authorization gate; they cannot execute by themselves.
+- Exact CI/runtime/replay evidence remains pending.
