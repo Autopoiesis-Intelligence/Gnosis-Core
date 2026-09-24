@@ -212,3 +212,35 @@ def test_rejected_shadow_result_cannot_enter_governance():
     evaluation = evaluate_rule_shadow(proposal, (ShadowCase("c1", True, True, False),))
     with pytest.raises(ValueError):
         prepare_governance_review(proposal, evaluation)
+
+
+def test_governance_decision_is_provenance_bound_and_digestable():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    from gnosis.self_learning.rule_proposals import propose_rule
+    from gnosis.self_learning.shadow_evaluation import ShadowCase, evaluate_rule_shadow
+    from gnosis.self_learning.governance_gate import prepare_governance_review
+    from gnosis.self_learning.governance_decisions import record_governance_decision
+    item = evidence()
+    proposal = propose_rule(extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED"))
+    evaluation = evaluate_rule_shadow(proposal, (ShadowCase("c1", True, True, True),))
+    review = prepare_governance_review(proposal, evaluation)
+    decision = record_governance_decision(
+        review, proposal, evaluation, decision="APPROVE",
+        rationale="shadow evaluation passed", provenance_refs=(item.evidence_id,),
+    )
+    assert decision.decision == "APPROVE"
+    assert decision.scope == "SELF_LEARNING_ONLY"
+    assert decision.decision_digest.startswith("sha256:")
+
+
+def test_governance_approval_requires_accepted_shadow_result():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    from gnosis.self_learning.rule_proposals import propose_rule
+    from gnosis.self_learning.shadow_evaluation import ShadowCase, evaluate_rule_shadow
+    from gnosis.self_learning.governance_gate import prepare_governance_review
+    from gnosis.self_learning.governance_decisions import record_governance_decision
+    item = evidence()
+    proposal = propose_rule(extract_evidence_counterexample(item, item.execution_attempt_id, "FAILED"))
+    evaluation = evaluate_rule_shadow(proposal, (ShadowCase("c1", True, True, False),))
+    with pytest.raises(ValueError):
+        prepare_governance_review(proposal, evaluation)
