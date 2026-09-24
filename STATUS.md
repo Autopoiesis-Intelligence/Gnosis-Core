@@ -1332,3 +1332,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/CONTRACT_GENERATION_GATE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - Generated contracts require scope, rights profile, acceptance criteria, evidence requirements and transfer boundary.
 - DRAFT contracts are not executable; execution readiness remains a separate boundary.
+
+## E8.15 partner core transfer boundary — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/transfer_boundary.py` to define an explicit transfer manifest for partner delivery.
+- Added `tests/test_transfer_boundary.py` and connected it to Self-Diagnostic CI in `73f1a02fa5364a1e6f8ee4f335d1474fb455d791`.
+- Added `docs/architecture/PARTNER_CORE_TRANSFER_BOUNDARY_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- Transfer requires approved manifest plus ready contract, minimal core artifacts, evidence artifacts and explicit exclusions.
+- `AI_CONTEXT` and `Research-Memory` are structurally blocked from the transferable core artifact set; transfer does not grant execution authority.
