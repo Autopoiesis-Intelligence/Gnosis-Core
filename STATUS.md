@@ -1238,3 +1238,10 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `gnosis/self_learning/self_analysis.py` and `tests/test_self_analysis.py`; connected the test to Self-Diagnostic CI in `607dd677105c3dff9ea7f12a0beab27042bdc251`.
 - Added the machine-readable proposal at `docs/architecture/E8.03_SELF_ANALYSIS_PROPOSAL.md`.
 - E8.03 remains PROPOSED / PARTIAL: the analysis produced the improvement proposal, but the proposed orchestration engine is intentionally not yet claimed as implemented.
+
+## E8.03 auditable self-improvement proposal — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/improvement_proposal.py` to bind Evolution Memory → Learning Cycle → Learning Input → Opportunity → Contract Candidate into one deterministic proposal artifact.
+- Added `tests/test_improvement_proposal.py` and connected it to Self-Diagnostic CI in `f1264dda8ad41ad64e0992c55e93a863fadede1e`.
+- Registry status changed to PARTIAL / UNVERIFIED.
+- Commercial proposals require explicit financial evidence and a `partner:` scope; proposal formation never grants execution authority.
