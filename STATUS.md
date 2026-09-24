@@ -1174,3 +1174,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Commit eligibility requires APPROVED governance, exact current base-state match, exact expected resulting-state digest, evidence, and a non-no-op transition.
 - State mismatch, non-approved governance, missing evidence, or no-op transitions fail closed; commit boundary does not grant general execution authority.
+
+## E7.96 post-commit verification — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/post_commit_verification.py` as the proof boundary after controlled Core commit.
+- Added `tests/test_post_commit_verification.py` and connected it to Self-Diagnostic CI in `064becd64cb2cc8f86cbf752d9fa3819eb698ca5`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Verification binds commit ID, expected state digest, observed state digest and evidence; only exact digest equality with explicit evidence is VERIFIED.
+- Failed or mismatched verification is fail-closed and cannot enter Evolution Memory.
