@@ -1665,3 +1665,11 @@ A later commit inherits no verification claim from an earlier commit until the a
 - CodeQL `36036050800`: **SUCCESS**.
 - E8.30 candidate-tamper correction therefore has no remaining observed E8.30 test failure on this SHA. Contract is **runtime-verified within its scoped test set**, while repository-wide CI remains red because the independent collaboration contract is unresolved.
 - No E8.30 code correction is made at this checkpoint. Next execution target: isolate and resolve the 5 collaboration failures without weakening the E8.30 boundary.
+
+
+## Collaboration contract checkpoint — 2026-09-24
+
+- E8.30 is scoped-runtime-verified; collaboration failures are now isolated as E7.78/E7.79 test/API alignment failures.
+- Source inspection confirms the implementation already exposes keyword-only APIs: `recovery_allows_learning(*, record=...)` and `resolution_grants_authority(*, record=...)`. The current tests call these two functions positionally, causing the observed failures; this is a test contract mismatch, not evidence of an authority leak.
+- `resolution_grants_authority` is explicitly fail-closed (`False`), and learning safety requires RECORDED status plus an allowed confirmed resolution/evidence set.
+- Next correction is limited to the tests: align calls with the authoritative keyword-only API, then rerun CI. No production collaboration logic is changed at this checkpoint.
