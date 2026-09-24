@@ -1038,3 +1038,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Verified E7.76 authorization, E7.77 execution evidence and E7.78 recovery implementation files exist on the accessible repository state.
 - Reconciled the partner contract registry entry for E7.78 from `DESIGNED / NOT_IMPLEMENTED` to `PARTIAL / UNVERIFIED` to match the implementation and contract document.
 - E7.79 remains `DESIGNED / NOT_IMPLEMENTED`; no implementation is claimed until the repository write is successfully applied and verified.
+
+## E7.79 incident/conflict resolution — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/collaboration_incident_resolution.py` with explicit incident states, conflict evidence requirements, deterministic resolution identity and learning-safety gating.
+- Added `tests/test_collaboration_incident_resolution.py` and connected it to Self-Diagnostic CI in `4bc8e0e220568616cf77e86d5b9c839e49b1f15f`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Resolution never grants execution authority; deferred/conflicting evidence is not silently converted into positive learning.
+- Exact CI/runtime/replay evidence remains pending.
