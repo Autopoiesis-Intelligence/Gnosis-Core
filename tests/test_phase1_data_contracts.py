@@ -4,7 +4,7 @@ import pytest
 
 from gnosis.control.capabilities import Capabilities
 from gnosis.control.envelope import EvidenceReceipt, OperationEnvelope
-from gnosis.control.validators import authorize_operation, sha256_payload, validate_task_context
+from gnosis.control.validators import authorize_operation, sha256_payload, validate_envelope, validate_task_context
 from gnosis.domain.identity.types import Identity
 from gnosis.domain.scope.types import Scope
 from gnosis.domain.task_context.model import ReflectionBudget, TaskContext
@@ -54,3 +54,22 @@ def test_immutability_is_enforced():
     e = make_envelope()
     with pytest.raises(FrozenInstanceError):
         e.action = "state.commit.apply"
+
+
+def test_expired_scope_rejected_by_envelope():
+    e = make_envelope()
+    expired = Scope("scope-1", "tenant-1", ("repo:Gnozis-V2",), (), NOW)
+    assert validate_envelope(e, expired, NOW) == "SCOPE_EXPIRED"
+
+def test_target_resource_out_of_scope_rejected():
+    e = make_envelope()
+    bad = OperationEnvelope(e.envelope_id, e.schema_version, e.timestamp_ms, e.identity, e.task_context,
+                             e.capabilities, e.action, e.payload, "repo:other", e.evidence)
+    assert validate_envelope(bad, make_scope(), NOW) == "RESOURCE_OUT_OF_SCOPE"
+
+def test_restricted_resource_rejected():
+    scope = Scope("scope-1", "tenant-1", ("repo:Gnozis-V2",), ("repo:Gnozis-V2/private",), NOW + 1000)
+    e = make_envelope()
+    bad = OperationEnvelope(e.envelope_id, e.schema_version, e.timestamp_ms, e.identity, e.task_context,
+                             e.capabilities, e.action, e.payload, "repo:Gnozis-V2/private/file", e.evidence)
+    assert validate_envelope(bad, scope, NOW) == "RESOURCE_OUT_OF_SCOPE"
