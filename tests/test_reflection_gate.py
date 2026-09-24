@@ -3,7 +3,8 @@ import pytest
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.reflection.gate import run_reflection_gate
-from gnosis.storage import connect, save_instance, persist_transition
+from gnosis.storage import connect, save_instance
+from gnosis.storage.repositories import _persist_transition
 
 
 def test_reflection_gate_reaches_durable_read_only_evidence():
@@ -70,5 +71,3 @@ def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
     assert not result.passed
     assert "evolution provenance/audit recovery failed" in result.reasons
     conn.close()
-
-from gnosis.storage.repositories import _persist_transition
