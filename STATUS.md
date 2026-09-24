@@ -1182,3 +1182,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Verification binds commit ID, expected state digest, observed state digest and evidence; only exact digest equality with explicit evidence is VERIFIED.
 - Failed or mismatched verification is fail-closed and cannot enter Evolution Memory.
+
+## E7.97 verified Evolution Memory admission — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/evolution_memory.py` as the persistence gate after exact E7.96 verification.
+- Added `tests/test_evolution_memory.py` and connected it to Self-Diagnostic CI in `dee7207168be6bff6af5d12340150ee3a65d2240`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Memory admission requires VERIFIED outcome, exact observed/verified state digest equality, evidence and explicit learning scope.
+- Rejected or blocked entries cannot feed the next learning cycle; memory admission does not grant execution authority.
