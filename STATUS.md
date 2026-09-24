@@ -1523,3 +1523,46 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **Evidence status:** E8.30 remains PARTIAL / UNVERIFIED; no PASS inferred from source changes.
 - **Hash policy:** every contract checkpoint is anchored to the exact Git commit SHA; CI result is recorded against that SHA and never transferred to a later SHA without a new run.
 - Next: CI on `70c2655` → inspect actual E8.30 execution → hash the resulting checkpoint SHA.
+
+
+## GLOBAL CONTRACT EXECUTION + HASH CHECKPOINT TEMPLATE — CANONICAL
+
+### CONTRACT EXECUTION PROTOCOL
+
+Every contract must follow this immutable sequence:
+
+1. CONTRACT-ID / STATUS / IMPLEMENTATION % / EVIDENCE % / CONTRACT % / GLOBAL CONTRACT %
+2. Implement the contract on a specific Git state.
+3. Record the exact SOURCE SHA.
+4. Execute the applicable CI/runtime/adversarial verification against that exact SHA.
+5. Record CI RUN / RESULT and evidence produced by that exact SHA.
+6. Register the checkpoint in `STATUS.md` and the machine-readable audit/provenance corpus when applicable.
+7. If a defect is found: classify it, correct it, create a NEW Git SHA, and rerun verification.
+8. Never transfer PASS/FAIL evidence from one SHA to another SHA without a new verification run.
+9. Only verified evidence may increase EVIDENCE %; implementation work alone must not be counted as runtime proof.
+10. Contract completion requires theory → implementation → test → runtime evidence → provenance/hash checkpoint.
+
+### CANONICAL CHECKPOINT TEMPLATE
+
+```
+CONTRACT-ID
+STATUS
+IMPLEMENTATION %
+EVIDENCE %
+CONTRACT %
+GLOBAL CONTRACT %
+SOURCE SHA
+CI RUN / RESULT
+EVIDENCE SHA
+CHANGES
+DISCOVERED DEFECTS
+CORRECTIONS
+VERIFICATION RESULT
+NEXT
+```
+
+### HASH INVARIANT
+
+`Contract state + exact source SHA + verification result = one immutable checkpoint`.
+
+A later commit inherits no verification claim from an earlier commit until the applicable verification is rerun.
