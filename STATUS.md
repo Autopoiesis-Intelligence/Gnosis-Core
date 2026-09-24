@@ -1405,3 +1405,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `docs/architecture/E823_CANONICAL_PARTNER_COMMIT_ADAPTER.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - The request binds candidate ID, result ID, contract ID, provenance digest, evidence and exact state digest.
 - The adapter performs no persistence/execution/audit itself; the existing Core commit authority remains the sole final authority.
+
+## E8.24 partner SQLite/audit transaction boundary — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/persistence_adapter.py` as a contract-level adapter to the existing SQLite/audit transaction boundary.
+- Added `tests/test_persistence_adapter.py` and connected it to Self-Diagnostic CI in `91c851408ea6224028d44980cb861fb03c62f517`.
+- Added `docs/architecture/E824_PARTNER_SQLITE_AUDIT_TRANSACTION_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- The adapter defines rollback requirements and post-reopen commit proof without creating a second persistence model.
+- Direct runtime wiring into the existing repository transaction and failure-injection evidence remain open.
