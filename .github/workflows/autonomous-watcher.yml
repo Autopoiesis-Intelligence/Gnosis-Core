@@ -1,0 +1,46 @@
+name: Autonomous Evolution Watcher
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+  issues: read
+
+concurrency:
+  group: autonomous-watcher-main
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 2
+
+      - name: Capture heartbeat
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "AUTONOMOUS WATCHER"
+            echo "timestamp_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "sha=$(git rev-parse HEAD)"
+            echo "previous_sha=$(git rev-parse HEAD^ 2>/dev/null || true)"
+            echo "open_prs=$(gh pr list --state open --json number,title,headRefName,baseRefName --limit 50)"
+            echo "open_issues=$(gh issue list --state open --json number,title,labels --limit 50)"
+          } > autonomous-watcher-heartbeat.json
+
+      - name: Publish heartbeat
+        uses: actions/upload-artifact@v4
+        with:
+          name: autonomous-watcher-${{ github.run_id }}
+          path: autonomous-watcher-heartbeat.json
+          retention-days: 7
