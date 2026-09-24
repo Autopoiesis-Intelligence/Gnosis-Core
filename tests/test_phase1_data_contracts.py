@@ -45,10 +45,10 @@ def test_tenant_mismatch_rejected():
     assert validate_task_context(bad, make_identity(), make_scope()) == "TENANT_MISMATCH"
 
 def test_missing_capability_rejected():
-    assert authorize_operation(make_envelope(), "state:commit:apply", NOW) == "UNAUTHORIZED_CAPABILITY"
+    assert authorize_operation(make_envelope(), "state:commit:apply", make_scope(), NOW) == "UNAUTHORIZED_CAPABILITY"
 
 def test_unknown_capability_rejected():
-    assert authorize_operation(make_envelope(), "state:unknown", NOW) == "UNKNOWN_CAPABILITY"
+    assert authorize_operation(make_envelope(), "state:unknown", make_scope(), NOW) == "UNKNOWN_CAPABILITY"
 
 def test_immutability_is_enforced():
     e = make_envelope()
@@ -81,7 +81,31 @@ def test_unknown_action_rejected():
     e = make_envelope()
     bad = OperationEnvelope(e.envelope_id, e.schema_version, e.timestamp_ms, e.identity, e.task_context,
                              e.capabilities, "state.unknown", e.payload, e.target_resource, e.evidence)
-    assert authorize_operation(bad, "state:test:execute", NOW) == "UNAUTHORIZED_ACTION"
+    assert authorize_operation(bad, "state:test:execute", make_scope(), NOW) == "UNAUTHORIZED_ACTION"
 
 def test_matching_action_capability_accepted():
-    assert authorize_operation(make_envelope(), "state:test:execute", NOW) is None
+    assert authorize_operation(make_envelope(), "state:test:execute", make_scope(), NOW) is None
+
+def test_authorization_rejects_context_scope_mismatch():
+    e = make_envelope()
+    bad_context = TaskContext(e.task_context.task_id, e.task_context.root_task_id, e.task_context.tenant_id,
+                              e.task_context.actor_id, "other-scope", e.task_context.budget,
+                              e.task_context.deterministic_seed, e.task_context.policy_bindings, e.task_context.created_at_ms)
+    bad = OperationEnvelope(e.envelope_id, e.schema_version, e.timestamp_ms, e.identity, bad_context,
+                            e.capabilities, e.action, e.payload, e.target_resource, e.evidence)
+    assert authorize_operation(bad, "state:test:execute", make_scope(), NOW) == "SCOPE_MISMATCH"
+
+def test_authorization_rejects_expired_identity():
+    e = make_envelope()
+    expired_identity = Identity(e.identity.actor_id, e.identity.tenant_id, e.identity.issuer,
+                                e.identity.roles, NOW - 2000, NOW - 1000)
+    bad = OperationEnvelope(e.envelope_id, e.schema_version, e.timestamp_ms, expired_identity,
+                            e.task_context, e.capabilities, e.action, e.payload, e.target_resource, e.evidence)
+    assert authorize_operation(bad, "state:test:execute", make_scope(), NOW) == "IDENTITY_EXPIRED"
+
+def test_authorization_rejects_bad_payload_evidence():
+    e = make_envelope()
+    bad_receipt = EvidenceReceipt(e.evidence.parent_hash, "0" * 64, e.evidence.timestamp_ms, e.evidence.signature)
+    bad = OperationEnvelope(e.envelope_id, e.schema_version, e.timestamp_ms, e.identity,
+                            e.task_context, e.capabilities, e.action, e.payload, e.target_resource, bad_receipt)
+    assert authorize_operation(bad, "state:test:execute", make_scope(), NOW) == "INVALID_EVIDENCE_HASH"
