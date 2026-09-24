@@ -1624,3 +1624,15 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Correction SHAs: `64cdb60d`, `cca8cb65`, `51c26abf`.
 - E8.30 remains **PARTIAL / UNVERIFIED** until CI runs against these exact correction states.
 - Hash invariant preserved: no evidence is transferred from `a6cf547b` to any correction SHA.
+
+
+## E8.30 exact CI checkpoint — 2026-09-24 — 826/7
+
+- CI run `36034860429` on exact SHA `f4c5c56266bef46c3a544706744053651e2f94d5`: **826 passed / 7 failed** on Python 3.12; Python 3.11 also failed. Total reported coverage: **90%**; coverage is not contract evidence.
+- CodeQL run `36034860499` for the same SHA: **in progress** at observation.
+- E8.30 failures: candidate-tamper fixture bound a State object directly into SQLite instead of its state ID; recovery tamper test reaches the authoritative `StorageCorruptionError: evolution memory digest mismatch`, which is the intended fail-closed detection and requires the fixture assertion to accept the canonical corruption error.
+- The remaining 5 failures are collaboration tests and remain outside E8.30.
+- Corrections: candidate tamper SQLite binding fixed; recovery tamper expectation aligned with canonical corruption exception.
+- Correction SHAs: `ee4e3904`, `02f02fb4`.
+- E8.30 remains **PARTIAL / UNVERIFIED** until CI validates these exact corrections.
+- Current chain: `f4c5c562` → exact CI 826/7 → corrections → new SHA → new CI.
