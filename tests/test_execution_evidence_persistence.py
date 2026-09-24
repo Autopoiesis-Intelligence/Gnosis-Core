@@ -89,3 +89,46 @@ def test_append_only_triggers_block_delete_and_update(tmp_path):
     with pytest.raises(Exception):
         conn.execute("DELETE FROM execution_evidence WHERE evidence_id=?", (item.evidence_id,))
     conn.close()
+
+
+def test_same_attempt_cannot_store_conflicting_second_result(tmp_path):
+    conn = connect(tmp_path / "evidence.db")
+    item = evidence()
+    save_execution_evidence(conn, item)
+    conflict = record_execution_evidence(
+        authorization_id=item.authorization_id, authorization_digest=item.authorization_digest,
+        review_id=item.review_id, review_digest=item.review_digest,
+        proposal_id=item.proposal_id, proposal_revision=item.proposal_revision,
+        action_class=item.action_class, target_resource=item.target_resource,
+        authorized_scope=item.authorized_scope, executor_id=item.executor_id,
+        execution_attempt_id=item.execution_attempt_id, execution_order="order-2",
+        result_status="FAILED", target_before_revision=item.target_before_revision,
+        target_after_revision=item.target_after_revision, privacy_classification=item.privacy_classification,
+        observed_scope=item.observed_scope, expected_preconditions=item.expected_preconditions,
+        provenance_refs=item.provenance_refs,
+    )
+    with pytest.raises(StorageCorruptionError):
+        save_execution_evidence(conn, conflict)
+    assert conn.execute("SELECT COUNT(*) FROM execution_evidence WHERE execution_attempt_id=?", (item.execution_attempt_id,)).fetchone()[0] == 1
+    conn.close()
+
+
+def test_new_attempt_can_store_new_result(tmp_path):
+    conn = connect(tmp_path / "evidence.db")
+    item = evidence()
+    save_execution_evidence(conn, item)
+    retry = record_execution_evidence(
+        authorization_id=item.authorization_id, authorization_digest=item.authorization_digest,
+        review_id=item.review_id, review_digest=item.review_digest,
+        proposal_id=item.proposal_id, proposal_revision=item.proposal_revision,
+        action_class=item.action_class, target_resource=item.target_resource,
+        authorized_scope=item.authorized_scope, executor_id=item.executor_id,
+        execution_attempt_id="attempt-2", execution_order="order-1",
+        result_status="SUCCEEDED", target_before_revision=item.target_after_revision,
+        target_after_revision="target-r3", privacy_classification=item.privacy_classification,
+        observed_scope=item.observed_scope, expected_preconditions=item.expected_preconditions,
+        provenance_refs=item.provenance_refs,
+    )
+    save_execution_evidence(conn, retry)
+    assert verify_execution_evidence(conn) == 2
+    conn.close()
