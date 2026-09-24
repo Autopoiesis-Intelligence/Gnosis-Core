@@ -1150,3 +1150,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Evaluation binds candidate/base/projected state digests plus invariant, regression and evidence results.
 - PASS requires explicit PASS evidence and a changed projected state; shadow evaluation never grants execution authority or commits the candidate.
+
+## E7.93 governed self-learning proposal — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/learning_proposal.py` as the state-bound proposal boundary after a passing shadow evaluation.
+- Added `tests/test_learning_proposal.py` and connected it to Self-Diagnostic CI in `41b36108542c90c74d4dc6249c2dbafb254ea162`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Proposal creation requires PASS shadow outcome, evidence and an explicit objective/scope; the proposal remains bound to the evaluated base-state digest.
+- Proposal creation never grants execution authority; governance/commit remains a later gate.
