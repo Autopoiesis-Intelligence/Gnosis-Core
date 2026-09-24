@@ -47,7 +47,4 @@ def test_memory_tamper_is_detected_on_recovery(tmp_path):
     conn.execute("DROP TRIGGER evolution_memory_no_delete")
     conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?", ('["tampered"]', row[0]))
     conn.commit(); conn.close()
-    # Durable graph remains valid, but the learning evidence is now absent; recovery must not fabricate it.
-    instance,memory=recover_partner_learning(str(path),instance_id)
-    assert instance.engine.state.state_id
-    assert memory == tuple()
+    with pytest.raises(Exception): recover_partner_learning(str(path),instance_id)
