@@ -1062,3 +1062,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Only AUTHORIZED permits the next execution boundary; REVOKED, EXPIRED and BLOCKED fail closed. Authorization itself performs no external action.
 - Exact runtime/replay/external execution evidence remains pending.
+
+## E7.82 remediation result verification — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/remediation_verification.py` with exact authorization/plan/incident/action/target binding and observed-scope comparison.
+- Added `tests/test_remediation_verification.py` and connected it to Self-Diagnostic CI in `aa7349166b62f26efac0a3453c25227a54651ec1`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Non-verified outcomes cannot close an incident; verified closure requires observed scope to equal authorized scope.
+- Exact external runtime/replay/independent verification evidence remains pending.
