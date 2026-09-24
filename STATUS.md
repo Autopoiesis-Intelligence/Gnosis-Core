@@ -1767,3 +1767,12 @@ A later commit inherits no verification claim from an earlier commit until the a
 - Reflection acceptance requirements map to distributed tests: foundation/read-only, gate/durable recovery, evidence gate, history/lineage, counterexample, rule registry, shadow evaluation and shadow adapter.
 - Current repository pipeline is therefore green with the Reflection test suite present. This raises current-HEAD evidence, but does not create independent review evidence.
 - R1 remains **NOT ACCEPTED** solely because the acceptance contract requires independent review evidence in addition to repository-owned tests. No production Reflection code change is justified by the current audit.
+
+
+## R1 independent-review gate — 2026-09-24
+
+- Repository-owned R1 evidence is now traced to the current test suite and green CI/CodeQL checkpoints.
+- Independent review remains an external evidence class and cannot be manufactured by repository self-tests or by this status update.
+- Existing prior audit material may be used only if its reviewed SHA and scope are explicitly traceable; otherwise the gate remains OPEN.
+- No production Reflection change is authorized solely to satisfy the independent-review requirement.
+- Contract transition: R1 moves to **EVIDENCE-COMPLETE / INDEPENDENT-REVIEW-BLOCKED** until a traceable independent review is attached to the exact reviewed source state.
