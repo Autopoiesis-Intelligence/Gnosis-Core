@@ -19,7 +19,7 @@ def test_same_transition_replay_is_idempotent():
     audit_count = conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0]
     head = conn.execute("SELECT current_state_id FROM instances WHERE instance_id=?", (instance.instance_id,)).fetchone()[0]
 
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
 
     assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == transition_count
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == audit_count
@@ -35,7 +35,7 @@ def test_same_transition_id_with_conflicting_content_is_rejected():
     proposed = instance.engine.state.with_elements({"b": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "replay-test")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
 
     conflicting = TransitionRecord(
         from_state_id=record.from_state_id,
@@ -47,7 +47,7 @@ def test_same_transition_id_with_conflicting_content_is_rejected():
         test_rule_id=record.test_rule_id,
     )
     with pytest.raises((ValueError, StorageCorruptionError)):
-        persist_transition(conn, candidate= candidate, instance=instance, record=conflicting, actor="test")
+        _persist_transition(conn, candidate= candidate, instance=instance, record=conflicting, actor="test")
 
 
 def test_same_accepted_transition_replay_cannot_apply_changed_budget_snapshot():
@@ -58,7 +58,7 @@ def test_same_accepted_transition_replay_cannot_apply_changed_budget_snapshot():
     candidate = Candidate(instance.engine.state.state_id, proposed, "budget-replay")
     record = instance.engine.step(candidate)
 
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
     before = conn.execute(
         "SELECT current_state_id,budget_total,budget_spent FROM instances WHERE instance_id=?",
         (instance.instance_id,),
@@ -67,7 +67,7 @@ def test_same_accepted_transition_replay_cannot_apply_changed_budget_snapshot():
     # Deliberately diverge the caller's in-memory budget after the durable commit.
     instance.engine.budget.spent += 999
 
-    persist_transition(conn, instance, candidate, record, actor="replay")
+    _persist_transition(conn, instance, candidate, record, actor="replay")
 
     after = conn.execute(
         "SELECT current_state_id,budget_total,budget_spent FROM instances WHERE instance_id=?",
@@ -88,7 +88,7 @@ def test_same_transition_id_with_conflicting_from_state_is_rejected() -> None:
     proposed = instance.engine.state.with_elements({"b": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "replay-parent-conflict")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="test")
+    _persist_transition(conn, instance, candidate, record, actor="test")
 
     conflicting = TransitionRecord(
         from_state_id="different-parent",
@@ -100,7 +100,7 @@ def test_same_transition_id_with_conflicting_from_state_is_rejected() -> None:
         test_rule_id=record.test_rule_id,
     )
     with pytest.raises((ValueError, StorageCorruptionError), match="candidate parent does not match transition source|conflicting transition replay|stale instance head"):
-        persist_transition(conn, instance=instance, candidate=candidate, record=conflicting, actor="test")
+        _persist_transition(conn, instance=instance, candidate=candidate, record=conflicting, actor="test")
 
     assert conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
@@ -115,13 +115,13 @@ def test_exact_transition_replay_after_reopen_is_idempotent_across_delivery_acto
     proposed = instance.engine.state.with_elements({"b": 2})
     candidate = Candidate(instance.engine.state.state_id, proposed, "restart-replay")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="worker-a")
+    _persist_transition(conn, instance, candidate, record, actor="worker-a")
     db_path = conn.execute("PRAGMA database_list").fetchone()[2]
     conn.close()
 
     reopened = connect(db_path)
     recovered = load_instance(reopened, instance.instance_id)
-    persist_transition(reopened, recovered, candidate, record, actor="worker-b")
+    _persist_transition(reopened, recovered, candidate, record, actor="worker-b")
 
     assert reopened.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert reopened.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
@@ -141,7 +141,7 @@ def test_replay_same_transition_id_after_restart_with_changed_candidate_is_rejec
     save_instance(conn, instance)
     candidate = Candidate(instance.engine.state.state_id, instance.engine.state.with_elements({"b": 2}), "corruption-replay")
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="worker-a")
+    _persist_transition(conn, instance, candidate, record, actor="worker-a")
     db_path = conn.execute("PRAGMA database_list").fetchone()[2]
     conn.close()
 
@@ -149,7 +149,7 @@ def test_replay_same_transition_id_after_restart_with_changed_candidate_is_rejec
     recovered = load_instance(reopened, instance.instance_id)
     corrupted_candidate = Candidate(record.from_state_id, State(elements={"tampered": True}), candidate.origin, candidate.seed)
     with pytest.raises(StorageCorruptionError, match="candidate|conflicting|mismatch"):
-        persist_transition(reopened, recovered, corrupted_candidate, record, actor="worker-b")
+        _persist_transition(reopened, recovered, corrupted_candidate, record, actor="worker-b")
 
     assert reopened.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 1
     assert reopened.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id IS NOT NULL").fetchone()[0] == 1
@@ -167,7 +167,7 @@ def test_replay_detects_tampered_persisted_state_before_idempotent_acceptance():
         "persisted-state-tamper",
     )
     record = instance.engine.step(candidate)
-    persist_transition(conn, instance, candidate, record, actor="worker-a")
+    _persist_transition(conn, instance, candidate, record, actor="worker-a")
 
     conn.execute(
         "UPDATE states SET payload=? WHERE state_id=?",
