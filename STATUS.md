@@ -1166,3 +1166,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Commit eligibility requires explicit evidence, sufficient approvals, APPROVED outcome, and an unchanged proposal/current state digest; state changes make the decision stale.
 - Governance decision itself does not create general execution authority; controlled commit remains a separate gate.
+
+## E7.95 controlled Core commit — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/controlled_commit.py` as the narrow fail-closed commit boundary after E7.94 governance approval.
+- Added `tests/test_controlled_commit.py` and connected it to Self-Diagnostic CI in `1d7bd5aee2e6536ae7aa8ec50eb334b5f50aca07`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- Commit eligibility requires APPROVED governance, exact current base-state match, exact expected resulting-state digest, evidence, and a non-no-op transition.
+- State mismatch, non-approved governance, missing evidence, or no-op transitions fail closed; commit boundary does not grant general execution authority.
