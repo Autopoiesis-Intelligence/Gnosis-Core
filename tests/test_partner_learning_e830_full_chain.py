@@ -2,7 +2,7 @@ import pytest
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.instances.instance import Instance
 from gnosis.storage.database import connect
-from gnosis.storage.repositories import save_state, save_candidate, save_instance, verify_durable_graph, load_state
+from gnosis.storage.repositories import save_state, _persist_transition, save_candidate, save_instance, verify_durable_graph, load_state
 from gnosis.self_learning.partner_learning_adapter import build_request
 from gnosis.self_learning.partner_learning_gate import admit_partner_candidate
 from gnosis.self_learning.partner_learning_runtime import commit_admitted_partner_learning
@@ -16,7 +16,7 @@ def build_chain(path):
     save_instance(conn, instance)
     instance_id=instance.instance_id
     conn.execute("UPDATE instances SET current_state_id=?, budget_spent=? WHERE instance_id=?", (proposed.state_id, 1, instance_id))
-    conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tr.transition_id,instance_id,candidate.candidate_id,parent.state_id,proposed.state_id,1,'["ok"]',"test:partner","t"))
+    _persist_transition(conn, instance, candidate, tr, actor="test")
     admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     request=build_request(candidate_id=candidate.candidate_id,result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=proposed.state_id,admission_verified=True)
     result=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
