@@ -1483,3 +1483,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Correction commit: `445ddfc63d5070bdf72457468facdd2f63b8f361`.
 - E8.30 evidence is now **NON-PASS / BLOCKED** pending CI rerun; the failure was infrastructure/API-surface collection, not evidence that the adversarial chain passed or failed.
 - Next: rerun exact CI, then classify the E8.30 chain from actual test execution results.
+
+
+## E8.30 CI collection correction v2 — 2026-09-24
+
+- CI for `f6231acc` reached test collection: 830 tests were discovered, but collection failed because `gnosis.storage` exported `_persist_transition` while the established public API expected `persist_transition`.
+- Corrected the canonical function name in `gnosis/storage/repositories.py` and exported `persist_transition` from `gnosis/storage/__init__.py`.
+- Correction commits: `f065cfbc`, `c4b8fdb5`.
+- This is a real integration/API-surface defect exposed by CI; E8.30 itself still has no PASS evidence because execution did not reach its tests.
+- Next gate: CI rerun on `c4b8fdb5`, then inspect actual E8.30 test failures/results.
