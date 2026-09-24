@@ -1024,3 +1024,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Unknown, failed, partial and boundary-rejected outcomes cannot be marked reconciled; evidence remains separate from authority.
 - Exact CI/runtime/replay/recovery proof remains pending.
+
+## E7.78 external collaboration recovery boundary — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/collaboration_recovery.py` with explicit recovery states, compensation-contract requirement, immutable reference to original execution evidence, and learning eligibility gating.
+- Added `tests/test_collaboration_recovery.py` and connected it to Self-Diagnostic CI in `4594ebfafd7550560d538c07767138ffe954bdb4`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- MANUAL_REVIEW, failed compensation and non-compensated recovery are not learning-eligible; recovery cannot rewrite the original execution evidence.
+- Exact CI/runtime/replay/recovery proof remains pending.
