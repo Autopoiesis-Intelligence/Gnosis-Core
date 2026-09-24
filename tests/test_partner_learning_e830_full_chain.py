@@ -1,7 +1,8 @@
 import pytest
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
+from gnosis.instances.instance import Instance
 from gnosis.storage.database import connect
-from gnosis.storage.repositories import save_state, save_candidate, verify_durable_graph
+from gnosis.storage.repositories import save_state, save_candidate, save_instance, verify_durable_graph
 from gnosis.self_learning.partner_learning_adapter import build_request
 from gnosis.self_learning.partner_learning_gate import admit_partner_candidate
 from gnosis.self_learning.partner_learning_runtime import commit_admitted_partner_learning
@@ -11,7 +12,9 @@ def build_chain(path):
     conn=connect(path); parent=State(elements={"v":1}); proposed=parent.with_elements({"v":2})
     save_state(conn,parent); candidate=Candidate(parent.state_id,proposed,"partner:test",1); save_candidate(conn,candidate)
     tr=TransitionRecord(parent.state_id,proposed.state_id,candidate.candidate_id,TestResult(True,("ok",)),True,"committed","test:partner")
-    conn.execute("INSERT INTO instances(instance_id,parent_instance_id,owner_id,root_state_id,current_state_id,generation,status,budget_total,budget_spent,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)",("i",None,"o",parent.state_id,proposed.state_id,0,"active",10,1,"t"))
+    instance=Instance.create_root("o", parent)
+    save_instance(conn, instance)
+    conn.execute("UPDATE instances SET instance_id=?, current_state_id=?, budget_spent=? WHERE instance_id=?", ("i", proposed.state_id, 1, instance.instance_id))
     conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tr.transition_id,"i",candidate.candidate_id,parent.state_id,proposed.state_id,1,'["ok"]',"test:partner","t"))
     admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     request=build_request(candidate_id=candidate.candidate_id,result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=proposed.state_id,admission_verified=True)
@@ -30,11 +33,12 @@ def test_full_chain_tamper_matrix_fails_closed(tmp_path,mutation):
     if mutation=="audit_result":
         conn.execute("DROP TRIGGER audit_events_no_update"); row=conn.execute("SELECT event_id FROM audit_events WHERE event_id LIKE 'partner-learning:%'").fetchone(); conn.execute("UPDATE audit_events SET result=? WHERE event_id=?",("tamper",row[0]))
     elif mutation=="memory_evidence":
-        conn.execute("DROP TRIGGER evolution_memory_no_update"); row=conn.execute("SELECT memory_id FROM evolution_memory LIMIT 1").fetchone(); conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?",("[\"tamper\"]",row[0]))
+        conn.execute("DROP TRIGGER evolution_memory_no_update");
+        conn.execute("DROP TRIGGER evolution_memory_no_delete"); row=conn.execute("SELECT memory_id FROM evolution_memory LIMIT 1").fetchone(); conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?",("[\"tamper\"]",row[0]))
     elif mutation=="transition_candidate":
-        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("DROP TRIGGER audit_events_no_update"); conn.execute("UPDATE transitions SET candidate_id=? WHERE transition_id=?",("tampered",row[0]))
+        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); other=Candidate(tr.from_state_id, tr.to_state_id, "other", 2); save_candidate(conn, other); conn.execute("UPDATE transitions SET candidate_id=? WHERE transition_id=?",(other.candidate_id,row[0]))
     else:
-        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("DROP TRIGGER audit_events_no_update"); conn.execute("UPDATE transitions SET to_state_id=? WHERE transition_id=?",("tampered-state",row[0]))
+        row=conn.execute("SELECT transition_id FROM transitions LIMIT 1").fetchone(); conn.execute("UPDATE transitions SET to_state_id=? WHERE transition_id=?",(tr.from_state_id,row[0]))
     conn.commit(); conn.close()
     with pytest.raises(Exception): recover_partner_learning(str(path),"i")
 
