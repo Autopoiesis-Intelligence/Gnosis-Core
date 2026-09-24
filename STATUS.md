@@ -1432,3 +1432,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Implementation commits: `d9d4d2ad`, `f4528524`, `7cc56619`.
 - Exact workflow lookup for current main head `7cc5661916fca1c7bac981f14b6d2bfb966cb2a8` returned no runs; therefore E8.26 remains **PARTIAL / UNVERIFIED**. No CI PASS is claimed.
 - Next gate: exact runtime/CI execution of E8.23–E8.26 on current main, then adversarial recovery verification before reclassification.
+
+
+## E8.27 runtime admission → canonical persistence bridge — 2026-09-24
+
+- Implemented `gnosis/self_learning/partner_learning_runtime.py` to explicitly bind an admitted partner learning candidate to the E8.23 canonical request and E8.26 durable persistence boundary.
+- Added adversarial tests for successful persistence, result binding mismatch and non-authorized admission.
+- Added `docs/architecture/E827_RUNTIME_ADMISSION_PERSISTENCE_BRIDGE.md`.
+- Implementation commits: `a548070a`, `ad55794c`, `5edf7ec5`.
+- E8.27 remains **PARTIAL / UNVERIFIED** until exact runtime/CI evidence is observed.
+- Next gate: execute the E8.27 path against real SQLite persistence, then reopen/recovery verification and tamper injection across admission → request → transition → memory → audit.
