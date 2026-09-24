@@ -1421,3 +1421,14 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `tests/test_partner_transaction.py` with real SQLite failure injection for write/audit/head/commit stages; connected to Self-Diagnostic CI in `029184e0d65d48730118a691e09cf72da7ae55f7`.
 - Added `docs/architecture/E825_RUNTIME_TRANSACTION_INTEGRATION.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - This proves the transaction boundary probe, not yet the complete production persistence path for a partner learning candidate.
+
+
+## E8.26 canonical partner learning persistence integration — 2026-09-24
+
+- Implemented `gnosis/self_learning/partner_learning_persistence.py` as the production-facing persistence boundary for an already admitted partner learning result.
+- The adapter reuses the canonical SQLite transaction, existing EvolutionMemory store, audit hash chain and State integrity loader; no second persistence model or execution authority was introduced.
+- Added `tests/test_partner_learning_persistence.py` covering durable memory + audit, exact replay idempotency, conflicting replay rejection, missing-transition fail-closed behavior and transaction rollback.
+- Added `docs/architecture/E826_CANONICAL_PARTNER_LEARNING_PERSISTENCE.md`.
+- Implementation commits: `d9d4d2ad`, `f4528524`, `7cc56619`.
+- Exact workflow lookup for current main head `7cc5661916fca1c7bac981f14b6d2bfb966cb2a8` returned no runs; therefore E8.26 remains **PARTIAL / UNVERIFIED**. No CI PASS is claimed.
+- Next gate: exact runtime/CI execution of E8.23–E8.26 on current main, then adversarial recovery verification before reclassification.
