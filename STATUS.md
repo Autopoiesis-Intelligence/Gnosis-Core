@@ -1269,3 +1269,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - Feedback binds exact contract ID, contract digest, execution ID and scope and records expected result, actual result, deviation, verdict and evidence.
 - Evidence-backed feedback may re-enter learning; feedback never grants execution authority.
+
+## E8.07 learning feedback integration — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/feedback_integration.py` to classify verification feedback before admission into learning.
+- Added `tests/test_feedback_integration.py` and connected it to Self-Diagnostic CI in `91d1ff76b60bb3623db32a27e590f8d6a40f7b87`.
+- Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
+- PASS/positive evidence may become `LEARNING_SIGNAL`; evidence-backed FAIL may become `COUNTEREXAMPLE`; ambiguous results require review and cannot silently become positive learning.
+- Admission never grants execution authority.
