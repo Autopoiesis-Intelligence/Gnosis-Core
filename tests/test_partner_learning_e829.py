@@ -15,7 +15,6 @@ def fixture(path):
     instance=Instance.create_root("o", parent)
     save_instance(conn, instance)
     instance_id=instance.instance_id
-    conn.execute("UPDATE instances SET current_state_id=?, budget_spent=? WHERE instance_id=?", (proposed.state_id, 1, instance_id))
     _persist_transition(conn, instance, candidate, tr, actor="test")
     admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     request=build_request(candidate_id=candidate.candidate_id,result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=proposed.state_id,admission_verified=True)
