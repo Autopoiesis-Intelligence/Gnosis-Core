@@ -1492,3 +1492,12 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Correction commits: `f065cfbc`, `c4b8fdb5`.
 - This is a real integration/API-surface defect exposed by CI; E8.30 itself still has no PASS evidence because execution did not reach its tests.
 - Next gate: CI rerun on `c4b8fdb5`, then inspect actual E8.30 test failures/results.
+
+
+## E8.30 CI compatibility correction v3 — 2026-09-24
+
+- CI on `cbaf7d2f` reached pytest bootstrap but failed because `tests/conftest.py` still imports the historical internal name `_persist_transition` directly from repositories.
+- Preserved that symbol as a compatibility alias to the canonical `persist_transition`; no duplicate implementation or second persistence path introduced.
+- Correction commit: `66fcac59`.
+- E8.30 remains unverified; current CI evidence is integration bootstrap failure, not contract execution.
+- Next gate: rerun CI on `66fcac59`; if collection passes, inspect actual test execution and E8.30 failures.
