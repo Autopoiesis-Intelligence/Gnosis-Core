@@ -132,3 +132,19 @@ def test_new_attempt_can_store_new_result(tmp_path):
     save_execution_evidence(conn, retry)
     assert verify_execution_evidence(conn) == 2
     conn.close()
+
+
+def test_conflicting_attempt_observation_becomes_self_learning_counterexample():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    item = evidence()
+    counterexample = extract_evidence_counterexample(item, "attempt-1", "FAILED")
+    assert counterexample.invariant == "ONE_IMMUTABLE_EVIDENCE_PER_EXECUTION_ATTEMPT"
+    assert counterexample.learning_scope == "SELF_LEARNING_ONLY"
+    assert counterexample.prior_evidence_id == item.evidence_id
+    assert counterexample.observed_conflicting_status == "FAILED"
+
+
+def test_different_attempt_is_not_counterexample():
+    from gnosis.self_learning.collaboration_evidence import extract_evidence_counterexample
+    with pytest.raises(ValueError):
+        extract_evidence_counterexample(evidence(), "attempt-2", "FAILED")
