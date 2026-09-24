@@ -1032,3 +1032,9 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Registry status changed from DESIGNED / NOT_IMPLEMENTED to PARTIAL / UNVERIFIED.
 - MANUAL_REVIEW, failed compensation and non-compensated recovery are not learning-eligible; recovery cannot rewrite the original execution evidence.
 - Exact CI/runtime/replay/recovery proof remains pending.
+
+## Contract-state reconciliation — 2026-09-24
+
+- Verified E7.76 authorization, E7.77 execution evidence and E7.78 recovery implementation files exist on the accessible repository state.
+- Reconciled the partner contract registry entry for E7.78 from `DESIGNED / NOT_IMPLEMENTED` to `PARTIAL / UNVERIFIED` to match the implementation and contract document.
+- E7.79 remains `DESIGNED / NOT_IMPLEMENTED`; no implementation is claimed until the repository write is successfully applied and verified.
