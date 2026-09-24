@@ -88,10 +88,18 @@ def validate_envelope(envelope: OperationEnvelope, scope: Scope, now_ms: int) ->
         return "INVALID_EVIDENCE_HASH"
     return None
 
-def authorize_operation(envelope: OperationEnvelope, required_capability: CapabilityToken, now_ms: int) -> str | None:
-    identity_error = validate_identity(envelope.identity, now_ms)
-    if identity_error:
-        return identity_error
+def authorize_operation(
+    envelope: OperationEnvelope,
+    required_capability: CapabilityToken,
+    scope: Scope,
+    now_ms: int,
+) -> str | None:
+    envelope_error = validate_envelope(envelope, scope, now_ms)
+    if envelope_error:
+        return envelope_error
+    context_error = validate_task_context(envelope.task_context, envelope.identity, scope)
+    if context_error:
+        return context_error
     if required_capability not in ALLOWED_CAPABILITIES:
         return "UNKNOWN_CAPABILITY"
     expected_capability = ACTION_REQUIRED_CAPABILITY.get(envelope.action)
@@ -101,10 +109,4 @@ def authorize_operation(envelope: OperationEnvelope, required_capability: Capabi
         return "CAPABILITY_ACTION_MISMATCH"
     if required_capability not in envelope.capabilities.granted_capabilities:
         return "UNAUTHORIZED_CAPABILITY"
-    if envelope.identity.tenant_id != envelope.task_context.tenant_id:
-        return "TENANT_MISMATCH"
-    if envelope.task_context.scope_id == "":
-        return "INVALID_SCOPE"
-    if not envelope.task_context.scope_id:
-        return "INVALID_SCOPE"
     return None
