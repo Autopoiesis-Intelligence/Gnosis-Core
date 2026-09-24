@@ -1442,3 +1442,13 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Implementation commits: `a548070a`, `ad55794c`, `5edf7ec5`.
 - E8.27 remains **PARTIAL / UNVERIFIED** until exact runtime/CI evidence is observed.
 - Next gate: execute the E8.27 path against real SQLite persistence, then reopen/recovery verification and tamper injection across admission → request → transition → memory → audit.
+
+
+## E8.28 durable partner learning recovery verification — 2026-09-24
+
+- Implemented `gnosis/self_learning/partner_learning_recovery.py` to verify committed partner learning after database close/reopen using the canonical durable-graph and EvolutionMemory loaders.
+- Added tests for close/reopen persistence, audit tamper detection and non-fabrication after memory loss.
+- Added `docs/architecture/E828_DURABLE_PARTNER_LEARNING_RECOVERY.md`.
+- Implementation commits: `cec3e98b`, `5606392c`, `5a551cae`, with tamper-test hardening `3eca3335`.
+- E8.28 remains **PARTIAL / UNVERIFIED** until exact runtime/CI evidence is observed.
+- Next gate: adversarially verify cross-layer binding and conflicting replay after reopen, then run the full E8.23–E8.28 chain.
