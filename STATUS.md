@@ -1324,3 +1324,11 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - Added `tests/test_collaboration_proposal.py` and connected it to Self-Diagnostic CI in `d068737cc8b44b669db076f401bf3ad0dead6717`.
 - Added `docs/architecture/COLLABORATION_PROPOSAL_BOUNDARY_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
 - Open proposals cannot carry financial references; commercial proposals require explicit financial evidence. Neither proposal type creates a contract or execution authority.
+
+## E8.14 contract generation gate — implementation started — 2026-09-24
+
+- Implemented `gnosis/self_learning/contract_generation.py` to generate contracts only from accepted proposals and bind them to the exact proposal digest.
+- Added `tests/test_contract_generation.py` and connected it to Self-Diagnostic CI in `21a15440113472d10298c7cf772242a8332c93ee`.
+- Added `docs/architecture/CONTRACT_GENERATION_GATE_CONTRACT.md`; Registry status changed to PARTIAL / UNVERIFIED.
+- Generated contracts require scope, rights profile, acceptance criteria, evidence requirements and transfer boundary.
+- DRAFT contracts are not executable; execution readiness remains a separate boundary.
