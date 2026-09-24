@@ -11,7 +11,7 @@ def test_conflict_requires_conflicting_evidence():
     with pytest.raises(ValueError): make("CONFLICT")
 
 def test_resolution_never_grants_authority():
-    assert not resolution_grants_authority(make())
+    assert not resolution_grants_authority(record=make())
 
 def test_scope_mismatch_is_distinct():
     r=make("SCOPE_MISMATCH","SCOPE_MISMATCH_CONFIRMED")
