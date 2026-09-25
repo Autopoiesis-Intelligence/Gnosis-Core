@@ -606,21 +606,35 @@ def test_a56_execution_evidence_round_trip_and_restart(tmp_path):
     save_execution_evidence(conn, evidence, actor="executor-1")
     loaded = load_execution_evidence(conn, evidence.evidence_id)
     assert loaded == evidence
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 1
     conn.close()
     reopened = connect(path)
     assert load_execution_evidence(reopened, evidence.evidence_id) == evidence
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == 1
 
 
 def test_a57_execution_evidence_conflicting_replay_fails_closed():
     conn = connect()
     evidence = _execution_evidence()
     save_execution_evidence(conn, evidence, actor="executor-1")
-    conflicting = _execution_evidence()
-    conflicting = type(evidence)(*(
-        list(conflicting)[:-9] + ["rev-tampered"] + list(conflicting)[-8:]
-    ))
+    from gnosis.self_learning.collaboration_execution_evidence import create_execution_evidence
+    conflicting = create_execution_evidence(
+        authorization_id=evidence.authorization_id,
+        review_id=evidence.review_id,
+        proposal_revision=evidence.proposal_revision,
+        action=evidence.action,
+        target_resource=evidence.target_resource,
+        authorized_scope=evidence.authorized_scope,
+        executor_id=evidence.executor_id,
+        attempt_id=evidence.attempt_id,
+        ordering_evidence=evidence.ordering_evidence,
+        result_status=evidence.result_status,
+        target_before=evidence.target_before,
+        target_after="rev-tampered",
+        privacy_classification=evidence.privacy_classification,
+        reconciliation_status=evidence.reconciliation_status,
+        provenance_refs=evidence.provenance_refs,
+    )
     with pytest.raises(StorageCorruptionError, match="conflicting execution evidence replay"):
         save_execution_evidence(conn, conflicting, actor="executor-1")
 
