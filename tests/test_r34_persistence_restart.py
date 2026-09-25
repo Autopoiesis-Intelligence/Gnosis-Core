@@ -25,9 +25,9 @@ def test_autonomous_cycle_survives_sqlite_restart():
     engine=Engine(state=State(elements={"a":1}), budget=Budget(total=2))
     seed_reflection_history(engine)
     instance=Instance("i","owner",engine,None,0,InstanceStatus.ACTIVE)
-    save_instance(conn,instance,actor="owner")
     first=run_one_endogenous_cycle(engine)
     assert first.transition is not None
+    save_instance(conn,instance,actor="owner")
     _persist_transition(conn,instance,first.generation.candidates[0],first.transition,actor="owner")
     recovered=recover_instance(conn,"i")
     assert recovered.engine.state.state_id == first.transition.to_state_id
