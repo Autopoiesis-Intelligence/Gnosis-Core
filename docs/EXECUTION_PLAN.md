@@ -186,3 +186,14 @@ Re-inspection of PR #74 head `a63870b` confirms the three previously reported ga
 - `preconditions` remain declarative/issuance-time booleans and are not verified as execution-time evidence.
 
 Therefore the remediation contract is **NOT IMPLEMENTED** on the current PR head. E7.76 remains REQUEST CHANGES / NOT ACCEPTED. No downstream PR in the E7 chain may be accepted on top of this head.
+
+
+### E7.76 remediation implementation — 2026-09-25
+
+PR #74 branch `contract/e7-76-execution-authorization` now contains the first remediation implementation:
+- `authorized_target_revision` is immutable and included in canonical authorization identity;
+- expiry is checked against deterministic caller-supplied `now`;
+- precondition evidence is represented by a canonical digest bound into authorization and checked at validation;
+- new adversarial tests cover expiry, target-revision freshness, unsatisfied precondition evidence, and canonical identity tamper.
+
+The implementation is on PR #74, not accepted into `main`. CI evidence for the new head is currently absent, so runtime acceptance remains open.
