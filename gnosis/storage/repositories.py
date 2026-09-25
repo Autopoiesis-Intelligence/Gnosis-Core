@@ -84,7 +84,8 @@ def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)
         if not isinstance(reasons, tuple) or not all(isinstance(reason, str) for reason in reasons):
             raise StorageCorruptionError("invalid transition reasons")
         result=TestResult(passed=bool(row[4]),reasons=reasons)
-        record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=row[1],test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6])
+        logical_candidate_id = "<none-selected>" if row[1] is None else row[1]
+        record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=logical_candidate_id,test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6])
         if record.transition_id != row[0]:
             raise StorageCorruptionError("transition identity mismatch")
         if row[1] is not None:
