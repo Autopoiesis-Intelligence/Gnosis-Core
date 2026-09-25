@@ -120,3 +120,37 @@ Acceptance order:
 - then validate #77 against that chain;
 - then review #79 against the mutation/integration boundaries;
 - only after those gates begin new repository extraction.
+
+
+## E7 live-PR reconciliation — 2026-09-25
+
+Current GitHub PR topology was checked directly.
+
+### Sequential chain
+- #74 E7.76 — open, base `main`, head `a63870b`.
+- #75 E7.77 — open, correctly based on #74 head `a63870b`.
+- #76 E7.77-PERSIST — open, correctly based on #75 head `900823c`.
+
+This is a coherent dependency chain, but none of #74–#76 has a submitted review, and they are not merged. They therefore remain unaccepted.
+
+### Parallel branches requiring rebase/reconciliation
+- #77 E7.15 is based directly on an older `main` SHA and is not based on the E7.74→E7.77 chain.
+- #79 R3.1 is based on another `main` SHA and is not based on the E7 chain.
+- #80 mutation boundary is based on another `main` SHA.
+- #81 integration boundary is based on another `main` SHA.
+
+The differing base SHAs mean these branches must be reconciled against the eventual canonical main after the sequential E7 chain is accepted. They must not be merged independently as if they were already cumulative.
+
+### Review evidence
+PRs #74–#81 currently report no submitted pull-request reviews through the available GitHub surface. This is an evidence gap, not a code verdict.
+
+### CI evidence
+The checked current/base commit for #81 reports zero status records. Current-main execution evidence therefore remains unavailable.
+
+### Next acceptance order
+1. Independently audit #74.
+2. Audit #75 only against #74's exact head.
+3. Audit #76 only against #75's exact head.
+4. Reconcile/retarget #77, #79, #80, #81 after the sequential chain is accepted.
+5. Obtain independent review + current-main CI evidence.
+6. Only then consider repository extraction.
