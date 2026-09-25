@@ -337,3 +337,14 @@ The older `gnosis/self_learning/collaboration_execution_authorization.py` and it
 The original PR #74 branch remains untouched because it is 539 commits behind current main. It must not be treated as the integration candidate.
 
 Next gate: inspect all current-main imports/usages and CI for the canonical API, then wire the real external adapter and E7.77 evidence path.
+
+
+### Current-main dependency audit + adjacent defect cleanup — 2026-09-25
+
+Current-main tree inspection after reconciliation shows no remaining `collaboration_execution_authorization.py` file in the canonical branch tree; the old module is therefore no longer part of the integration candidate. Generic `authorization_valid` occurrences in recovery code are unrelated parameters/guards, not imports of the removed E7.76 authority API.
+
+The audit also found a separate duplicate definition of `validate_delivery_build_binding()` in `gnosis/self_learning/delivery.py`. Removed the duplicate definition without changing the surviving function's behavior.
+
+The reconciled tree already contains E7.77 execution evidence, E7.78 collaboration recovery, E7.79 incident resolution, and lifecycle closure modules, but these remain contract components rather than a proven end-to-end adapter path from E7.76 side effect to E7.77 evidence.
+
+Next gate remains real external adapter discovery/wiring plus cross-contract integration tests.
