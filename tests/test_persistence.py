@@ -711,7 +711,7 @@ def test_a64_execution_evidence_conflicting_attempt_replay_fails_closed():
         proposal_revision=evidence.proposal_revision, action=evidence.action,
         target_resource=evidence.target_resource, authorized_scope=evidence.authorized_scope,
         executor_id=evidence.executor_id, attempt_id=evidence.attempt_id,
-        ordering_evidence=evidence.ordering_evidence, result_status="SUCCEEDED",
+        ordering_evidence=evidence.ordering_evidence, result_status="FAILED",
         target_before=evidence.target_before, target_after=evidence.target_after,
         privacy_classification=evidence.privacy_classification,
         reconciliation_status=evidence.reconciliation_status,
