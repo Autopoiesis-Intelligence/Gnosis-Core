@@ -1,0 +1,23 @@
+version: "0.1"
+kind: "DiscoveryRecord"
+required:
+  - discovery_id
+  - type
+  - title
+  - status
+  - provenance
+fields:
+  discovery_id: {type: string}
+  type:
+    enum: [knowledge, research, open_problem, opportunity, project, capability, contract_opportunity, partnership, product, investment]
+  title: {type: string}
+  description: {type: string}
+  domain: {type: array}
+  topics: {type: array}
+  requirements: {type: array}
+  evidence: {type: array}
+  licensing: {type: object}
+  commercial: {type: object}
+  status:
+    enum: [draft, published, discoverable, proposals, selected, contracted, executing, completed, archived, paused, withdrawn, disputed, closed]
+  provenance: {type: object}
