@@ -673,6 +673,7 @@ def test_a61_execution_evidence_audit_link_tamper_fails_closed():
     conn = connect()
     evidence = _execution_evidence()
     save_execution_evidence(conn, evidence, actor="executor-1")
+    conn.execute("DROP TRIGGER audit_events_no_delete")
     conn.execute("DELETE FROM audit_events WHERE action='execution.evidence' AND resource=?", (evidence.evidence_id,))
     with pytest.raises(StorageCorruptionError, match="execution evidence audit mismatch"):
         load_execution_evidence(conn, evidence.evidence_id)
