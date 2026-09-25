@@ -43,10 +43,13 @@ def _kwargs():
 
 def test_denial_never_calls_provider():
     calls = []
+    kwargs = _kwargs()
+    kwargs["target_revision_resolver"] = lambda resource: "target-r2"
+    kwargs["evidence_resolver"] = lambda digest: None
     result = execute_governed_external_action(
-        **_kwargs(),
+        **kwargs,
         provider=lambda payload: calls.append(payload) or {"target_after": "target-r2"},
-        action_payload={"title": "test"},
+        action_payload={"title": "must-not-run"},
     )
     assert calls == []
     assert result.evidence.result_status == "REJECTED_BY_BOUNDARY"
@@ -54,7 +57,7 @@ def test_denial_never_calls_provider():
 
 def test_allow_calls_provider_and_produces_success_evidence():
     provider = FakeExternalProvider(target_after="target-r2")
-    result = execute_governed_external_action(**_kwargs(), provider=provider)
+    result = execute_governed_external_action(**_kwargs(), provider=provider, action_payload={"title": "test"})
     assert provider.calls == [{"title": "test"}]
     assert result.evidence.result_status == "SUCCEEDED"
     assert result.evidence.target_after == "target-r2"
