@@ -25,6 +25,7 @@ def _kwargs(**overrides):
         issuance_revision="auth-r1",
         expires_at="2099-01-01T00:00:00Z",
         preconditions=("review-current", "target-current"),
+        authorized_target_revision="target-r1",
     )
     base.update(overrides)
     return base
@@ -46,7 +47,8 @@ def test_exact_accepted_review_can_issue_authorization():
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
         current_target_revision="target-r1",
-        authorized_target_revision="target-r1",
+        current_precondition_evidence_digest=auth.precondition_evidence_digest,
+        now="2026-01-01T00:00:00Z",
     )
 
 
@@ -84,7 +86,8 @@ def test_conflicting_request_is_denied():
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
         current_target_revision="target-r1",
-        authorized_target_revision="target-r1",
+        current_precondition_evidence_digest=revoked.precondition_evidence_digest,
+        now="2026-01-01T00:00:00Z",
     )
 
 
@@ -102,7 +105,8 @@ def test_target_advance_makes_authorization_stale():
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
         current_target_revision="target-r2",
-        authorized_target_revision="target-r1",
+        current_precondition_evidence_digest=auth.precondition_evidence_digest,
+        now="2026-01-01T00:00:00Z",
     )
 
 
@@ -132,4 +136,61 @@ def test_tampered_authorization_record_is_rejected():
     with pytest.raises(ValueError):
         type(auth)(
             **{**auth.__dict__, "authorized_scope": "issue:update"}
+        )
+
+
+def test_expired_authorization_is_denied():
+    auth = issue_execution_authorization(**_kwargs(expires_at="2026-01-01T00:00:00Z"))
+    assert not validate_execution_request(
+        authorization=auth,
+        review_id="review-1", review_digest="sha256:review",
+        proposal_id="proposal-1", proposal_revision="r1",
+        action_class="CREATE_PUBLIC_ISSUE_OR_PR",
+        target_resource="repo:public/project", requested_scope="issue:create",
+        executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
+        current_target_revision="target-r1",
+        current_precondition_evidence_digest=auth.precondition_evidence_digest,
+        now="2026-01-01T00:00:00Z",
+    )
+
+
+def test_caller_cannot_supply_authorized_target_revision():
+    auth = issue_execution_authorization(**_kwargs())
+    assert not validate_execution_request(
+        authorization=auth,
+        review_id="review-1", review_digest="sha256:review",
+        proposal_id="proposal-1", proposal_revision="r1",
+        action_class="CREATE_PUBLIC_ISSUE_OR_PR",
+        target_resource="repo:public/project", requested_scope="issue:create",
+        executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
+        current_target_revision="target-r2",
+        current_precondition_evidence_digest=auth.precondition_evidence_digest,
+        now="2026-01-01T00:00:00Z",
+    )
+
+
+def test_unsatisfied_precondition_evidence_is_denied():
+    auth = issue_execution_authorization(**_kwargs())
+    assert not validate_execution_request(
+        authorization=auth,
+        review_id="review-1", review_digest="sha256:review",
+        proposal_id="proposal-1", proposal_revision="r1",
+        action_class="CREATE_PUBLIC_ISSUE_OR_PR",
+        target_resource="repo:public/project", requested_scope="issue:create",
+        executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
+        current_target_revision="target-r1",
+        current_precondition_evidence_digest="sha256:wrong",
+        now="2026-01-01T00:00:00Z",
+    )
+
+
+def test_canonical_identity_binds_target_and_precondition_evidence():
+    auth = issue_execution_authorization(**_kwargs())
+    with pytest.raises(ValueError):
+        type(auth)(
+            **{**auth.__dict__, "authorized_target_revision": "target-r2"}
+        )
+    with pytest.raises(ValueError):
+        type(auth)(
+            **{**auth.__dict__, "precondition_evidence_digest": "sha256:wrong"}
         )
