@@ -5,7 +5,7 @@ import pytest
 from gnosis.self_learning.collaboration_authorization import PreconditionEvidence
 from gnosis.self_learning.governed_external_adapter import execute_governed_external_action
 from gnosis.self_learning.fake_external_provider import FakeExternalProvider
-from tests.test_collaboration_runtime import _authorization
+from test_collaboration_runtime import _authorization
 
 
 def _evidence():
