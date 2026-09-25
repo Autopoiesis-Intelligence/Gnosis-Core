@@ -1,7 +1,7 @@
 """Composable pre-commit gate; does not own Core mutation or persistence."""
 from __future__ import annotations
 
-from gnosis.reflection.authorization_consumption import consume_authorization
+from gnosis.reflection.authorization_consumption import consume_authorization_in_transaction
 from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.authority import ExecutionCommitRequest, require_execution_commit
 
@@ -27,7 +27,7 @@ def require_trusted_execution(
         expected_evidence_digest=validity.validity_evidence_digest,
     )
     require_execution_commit(request)
-    consume_authorization(
+    consume_authorization_in_transaction(
         conn,
         validity.authorization_id,
         request_provenance=request.request_provenance,
