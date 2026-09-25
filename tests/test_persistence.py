@@ -393,6 +393,40 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     assert verify_durable_graph(reopened)[0] == 1
 
 
+def test_a53_accepted_transition_replay_is_idempotent():
+    conn, instance, record = _persisted_transition()
+    before = conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
+    candidate = load_candidate(conn, record.candidate_id)
+    _persist_transition(conn, instance, candidate, record, actor="test")
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == before
+    assert conn.execute("SELECT count(*) FROM audit_events").fetchone()[0] == 2
+
+
+def test_a54_rejected_transition_replay_is_idempotent():
+    conn = connect()
+    instance, candidate, record = _rejected_transition_fixture(conn)
+    _persist_transition(conn, instance, candidate, record, actor="u")
+    before = conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
+    _persist_transition(conn, instance, candidate, record, actor="u")
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == before
+    assert recover_instance(conn, instance.instance_id).engine.state.state_id == record.from_state_id
+
+
+def test_a55_conflicting_transition_replay_fails_closed():
+    conn, instance, record = _persisted_transition()
+    conflicting = TransitionRecord(
+        record.from_state_id,
+        record.to_state_id,
+        record.candidate_id,
+        TestResult(False, ("conflict",)),
+        False,
+        "conflict",
+        record.test_rule_id,
+    )
+    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+        _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
+
+
 def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
     row = conn.execute(
