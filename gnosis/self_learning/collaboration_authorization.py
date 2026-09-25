@@ -20,6 +20,7 @@ _ALLOWED_ACTIONS = {
 _DECISIONS = {"ALLOW", "DENY"}
 _SHAREABLE = {"SHAREABLE_ABSTRACTION", "PUBLIC_APPROVED"}
 _UNKNOWN = {"UNKNOWN", ""}
+_TRUSTED_EVIDENCE_SOURCES = {"trusted-review-engine"}
 
 
 def _digest(fields: Mapping[str, object]) -> str:
@@ -57,6 +58,8 @@ class PreconditionEvidence:
         )
         if not all(value.strip() for value in required):
             raise ValueError("evidence identity fields are required")
+        if self.source_id not in _TRUSTED_EVIDENCE_SOURCES:
+            raise ValueError("evidence source is not trusted")
 
 
 @dataclass(frozen=True)
