@@ -22,15 +22,15 @@ def main():
         # Deliberately adversarial: candidates are supplied in reverse order.
         # Canonical Select must still choose the smallest passing candidate_id.
         candidates=[
-            Candidate(candidate_id="z-authority",parent_state_id=state.state_id,proposed_state=State(elements={"z":1})),
-            Candidate(candidate_id="a-authority",parent_state_id=state.state_id,proposed_state=State(elements={"a":1})),
+            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"z":1}),origin="z-authority"),
+            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"a":1}),origin="a-authority"),
         ]
         engine=Engine(state=state,budget=Budget(total=1))
         record=engine.step_select(candidates)
-        result="PASS" if record.candidate_id=="a-authority" else "FAIL"
+        result="PASS" if record.candidate_id==candidates[1].candidate_id else "FAIL"
         checks.append({"case":"alternate-authority","result":result,
                        "selected_candidate_id":record.candidate_id,
-                       "expected":"a-authority",
+                       "expected_candidate_origin":"a-authority",
                        "selection_order":["z-authority","a-authority"],
                        "observation":"selection remains deterministic despite adversarial input order"})
     evidence={"execution_id":a.execution_id,"contract_id":"CORE-MUTATION-BOUNDARY-01","contract_version":"1.0",
