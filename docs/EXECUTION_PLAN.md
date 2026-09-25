@@ -223,3 +223,12 @@ Authorization issuance requires trusted evidence, requires its target revision t
 New regression coverage includes forged source rejection and stale evidence rejection.
 
 This closes the prior “hash of declaration is not evidence” gap at the source-contract level. Runtime CI remains the acceptance gate.
+
+
+### E7.76 full re-audit — trust-boundary blockers remain — 2026-09-25
+
+After the timestamp contract and test-call-site correction, two deeper blockers remain:
+1. `PreconditionEvidence` is caller-constructible; the `source_id` allowlist authenticates only a string label, not the authority that produced the evidence.
+2. `current_target_revision` remains caller-supplied; equality with the authorization-bound revision does not prove that it is the live target revision.
+
+These require trusted evidence/target-state resolution or independently verifiable provenance. Current-head CI workflow evidence is also absent. E7.76 therefore remains unaccepted.
