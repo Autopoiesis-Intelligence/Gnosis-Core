@@ -24,10 +24,15 @@ class Engine:
     state: State
     budget: Budget = field(default_factory=Budget)
     test_fn: TestFn = default_test
-    history: list[TransitionRecord] = field(default_factory=list)
+    _history: list[TransitionRecord] = field(default_factory=list, repr=False)
     test_rule_id: str = "test-rule:default"
 
     STEP_COST: int = 1
+
+    @property
+    def history(self) -> tuple[TransitionRecord, ...]:
+        """Read-only transition history view; mutation remains engine-owned."""
+        return tuple(self._history)
 
     def _charge_step(self) -> None:
         if self.budget.exhausted():
@@ -51,7 +56,7 @@ class Engine:
             reason="committed" if result.passed else "rejected: " + "; ".join(result.reasons),
             test_rule_id=self.test_rule_id,
         )
-        self.history.append(record)
+        self._history.append(record)
         if result.passed:
             self.state = candidate.proposed_state
         return record
