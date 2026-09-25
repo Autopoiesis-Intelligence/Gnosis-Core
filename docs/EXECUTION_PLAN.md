@@ -35,3 +35,19 @@ Do not use a boolean `authorized` flag, arbitrary caller string, owner identity 
 The contract must first receive a concrete schema and deterministic validation tests. Only then should `recover_instance()` accept the authorization object. This prevents adding a superficial parameter that does not establish a real trust boundary.
 
 Status: CONTRACT DEFINED / IMPLEMENTATION NOT STARTED.
+
+
+## Gate 5A.1 — Authorization schema acceptance tests
+
+Required deterministic cases:
+- missing authorization → deny;
+- decision=deny → deny;
+- expired authorization → deny;
+- subject mismatch → deny;
+- evidence digest mismatch → deny;
+- valid allow authorization → permit recovery;
+- authorization fields are immutable for the verification operation;
+- the authorization must bind to the exact verified evidence set;
+- recovery must not change the canonical Core state.
+
+Implementation remains blocked until these cases have a concrete machine-readable schema and executable tests.
