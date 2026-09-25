@@ -1,0 +1,24 @@
+version: "0.1"
+kind: "KnowledgeContribution"
+required:
+  - contribution_id
+  - result_id
+  - source_project
+  - artifact
+  - contributors
+  - target_memory_source
+  - provenance
+fields:
+  contribution_id: {type: string}
+  result_id: {type: string}
+  source_project: {type: string}
+  artifact: {type: object}
+  contributors: {type: array}
+  license_ip_basis: {type: object}
+  target_memory_source: {type: string}
+  proposed_record_type: {type: string}
+  evidence: {type: array}
+  verification: {type: array}
+  status:
+    enum: [proposed, validating, accepted, published, rejected, quarantined, withdrawn]
+  provenance: {type: object}
