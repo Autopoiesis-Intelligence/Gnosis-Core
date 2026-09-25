@@ -45,6 +45,8 @@ class ExecutionAuthorization:
     expires_at: str
     revocation_revision: str | None
     preconditions: tuple[str, ...]
+    precondition_evidence_digest: str
+    authorized_target_revision: str
     decision: str
     status: str
     authority: str = "execution-authorization-only"
@@ -87,6 +89,8 @@ class ExecutionAuthorization:
             "expires_at": self.expires_at,
             "revocation_revision": self.revocation_revision,
             "preconditions": self.preconditions,
+            "precondition_evidence_digest": self.precondition_evidence_digest,
+            "authorized_target_revision": self.authorized_target_revision,
             "decision": self.decision,
             "status": self.status,
         }
@@ -131,6 +135,8 @@ def issue_execution_authorization(
     issuance_revision: str,
     expires_at: str,
     preconditions: tuple[str, ...],
+    authorized_target_revision: str,
+    precondition_evidence_digest: str | None = None,
     required_preconditions_present: bool = True,
     revoked: bool = False,
     stale: bool = False,
@@ -151,8 +157,10 @@ def issue_execution_authorization(
         raise ValueError("authorization requires exact ACCEPTED review binding")
     if privacy_classification in _UNKNOWN or privacy_classification not in _SHAREABLE:
         raise ValueError("authorization requires explicit shareable privacy classification")
-    if not all(x.strip() for x in (target_resource, authorized_scope, executor_id, authorization_basis, issuance_revision, expires_at)):
+    if not all(x.strip() for x in (target_resource, authorized_scope, executor_id, authorization_basis, issuance_revision, expires_at, authorized_target_revision)):
         raise ValueError("authorization scope and identity fields are required")
+    if precondition_evidence_digest is None:
+        precondition_evidence_digest = _digest({"preconditions": preconditions})
     if revoked or stale or not scope_allowed or not provenance_complete or not required_preconditions_present:
         raise ValueError("authorization preconditions are not satisfied")
     fields = {
@@ -170,6 +178,8 @@ def issue_execution_authorization(
         "expires_at": expires_at,
         "revocation_revision": None,
         "preconditions": preconditions,
+        "precondition_evidence_digest": precondition_evidence_digest,
+        "authorized_target_revision": authorized_target_revision,
         "decision": "ALLOW",
         "status": "ALLOW",
     }
@@ -189,7 +199,8 @@ def validate_execution_request(
     executor_id: str,
     privacy_classification: str,
     current_target_revision: str,
-    authorized_target_revision: str,
+    current_precondition_evidence_digest: str,
+    now: str,
     current_revocation_revision: str | None = None,
 ) -> bool:
     if authorization.decision != "ALLOW" or authorization.status != "ALLOW":
@@ -210,7 +221,11 @@ def validate_execution_request(
         return False
     if authorization.revocation_revision is not None:
         return False
-    if current_target_revision != authorized_target_revision:
+    if now >= authorization.expires_at:
+        return False
+    if current_target_revision != authorization.authorized_target_revision:
+        return False
+    if current_precondition_evidence_digest != authorization.precondition_evidence_digest:
         return False
     return True
 
@@ -235,6 +250,8 @@ def revoke_execution_authorization(
         "expires_at": authorization.expires_at,
         "revocation_revision": revocation_revision,
         "preconditions": authorization.preconditions,
+        "precondition_evidence_digest": authorization.precondition_evidence_digest,
+        "authorized_target_revision": authorization.authorized_target_revision,
         "decision": "DENY",
         "status": "DENY",
     }
