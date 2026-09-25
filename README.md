@@ -4,15 +4,18 @@
 
 Gnozis Core is the canonical engineering foundation of the Gnozis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The older Gnozis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. The GitHub repository currently named Gnozis-V2 is the canonical Core repository; the product identity is Gnozis Core. It receives research-derived requirements only after they have been formalized and mapped to code.
+The older Gnozis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis/Genezis. The product identity remains Gnozis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
 
 ## Project relationship
 
-Gnozis — Research Library
-        ↓ discovered patterns / models / evidence
-Gnozis Core
-        ├── Specialized Research Kernels
-        └── Commercial User Versions
+Gnozis
+        ↓ public evidence / opportunities
+Gnozis-Research-Memory
+        ↓ machine-readable research / mathematics / provenance
+Genesis / Genezis
+        ├── Uroboros / Ψ-Core
+        ├── Module Factory
+        └── governed specialized outputs
 
 ## Core rule
 
@@ -87,13 +90,13 @@ A connected AI product is a surface over the durable Gnozis context, not an alte
 
 ## Repository naming baseline
 
-Product identity: **Gnozis Core**.
+Product identity: **Gnozis**.
 
-Canonical engineering role: **Core**.
+Protected engineering role: **Genesis / Genezis — Core + Module Factory**.
 
-Temporary second repository role: **Self-Learning Archive / Self-Learning Research & Learning Archive**.
+Research-memory role: **Gnozis-Research-Memory**.
 
-The `Gnozis-V2` GitHub repository name is a current repository identifier, not the product/version identity. Physical GitHub renaming is an account-level repository operation and is not represented as completed by documentation alone.
+The historical `Gnozis-V2` naming is retired from product documentation. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
 
 ## Partnership and specialized commercial cores
 
