@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "required": [
+    "execution_id",
+    "contract_id",
+    "contract_version",
+    "target",
+    "core_revision",
+    "runner_version",
+    "fixture_set",
+    "evidence_policy"
+  ],
+  "properties": {
+    "execution_id": {
+      "type": "string"
+    },
+    "contract_id": {
+      "type": "string"
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string"
+    },
+    "core_revision": {
+      "type": "string"
+    },
+    "runner_version": {
+      "type": "string"
+    },
+    "fixture_set": {
+      "type": "string"
+    },
+    "evidence_policy": {
+      "type": "string"
+    }
+  }
+}
