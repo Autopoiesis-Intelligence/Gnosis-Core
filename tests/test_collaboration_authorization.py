@@ -173,8 +173,8 @@ def test_expired_authorization_is_denied():
         action_class="CREATE_PUBLIC_ISSUE_OR_PR",
         target_resource="repo:public/project", requested_scope="issue:create",
         executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r1",
-        current_precondition_evidence=auth_precondition_evidence(auth),
+        target_revision_resolver=target_revision_resolver,
+        evidence_resolver=evidence_resolver,
         now="2026-01-01T00:00:00Z",
     )
 
@@ -188,8 +188,8 @@ def test_caller_cannot_supply_authorized_target_revision():
         action_class="CREATE_PUBLIC_ISSUE_OR_PR",
         target_resource="repo:public/project", requested_scope="issue:create",
         executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r2",
-        current_precondition_evidence=auth_precondition_evidence(auth),
+        target_revision_resolver=lambda resource: "target-r2",
+        evidence_resolver=evidence_resolver,
         now="2026-01-01T00:00:00Z",
     )
 
@@ -270,7 +270,7 @@ def test_malformed_execution_time_is_denied():
         action_class="CREATE_PUBLIC_ISSUE_OR_PR",
         target_resource="repo:public/project", requested_scope="issue:create",
         executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r1",
-        current_precondition_evidence=auth_precondition_evidence(auth),
+        target_revision_resolver=target_revision_resolver,
+        evidence_resolver=evidence_resolver,
         now="not-a-timestamp",
     )
