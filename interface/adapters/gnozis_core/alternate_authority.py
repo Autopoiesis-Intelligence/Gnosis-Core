@@ -22,8 +22,8 @@ def main():
         # Deliberately adversarial: candidates are supplied in reverse order.
         # Canonical Select must still choose the smallest passing candidate_id.
         candidates=[
-            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"z":1}),origin="z-authority"),
-            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"a":1}),origin="a-authority"),
+            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"z":1}, version=1),origin="z-authority"),
+            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"a":1}, version=1),origin="a-authority"),
         ]
         engine=Engine(state=state,budget=Budget(total=1))
         record=engine.step_select(candidates)
