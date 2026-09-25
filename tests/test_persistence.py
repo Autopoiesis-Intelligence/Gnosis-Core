@@ -21,7 +21,7 @@ recover_instance,
     recovery_evidence_digest,
     load_candidate,
 )
-from gnosis.storage.repositories import _audit_hash, _persist_transition
+from gnosis.storage.repositories import _audit_hash, _persist_transition, canonical_json
 from gnosis.storage.authorization import RecoveryAuthorization
 
 
@@ -494,7 +494,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
                 "resource": row[5],
                 "result": row[6],
                 "timestamp": row[7],
-                "prev_hash": row[8],
+                "prev_hash": tail[1],
             }),
         ),
     )
