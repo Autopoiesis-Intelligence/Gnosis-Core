@@ -11,6 +11,7 @@ from typing import Any
 from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord
 from gnosis.instances.instance import Instance, InstanceStatus
 from .database import GENESIS_HASH, transaction
+from .authorization import RecoveryAuthorization, validate_recovery_authorization
 
 class StorageCorruptionError(ValueError): pass
 class SecretMaterialError(ValueError): pass
@@ -117,7 +118,64 @@ def load_instance(conn: sqlite3.Connection,instance_id: str)->Instance:
     if row is None: raise StorageCorruptionError(f"instance not found: {instance_id}")
     from gnosis.core import Budget,Engine
     budget=Budget(total=row[7],spent=row[8]); return Instance(row[0],row[1],Engine(load_state(conn,row[3]),budget=budget),row[4],row[5],InstanceStatus(row[6]),row[9])
-def recover_instance(conn: sqlite3.Connection,instance_id: str)->Instance: verify_durable_graph(conn); return load_instance(conn,instance_id)
+def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
+    """Return the digest of the verified durable evidence bound to recovery."""
+    verify_durable_graph(conn)
+    instance = conn.execute(
+        "SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,created_at "
+        "FROM instances WHERE instance_id=?",
+        (instance_id,),
+    ).fetchone()
+    if instance is None:
+        raise StorageCorruptionError(f"instance not found: {instance_id}")
+    transitions = [
+        tuple(row)
+        for row in conn.execute(
+            "SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at "
+            "FROM transitions WHERE instance_id=? ORDER BY created_at,transition_id",
+            (instance_id,),
+        )
+    ]
+    audits = [
+        tuple(row)
+        for row in conn.execute(
+            "SELECT event_id,sequence,transition_id,actor,action,resource,result,timestamp,prev_hash,event_hash "
+            "FROM audit_events WHERE resource=? ORDER BY sequence",
+            (instance_id,),
+        )
+    ]
+    evidence = {
+        "instance": tuple(instance),
+        "transitions": transitions,
+        "audit": audits,
+    }
+    return hashlib.sha256(canonical_json(evidence).encode()).hexdigest()
+
+
+def recover_instance(
+    conn: sqlite3.Connection,
+    instance_id: str,
+    authorization: RecoveryAuthorization,
+    *,
+    now: str,
+) -> Instance:
+    evidence_digest = recovery_evidence_digest(conn, instance_id)
+    validate_recovery_authorization(
+        authorization,
+        subject=instance_id,
+        evidence_digest=evidence_digest,
+        now=now,
+    )
+    instance = load_instance(conn, instance_id)
+    append_audit(
+        conn,
+        actor=authorization.requested_by,
+        action="recovery.execute",
+        resource=instance_id,
+        result="accepted",
+        event_key=f"recovery:{authorization.authorization_id}",
+    )
+    return instance
 def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
     chain=verify_audit_chain(conn)
     for row in conn.execute("SELECT instance_id,root_state_id,current_state_id,parent_instance_id,generation,budget_total,budget_spent FROM instances"):
