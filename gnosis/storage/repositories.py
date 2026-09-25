@@ -205,7 +205,8 @@ def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: C
         if record.candidate_id != "<none-selected>":
             save_candidate(conn,candidate)
         inject("after_candidate")
-        conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
+        persisted_candidate_id = None if record.candidate_id == "<none-selected>" else record.candidate_id
+        conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,persisted_candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
         append_audit(conn,actor=actor,action="transition.commit" if record.accepted else "transition.reject",resource=instance.instance_id,result="accepted" if record.accepted else "rejected",event_key=f"transition:{tid}",transition_id_value=tid); inject("after_audit")
         if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
         inject("before_commit")
