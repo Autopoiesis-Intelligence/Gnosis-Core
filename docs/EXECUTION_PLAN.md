@@ -104,4 +104,4 @@ Checked 2026-09-25:
 - CodeQL runs for Python and GitHub Actions on main/PR/schedule.
 - Dependency Review workflow exists for pull requests and fails on high severity.
 - These workflow definitions establish intended checks but do not themselves prove that the latest canonical main has successful runs.
-- Current acceptance therefore still requires successful workflow-run evidence attached to the accepted main SHA. The connector reports no commit status records and no pull-request-triggered workflow runs for the current documentation commits checked here; this is an evidence gap, not a pass.
+- Current acceptance therefore still requires successful workflow-run evidence attached to the accepted main SHA. The connector reports no commit status records and no pull-request-triggered workflow runs for the current documentation commits checked here. The available GitHub connector does not expose a workflow-dispatch operation, so this cannot be resolved by triggering Actions from this execution surface. This is an evidence gap, not a pass. The repository-side workflow configuration remains valid.
