@@ -20,10 +20,32 @@ recover_instance,
     verify_durable_graph,
 )
 from gnosis.storage.repositories import _audit_hash, _persist_transition
+from gnosis.storage.authorization import RecoveryAuthorization
 
 
 def root():
     return Instance.create_root("user-1", State(elements={"a": 1}))
+
+
+def _recover(conn, instance_id):
+    digest = recovery_evidence_digest(conn, instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="test-recovery",
+        subject=instance_id,
+        requested_by="test-principal",
+        authority="test-governance",
+        decision="allow",
+        reason="test recovery",
+        issued_at="2026-09-25T00:00:00Z",
+        expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
+    return recover_instance(
+        conn,
+        instance_id,
+        authorization,
+        now="2026-09-25T12:00:00Z",
+    )
 
 
 def test_root_round_trip_and_audit_chain():
@@ -203,7 +225,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     original = instance.engine.state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
     assert verify_durable_graph(reopened)[0] == 2
 
@@ -217,7 +239,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     record = instance.engine.step(candidate)
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
-    assert recover_instance(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
+    assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
     assert verify_durable_graph(conn)[0] == 2
 
 
