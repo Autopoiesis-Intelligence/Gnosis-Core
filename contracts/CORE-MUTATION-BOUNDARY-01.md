@@ -37,4 +37,7 @@ The contract is CLOSED only when the boundary is demonstrated by reproducible ru
 - PR evidence record: PR #80
 
 ## Current status
-EVIDENCE COMPLETE / CLOSURE READY
+CLOSED
+
+## Closure basis
+All required evidence items are satisfied by reproducible runtime tests, canonical source-integrity verification, durable persistence checks, and CI run #2694. PR #80 remains open as a governance record; its open state does not invalidate the technical contract closure.
