@@ -699,3 +699,50 @@ def test_a63_execution_evidence_identical_replay_is_idempotent():
         "SELECT COUNT(*) FROM execution_evidence WHERE attempt_id=?", (evidence.attempt_id,)
     ).fetchone()[0]
     assert count == 1
+
+
+def test_a64_execution_evidence_conflicting_attempt_replay_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    from gnosis.self_learning.collaboration_execution_evidence import create_execution_evidence
+    conflicting = create_execution_evidence(
+        authorization_id=evidence.authorization_id, review_id=evidence.review_id,
+        proposal_revision=evidence.proposal_revision, action=evidence.action,
+        target_resource=evidence.target_resource, authorized_scope=evidence.authorized_scope,
+        executor_id=evidence.executor_id, attempt_id=evidence.attempt_id,
+        ordering_evidence=evidence.ordering_evidence, result_status="FAILED",
+        target_before=evidence.target_before, target_after=evidence.target_after,
+        privacy_classification=evidence.privacy_classification,
+        reconciliation_status=evidence.reconciliation_status,
+        provenance_refs=evidence.provenance_refs,
+    )
+    with pytest.raises(StorageCorruptionError, match="conflicting execution evidence replay"):
+        save_execution_evidence(conn, conflicting, actor="executor-1")
+
+
+def test_a65_execution_evidence_duplicate_id_conflict_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    from gnosis.self_learning.collaboration_execution_evidence import create_execution_evidence
+    conflicting = create_execution_evidence(
+        authorization_id=evidence.authorization_id, review_id=evidence.review_id,
+        proposal_revision=evidence.proposal_revision, action=evidence.action,
+        target_resource="target-tampered", authorized_scope=evidence.authorized_scope,
+        executor_id=evidence.executor_id, attempt_id="attempt-2",
+        ordering_evidence=evidence.ordering_evidence, result_status=evidence.result_status,
+        target_before=evidence.target_before, target_after=evidence.target_after,
+        privacy_classification=evidence.privacy_classification,
+        reconciliation_status=evidence.reconciliation_status,
+        provenance_refs=evidence.provenance_refs,
+    )
+    conn.execute(
+        "DROP TRIGGER execution_evidence_no_update"
+    )
+    conn.execute(
+        "INSERT INTO execution_evidence SELECT ?,authorization_id,review_id,proposal_revision,action,        target_resource,authorized_scope,executor_id,?,ordering_evidence,result_status,target_before,        target_after,privacy_classification,reconciliation_status,provenance_refs,? FROM execution_evidence WHERE evidence_id=?",
+        (evidence.evidence_id, "attempt-2", conflicting.evidence_digest, evidence.evidence_id),
+    )
+    with pytest.raises(StorageCorruptionError):
+        load_execution_evidence(conn, evidence.evidence_id)
