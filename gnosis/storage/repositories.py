@@ -117,7 +117,7 @@ def load_instance(conn: sqlite3.Connection,instance_id: str)->Instance:
     if row is None: raise StorageCorruptionError(f"instance not found: {instance_id}")
     from gnosis.core import Budget,Engine
     budget=Budget(total=row[7],spent=row[8])
-    engine=Engine(load_state(conn,row[4]),budget=budget)
+    engine=Engine(load_state(conn,row[3]),budget=budget)
     engine.history.extend(load_transition_records(conn, instance_id))
     return Instance(row[0],row[1],engine,row[4],row[5],InstanceStatus(row[6]),row[9])
 def recover_instance(conn: sqlite3.Connection,instance_id: str)->Instance: verify_durable_graph(conn); return load_instance(conn,instance_id)
