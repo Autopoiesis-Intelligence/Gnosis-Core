@@ -197,3 +197,12 @@ PR #74 branch `contract/e7-76-execution-authorization` now contains the first re
 - new adversarial tests cover expiry, target-revision freshness, unsatisfied precondition evidence, and canonical identity tamper.
 
 The implementation is on PR #74, not accepted into `main`. CI evidence for the new head is currently absent, so runtime acceptance remains open.
+
+
+### E7.76 re-audit — remaining blocker — 2026-09-25
+
+The remediation implementation addresses the original expiry/target/canonical-identity gaps, but a new trust-boundary gap remains:
+
+`precondition_evidence_digest` defaults to a digest of the declared precondition strings. That is not evidence that the preconditions are actually true. Validation currently compares the caller-supplied current digest with the authorization-bound digest, allowing reproduction of the same digest without proving live precondition satisfaction.
+
+Acceptance therefore remains blocked until precondition evidence is produced by a trusted evidence source and validated against live state/target. Timestamp normalization/validation must also be made explicit before relying on lexicographic expiry comparison.
