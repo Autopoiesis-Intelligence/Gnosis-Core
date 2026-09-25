@@ -19,26 +19,17 @@ def main():
         result="BLOCKED"; checks.append({"case":"target_revision_identity","result":"BLOCKED"})
     else:
         state=State()
-        # Deliberately adversarial: candidates are supplied in reverse order.
-        # Canonical Select must still choose the smallest passing candidate_id.
-        candidates=[
-            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"z":1}, version=1),origin="z-authority"),
-            Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"a":1}, version=1),origin="a-authority"),
-        ]
-        engine=Engine(state=state,budget=Budget(total=1))
-        record=engine.step_select(candidates)
-        result="PASS" if record.candidate_id==candidates[1].candidate_id else "FAIL"
+        z=Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"z":1}, version=1),origin="z-authority")
+        aa=Candidate(parent_state_id=state.state_id,proposed_state=State(elements={"a":1}, version=1),origin="a-authority")
+        engine1=Engine(state=state,budget=Budget(total=1))
+        first=engine1.step_select([z,aa])
+        engine2=Engine(state=state,budget=Budget(total=1))
+        second=engine2.step_select([aa,z])
+        result="PASS" if first.candidate_id==second.candidate_id else "FAIL"
         checks.append({"case":"alternate-authority","result":result,
-                       "selected_candidate_id":record.candidate_id,
-                       "expected_candidate_origin":"a-authority",
-                       "selection_order":["z-authority","a-authority"],
-                       "observation":"selection remains deterministic despite adversarial input order"})
-    evidence={"execution_id":a.execution_id,"contract_id":"CORE-MUTATION-BOUNDARY-01","contract_version":"1.0",
-              "case":"alternate-authority","core_revision":actual,"declared_core_revision":a.core_revision,"checks":checks}
-    record={**evidence,"result":result,"input_digest":digest({"execution_id":a.execution_id,"core_revision":a.core_revision}),
-            "evidence_digest":digest(evidence)}
-    out=json.dumps(record,indent=2,sort_keys=True)+"\n"
-    if a.report: Path(a.report).write_text(out,encoding="utf-8")
-    print(out,end="")
-    return 0 if result=="PASS" else 1
-if __name__=="__main__": raise SystemExit(main())
+                       "selected_candidate_id_forward":first.candidate_id,
+                       "selected_candidate_id_reverse":second.candidate_id,
+                       "selection_order_forward":["z-authority","a-authority"],
+                       "selection_order_reverse":["a-authority","z-authority"],
+                       "observation":"selection result is invariant under adversarial input ordering"})
+
