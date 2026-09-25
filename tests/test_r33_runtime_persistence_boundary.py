@@ -25,6 +25,7 @@ def fixture():
 def test_rejected_learning_never_reaches_persistence(mode):
     conn,tr,admission,request=fixture()
     before=conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]
+    before_transitions=conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
 
     if mode == "unverified":
         with pytest.raises(ValueError, match="all trust gates"):
@@ -50,4 +51,6 @@ def test_rejected_learning_never_reaches_persistence(mode):
             )
 
     after=conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]
+    after_transitions=conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
     assert after == before
+    assert after_transitions == before_transitions
