@@ -29,6 +29,37 @@ def _digest(fields: Mapping[str, object]) -> str:
 
 
 @dataclass(frozen=True)
+class PreconditionEvidence:
+    source_id: str
+    target_revision: str
+    evidence_revision: str
+    observed_conditions: tuple[str, ...]
+    provenance: str
+
+    @property
+    def digest(self) -> str:
+        return _digest(
+            {
+                "source_id": self.source_id,
+                "target_revision": self.target_revision,
+                "evidence_revision": self.evidence_revision,
+                "observed_conditions": self.observed_conditions,
+                "provenance": self.provenance,
+            }
+        )
+
+    def __post_init__(self) -> None:
+        required = (
+            self.source_id,
+            self.target_revision,
+            self.evidence_revision,
+            self.provenance,
+        )
+        if not all(value.strip() for value in required):
+            raise ValueError("evidence identity fields are required")
+
+
+@dataclass(frozen=True)
 class ExecutionAuthorization:
     authorization_id: str
     review_id: str
@@ -136,7 +167,7 @@ def issue_execution_authorization(
     expires_at: str,
     preconditions: tuple[str, ...],
     authorized_target_revision: str,
-    precondition_evidence_digest: str | None = None,
+    precondition_evidence: PreconditionEvidence | None = None,
     required_preconditions_present: bool = True,
     revoked: bool = False,
     stale: bool = False,
@@ -159,8 +190,13 @@ def issue_execution_authorization(
         raise ValueError("authorization requires explicit shareable privacy classification")
     if not all(x.strip() for x in (target_resource, authorized_scope, executor_id, authorization_basis, issuance_revision, expires_at, authorized_target_revision)):
         raise ValueError("authorization scope and identity fields are required")
-    if precondition_evidence_digest is None:
-        precondition_evidence_digest = _digest({"preconditions": preconditions})
+    if precondition_evidence is None:
+        raise ValueError("trusted precondition evidence is required")
+    if precondition_evidence.target_revision != authorized_target_revision:
+        raise ValueError("precondition evidence target does not match authorization target")
+    if not set(preconditions).issubset(set(precondition_evidence.observed_conditions)):
+        raise ValueError("precondition evidence does not satisfy declared conditions")
+    precondition_evidence_digest = precondition_evidence.digest
     if revoked or stale or not scope_allowed or not provenance_complete or not required_preconditions_present:
         raise ValueError("authorization preconditions are not satisfied")
     fields = {
@@ -199,7 +235,7 @@ def validate_execution_request(
     executor_id: str,
     privacy_classification: str,
     current_target_revision: str,
-    current_precondition_evidence_digest: str,
+    current_precondition_evidence: PreconditionEvidence,
     now: str,
     current_revocation_revision: str | None = None,
 ) -> bool:
@@ -225,7 +261,11 @@ def validate_execution_request(
         return False
     if current_target_revision != authorization.authorized_target_revision:
         return False
-    if current_precondition_evidence_digest != authorization.precondition_evidence_digest:
+    if current_precondition_evidence.target_revision != authorization.authorized_target_revision:
+        return False
+    if current_precondition_evidence.digest != authorization.precondition_evidence_digest:
+        return False
+    if not set(authorization.preconditions).issubset(set(current_precondition_evidence.observed_conditions)):
         return False
     return True
 
