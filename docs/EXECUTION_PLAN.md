@@ -58,3 +58,18 @@ Implementation remains blocked until these cases have a concrete machine-readabl
 Implemented `gnosis/storage/authorization.py` with an immutable `RecoveryAuthorization` record, canonical digest, and fail-closed validator. Added `tests/test_recovery_authorization.py` covering valid allow, missing, denied, subject mismatch, evidence mismatch, expiry, immutability, and deterministic digest.
 
 This is schema/validation evidence only. It does **not** yet grant recovery authority or integrate authorization into `recover_instance()`. Runtime integration remains a separate gate.
+
+
+### Gate 5A.3 — runtime authorization integration
+
+Recovery is now bound to the verified durable evidence digest. `recover_instance()` requires an immutable `RecoveryAuthorization`, validates it against the exact pre-recovery evidence digest, and records an auditable `recovery.execute` outcome using the requesting principal.
+
+Regression coverage verifies:
+- missing authorization fails closed;
+- evidence mismatch fails closed without changing evidence;
+- authorized recovery returns the same Core state;
+- recovery execution is auditable.
+
+The recovery audit event is an outcome record and is intentionally not part of the pre-recovery evidence digest bound by the authorization.
+
+Status: IMPLEMENTED / CI UNVERIFIED.
