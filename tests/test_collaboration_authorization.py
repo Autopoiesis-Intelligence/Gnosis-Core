@@ -8,6 +8,17 @@ from gnosis.self_learning.collaboration_authorization import (
 )
 
 
+def target_revision_resolver(resource):
+    return "target-r1"
+
+
+def evidence_resolver(digest):
+    return _EVIDENCE_BY_DIGEST.get(digest)
+
+
+_EVIDENCE_BY_DIGEST = {}
+
+
 def auth_precondition_evidence(auth):
     return PreconditionEvidence(source_id="trusted-review-engine", target_revision=auth.authorized_target_revision, evidence_revision="evidence-r1", observed_conditions=auth.preconditions, provenance="evidence-chain:r1")
 
@@ -47,6 +58,7 @@ def test_exact_accepted_review_can_issue_authorization():
     auth = issue_execution_authorization(**_kwargs())
     assert auth.decision == "ALLOW"
     assert auth.authority == "execution-authorization-only"
+    _EVIDENCE_BY_DIGEST[auth.precondition_evidence_digest] = auth_precondition_evidence(auth)
     assert validate_execution_request(
         authorization=auth,
         review_id="review-1",
@@ -58,8 +70,8 @@ def test_exact_accepted_review_can_issue_authorization():
         requested_scope="issue:create",
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r1",
-        current_precondition_evidence=auth_precondition_evidence(auth),
+        target_revision_resolver=target_revision_resolver,
+        evidence_resolver=evidence_resolver,
         now="2026-01-01T00:00:00Z",
     )
 
@@ -97,8 +109,8 @@ def test_conflicting_request_is_denied():
         requested_scope="issue:update",
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r1",
-        current_precondition_evidence=auth_precondition_evidence(auth),
+        target_revision_resolver=target_revision_resolver,
+        evidence_resolver=evidence_resolver,
         now="2026-01-01T00:00:00Z",
     )
 
@@ -116,8 +128,8 @@ def test_target_advance_makes_authorization_stale():
         requested_scope="issue:create",
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r2",
-        current_precondition_evidence=auth_precondition_evidence(auth),
+        target_revision_resolver=lambda resource: "target-r2",
+        evidence_resolver=evidence_resolver,
         now="2026-01-01T00:00:00Z",
     )
 
@@ -138,8 +150,8 @@ def test_revocation_changes_identity_and_denies_reuse():
         requested_scope="issue:create",
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r1",
-        current_precondition_evidence=auth_precondition_evidence(revoked),
+        target_revision_resolver=target_revision_resolver,
+        evidence_resolver=evidence_resolver,
         now="2026-01-01T00:00:00Z",
     )
 
@@ -191,8 +203,8 @@ def test_unsatisfied_precondition_evidence_is_denied():
         action_class="CREATE_PUBLIC_ISSUE_OR_PR",
         target_resource="repo:public/project", requested_scope="issue:create",
         executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r1",
-        current_precondition_evidence=PreconditionEvidence(source_id="trusted-review-engine", target_revision="target-r1", evidence_revision="evidence-r2", observed_conditions=("review-current",), provenance="evidence-chain:r2"),
+        target_revision_resolver=target_revision_resolver,
+        evidence_resolver=lambda digest: PreconditionEvidence(source_id="trusted-review-engine", target_revision="target-r1", evidence_revision="evidence-r2", observed_conditions=("review-current",), provenance="evidence-chain:r2"),
         now="2026-01-01T00:00:00Z",
     )
 
@@ -237,8 +249,8 @@ def test_stale_precondition_evidence_is_denied():
         action_class="CREATE_PUBLIC_ISSUE_OR_PR",
         target_resource="repo:public/project", requested_scope="issue:create",
         executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
-        current_target_revision="target-r1",
-        current_precondition_evidence=stale,
+        target_revision_resolver=target_revision_resolver,
+        evidence_resolver=lambda digest: stale,
         now="2026-01-01T00:00:00Z",
     )
 
