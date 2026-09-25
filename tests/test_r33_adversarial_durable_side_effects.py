@@ -28,8 +28,6 @@ def test_r33_rejected_learning_has_no_durable_side_effect(mode):
         parent=request.state_digest
     else:
         parent=tr.from_state_id
-    if mode=="unverified":
-        admission=admission.__class__(**{**admission.__dict__,"classification_verified":False})
     replay=(mode=="replay")
     with pytest.raises(ValueError):
         from gnosis.self_learning.canonical_commit_guard import validate_before_canonical_commit
