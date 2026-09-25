@@ -55,6 +55,14 @@ jobs:
           mkdir -p interface/reports
           python interface/adapters/gnozis_core/canonical_case.py             --core-revision "${{ steps.target.outputs.revision }}"             --execution-id "${{ steps.target.outputs.execution_id }}"             --report interface/reports/${{ steps.target.outputs.execution_id }}.json
 
+      - name: Execute history bypass probe
+        if: always()
+        run: |
+          python interface/adapters/gnozis_core/history_bypass.py \
+            --core-revision "${{ steps.target.outputs.revision }}" \
+            --execution-id "HISTORY-BYPASS-${{ steps.target.outputs.execution_id }}" \
+            --report interface/reports/HISTORY-BYPASS-${{ steps.target.outputs.execution_id }}.json
+
       - name: Validate execution report exists
         if: always()
         run: test -s interface/reports/${{ steps.target.outputs.execution_id }}.json
