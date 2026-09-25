@@ -3,7 +3,6 @@ import sqlite3
 from gnosis.core import Engine, State, TestResult, TransitionRecord, Candidate
 from gnosis.core.budget import Budget
 from gnosis.instances.instance import Instance, InstanceStatus
-from gnosis.storage.database import initialize_database
 from gnosis.storage.repositories import save_instance, recover_instance, _persist_transition
 from gnosis.self_learning.autonomous_cycle import run_one_endogenous_cycle
 
@@ -23,7 +22,6 @@ def seed_reflection_history(engine):
 
 def test_autonomous_cycle_survives_sqlite_restart():
     conn=sqlite3.connect(":memory:")
-    initialize_database(conn)
     engine=Engine(state=State(elements={"a":1}), budget=Budget(total=2))
     seed_reflection_history(engine)
     instance=Instance("i","owner",engine,None,0,InstanceStatus.ACTIVE)
