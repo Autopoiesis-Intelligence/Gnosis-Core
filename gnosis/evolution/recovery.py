@@ -9,7 +9,7 @@ from ..core.types import State
 
 from .chain_verifier import verify_persisted_chain
 from .provenance import canonical_digest, EvidenceProvenance
-from ..reflection.persistence import classify_evolution_provenance, list_evolution_audit, list_evolution_provenance
+from ..reflection import persistence
 
 
 @dataclass(frozen=True)
@@ -32,7 +32,7 @@ def recover_evolution_audit(
     authorization_revoked: bool = False,
 ) -> RecoveryReport:
     """Recover persisted evolution and fail closed unless its identity chain verifies."""
-    records = list(list_evolution_audit(conn))
+    records = list(persistence.list_evolution_audit(conn))
     if provenance_id is None:
         if not records:
             return RecoveryReport(0, True, True, None, None, ())
@@ -41,7 +41,7 @@ def recover_evolution_audit(
         return RecoveryReport(len(records), False, False, None, None, ("recovery authorization was revoked",))
     if not authorization_valid:
         return RecoveryReport(len(records), False, False, None, None, ("recovery authorization is not valid",))
-    rows = list_evolution_provenance(conn, candidate_id=None)
+    rows = persistence.list_evolution_provenance(conn, candidate_id=None)
     provenance_rows = [row for row in rows if row["provenance_id"] == provenance_id]
     if not provenance_rows:
         return RecoveryReport(len(records), False, False, None, None, ("provenance record missing",))
@@ -58,7 +58,7 @@ def recover_evolution_audit(
     expected_digest = provenance_row["evidence_digest"]
     actual_digest = canonical_digest(observations)
     persisted_identity = provenance_row.get("evolution_identity", "")
-    provenance_class = classify_evolution_provenance(provenance_row)
+    provenance_class = persistence.classify_evolution_provenance(provenance_row)
     content_identity_valid = proposed_state.content_id == provenance_row.get("proposed_state_content_id", "")
     replay_valid = result.valid and actual_digest == expected_digest and provenance_class == "canonical" and content_identity_valid
     if authorization_revoked or not authorization_valid:
