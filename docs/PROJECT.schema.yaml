@@ -1,0 +1,25 @@
+version: "0.1"
+kind: "Project"
+required:
+  - project_id
+  - title
+  - objective
+  - status
+  - provenance
+fields:
+  project_id: {type: string}
+  title: {type: string}
+  objective: {type: string}
+  opportunity_id: {type: string}
+  participants: {type: array}
+  roles: {type: array}
+  contracts: {type: array}
+  capabilities: {type: array}
+  repositories: {type: array}
+  tasks: {type: array}
+  deliverables: {type: array}
+  acceptance_criteria: {type: array}
+  evidence: {type: array}
+  status:
+    enum: [discovered, proposed, approved, active, validating, completed, archived, paused, cancelled, disputed]
+  provenance: {type: object}
