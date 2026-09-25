@@ -63,6 +63,14 @@ jobs:
             --execution-id "HISTORY-BYPASS-${{ steps.target.outputs.execution_id }}" \
             --report interface/reports/HISTORY-BYPASS-${{ steps.target.outputs.execution_id }}.json
 
+      - name: Execute tampered provenance probe
+        if: always()
+        run: |
+          python interface/adapters/gnozis_core/tampered_provenance.py \
+            --core-revision "${{ steps.target.outputs.revision }}" \
+            --execution-id "PROVENANCE-TAMPER-${{ steps.target.outputs.execution_id }}" \
+            --report interface/reports/PROVENANCE-TAMPER-${{ steps.target.outputs.execution_id }}.json
+
       - name: Validate execution report exists
         if: always()
         run: test -s interface/reports/${{ steps.target.outputs.execution_id }}.json
