@@ -1,13 +1,37 @@
 [object Object]
 
-### P0 recovery-authorization audit — 2026-09-25
+## Gate 5A — Recovery Authorization Contract
 
-Audit result: the current `recover_instance(conn, instance_id)` path performs `verify_durable_graph(conn)` and then loads the instance. No explicit authorization token, governance decision, capability, or authorization state is required by this recovery entry point, and no recovery authorization event is bound to the recovery operation.
+### Required semantics
 
-This is an **OPEN contract gap**, not a defect to patch opportunistically. Adding an arbitrary actor parameter would not constitute authorization. The correct fix belongs to the Governance/Recovery contract and must define the authority source, allowed states, audit binding, and fail-closed behavior first.
+Recovery is a **read/reconstruction operation** only after authorization has been established; it must never silently become a mutation path.
 
-P0-R2 therefore remains open with:
-- integrity verification: substantially covered;
-- replay/idempotency: bounded and regression-tested;
-- recovery authorization: MISSING contract/evidence;
-- current-main CI/runtime evidence: MISSING.
+Required authorization record:
+- `authorization_id`: unique immutable identifier;
+- `subject`: instance being recovered;
+- `requested_by`: explicit principal;
+- `authority`: governance authority/capability that permits recovery;
+- `decision`: `allow` or `deny`;
+- `reason`: machine-readable reason;
+- `issued_at`: provenance timestamp;
+- `expires_at`: optional bounded expiry;
+- `evidence_digest`: digest binding authorization to the verified durable evidence set.
+
+Required behavior:
+1. no authorization → fail closed;
+2. denied authorization → fail closed;
+3. expired authorization → fail closed;
+4. subject mismatch → fail closed;
+5. evidence digest mismatch → fail closed;
+6. recovery itself must not mutate Core state;
+7. authorization decision and recovery outcome must be auditable.
+
+### Non-goals
+
+Do not use a boolean `authorized` flag, arbitrary caller string, owner identity alone, or an unbound external timestamp as the authorization mechanism.
+
+### Implementation gate
+
+The contract must first receive a concrete schema and deterministic validation tests. Only then should `recover_instance()` accept the authorization object. This prevents adding a superficial parameter that does not establish a real trust boundary.
+
+Status: CONTRACT DEFINED / IMPLEMENTATION NOT STARTED.
