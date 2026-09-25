@@ -1,0 +1,30 @@
+version: "0.1"
+kind: "Contract"
+required:
+  - contract_id
+  - parties
+  - roles
+  - scope
+  - deliverables
+  - acceptance
+  - status
+fields:
+  contract_id: {type: string}
+  parties: {type: array}
+  roles: {type: array}
+  scope: {type: string}
+  deliverables: {type: array}
+  acceptance:
+    type: object
+    required: [criteria, verification_method]
+  timeline: {type: object}
+  compensation: {type: object}
+  ip_ownership: {type: object}
+  licensing: {type: object}
+  confidentiality: {type: object}
+  security: {type: object}
+  termination: {type: object}
+  artifacts: {type: array}
+  provenance: {type: object}
+  status:
+    enum: [proposed, negotiating, accepted, executing, verified, disputed, terminated, completed]
