@@ -146,12 +146,15 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                     raise StorageCorruptionError("broken accepted transition continuity")
                 if record.accepted:
                     expected=record.to_state_id
-                audit = conn.execute(
+                audit_rows = conn.execute(
                     "SELECT action,resource,result,transition_id FROM audit_events WHERE transition_id=? AND resource=?",
                     (record.transition_id, row[0]),
-                ).fetchone()
-                if audit is None:
+                ).fetchall()
+                if len(audit_rows) == 0:
                     raise StorageCorruptionError("transition lacks audit evidence")
+                if len(audit_rows) != 1:
+                    raise StorageCorruptionError("ambiguous transition audit evidence")
+                audit = audit_rows[0]
                 expected_action = "transition.commit" if record.accepted else "transition.reject"
                 expected_result = "accepted" if record.accepted else "rejected"
                 if audit[0] != expected_action or audit[2] != expected_result or audit[3] != record.transition_id:
