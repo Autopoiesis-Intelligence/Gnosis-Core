@@ -1,0 +1,21 @@
+version: "0.1"
+required:
+  - source_id
+  - repository
+  - registered_at_revision
+  - lifecycle_state
+  - authorization_scope
+  - validator_version
+  - policy_revision
+  - provenance_root
+  - status_reason
+properties:
+  source_id: string
+  repository: string
+  registered_at_revision: immutable_git_revision
+  lifecycle_state: enum[discovered, registered, authorized, verified, active, quarantined, revoked]
+  authorization_scope: string
+  validator_version: string
+  policy_revision: immutable_revision
+  provenance_root: sha256
+  status_reason: string
