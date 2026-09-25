@@ -306,3 +306,18 @@ Required closure:
 4. connect adapter → CollaborationComposition → E7.76 → action → E7.77 evidence/reconciliation;
 5. add a static/architectural regression proving no external action bypasses the composition boundary;
 6. update STATUS.md from stale repository/branch wording to the actual canonical repository and current contract state before acceptance.
+
+
+### E7.76 integration-base audit — 2026-09-25
+
+Current PR #74 head `b29c4f8` is 539 commits behind `main` and diverged; its 20 commits are based on an older merge base. This makes the branch unsuitable as an integration proof until reconciled with current main.
+
+PR review comment recorded: review_id 5320827781.
+
+Acceptance blockers reaffirmed:
+- reconcile branch with current main and re-audit;
+- remove/classify duplicate E7.76 authority implementation;
+- wire a real production external-action adapter through the composition root;
+- prove E7.76 → side effect → E7.77 evidence/reconciliation;
+- add bypass regression coverage;
+- produce current CI/runtime evidence and synchronize STATUS.md.
