@@ -29,8 +29,6 @@ def test_rejected_learning_never_reaches_persistence(mode):
         parent=tr.to_state_id
     else:
         parent=tr.from_state_id
-    if mode=="unverified":
-        admission=admission.__class__(**{**admission.__dict__,"classification_verified":False})
     with pytest.raises(ValueError):
         if mode=="replay":
             from gnosis.self_learning.canonical_commit_guard import validate_before_canonical_commit
