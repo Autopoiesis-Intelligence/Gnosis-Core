@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Mapping
 
 _ALLOWED_ACTIONS = {
@@ -21,6 +22,19 @@ _DECISIONS = {"ALLOW", "DENY"}
 _SHAREABLE = {"SHAREABLE_ABSTRACTION", "PUBLIC_APPROVED"}
 _UNKNOWN = {"UNKNOWN", ""}
 _TRUSTED_EVIDENCE_SOURCES = {"trusted-review-engine"}
+
+
+def _canonical_timestamp(value: str) -> str:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("timestamp must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+        raise ValueError("timestamp must use UTC timezone")
+    canonical = parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    if value != canonical:
+        raise ValueError("timestamp must use canonical UTC ISO-8601 form")
+    return canonical
 
 
 def _digest(fields: Mapping[str, object]) -> str:
@@ -193,6 +207,7 @@ def issue_execution_authorization(
         raise ValueError("authorization requires explicit shareable privacy classification")
     if not all(x.strip() for x in (target_resource, authorized_scope, executor_id, authorization_basis, issuance_revision, expires_at, authorized_target_revision)):
         raise ValueError("authorization scope and identity fields are required")
+    _canonical_timestamp(expires_at)
     if precondition_evidence is None:
         raise ValueError("trusted precondition evidence is required")
     if precondition_evidence.target_revision != authorized_target_revision:
@@ -260,7 +275,11 @@ def validate_execution_request(
         return False
     if authorization.revocation_revision is not None:
         return False
-    if now >= authorization.expires_at:
+    try:
+        now_canonical = _canonical_timestamp(now)
+    except ValueError:
+        return False
+    if now_canonical >= authorization.expires_at:
         return False
     if current_target_revision != authorization.authorized_target_revision:
         return False
