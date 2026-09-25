@@ -1,0 +1,19 @@
+version: "0.1"
+kind: "FederationSource"
+required:
+  - source_id
+  - endpoint
+  - schema_versions
+  - status
+fields:
+  source_id: {type: string}
+  endpoint: {type: string}
+  repository_ref: {type: string}
+  schema_versions: {type: array}
+  protocol_versions: {type: array}
+  domains: {type: array}
+  license: {type: object}
+  provenance_policy: {type: object}
+  verification_policy: {type: object}
+  status:
+    enum: [discovered, registered, authorized, verified, active, quarantined, revoked]
