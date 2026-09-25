@@ -26,6 +26,8 @@ def test_rejected_learning_never_reaches_persistence(mode):
     conn,tr,admission,request=fixture()
     before=conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]
     before_transitions=conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
+    audit_tables=[r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE '%audit%' OR name LIKE '%provenance%')").fetchall()]
+    before_audit={t: conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in audit_tables}
 
     if mode == "unverified":
         with pytest.raises(ValueError, match="all trust gates"):
@@ -54,3 +56,5 @@ def test_rejected_learning_never_reaches_persistence(mode):
     after_transitions=conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
     assert after == before
     assert after_transitions == before_transitions
+    after_audit={t: conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in audit_tables}
+    assert after_audit == before_audit
