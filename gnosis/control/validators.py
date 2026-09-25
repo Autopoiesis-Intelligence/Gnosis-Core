@@ -105,8 +105,8 @@ def authorize_operation(
     expected_capability = ACTION_REQUIRED_CAPABILITY.get(envelope.action)
     if expected_capability is None:
         return "UNAUTHORIZED_ACTION"
-    if required_capability != expected_capability:
-        return "CAPABILITY_ACTION_MISMATCH"
     if required_capability not in envelope.capabilities.granted_capabilities:
         return "UNAUTHORIZED_CAPABILITY"
+    if required_capability != expected_capability:
+        return "CAPABILITY_ACTION_MISMATCH"
     return None
