@@ -13,7 +13,7 @@ def fixture():
     candidate=conn.execute("SELECT candidate_id FROM candidates LIMIT 1").fetchone()[0]
     tr=TransitionRecord(parent.state_id,proposed.state_id,candidate,TestResult(True,("ok",)),True,"committed","test:partner")
     conn.execute("CREATE TABLE IF NOT EXISTS instances(instance_id TEXT PRIMARY KEY,parent_instance_id TEXT,owner_id TEXT,root_state_id TEXT,current_state_id TEXT,generation INTEGER,status TEXT,budget_total INTEGER,budget_spent INTEGER,created_at TEXT)")
-    conn.execute("INSERT INTO instances VALUES('i',NULL,'o',?,?,?,?,?,?,?,?)",(parent.state_id,proposed.state_id,0,"active",10,1,"t"))
+    conn.execute("INSERT INTO instances VALUES(?,?,?,?,?,?,?,?,?,?)",("i",None,"o",parent.state_id,proposed.state_id,0,"active",10,1,"t"))
     conn.execute("CREATE TABLE IF NOT EXISTS transitions(transition_id TEXT PRIMARY KEY,instance_id TEXT,candidate_id TEXT,from_state_id TEXT,to_state_id TEXT,accepted INTEGER,reasons TEXT,test_rule_id TEXT,created_at TEXT)")
     conn.execute("INSERT INTO transitions VALUES(?,?,?,?,?,?,?,?,?)",(tr.transition_id,"i",candidate,parent.state_id,proposed.state_id,1,'["ok"]',"test:partner","t"))
     admission=admit_partner_candidate(classification_id="c",result_id="r",candidate_digest="p",evidence_refs=("ev",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
