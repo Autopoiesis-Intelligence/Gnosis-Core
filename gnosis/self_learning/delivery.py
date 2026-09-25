@@ -39,9 +39,3 @@ def validate_delivery_build_binding(manifest: DeliveryManifest, *, expected_core
         raise PermissionError("delivery core identity mismatch")
     return manifest
 
-
-def validate_delivery_build_binding(manifest: DeliveryManifest, *, expected_core_id: str) -> DeliveryManifest:
-    authorize_delivery(manifest, allowed_scopes={manifest.knowledge_scope})
-    if manifest.core_id != expected_core_id:
-        raise PermissionError("delivery core identity mismatch")
-    return manifest
