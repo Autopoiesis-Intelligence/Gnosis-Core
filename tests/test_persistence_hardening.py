@@ -25,8 +25,9 @@ def test_orphan_transition_is_rejected_by_schema():
     conn = connect()
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
+    proposed = instance.engine.state.with_elements({"b": 2})
     with pytest.raises(sqlite3.IntegrityError):
-        conn.execute("INSERT INTO transitions(transition_id, instance_id, candidate_id, from_state_id, to_state_id, accepted, reasons, created_at) VALUES ('t', ?, NULL, ?, ?, 1, '[]', 'now')", (instance.instance_id, instance.engine.state.state_id, instance.engine.state.state_id))
+        conn.execute("INSERT INTO transitions(transition_id, instance_id, candidate_id, from_state_id, to_state_id, accepted, reasons, created_at) VALUES ('t', ?, 'missing-candidate', ?, ?, 1, '[]', 'now')", (instance.instance_id, instance.engine.state.state_id, proposed.state_id))
 
 
 def test_audit_event_replay_is_idempotent():

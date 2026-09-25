@@ -18,7 +18,7 @@ def build_chain(path):
     _persist_transition(conn, instance, candidate, tr, actor="test")
     admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     request=build_request(candidate_id=candidate.candidate_id,result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=proposed.state_id,admission_verified=True)
-    result=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+    result=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
     conn.close(); return tr,result,instance_id
 
 def test_full_chain_survives_reopen(tmp_path):
@@ -46,7 +46,7 @@ def test_full_chain_exact_replay_after_reopen_is_idempotent(tmp_path):
     path=tmp_path/"replay.db"; tr,result,instance_id=build_chain(str(path)); recover_partner_learning(str(path),instance_id)
     conn=connect(str(path)); admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     request=build_request(candidate_id=(conn.execute("SELECT candidate_id FROM transitions WHERE transition_id=?",(tr.transition_id,)).fetchone()[0]),result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=tr.to_state_id,admission_verified=True)
-    again=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+    again=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
     assert again.memory_id==result.memory_id
     assert conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]==1
     assert conn.execute("SELECT count(*) FROM audit_events WHERE event_id LIKE 'partner-learning:%'").fetchone()[0]==1

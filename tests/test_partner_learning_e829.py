@@ -19,7 +19,7 @@ def fixture(path):
     _persist_transition(conn, instance, candidate, tr, actor="test")
     admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     request=build_request(candidate_id=candidate.candidate_id,result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=proposed.state_id,admission_verified=True)
-    commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+    commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
     conn.close(); return tr, instance_id
 
 def test_conflicting_replay_after_reopen_fails_closed(tmp_path):
@@ -38,7 +38,7 @@ def test_conflicting_replay_after_reopen_fails_closed(tmp_path):
     admission=replace(admission, candidate_digest="prov:1")
     request=replace(request, provenance_digest="prov:TAMPER")
     with pytest.raises(Exception):
-        commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+        commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
     conn.close()
 
 def test_cross_layer_candidate_binding_after_reopen_fails_closed(tmp_path):
@@ -47,5 +47,5 @@ def test_cross_layer_candidate_binding_after_reopen_fails_closed(tmp_path):
     admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     bad=build_request(candidate_id="candidate:tampered",result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=memory[0].state_id,admission_verified=True)
     with pytest.raises(Exception):
-        commit_admitted_partner_learning(conn,admission=admission,request=bad,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+        commit_admitted_partner_learning(conn,admission=admission,request=bad,instance_id=instance_id,transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
     conn.close()

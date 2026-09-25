@@ -84,12 +84,17 @@ def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)
         if not isinstance(reasons, tuple) or not all(isinstance(reason, str) for reason in reasons):
             raise StorageCorruptionError("invalid transition reasons")
         result=TestResult(passed=bool(row[4]),reasons=reasons)
-        record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=row[1],test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6])
+        logical_candidate_id = "<none-selected>" if row[1] is None else row[1]
+        record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=logical_candidate_id,test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6])
         if record.transition_id != row[0]:
             raise StorageCorruptionError("transition identity mismatch")
-        candidate = load_candidate(conn, row[1])
-        if candidate.parent_state_id != record.from_state_id or candidate.proposed_state.state_id != record.to_state_id:
-            raise StorageCorruptionError("transition/candidate mismatch")
+        if row[1] is not None:
+            candidate = load_candidate(conn, row[1])
+            if candidate.parent_state_id != record.from_state_id or candidate.proposed_state.state_id != record.to_state_id:
+                raise StorageCorruptionError("transition/candidate mismatch")
+        else:
+            if record.accepted or record.from_state_id != record.to_state_id:
+                raise StorageCorruptionError("invalid candidate-less transition")
         records.append(record)
     return records
 
@@ -116,7 +121,10 @@ def load_instance(conn: sqlite3.Connection,instance_id: str)->Instance:
     row=conn.execute("SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,created_at FROM instances WHERE instance_id=?",(instance_id,)).fetchone()
     if row is None: raise StorageCorruptionError(f"instance not found: {instance_id}")
     from gnosis.core import Budget,Engine
-    budget=Budget(total=row[7],spent=row[8]); return Instance(row[0],row[1],Engine(load_state(conn,row[3]),budget=budget),row[4],row[5],InstanceStatus(row[6]),row[9])
+    budget=Budget(total=row[7],spent=row[8])
+    engine=Engine(load_state(conn,row[3]),budget=budget)
+    engine.history.extend(load_transition_records(conn, instance_id))
+    return Instance(row[0],row[1],engine,row[4],row[5],InstanceStatus(row[6]),row[9])
 def recover_instance(conn: sqlite3.Connection,instance_id: str)->Instance: verify_durable_graph(conn); return load_instance(conn,instance_id)
 def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
     chain=verify_audit_chain(conn)
@@ -139,9 +147,12 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                 # load_transition_records() is the single reconstruction/identity
                 # path; verification adds graph-specific state/candidate/audit checks.
                 load_state(conn, record.from_state_id)
-                cand=load_candidate(conn,record.candidate_id)
-                if cand.parent_state_id!=record.from_state_id or cand.proposed_state.state_id!=record.to_state_id:
-                    raise StorageCorruptionError("transition/candidate mismatch")
+                if record.candidate_id != "<none-selected>":
+                    cand=load_candidate(conn,record.candidate_id)
+                    if cand.parent_state_id!=record.from_state_id or cand.proposed_state.state_id!=record.to_state_id:
+                        raise StorageCorruptionError("transition/candidate mismatch")
+                elif record.accepted or record.from_state_id != record.to_state_id:
+                    raise StorageCorruptionError("invalid candidate-less transition")
                 if record.accepted and record.from_state_id!=expected:
                     raise StorageCorruptionError("broken accepted transition continuity")
                 if record.accepted:
@@ -181,21 +192,25 @@ def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: C
             )
             if tuple(existing_transition) != expected:
                 raise StorageCorruptionError("conflicting transition replay")
-            persisted_candidate = load_candidate(conn, record.candidate_id)
-            if (
-                persisted_candidate.parent_state_id != candidate.parent_state_id
-                or persisted_candidate.proposed_state.state_id != candidate.proposed_state.state_id
-                or persisted_candidate.origin != candidate.origin
-                or persisted_candidate.seed != candidate.seed
-                or persisted_candidate.proposed_state.content_id != candidate.proposed_state.content_id
-            ):
-                raise StorageCorruptionError("conflicting candidate replay")
+            if record.candidate_id != "<none-selected>":
+                persisted_candidate = load_candidate(conn, record.candidate_id)
+                if (
+                    persisted_candidate.parent_state_id != candidate.parent_state_id
+                    or persisted_candidate.proposed_state.state_id != candidate.proposed_state.state_id
+                    or persisted_candidate.origin != candidate.origin
+                    or persisted_candidate.seed != candidate.seed
+                    or persisted_candidate.proposed_state.content_id != candidate.proposed_state.content_id
+                ):
+                    raise StorageCorruptionError("conflicting candidate replay")
             if db.engine.state.state_id != record.to_state_id:
                 raise ValueError("replayed transition has inconsistent canonical head")
             return
         if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
-        save_candidate(conn,candidate); inject("after_candidate")
-        conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,candidate.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
+        if record.candidate_id != "<none-selected>":
+            save_candidate(conn,candidate)
+        inject("after_candidate")
+        persisted_candidate_id = None if record.candidate_id == "<none-selected>" else record.candidate_id
+        conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,persisted_candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
         append_audit(conn,actor=actor,action="transition.commit" if record.accepted else "transition.reject",resource=instance.instance_id,result="accepted" if record.accepted else "rejected",event_key=f"transition:{tid}",transition_id_value=tid); inject("after_audit")
         if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
         inject("before_commit")

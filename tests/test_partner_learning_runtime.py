@@ -20,7 +20,7 @@ def fixture():
 
 def test_runtime_bridge_persists_only_after_admission():
     conn,tr,admission,request=fixture()
-    result=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+    result=commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
     assert result.memory_id
     assert conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]==1
 
@@ -28,11 +28,11 @@ def test_binding_mismatch_fails_closed():
     conn,tr,admission,request=fixture()
     bad=build_request(candidate_id=request.candidate_id,result_id="other",contract_id=request.contract_id,provenance_digest=request.provenance_digest,evidence_refs=request.evidence_refs,state_digest=request.state_digest,admission_verified=True)
     with pytest.raises(ValueError):
-        commit_admitted_partner_learning(conn,admission=admission,request=bad,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+        commit_admitted_partner_learning(conn,admission=admission,request=bad,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
 
 def test_unverified_admission_fails_closed():
     conn,tr,admission,request=fixture()
     from gnosis.self_learning.partner_learning_gate import LearningAdmission
     blocked=LearningAdmission(admission.admission_id,admission.classification_id,admission.result_id,admission.candidate_digest,admission.evidence_refs,"ADMITTED",False)
     with pytest.raises(ValueError):
-        commit_admitted_partner_learning(conn,admission=blocked,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+        commit_admitted_partner_learning(conn,admission=blocked,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=tr.from_state_id)
