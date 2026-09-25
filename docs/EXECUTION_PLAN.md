@@ -114,3 +114,15 @@ Source/test inspection identified a concrete fail-closed gap: `verify_durable_gr
 Added regression test: `test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification`.
 
 This closes the identified duplicate transition-audit ambiguity at source/test level. It does not close P0-R2 until exact current-main CI/runtime evidence is available.
+
+
+### P0 replay reconciliation — 2026-09-25
+
+Source inspection found that replay handling already rejected conflicting transition identity, but rejected-transition replay incorrectly required the canonical head to equal the rejected candidate's target state. The implementation now derives the expected replay head from `record.accepted`: accepted replay requires `to_state_id`; rejected replay requires `from_state_id`.
+
+Added regression coverage:
+- `test_a53_accepted_transition_replay_is_idempotent`
+- `test_a54_rejected_transition_replay_is_idempotent`
+- `test_a55_conflicting_transition_replay_fails_closed`
+
+Current-main CI/runtime evidence remains required before P0 acceptance.
