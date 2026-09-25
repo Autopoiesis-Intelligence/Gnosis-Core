@@ -304,13 +304,21 @@ class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
-        require_execution_commit(request)
-        require_execution_candidate_binding(request, candidate, record)
-        if str(request.provenance.evolution_identity) != request.evolution_identity:
-            raise PermissionError("execution commit identity mismatch")
-        _persist_transition(conn, instance, candidate, record, actor=actor)
-        resulting = load_state(conn, record.to_state_id)
-        if resulting.state_id != str(request.provenance.proposed_state_digest):
-            raise PermissionError("persisted resulting state does not match authorized evolution")
-        receipt = ExecutionReceipt.after_commit(request, resulting)
-        return ExecutionCommitResult(receipt=receipt, resulting_state_id=resulting.state_id)
+        from gnosis.storage.database import transaction
+        from gnosis.reflection.trusted_execution_gate import require_trusted_execution
+        from gnosis.reflection.authorization_validity import AuthorizationValidity
+        # The caller supplies validity evidence; mutation and consumption share one transaction.
+        validity = getattr(request, "authorization_validity", None)
+        if validity is None:
+            raise PermissionError("authorization validity is required")
+        with transaction(conn):
+            require_trusted_execution(request, validity=validity, conn=conn, actor=actor)
+            require_execution_candidate_binding(request, candidate, record)
+            if str(request.provenance.evolution_identity) != request.evolution_identity:
+                raise PermissionError("execution commit identity mismatch")
+            _persist_transition(conn, instance, candidate, record, actor=actor)
+            resulting = load_state(conn, record.to_state_id)
+            if resulting.state_id != str(request.provenance.proposed_state_digest):
+                raise PermissionError("persisted resulting state does not match authorized evolution")
+            receipt = ExecutionReceipt.after_commit(request, resulting)
+            return ExecutionCommitResult(receipt=receipt, resulting_state_id=resulting.state_id)
