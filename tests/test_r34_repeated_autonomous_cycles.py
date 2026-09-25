@@ -21,13 +21,22 @@ def test_repeated_endogenous_cycles_preserve_progress_and_bound():
     engine=Engine(state=State(elements={"a":1}), budget=Budget(total=3))
     seed_reflection_history(engine)
     transitions=[]
+    initial_state_id = engine.state.state_id
+    initial_spent = engine.budget.spent
     for _ in range(3):
         result=run_one_endogenous_cycle(engine)
         assert result.generation.bounded
         assert result.transition is not None
-        assert result.transition.accepted
+        assert not result.transition.accepted
+        assert result.transition.candidate_id == "<none-selected>"
+        assert result.transition.from_state_id == result.transition.to_state_id
+        assert any("meaningful_change" in reason for reason in result.transition.test_result.reasons)
         transitions.append(result.transition)
     assert len({t.transition_id for t in transitions}) == 3
-    assert len({t.to_state_id for t in transitions}) == 3
-    assert engine.state.state_id == transitions[-1].to_state_id
+    assert len({t.to_state_id for t in transitions}) == 1
+    assert engine.state.state_id == initial_state_id
+    assert engine.budget.spent == initial_spent
     assert engine.budget.remaining >= 0
+    assert all(result.generation.proposal_ids for result in [
+        run_one_endogenous_cycle(engine)
+    ])
