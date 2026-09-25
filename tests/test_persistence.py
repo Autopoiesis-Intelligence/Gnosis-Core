@@ -393,6 +393,42 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     assert verify_durable_graph(reopened)[0] == 1
 
 
+def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
+    conn, instance, record = _persisted_transition()
+    row = conn.execute(
+        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
+        "FROM audit_events WHERE transition_id IS NOT NULL"
+    ).fetchone()
+    conn.execute(
+        "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            "duplicate-audit",
+            row[1] + 1,
+            row[2],
+            row[3],
+            row[4],
+            row[5],
+            row[6],
+            row[7],
+            row[8],
+            _audit_hash({
+                "event_id": "duplicate-audit",
+                "sequence": row[1] + 1,
+                "transition_id": row[2],
+                "actor": row[3],
+                "action": row[4],
+                "resource": row[5],
+                "result": row[6],
+                "timestamp": row[7],
+                "prev_hash": row[8],
+            }),
+        ),
+    )
+    with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
+        verify_durable_graph(conn)
+
+
 def test_a51_audit_action_and_result_mismatch_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
     row = conn.execute(
