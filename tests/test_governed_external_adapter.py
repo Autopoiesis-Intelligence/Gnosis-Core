@@ -66,6 +66,6 @@ def test_allow_calls_provider_and_produces_success_evidence():
 
 def test_provider_failure_is_not_success():
     provider = FakeExternalProvider(fail=True)
-    result = execute_governed_external_action(**_kwargs(), provider=provider)
+    result = execute_governed_external_action(**_kwargs(), provider=provider, action_payload={"title": "test"})
     assert result.evidence.result_status == "FAILED"
     assert result.evidence.reconciliation_status == "UNKNOWN"
