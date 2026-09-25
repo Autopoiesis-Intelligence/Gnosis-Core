@@ -229,7 +229,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == 3
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -242,7 +242,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
@@ -426,7 +426,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     conn.close()
     reopened = connect(path)
     assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -450,17 +450,19 @@ def test_a54_rejected_transition_replay_is_idempotent():
 
 def test_a55_conflicting_transition_replay_fails_closed():
     conn, instance, record = _persisted_transition()
-    conflicting = TransitionRecord(
-        record.from_state_id,
-        record.to_state_id,
-        record.candidate_id,
-        TestResult(False, ("conflict",)),
-        False,
-        "conflict",
-        record.test_rule_id,
+    # Keep the stable transition_id but tamper with persisted semantic fields.
+    conn.execute(
+        "UPDATE transitions SET reasons=? WHERE transition_id=?",
+        (canonical_json(("tampered",)), record.transition_id),
     )
     with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
-        _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
+        _persist_transition(
+            conn,
+            instance,
+            load_candidate(conn, record.candidate_id),
+            record,
+            actor="test",
+        )
 
 
 def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
