@@ -1,0 +1,26 @@
+{
+  "contract_id": "CORE-MUTATION-BOUNDARY-01",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "canonical",
+      "expected": "ACCEPT"
+    },
+    {
+      "id": "history-bypass",
+      "expected": "REJECT"
+    },
+    {
+      "id": "commit-bypass",
+      "expected": "REJECT"
+    },
+    {
+      "id": "tampered-provenance",
+      "expected": "REJECT"
+    },
+    {
+      "id": "alternate-authority",
+      "expected": "ABSENT"
+    }
+  ]
+}
