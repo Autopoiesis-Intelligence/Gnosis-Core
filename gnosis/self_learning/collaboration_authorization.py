@@ -9,7 +9,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Mapping
+from typing import Callable, Mapping
 
 _ALLOWED_ACTIONS = {
     "PUBLISH_PUBLIC",
@@ -74,6 +74,10 @@ class PreconditionEvidence:
             raise ValueError("evidence identity fields are required")
         if self.source_id not in _TRUSTED_EVIDENCE_SOURCES:
             raise ValueError("evidence source is not trusted")
+
+
+TrustedEvidenceResolver = Callable[[str], PreconditionEvidence | None]
+TargetRevisionResolver = Callable[[str], str | None]
 
 
 @dataclass(frozen=True)
@@ -252,8 +256,8 @@ def validate_execution_request(
     requested_scope: str,
     executor_id: str,
     privacy_classification: str,
-    current_target_revision: str,
-    current_precondition_evidence: PreconditionEvidence,
+    target_revision_resolver: TargetRevisionResolver,
+    evidence_resolver: TrustedEvidenceResolver,
     now: str,
     current_revocation_revision: str | None = None,
 ) -> bool:
@@ -281,13 +285,20 @@ def validate_execution_request(
         return False
     if now_canonical >= authorization.expires_at:
         return False
-    if current_target_revision != authorization.authorized_target_revision:
+    try:
+        live_target_revision = target_revision_resolver(authorization.target_resource)
+        live_evidence = evidence_resolver(authorization.precondition_evidence_digest)
+    except Exception:
         return False
-    if current_precondition_evidence.target_revision != authorization.authorized_target_revision:
+    if live_target_revision != authorization.authorized_target_revision:
         return False
-    if current_precondition_evidence.digest != authorization.precondition_evidence_digest:
+    if live_evidence is None:
         return False
-    if not set(authorization.preconditions).issubset(set(current_precondition_evidence.observed_conditions)):
+    if live_evidence.target_revision != live_target_revision:
+        return False
+    if live_evidence.digest != authorization.precondition_evidence_digest:
+        return False
+    if not set(authorization.preconditions).issubset(set(live_evidence.observed_conditions)):
         return False
     return True
 
