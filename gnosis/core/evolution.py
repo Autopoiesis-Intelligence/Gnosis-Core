@@ -21,13 +21,18 @@ class StopCondition(RuntimeError):
 
 @dataclass
 class Engine:
-    state: State
+    _state: State
     budget: Budget = field(default_factory=Budget)
     test_fn: TestFn = default_test
     _history: list[TransitionRecord] = field(default_factory=list, repr=False)
     test_rule_id: str = "test-rule:default"
 
     STEP_COST: int = 1
+
+    @property
+    def state(self) -> State:
+        """Read-only current state; only canonical transition methods may commit it."""
+        return self._state
 
     @property
     def history(self) -> tuple[TransitionRecord, ...]:
@@ -58,7 +63,7 @@ class Engine:
         )
         self._history.append(record)
         if result.passed:
-            self.state = candidate.proposed_state
+            self._state = candidate.proposed_state
         return record
 
     def step_select(self, candidates: Sequence[Candidate]) -> TransitionRecord:
@@ -81,7 +86,7 @@ class Engine:
                 reason=f"no candidate passed Test/Select: {detail}",
                 test_rule_id=self.test_rule_id,
             )
-            self.history.append(record)
+            self._history.append(record)
             return record
         selected = result.selected
         if selected.parent_state_id != self.state.state_id:
@@ -96,8 +101,8 @@ class Engine:
             reason=f"committed via select (out of {len(candidates)} candidates)",
             test_rule_id=self.test_rule_id,
         )
-        self.history.append(record)
-        self.state = selected.proposed_state
+        self._history.append(record)
+        self._state = selected.proposed_state
         return record
 
     def run(self, generate_fn: GenerateFn, max_steps: int | None = None) -> list[TransitionRecord]:
