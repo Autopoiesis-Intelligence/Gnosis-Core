@@ -1,0 +1,47 @@
+version: "0.1"
+kind: "MemorySourceContract"
+
+# This schema is architectural; implementation must enforce it before
+# a repository can influence trusted Kernel state.
+
+required:
+  - id
+  - owner
+  - domain
+  - trust
+  - permissions
+  - synchronization
+  - provenance
+  - verification
+
+fields:
+  id:
+    type: string
+  owner:
+    type: string
+  domain:
+    type: string
+  repository:
+    type: string
+  trust:
+    evidence: [external, controlled, verified]
+    authority: [none, bounded]
+  permissions:
+    read: boolean
+    annotate: boolean
+    propose: boolean
+    publish: boolean
+    delete: false
+    rewrite_history: false
+  synchronization:
+    mode: [pull, push, bidirectional]
+    policy: string
+  provenance:
+    required: true
+    commit_sha: true
+    content_digest: true
+  verification:
+    required_before_consumption: true
+    policy: string
+  revocation:
+    supported: true
