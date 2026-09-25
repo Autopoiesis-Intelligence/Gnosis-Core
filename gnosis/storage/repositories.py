@@ -147,9 +147,12 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                 # load_transition_records() is the single reconstruction/identity
                 # path; verification adds graph-specific state/candidate/audit checks.
                 load_state(conn, record.from_state_id)
-                cand=load_candidate(conn,record.candidate_id)
-                if cand.parent_state_id!=record.from_state_id or cand.proposed_state.state_id!=record.to_state_id:
-                    raise StorageCorruptionError("transition/candidate mismatch")
+                if record.candidate_id != "<none-selected>":
+                    cand=load_candidate(conn,record.candidate_id)
+                    if cand.parent_state_id!=record.from_state_id or cand.proposed_state.state_id!=record.to_state_id:
+                        raise StorageCorruptionError("transition/candidate mismatch")
+                elif record.accepted or record.from_state_id != record.to_state_id:
+                    raise StorageCorruptionError("invalid candidate-less transition")
                 if record.accepted and record.from_state_id!=expected:
                     raise StorageCorruptionError("broken accepted transition continuity")
                 if record.accepted:
