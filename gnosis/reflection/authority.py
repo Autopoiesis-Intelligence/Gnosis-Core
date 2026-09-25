@@ -150,6 +150,7 @@ class ExecutionCommitRequest:
     request_provenance: str
     evolution_identity: str
     provenance: object
+    authorization_validity: object
 
 
 def _canonical_evolution_identity(provenance: object) -> str:
