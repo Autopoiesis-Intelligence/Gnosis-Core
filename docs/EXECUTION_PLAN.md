@@ -257,3 +257,19 @@ Required next work:
 3. connect E7.76 authorization validation to the actual execution entrypoint;
 4. add adversarial tests proving caller-controlled resolver injection cannot bypass authorization;
 5. run CI/runtime evidence on the integrated path.
+
+
+### E7.76 / Core-authority boundary clarification — 2026-09-25
+
+Runtime inspection confirms E7.76 collaboration authorization and Core mutation authorization are different boundaries and must not be merged by convenience.
+
+- E7.76 authorizes external/public collaboration actions (publish, issue/PR, partner package, invitation, repository metadata).
+- `gnosis.reflection.authority.ExecutionAuthorization` governs Core mutation and deliberately remains fail-closed pending the real owner-authority issuer.
+- `gnosis.self_learning.execution.execute_approved_core_proposal()` currently invokes the Core commit adapter but does not establish an E7.76 collaboration authorization context.
+
+Therefore the next implementation must NOT simply inject E7.76 into Core mutation. Instead:
+1. define a trusted runtime context for E7.76 external-action execution;
+2. bind trusted target/evidence providers inside that context;
+3. add a dedicated external-action execution entrypoint that validates E7.76 before side effects;
+4. keep Core mutation behind its separate owner-authority boundary;
+5. add cross-boundary tests proving an E7.76 authorization cannot grant Core mutation authority and Core authorization cannot be substituted for E7.76 external-action authorization.
