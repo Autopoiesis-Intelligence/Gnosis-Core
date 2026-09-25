@@ -1,22 +1,3 @@
-name: Self-Diagnostic
-
-on:
-  workflow_dispatch:
-  push:
-    paths:
-      - 'gnosis/reflection/**'
-      - 'gnosis/core/**'
-      - 'gnosis/storage/**'
-      - 'gnosis/self_learning/**'
-      - 'tests/**'
-      - '.github/workflows/self-diagnostic.yml'
-
-jobs:
-  diagnostic:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
     permissions:
       contents: read
     steps:
