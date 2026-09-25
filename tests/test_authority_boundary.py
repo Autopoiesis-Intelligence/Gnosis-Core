@@ -1,6 +1,7 @@
 import pytest
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, SQLiteExecutionCommitAdapter, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.evolution.provenance import build_provenance, canonical_digest
 
@@ -279,6 +280,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         provenance.provenance_id,
         provenance.evolution_identity,
         provenance,
+        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
     )
 
     candidate_b = Candidate(
