@@ -289,3 +289,20 @@ Important limitation: Python composition is not a cryptographic security boundar
 Added `gnosis.self_learning.collaboration_entrypoint` as the explicit application composition boundary. Request execution receives only the immutable `CollaborationComposition`; target/evidence providers and the external side-effect capability are bound when the composition is created and are not parameters of request execution.
 
 Added regression coverage for successful execution after validation and rejection of unexpected provider-injection parameters. The repository CI workflow runs pytest on Python 3.11 and 3.12 for pull requests, but this branch still requires an actual CI run before acceptance.
+
+
+### E7.76 entrypoint/repository drift audit — 2026-09-25
+
+End-to-end search identified a repository drift that must be resolved before E7.76 acceptance:
+
+- Main currently contains `gnosis/self_learning/collaboration_execution_authorization.py`, an older E7.76-style authorization API (`issue_authorization` / `authorization_valid`) separate from the new `collaboration_authorization.py` + `collaboration_runtime.py` path.
+- The current E7.76 contract branch does not contain that legacy module, so the two implementations are not currently the same runtime path.
+- The repository also contains delivery authorization/manifest/receipt layers (E7.63/E7.69/E7.70) and a documented external-collaboration execution chain (E7.77+). Search did not find a concrete external-action caller wired to the new TrustedCollaborationRuntime.
+
+Required closure:
+1. establish one canonical E7.76 authorization implementation;
+2. explicitly classify/archive/remove the legacy duplicate from the canonical branch rather than allowing two authority APIs;
+3. identify or implement the real external-action adapter entrypoint;
+4. connect adapter → CollaborationComposition → E7.76 → action → E7.77 evidence/reconciliation;
+5. add a static/architectural regression proving no external action bypasses the composition boundary;
+6. update STATUS.md from stale repository/branch wording to the actual canonical repository and current contract state before acceptance.
