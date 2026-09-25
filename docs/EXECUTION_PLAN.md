@@ -232,3 +232,14 @@ After the timestamp contract and test-call-site correction, two deeper blockers 
 2. `current_target_revision` remains caller-supplied; equality with the authorization-bound revision does not prove that it is the live target revision.
 
 These require trusted evidence/target-state resolution or independently verifiable provenance. Current-head CI workflow evidence is also absent. E7.76 therefore remains unaccepted.
+
+
+### E7.76 live-state resolution implementation — 2026-09-25
+
+Execution validation no longer accepts caller-supplied `current_target_revision` or caller-supplied evidence as the authoritative execution inputs. It now resolves:
+- live target revision through a `TargetRevisionResolver`;
+- precondition evidence through a `TrustedEvidenceResolver`.
+
+The validator fail-closes on resolver errors, missing evidence, target mismatch, evidence digest mismatch, or unsatisfied conditions. Tests were migrated to the resolver contract and include live-target advance rejection.
+
+This is a boundary/API correction, not yet proof that the production wiring is trusted. Acceptance still requires verification that the runtime supplies trusted resolvers and that callers cannot inject arbitrary resolver implementations, plus CI/runtime evidence.
