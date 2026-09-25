@@ -647,3 +647,32 @@ def test_a58_execution_evidence_tamper_fails_closed():
     conn.execute("UPDATE execution_evidence SET target_after='tampered' WHERE evidence_id=?", (evidence.evidence_id,))
     with pytest.raises(StorageCorruptionError, match="digest mismatch"):
         load_execution_evidence(conn, evidence.evidence_id)
+
+
+def test_a59_execution_evidence_provenance_tamper_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    conn.execute("DROP TRIGGER execution_evidence_no_update")
+    conn.execute("UPDATE execution_evidence SET provenance_refs='[\"tampered\"]' WHERE evidence_id=?", (evidence.evidence_id,))
+    with pytest.raises(StorageCorruptionError, match="digest mismatch"):
+        load_execution_evidence(conn, evidence.evidence_id)
+
+
+def test_a60_execution_evidence_authorization_tamper_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    conn.execute("DROP TRIGGER execution_evidence_no_update")
+    conn.execute("UPDATE execution_evidence SET authorization_id='auth-tampered' WHERE evidence_id=?", (evidence.evidence_id,))
+    with pytest.raises(StorageCorruptionError, match="digest mismatch"):
+        load_execution_evidence(conn, evidence.evidence_id)
+
+
+def test_a61_execution_evidence_audit_link_tamper_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    conn.execute("DELETE FROM audit_events WHERE action='execution.evidence' AND resource=?", (evidence.evidence_id,))
+    with pytest.raises(StorageCorruptionError, match="execution evidence audit mismatch"):
+        load_execution_evidence(conn, evidence.evidence_id)
