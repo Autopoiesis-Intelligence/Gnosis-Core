@@ -1,0 +1,29 @@
+version: "0.1"
+kind: "MemorySyncRequest"
+required:
+  - source_id
+  - revision
+  - content_digest
+  - schema_version
+  - protocol_version
+fields:
+  source_id: {type: string}
+  revision: {type: string}
+  content_digest: {type: string}
+  schema_version: {type: string}
+  protocol_version: {type: string}
+  requested_records: {type: array}
+  policy_version: {type: string}
+  requester: {type: string}
+result:
+  states: [retrieved, integrity_verified, schema_validated, provenance_validated, evidence_evaluated, consumable, rejected]
+  failure_codes:
+    - unknown_source
+    - revoked_source
+    - digest_mismatch
+    - invalid_schema
+    - missing_provenance
+    - incompatible_protocol
+    - unauthorized
+    - ambiguous_revision
+    - integrity_failure
