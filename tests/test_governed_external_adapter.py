@@ -4,6 +4,7 @@ import pytest
 
 from gnosis.self_learning.collaboration_authorization import PreconditionEvidence
 from gnosis.self_learning.governed_external_adapter import execute_governed_external_action
+from gnosis.self_learning.fake_external_provider import FakeExternalProvider
 from tests.test_collaboration_runtime import _authorization
 
 
@@ -37,7 +38,6 @@ def _kwargs():
         attempt_id="attempt-1",
         ordering_evidence="order-1",
         provenance_refs=("prov-1",),
-        action_payload={"title": "test"},
     )
 
 
@@ -53,22 +53,16 @@ def test_denial_never_calls_provider():
 
 
 def test_allow_calls_provider_and_produces_success_evidence():
-    calls = []
-    kwargs = _kwargs()
-    result = execute_governed_external_action(
-        **kwargs,
-        provider=lambda payload: calls.append(payload) or {"target_after": "target-r2", "external_id": "x1"},
-    )
-    assert calls == [{"title": "test"}]
+    provider = FakeExternalProvider(target_after="target-r2")
+    result = execute_governed_external_action(**_kwargs(), provider=provider)
+    assert provider.calls == [{"title": "test"}]
     assert result.evidence.result_status == "SUCCEEDED"
     assert result.evidence.target_after == "target-r2"
     assert result.evidence.reconciliation_status == "RECONCILED"
 
 
 def test_provider_failure_is_not_success():
-    def failing(_payload):
-        raise RuntimeError("provider failure")
-
-    result = execute_governed_external_action(**_kwargs(), provider=failing)
+    provider = FakeExternalProvider(fail=True)
+    result = execute_governed_external_action(**_kwargs(), provider=provider)
     assert result.evidence.result_status == "FAILED"
     assert result.evidence.reconciliation_status == "UNKNOWN"
