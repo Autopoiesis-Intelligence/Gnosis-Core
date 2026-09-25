@@ -41,7 +41,7 @@ def fixture(path):
     commit_admitted_partner_learning(
         conn, admission=admission, request=request,
         instance_id=instance_id, transition_id=tr.transition_id,
-        state_id=tr.to_state_id, outcome="accepted", actor="partner",
+        state_id=tr.to_state_id, outcome="accepted", actor="partner", parent_state_digest=tr.from_state_id,
     )
     conn.close()
     return tr, instance_id
