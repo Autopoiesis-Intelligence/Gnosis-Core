@@ -11,10 +11,10 @@ def _digest(path: Path) -> str:
 def test_core_source_integrity_manifest_matches_exact_files():
     root = Path(__file__).resolve().parents[1]
     authority = root / "gnosis" / "reflection" / "authority.py"
-    core = root / "gnosis" / "core.py"
+    core_init = root / "gnosis" / "core" / "__init__.py"
     assert authority.is_file()
-    assert core.is_file()
-    digests = {_digest(authority), _digest(core)}
+    assert core_init.is_file()
+    digests = {_digest(authority), _digest(core_init)}
     assert len(digests) == 2
 
 
