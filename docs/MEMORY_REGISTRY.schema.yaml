@@ -1,0 +1,60 @@
+version: "0.1"
+kind: "MemoryRegistry"
+
+entry_required:
+  - source_id
+  - owner
+  - domain
+  - repository
+  - protocol_version
+  - permissions
+  - synchronization
+  - verification
+  - revision
+  - revocation
+
+entry:
+  source_id:
+    type: string
+  owner:
+    type: string
+  domain:
+    type: string
+  repository:
+    type: string
+  protocol_version:
+    type: string
+  contract_version:
+    type: string
+  permissions:
+    read: boolean
+    annotate: boolean
+    propose: boolean
+    publish: boolean
+    delete: false
+    rewrite_history: false
+  synchronization:
+    mode: [pull, push, bidirectional]
+    policy: string
+  revision:
+    identifier: string
+    content_digest: string
+    schema_version: string
+  verification:
+    state:
+      enum:
+        - discovered
+        - registered
+        - authorized
+        - syncing
+        - verified
+        - active
+        - quarantined
+        - revoked
+        - disabled
+    verified_at:
+      type: string
+  revocation:
+    active: boolean
+    reason:
+      type: string
