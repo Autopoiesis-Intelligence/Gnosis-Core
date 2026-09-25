@@ -167,9 +167,12 @@ def test_execution_receipt_rejects_unproven_result_content():
 
 
 def _make_execution_commit_request(provenance):
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    return ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
+    return ExecutionCommitRequest(
+        auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
+        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
+    )
 
 
 def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
