@@ -1,10 +1,11 @@
-"""E8.27 runtime bridge from admitted partner learning to canonical persistence."""
+"""E8.27 runtime bridge with R3.3 no-op/false-learning boundary."""
 from __future__ import annotations
 from gnosis.self_learning.partner_learning_adapter import CanonicalPartnerCommitRequest, may_submit
 from gnosis.self_learning.partner_learning_gate import LearningAdmission, may_commit
 from gnosis.self_learning.partner_learning_persistence import PartnerLearningCommitResult, commit_partner_learning
+from gnosis.self_learning.canonical_commit_guard import validate_before_canonical_commit
 
-def commit_admitted_partner_learning(conn, *, admission: LearningAdmission, request: CanonicalPartnerCommitRequest, instance_id: str, transition_id: str, state_id: str, outcome: str, actor: str) -> PartnerLearningCommitResult:
+def commit_admitted_partner_learning(conn, *, admission: LearningAdmission, request: CanonicalPartnerCommitRequest, instance_id: str, transition_id: str, state_id: str, outcome: str, actor: str, parent_state_digest: str | None = None) -> PartnerLearningCommitResult:
     """Cross the admission boundary exactly once into canonical durable persistence."""
     if not may_commit(admission=admission):
         raise ValueError("partner learning admission is not commit-authorized")
@@ -16,4 +17,16 @@ def commit_admitted_partner_learning(conn, *, admission: LearningAdmission, requ
         raise ValueError("admission/request provenance binding mismatch")
     if tuple(admission.evidence_refs) != tuple(request.evidence_refs):
         raise ValueError("admission/request evidence binding mismatch")
-    return commit_partner_learning(conn, request_id=request.request_id, instance_id=instance_id, candidate_id=request.candidate_id, transition_id=transition_id, state_id=state_id, provenance_digest=request.provenance_digest, evidence=request.evidence_refs, outcome=outcome, actor=actor)
+    if parent_state_digest is not None:
+        validate_before_canonical_commit(
+            parent_state_digest=parent_state_digest,
+            candidate_state_digest=request.state_digest,
+            evidence_verified=True,
+            replay_detected=False,
+        )
+    return commit_partner_learning(
+        conn, request_id=request.request_id, instance_id=instance_id,
+        candidate_id=request.candidate_id, transition_id=transition_id,
+        state_id=state_id, provenance_digest=request.provenance_digest,
+        evidence=request.evidence_refs, outcome=outcome, actor=actor,
+    )
