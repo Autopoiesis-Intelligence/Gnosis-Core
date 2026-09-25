@@ -282,3 +282,10 @@ Added `gnosis.self_learning.collaboration_runtime.TrustedCollaborationRuntime` a
 The runtime calls E7.76 validation first and raises a fail-closed `PermissionError` before any external action when authorization, live target, or trusted evidence is invalid. Regression tests prove denial occurs before side effects and successful side effects occur only after authorization.
 
 Important limitation: Python composition is not a cryptographic security boundary. Production acceptance still requires the composition root to construct this runtime from trusted providers and no untrusted path to replace the runtime object. This is now an explicit integration requirement rather than hidden in the authorization function.
+
+
+### E7.76 composition-root implementation — 2026-09-25
+
+Added `gnosis.self_learning.collaboration_entrypoint` as the explicit application composition boundary. Request execution receives only the immutable `CollaborationComposition`; target/evidence providers and the external side-effect capability are bound when the composition is created and are not parameters of request execution.
+
+Added regression coverage for successful execution after validation and rejection of unexpected provider-injection parameters. The repository CI workflow runs pytest on Python 3.11 and 3.12 for pull requests, but this branch still requires an actual CI run before acceptance.
