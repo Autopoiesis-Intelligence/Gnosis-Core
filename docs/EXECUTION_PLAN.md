@@ -176,3 +176,13 @@ The audit findings are now converted into an implementation contract for PR #74:
 5. new adversarial tests must cover expired authorization, caller-forged target revision, unsatisfied precondition evidence, and canonical-identity tamper.
 
 No acceptance until the amended PR passes these cases.
+
+
+### E7.76 re-audit gate — result after remediation review attempt
+
+Re-inspection of PR #74 head `a63870b` confirms the three previously reported gaps are still present:
+- `expires_at` remains unenforced by `validate_execution_request()`;
+- `authorized_target_revision` remains caller-supplied and is not part of `ExecutionAuthorization`;
+- `preconditions` remain declarative/issuance-time booleans and are not verified as execution-time evidence.
+
+Therefore the remediation contract is **NOT IMPLEMENTED** on the current PR head. E7.76 remains REQUEST CHANGES / NOT ACCEPTED. No downstream PR in the E7 chain may be accepted on top of this head.
