@@ -154,3 +154,13 @@ The checked current/base commit for #81 reports zero status records. Current-mai
 4. Reconcile/retarget #77, #79, #80, #81 after the sequential chain is accepted.
 5. Obtain independent review + current-main CI evidence.
 6. Only then consider repository extraction.
+
+
+### E7.76 audit result — PR #74 — 2026-09-25
+
+Source/diff audit found three acceptance-blocking trust-boundary gaps:
+1. `expires_at` is stored but not checked at execution-validation time.
+2. target freshness is caller-supplied rather than canonically bound to the authorization record;
+3. declared `preconditions` are stored but not evaluated during execution validation.
+
+Existing adversarial tests do not cover these cases. A GitHub PR comment was submitted documenting the findings. The PR cannot be accepted on current evidence.
