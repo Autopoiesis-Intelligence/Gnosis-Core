@@ -357,3 +357,15 @@ Added `gnosis.self_learning.collaboration_provider.ExternalActionProvider` as th
 The contract deliberately contains no GitHub/network implementation. Concrete provider ownership remains with the application composition root. Regression tests reject provider results that cannot establish observable target state.
 
 This is a contract milestone, not external-integration evidence: no concrete provider or real side effect is claimed yet.
+
+
+### E7.76 → provider → E7.77 governed adapter — 2026-09-25
+
+Added `gnosis/self_learning/governed_external_adapter.py`. The adapter binds the E7.76 TrustedCollaborationRuntime to the narrow ExternalActionProvider capability and emits E7.77 ExecutionEvidence from the observed provider result.
+
+Regression coverage proves:
+- denied authorization never invokes the provider;
+- allowed authorization invokes the provider and records its observed `target_after`;
+- provider failure is recorded as FAILED/UNKNOWN, never as success.
+
+This is still provider-agnostic integration evidence. No real GitHub/network side effect is claimed until a concrete provider is implemented and exercised in CI.
