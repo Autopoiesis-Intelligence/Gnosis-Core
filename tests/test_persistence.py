@@ -506,3 +506,54 @@ def test_a51_audit_action_and_result_mismatch_fails_durable_graph_verification()
         verify_durable_graph(conn)
 
 from gnosis.storage.repositories import _persist_transition
+
+
+def test_recovery_requires_authorization():
+    conn = connect()
+    instance = root()
+    save_instance(conn, instance)
+    with pytest.raises(Exception, match="recovery authorization required"):
+        recover_instance(
+            conn,
+            instance.instance_id,
+            None,
+            now="2026-09-25T12:00:00Z",
+        )
+
+
+def test_recovery_authorization_is_bound_to_verified_evidence():
+    conn = connect()
+    instance = root()
+    save_instance(conn, instance)
+    digest = recovery_evidence_digest(conn, instance.instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="auth-mismatch",
+        subject=instance.instance_id,
+        requested_by="principal",
+        authority="governance/recovery",
+        decision="allow",
+        reason="test",
+        issued_at="2026-09-25T00:00:00Z",
+        expires_at="2026-09-26T00:00:00Z",
+        evidence_digest="wrong",
+    )
+    with pytest.raises(Exception, match="evidence mismatch"):
+        recover_instance(
+            conn, instance.instance_id, authorization, now="2026-09-25T12:00:00Z"
+        )
+    assert recovery_evidence_digest(conn, instance.instance_id) == digest
+
+
+def test_authorized_recovery_does_not_change_core_state_and_is_audited():
+    conn = connect()
+    instance = root()
+    save_instance(conn, instance)
+    before = load_instance(conn, instance.instance_id).engine.state.state_id
+    recovered = _recover(conn, instance.instance_id)
+    after = load_instance(conn, instance.instance_id).engine.state.state_id
+    assert recovered.engine.state.state_id == before == after
+    row = conn.execute(
+        "SELECT action,actor,result FROM audit_events WHERE event_id=?",
+        ("recovery:test-recovery",),
+    ).fetchone()
+    assert tuple(row) == ("recovery.execute", "test-principal", "accepted")
