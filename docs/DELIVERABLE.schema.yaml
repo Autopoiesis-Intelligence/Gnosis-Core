@@ -1,0 +1,24 @@
+version: "0.1"
+kind: "Deliverable"
+required:
+  - deliverable_id
+  - project_id
+  - description
+  - acceptance_criteria
+  - status
+  - provenance
+fields:
+  deliverable_id: {type: string}
+  project_id: {type: string}
+  contract_id: {type: string}
+  description: {type: string}
+  acceptance_criteria: {type: array}
+  expected_artifact_type: {type: string}
+  responsible_party: {type: string}
+  due_condition: {type: string}
+  artifact_refs: {type: array}
+  evidence_refs: {type: array}
+  verification_refs: {type: array}
+  status:
+    enum: [pending, in_progress, submitted, passed, failed, partial, disputed, accepted, rejected]
+  provenance: {type: object}
