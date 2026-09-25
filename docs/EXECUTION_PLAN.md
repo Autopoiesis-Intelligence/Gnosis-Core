@@ -206,3 +206,20 @@ The remediation implementation addresses the original expiry/target/canonical-id
 `precondition_evidence_digest` defaults to a digest of the declared precondition strings. That is not evidence that the preconditions are actually true. Validation currently compares the caller-supplied current digest with the authorization-bound digest, allowing reproduction of the same digest without proving live precondition satisfaction.
 
 Acceptance therefore remains blocked until precondition evidence is produced by a trusted evidence source and validated against live state/target. Timestamp normalization/validation must also be made explicit before relying on lexicographic expiry comparison.
+
+
+### E7.76 trusted evidence implementation — 2026-09-25
+
+The authorization branch now models precondition evidence as an immutable `PreconditionEvidence` object with:
+- trusted source identity;
+- target revision;
+- evidence revision;
+- observed conditions;
+- provenance;
+- canonical digest.
+
+Authorization issuance requires trusted evidence, requires its target revision to match the authorized target, and requires all declared preconditions to be observed. Execution validation recomputes the evidence digest and rejects stale/wrong-target/unsatisfied evidence. A trusted-source allowlist is enforced.
+
+New regression coverage includes forged source rejection and stale evidence rejection.
+
+This closes the prior “hash of declaration is not evidence” gap at the source-contract level. Runtime CI remains the acceptance gate.
