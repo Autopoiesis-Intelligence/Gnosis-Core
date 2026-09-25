@@ -1,0 +1,15 @@
+{
+  "schema": "gnozis.core.source-integrity.v1",
+  "basis": "git-blob-sha1",
+  "source_ref": "contract/core-mutation-boundary-01",
+  "source_commit": "09339f1042a26776b919ad29632ba4f82cd5ccba",
+  "artifacts": {
+    "gnosis/core/__init__.py": "9ab3554d2a4eb7370fd3a7f8c73ed5e3ba41ba1b",
+    "gnosis/core/evolution.py": "86c9731cac2c7e34048f7b094aaddca492fbb987",
+    "gnosis/core/invariants.py": "71d4f2683f84e8f4309598b70302fb9fe6c93611",
+    "gnosis/core/select.py": "0a776672a1ebb18210768e29798b41f3a30673f2",
+    "gnosis/core/types.py": "00ca3026b415a7ee80841678f87c80d370a84dcd",
+    "gnosis/core/verification.py": "74ea1cbb71221e876f86ca702514037eb598cfce",
+    "gnosis/reflection/authority.py": "b31ae3a6afeb0cbfadbb1563ab8399620138a4a0"
+  }
+}
