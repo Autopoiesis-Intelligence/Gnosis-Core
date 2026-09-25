@@ -116,7 +116,10 @@ def load_instance(conn: sqlite3.Connection,instance_id: str)->Instance:
     row=conn.execute("SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,created_at FROM instances WHERE instance_id=?",(instance_id,)).fetchone()
     if row is None: raise StorageCorruptionError(f"instance not found: {instance_id}")
     from gnosis.core import Budget,Engine
-    budget=Budget(total=row[7],spent=row[8]); return Instance(row[0],row[1],Engine(load_state(conn,row[3]),budget=budget),row[4],row[5],InstanceStatus(row[6]),row[9])
+    budget=Budget(total=row[7],spent=row[8])
+    engine=Engine(load_state(conn,row[3]),budget=budget)
+    engine.history.extend(load_transition_records(conn, instance_id))
+    return Instance(row[0],row[1],engine,row[4],row[5],InstanceStatus(row[6]),row[9])
 def recover_instance(conn: sqlite3.Connection,instance_id: str)->Instance: verify_durable_graph(conn); return load_instance(conn,instance_id)
 def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
     chain=verify_audit_chain(conn)
