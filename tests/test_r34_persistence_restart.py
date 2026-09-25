@@ -55,8 +55,9 @@ def test_autonomous_cycle_survives_sqlite_restart():
 
     final=recover_instance(conn,"i")
     assert final.engine.state.state_id == second.transition.to_state_id
-    assert final.engine.budget.spent == 2
+    assert final.engine.budget.spent == 1
     assert len(final.engine.history) == 4
+    assert final.engine.history[-1].accepted is False
 
 
 def test_transition_record_sqlite_round_trip_preserves_identity():
