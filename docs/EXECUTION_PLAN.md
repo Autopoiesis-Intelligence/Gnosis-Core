@@ -96,3 +96,27 @@ Status: IMPLEMENTED / CI UNVERIFIED.
 ### Acceptance rule
 
 P0-R2 is **not ACCEPTED** while any mandatory row lacks current-main execution evidence. “Provisional” means source and regression evidence are present but the acceptance gate remains open.
+
+
+## E7 consolidation gate — 2026-09-25
+
+The active PR surface is now explicitly treated as a dependency chain, not a flat backlog:
+
+1. E7.74 Proposal boundary (#72)
+2. E7.75 Review (#73)
+3. E7.76 Authorization (#74)
+4. E7.77 Evidence reconciliation (#75)
+5. E7.77 persistence/atomic recovery (#76)
+6. E7.15 deterministic vertical slice (#77)
+7. R3.1 autonomous-cycle evidence (#79)
+8. CORE-MUTATION-BOUNDARY-01 (#80)
+9. CORE-INTEGRATION-BOUNDARY-01 (#81)
+
+Independent older E7 PRs (#39–#71) are historical evidence candidates and must not be treated as individually accepted until reconciled with the canonical current main.
+
+Acceptance order:
+- first establish P0-R2/current-main execution evidence;
+- then reconcile E7.74→E7.77 as one continuous trust-boundary chain;
+- then validate #77 against that chain;
+- then review #79 against the mutation/integration boundaries;
+- only after those gates begin new repository extraction.
