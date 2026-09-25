@@ -1,0 +1,26 @@
+version: "0.1"
+kind: "Contribution"
+required:
+  - contribution_id
+  - subject_id
+  - project_id
+  - role
+  - artifacts
+  - provenance
+fields:
+  contribution_id: {type: string}
+  subject_id: {type: string}
+  organization_id: {type: string}
+  project_id: {type: string}
+  role: {type: string}
+  contract_id: {type: string}
+  artifacts: {type: array}
+  evidence: {type: array}
+  verification: {type: array}
+  acceptance:
+    enum: [pending, accepted, partial, failed, disputed, rejected]
+  attribution: {type: object}
+  licensing: {type: object}
+  visibility:
+    enum: [public, participants, contracting_parties, authorized_reviewers, private]
+  provenance: {type: object}
