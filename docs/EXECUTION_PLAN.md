@@ -24,14 +24,16 @@ Active blockers:
 - Require exact Python 3.11/3.12 CI evidence.
 - Do not alter Core semantics, protected commit path, governance authority, audit meaning, fail-closed boundary, or provenance identity model.
 
-Status: 65% — BLOCKED pending exact current-main evidence.
+Status: 55% acceptance — BLOCKED pending exact current-main evidence.
+
+Latest verified historical candidate evidence: PR #33 records green CI on exact head `596f6f85f5909f22f68d059b00a6c1dccf9f0a3f` for Python 3.11/3.12 and CodeQL, but explicitly states that main was not yet verified after consolidation. Dependency Review remained unavailable/unverified. Therefore this evidence is historical candidate evidence, not current-main acceptance.
 
 ## Gate 2 — E7 consolidation
 Open verification branches/PRs must be treated as evidence candidates, not independently accepted contracts.
 Consolidate E7.49–E7.77 into the Contract Registry with exact SHA and evidence references.
 Resolve duplicate/shadowed definitions before accepting identity contracts.
 
-Status: 70% — CONSOLIDATION REQUIRED.
+Status: 70% — CONSOLIDATION REQUIRED. PRs #39–#54 and later E7 work remain evidence candidates until their guarantees are reconciled against the accepted current main.
 
 ## Gate 3 — Mutation and integration boundaries
 - PR #80: CORE-MUTATION-BOUNDARY-01.
