@@ -387,3 +387,10 @@ Repository-wide source inspection of the reconciled collaboration/provider modul
 Added `tests/test_provider_bypass_audit.py` as a static regression guard against direct provider construction/invocation in production self-learning sources. The guard intentionally excludes the provider registry, fake CI provider, and governed adapter where provider access is expected.
 
 This is a lightweight source-level regression, not a complete security proof; AST/import-graph analysis and runtime integration evidence remain required.
+
+
+### E7.76 AST/import-graph bypass audit — 2026-09-25
+
+Added `tests/test_provider_import_graph.py` using Python AST inspection. The guard checks that provider/registry symbols are not imported by unrelated self-learning modules and that direct `provider(...)` calls occur only in the governed adapter.
+
+This strengthens the previous source-string regression but remains a repository-level architectural guard, not a cryptographic or OS-level isolation boundary.
