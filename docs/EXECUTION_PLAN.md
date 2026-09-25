@@ -321,3 +321,19 @@ Acceptance blockers reaffirmed:
 - prove E7.76 → side effect → E7.77 evidence/reconciliation;
 - add bypass regression coverage;
 - produce current CI/runtime evidence and synchronize STATUS.md.
+
+
+### E7.76 current-main reconciliation — 2026-09-25
+
+A fresh integration branch `e7-76-current-main-reconciliation` was created directly from current `main` rather than force-updating the old divergent PR branch.
+
+Canonical E7.76 implementation on this branch:
+- `gnosis/self_learning/collaboration_authorization.py`
+- `gnosis/self_learning/collaboration_runtime.py`
+- `gnosis/self_learning/collaboration_entrypoint.py`
+
+The older `gnosis/self_learning/collaboration_execution_authorization.py` and its obsolete test were removed from this integration branch to prevent dual authority APIs.
+
+The original PR #74 branch remains untouched because it is 539 commits behind current main. It must not be treated as the integration candidate.
+
+Next gate: inspect all current-main imports/usages and CI for the canonical API, then wire the real external adapter and E7.77 evidence path.
