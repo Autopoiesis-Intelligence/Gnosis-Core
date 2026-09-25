@@ -25,15 +25,29 @@ def fixture():
 def test_rejected_learning_never_reaches_persistence(mode):
     conn,tr,admission,request=fixture()
     before=conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]
-    if mode=="noop":
-        parent=tr.to_state_id
+
+    if mode == "unverified":
+        with pytest.raises(ValueError, match="all trust gates"):
+            admit_partner_candidate(
+                classification_id="c", result_id="r", candidate_digest="p",
+                evidence_refs=("ev",), classification_verified=False,
+                replay_verified=True, receipt_received=True, core_verified=True,
+            )
+    elif mode == "replay":
+        with pytest.raises(ValueError, match="all trust gates"):
+            admit_partner_candidate(
+                classification_id="c", result_id="r", candidate_digest="p",
+                evidence_refs=("ev",), classification_verified=True,
+                replay_verified=False, receipt_received=True, core_verified=True,
+            )
     else:
-        parent=tr.from_state_id
-    with pytest.raises(ValueError):
-        if mode=="replay":
-            from gnosis.self_learning.canonical_commit_guard import validate_before_canonical_commit
-            validate_before_canonical_commit(parent_state_digest=parent,candidate_state_digest=tr.to_state_id,evidence_verified=True,replay_detected=True)
-        else:
-            commit_admitted_partner_learning(conn,admission=admission,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner",parent_state_digest=parent)
+        with pytest.raises(ValueError, match="no-op"):
+            commit_admitted_partner_learning(
+                conn, admission=admission, request=request, instance_id="i",
+                transition_id=tr.transition_id, state_id=tr.to_state_id,
+                outcome="accepted", actor="partner",
+                parent_state_digest=tr.to_state_id,
+            )
+
     after=conn.execute("SELECT count(*) FROM evolution_memory").fetchone()[0]
-    assert after==before
+    assert after == before
