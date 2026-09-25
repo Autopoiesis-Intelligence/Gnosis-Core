@@ -193,7 +193,8 @@ def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: C
                 or persisted_candidate.proposed_state.content_id != candidate.proposed_state.content_id
             ):
                 raise StorageCorruptionError("conflicting candidate replay")
-            if db.engine.state.state_id != record.to_state_id:
+            expected_head = record.to_state_id if record.accepted else record.from_state_id
+            if db.engine.state.state_id != expected_head:
                 raise ValueError("replayed transition has inconsistent canonical head")
             return
         if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
