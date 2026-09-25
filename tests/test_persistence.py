@@ -18,6 +18,8 @@ recover_instance,
     save_instance,
     verify_audit_chain,
     verify_durable_graph,
+    recovery_evidence_digest,
+    load_candidate,
 )
 from gnosis.storage.repositories import _audit_hash, _persist_transition
 from gnosis.storage.authorization import RecoveryAuthorization
@@ -251,7 +253,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -311,7 +313,7 @@ def test_a30_atomicity_rolls_back_after_audit_before_commit(monkeypatch):
 
     with pytest.raises(RuntimeError, match="injected failure at after_audit"):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_audit")
-    assert recover_instance(conn, instance.instance_id).engine.state.state_id == original_state_id
+    assert _recover(conn, instance.instance_id).engine.state.state_id == original_state_id
 
 
 def test_a13_process_exit_after_commit_reopens_valid_database(tmp_path):
@@ -341,10 +343,22 @@ conn.close()
 def test_a19_delete_final_audit_event_fails_recovery():
     conn, instance, record = _persisted_transition()
     conn.execute("DROP TRIGGER audit_events_no_delete")
+    digest = recovery_evidence_digest(conn, instance.instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="auth-a19",
+        subject=instance.instance_id,
+        requested_by="test",
+        authority="test-governance",
+        decision="allow",
+        reason="test",
+        issued_at="2026-09-25T00:00:00Z",
+        expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
     transition_id_value = conn.execute("SELECT transition_id FROM transitions WHERE instance_id=?", (instance.instance_id,)).fetchone()[0]
     conn.execute("DELETE FROM audit_events WHERE transition_id=?", (transition_id_value,))
-    with pytest.raises(StorageCorruptionError, match="audit evidence"):
-        recover_instance(conn, instance.instance_id)
+    with pytest.raises(StorageCorruptionError, match="audit"):
+        recover_instance(conn, instance.instance_id, authorization, now="2026-09-25T12:00:00Z")
 
 
 def test_a25_duplicate_state_id_with_different_payload_is_rejected():
@@ -411,7 +425,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
     assert verify_durable_graph(reopened)[0] == 1
 
 
@@ -431,7 +445,7 @@ def test_a54_rejected_transition_replay_is_idempotent():
     before = conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == before
-    assert recover_instance(conn, instance.instance_id).engine.state.state_id == record.from_state_id
+    assert _recover(conn, instance.instance_id).engine.state.state_id == record.from_state_id
 
 
 def test_a55_conflicting_transition_replay_fails_closed():
@@ -455,22 +469,23 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
         "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
+    tail = conn.execute("SELECT sequence, event_hash FROM audit_events ORDER BY sequence DESC LIMIT 1").fetchone()
     conn.execute(
         "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             "duplicate-audit",
-            row[1] + 1,
+            tail[0] + 1,
             row[2],
             row[3],
             row[4],
             row[5],
             row[6],
             row[7],
-            row[8],
+            tail[1],
             _audit_hash({
                 "event_id": "duplicate-audit",
-                "sequence": row[1] + 1,
+                "sequence": tail[0] + 1,
                 "transition_id": row[2],
                 "actor": row[3],
                 "action": row[4],
