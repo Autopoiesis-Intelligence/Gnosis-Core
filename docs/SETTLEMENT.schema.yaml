@@ -1,0 +1,21 @@
+version: "0.1"
+kind: "Settlement"
+required:
+  - settlement_id
+  - contract_id
+  - status
+  - provenance
+fields:
+  settlement_id: {type: string}
+  contract_id: {type: string}
+  deliverable_id: {type: string}
+  acceptance_id: {type: string}
+  amount: {type: object}
+  payer: {type: string}
+  payee: {type: string}
+  milestones: {type: array}
+  external_payment_reference: {type: string}
+  dispute: {type: object}
+  status:
+    enum: [pending, due, authorized, processing, settled, disputed, failed, cancelled, refunded]
+  provenance: {type: object}
