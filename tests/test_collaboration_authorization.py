@@ -241,3 +241,24 @@ def test_stale_precondition_evidence_is_denied():
         current_precondition_evidence=stale,
         now="2026-01-01T00:00:00Z",
     )
+
+
+@pytest.mark.parametrize("bad_timestamp", ["2099-01-01T00:00:00+00:00", "2099-01-01T00:00:00", "not-a-timestamp"])
+def test_noncanonical_expiry_timestamp_is_rejected(bad_timestamp):
+    with pytest.raises(ValueError):
+        issue_execution_authorization(**_kwargs(expires_at=bad_timestamp))
+
+
+def test_malformed_execution_time_is_denied():
+    auth = issue_execution_authorization(**_kwargs())
+    assert not validate_execution_request(
+        authorization=auth,
+        review_id="review-1", review_digest="sha256:review",
+        proposal_id="proposal-1", proposal_revision="r1",
+        action_class="CREATE_PUBLIC_ISSUE_OR_PR",
+        target_resource="repo:public/project", requested_scope="issue:create",
+        executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
+        current_target_revision="target-r1",
+        current_precondition_evidence=auth_precondition_evidence(auth),
+        now="not-a-timestamp",
+    )
