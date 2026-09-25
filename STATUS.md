@@ -1,6 +1,10 @@
 ## Repository role
 
-**GNOSIS CORE = canonical engineering foundation.** The older Gnozis repository is the Research Library. Gnozis Core provides the reusable protected engineering layer from which specialized research kernels and commercial user versions will be built.
+**GENESIS / GENEZIS = protected engineering foundation + Module Factory.**
+
+Gnozis is the public research/evidence/opportunity surface. Gnozis-Research-Memory is the machine-readable research, mathematics, provenance and context layer. Genesis/Genezis contains the protected Core/Uroboros boundary and the governed factory for specialized modules and products.
+
+The repository must not be treated as a public research archive or as a second research-memory authority.
 
 # STATUS — GNOSIS CORE
 
@@ -9,7 +13,7 @@ Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / D
 ## Current repository baseline
 - Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `d10de2a32b7c1daeec3678dd127e8542afead8ef` (current audited main); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` is stale.
 
-- Repository: `Mikhail-Kucheriavyi-23/Gnozis-V2`
+- Repository: `Mikhail-Kucheriavyi-23/Genezis`
 - Branch: `main`
 - Reflection foundation is implemented outside `gnosis/core` and remains non-mutating.
 - Persistence is present for reflection reports and is still awaiting end-to-end verification.
