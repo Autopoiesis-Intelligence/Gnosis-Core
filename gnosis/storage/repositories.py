@@ -144,6 +144,14 @@ def save_execution_evidence(conn: sqlite3.Connection, evidence: ExecutionEvidenc
             if tuple(existing) != (evidence.evidence_id, evidence.evidence_digest):
                 raise StorageCorruptionError("conflicting execution evidence replay")
             return
+        identity_conflict = conn.execute(
+            "SELECT attempt_id, evidence_digest FROM execution_evidence WHERE evidence_id=?",
+            (evidence.evidence_id,),
+        ).fetchone()
+        if identity_conflict:
+            if tuple(identity_conflict) != (evidence.attempt_id, evidence.evidence_digest):
+                raise StorageCorruptionError("conflicting execution evidence identity")
+            return
         conn.execute(
             """INSERT INTO execution_evidence
             (evidence_id,authorization_id,review_id,proposal_revision,action,target_resource,
