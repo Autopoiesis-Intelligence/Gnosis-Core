@@ -1,0 +1,26 @@
+version: "0.1"
+kind: "FederatedRelation"
+required:
+  - relation_id
+  - subject
+  - predicate
+  - object
+  - source_id
+  - source_revision
+  - provenance
+  - verification_state
+  - schema_version
+fields:
+  relation_id: {type: string}
+  subject: {type: object}
+  predicate: {type: string}
+  object: {type: object}
+  source_id: {type: string}
+  source_revision: {type: string}
+  content_digest: {type: string}
+  evidence_refs: {type: array}
+  provenance: {type: object}
+  verification_state:
+    enum: [unverified, source_validated, independently_verified, disputed, rejected, withdrawn]
+  created_at: {type: string}
+  schema_version: {type: string}
