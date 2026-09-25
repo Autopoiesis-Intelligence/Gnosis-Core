@@ -20,6 +20,8 @@ recover_instance,
     verify_durable_graph,
     recovery_evidence_digest,
     load_candidate,
+    save_execution_evidence,
+    load_execution_evidence,
 )
 from gnosis.storage.repositories import _audit_hash, _persist_transition, canonical_json
 from gnosis.storage.authorization import RecoveryAuthorization
@@ -115,7 +117,7 @@ def test_foreign_keys_reject_orphan_instance_state():
 def test_supported_schema_version_connects(tmp_path: Path):
     path = tmp_path / "supported.sqlite"
     conn = connect(path)
-    assert conn.execute("SELECT value FROM schema_meta WHERE key='schema_version'").fetchone()[0] == "5"
+    assert conn.execute("SELECT value FROM schema_meta WHERE key='schema_version'").fetchone()[0] == "6"
     conn.close()
 
 
@@ -574,3 +576,60 @@ def test_authorized_recovery_does_not_change_core_state_and_is_audited():
         ("recovery:test-recovery",),
     ).fetchone()
     assert tuple(row) == ("recovery.execute", "test-principal", "accepted")
+
+
+def _execution_evidence():
+    from gnosis.self_learning.collaboration_execution_evidence import create_execution_evidence
+    return create_execution_evidence(
+        authorization_id="auth-evidence",
+        review_id="review-1",
+        proposal_revision="proposal-r1",
+        action="publish",
+        target_resource="target-1",
+        authorized_scope="scope-1",
+        executor_id="executor-1",
+        attempt_id="attempt-1",
+        ordering_evidence="order-1",
+        result_status="SUCCEEDED",
+        target_before="rev-1",
+        target_after="rev-2",
+        privacy_classification="public",
+        reconciliation_status="RECONCILED",
+        provenance_refs=("prov-1",),
+    )
+
+
+def test_a56_execution_evidence_round_trip_and_restart(tmp_path):
+    path = tmp_path / "evidence.sqlite"
+    conn = connect(path)
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    loaded = load_execution_evidence(conn, evidence.evidence_id)
+    assert loaded == evidence
+    assert verify_durable_graph(conn)[0] == 2
+    conn.close()
+    reopened = connect(path)
+    assert load_execution_evidence(reopened, evidence.evidence_id) == evidence
+    assert verify_durable_graph(reopened)[0] == 2
+
+
+def test_a57_execution_evidence_conflicting_replay_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    conflicting = _execution_evidence()
+    conflicting = type(evidence)(*(
+        list(conflicting)[:-9] + ["rev-tampered"] + list(conflicting)[-8:]
+    ))
+    with pytest.raises(StorageCorruptionError, match="conflicting execution evidence replay"):
+        save_execution_evidence(conn, conflicting, actor="executor-1")
+
+
+def test_a58_execution_evidence_tamper_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    conn.execute("DROP TRIGGER execution_evidence_no_update")
+    conn.execute("UPDATE execution_evidence SET target_after='tampered' WHERE evidence_id=?", (evidence.evidence_id,))
+    with pytest.raises(StorageCorruptionError, match="digest mismatch"):
+        load_execution_evidence(conn, evidence.evidence_id)
