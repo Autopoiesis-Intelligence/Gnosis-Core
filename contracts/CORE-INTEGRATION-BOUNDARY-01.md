@@ -26,3 +26,18 @@ CLOSED only after reproducible runtime tests and CI evidence demonstrate the bou
 
 ## Current status
 SPECIFIED / EXECUTION PENDING
+
+## Evidence mapping
+- E1: Direct mutation rejection — `tests/test_core_integration_boundary.py`, CI #1620.
+- E2: Context restoration does not create execution authority — `tests/test_core_integration_boundary.py`, CI #1620.
+- E3: Candidate/provenance and integration-context binding — `tests/test_authority_boundary.py`, CI #1622.
+- E4: Existing execution authority/commit path — authority-boundary execution corpus, CI #1622.
+- E5: Persistence/reload canonical-state integrity — `tests/test_persistence_hardening.py`; restart, stale-head, tamper, rejected-transition, concurrency and durable-graph checks.
+- E6: Negative/bypass evidence — authority and persistence-hardening suites, CI #1622.
+- E7: Evidence is not authorization — explicit authorization checks and authority-boundary tests.
+
+## Closure gate
+Independent audit must verify the mapping and absence of an untested bypass path before closure.
+
+## Current status
+EVIDENCE-MAPPED / INDEPENDENT-AUDIT-PENDING
