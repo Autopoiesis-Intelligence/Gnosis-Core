@@ -1,0 +1,52 @@
+{
+  "contract_id": "CORE-MUTATION-BOUNDARY-01",
+  "version": "1.0",
+  "layer": "core",
+  "status": "defined",
+  "target": "Gnozis-Core",
+  "purpose": "Verify that Core mutation can only occur through the canonical mutation authority.",
+  "dependencies": [
+    "CORE-COMMIT-01",
+    "CORE-PROVENANCE-01"
+  ],
+  "inputs": [
+    "core_revision",
+    "fixture_set"
+  ],
+  "preconditions": [
+    "core_revision_is_explicit",
+    "fixture_set_is_valid",
+    "dependencies_are_available"
+  ],
+  "invariants": [
+    "external_actor_cannot_bypass_canonical_mutation_path",
+    "history_bypass_is_rejected",
+    "commit_bypass_is_rejected",
+    "tampered_provenance_is_rejected",
+    "no_alternate_mutation_authority_exists"
+  ],
+  "procedure": [
+    "prepare_fixture",
+    "execute_case",
+    "observe_mutation_path",
+    "collect_evidence",
+    "evaluate_invariants",
+    "emit_result"
+  ],
+  "negative_cases": [
+    "history-bypass",
+    "commit-bypass",
+    "tampered-provenance",
+    "alternate-authority"
+  ],
+  "expected_result": {
+    "canonical": "ACCEPT",
+    "negative_cases": "REJECT"
+  },
+  "evidence_required": [
+    "source_evidence",
+    "test_evidence",
+    "runtime_evidence",
+    "target_revision_identity"
+  ]
+}
