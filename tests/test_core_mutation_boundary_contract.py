@@ -96,3 +96,54 @@ def test_boundary_rejects_candidate_substitution():
     ).engine.state.state_id == parent.state_id
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
     conn.close()
+
+def _setup():
+    conn = __import__("gnosis.storage", fromlist=["connect"]).connect()
+    instance = Instance.create_root("contract-test", State(elements={"x": 1}))
+    __import__("gnosis.storage", fromlist=["save_instance"]).save_instance(conn, instance)
+    return conn, instance, instance.engine.state
+
+
+def test_boundary_rejects_forged_result_record():
+    conn, instance, parent = _setup()
+    candidate = Candidate(parent.state_id, parent.with_elements({"x": 2}), "authorized")
+    request = _request(candidate, parent)
+    forged = TransitionRecord(
+        parent.state_id, parent.with_elements({"x": 999}).state_id,
+        candidate.candidate_id, TestResult(True, ("test",)), True, "committed")
+    with pytest.raises(PermissionError):
+        SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, forged, request, actor="contract-test")
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    conn.close()
+
+
+def test_boundary_rejects_tampered_provenance_identity():
+    conn, instance, parent = _setup()
+    candidate = Candidate(parent.state_id, parent.with_elements({"x": 2}), "authorized")
+    request = _request(candidate, parent)
+    tampered = ExecutionCommitRequest(
+        request.authorization, request.intent_snapshot, request.request_provenance,
+        "evolution:forged", request.provenance)
+    record = TransitionRecord(
+        parent.state_id, candidate.proposed_state.state_id, candidate.candidate_id,
+        TestResult(True, ("test",)), True, "committed")
+    with pytest.raises(PermissionError):
+        SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, tampered, actor="contract-test")
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    conn.close()
+
+
+def test_boundary_rejects_missing_execution_authority():
+    conn, instance, parent = _setup()
+    candidate = Candidate(parent.state_id, parent.with_elements({"x": 2}), "authorized")
+    request = _request(candidate, parent)
+    denied = ExecutionCommitRequest(
+        ExecutionAuthorization(request.request_provenance, False, request.evolution_identity),
+        request.intent_snapshot, request.request_provenance, request.evolution_identity, request.provenance)
+    record = TransitionRecord(
+        parent.state_id, candidate.proposed_state.state_id, candidate.candidate_id,
+        TestResult(True, ("test",)), True, "committed")
+    with pytest.raises(PermissionError):
+        SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, denied, actor="contract-test")
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    conn.close()
