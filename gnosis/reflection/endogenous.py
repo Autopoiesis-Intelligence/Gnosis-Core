@@ -64,6 +64,8 @@ def generate_endogenous_candidates(
     memory_outcomes = tuple(sorted(str(getattr(item, "outcome")) for item in memory_evidence if getattr(item, "outcome", None)))
     memory_signature = tuple(sorted(memory_refs))
     for proposal in proposals:
+        proposal_relation = _proposal_relation(proposal, memory_outcomes)
+        relations = () if proposal_relation.relation_id in {r.relation_id for r in state.relations} else (proposal_relation,)
         proposed_state = state.with_elements({
             REFLECTION_NODE: {"kind": "reflection"},
             proposal.proposal_id: {
@@ -78,7 +80,7 @@ def generate_endogenous_candidates(
                 "historical_memory_outcomes": memory_outcomes,
                 "memory_signature": memory_signature,
             },
-        }).with_relations((_proposal_relation(proposal, memory_outcomes),))
+        }).with_relations(relations)
         candidates.append(
             Candidate(
                 parent_state_id=state.state_id,
