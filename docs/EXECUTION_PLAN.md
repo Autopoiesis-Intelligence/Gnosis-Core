@@ -94,3 +94,14 @@ Status: future / gated.
 
 ## Current rule
 No broad new Core architecture and no autonomous mutation while Gate 1 is unresolved. Verification, bounded fixes, contract consolidation, documentation and evidence generation are allowed.
+
+
+## Gate 1 verification checklist — current repository configuration
+
+Checked 2026-09-25:
+- CI matrix explicitly runs Python 3.11 and 3.12.
+- CI installs the package with dev dependencies and runs pytest with coverage.
+- CodeQL runs for Python and GitHub Actions on main/PR/schedule.
+- Dependency Review workflow exists for pull requests and fails on high severity.
+- These workflow definitions establish intended checks but do not themselves prove that the latest canonical main has successful runs.
+- Current acceptance therefore still requires successful workflow-run evidence attached to the accepted main SHA.
