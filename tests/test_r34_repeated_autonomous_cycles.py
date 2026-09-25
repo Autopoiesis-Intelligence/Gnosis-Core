@@ -4,7 +4,7 @@ from gnosis.core.budget import Budget
 from gnosis.self_learning.autonomous_cycle import run_one_endogenous_cycle
 
 def test_repeated_endogenous_cycles_preserve_progress_and_bound():
-    engine=Engine(state=State(elements={"a":1}), budget=Budget(limit=3))
+    engine=Engine(state=State(elements={"a":1}), budget=Budget(total=3))
     engine.history.clear()
     transitions=[]
     for _ in range(3):
