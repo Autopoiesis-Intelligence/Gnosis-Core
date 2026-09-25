@@ -677,3 +677,25 @@ def test_a61_execution_evidence_audit_link_tamper_fails_closed():
     conn.execute("DELETE FROM audit_events WHERE action='execution.evidence' AND resource=?", (evidence.evidence_id,))
     with pytest.raises(StorageCorruptionError, match="execution evidence audit mismatch"):
         load_execution_evidence(conn, evidence.evidence_id)
+
+
+def test_a62_execution_evidence_delete_fails_closed():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    conn.execute("DROP TRIGGER execution_evidence_no_delete")
+    conn.execute("DELETE FROM execution_evidence WHERE evidence_id=?", (evidence.evidence_id,))
+    with pytest.raises(StorageCorruptionError, match="execution evidence not found"):
+        load_execution_evidence(conn, evidence.evidence_id)
+
+
+def test_a63_execution_evidence_identical_replay_is_idempotent():
+    conn = connect()
+    evidence = _execution_evidence()
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    save_execution_evidence(conn, evidence, actor="executor-1")
+    assert load_execution_evidence(conn, evidence.evidence_id) == evidence
+    count = conn.execute(
+        "SELECT COUNT(*) FROM execution_evidence WHERE attempt_id=?", (evidence.attempt_id,)
+    ).fetchone()[0]
+    assert count == 1
