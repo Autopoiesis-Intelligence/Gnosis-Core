@@ -1,0 +1,28 @@
+version: "0.1"
+kind: "Opportunity"
+required:
+  - opportunity_id
+  - title
+  - type
+  - problem
+  - desired_outcome
+  - scope
+  - status
+  - provenance
+fields:
+  opportunity_id: {type: string}
+  title: {type: string}
+  type:
+    enum: [research, capability, product, engineering, partnership, commercial]
+  problem: {type: string}
+  desired_outcome: {type: string}
+  scope: {type: string}
+  evidence: {type: array}
+  status:
+    enum: [discovered, open, evaluating, contracted, executing, completed, closed]
+  required_capabilities: {type: array}
+  dependencies: {type: array}
+  estimated_resources: {type: object}
+  ip_requirements: {type: object}
+  engagement: {type: object}
+  provenance: {type: object}
