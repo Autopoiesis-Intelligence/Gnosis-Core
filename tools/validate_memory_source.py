@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Deterministic offline bootstrap validator for a Gnozis Memory Source."""
+"""Deterministic offline validator for a Gnozis Memory Source."""
 import json
 from pathlib import Path
+import hashlib
 
-VERSION = "0.3"
+VERSION = "0.4"
 REQUIRED = ["protocol_version", "source_id", "domain", "repository", "schema_versions", "license"]
 VALID_STATUS = {"discovered", "registered", "authorized", "verified", "active", "quarantined", "revoked"}
 
@@ -45,11 +46,39 @@ def validate_declared_schemas(errors):
         if "required:" not in text:
             errors.append(f"schema_missing_required:{path}")
 
+def validate_provenance(errors, warnings):
+    prov_dir = Path("provenance")
+    if not prov_dir.exists():
+        errors.append("missing_provenance_directory")
+        return
+    files = sorted([*prov_dir.glob("*.json"), *prov_dir.glob("*.jsonl")])
+    if not files:
+        errors.append("no_provenance_files")
+        return
+    for path in files:
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError:
+                errors.append(f"invalid_provenance_json:{path}:{n}")
+                continue
+            for key in ("source_id", "source_revision", "record_id"):
+                if not item.get(key):
+                    errors.append(f"missing_provenance_field:{path}:{n}:{key}")
+            digest = item.get("content_sha256")
+            if digest and (len(digest) != 64 or any(c not in "0123456789abcdefABCDEF" for c in digest)):
+                errors.append(f"invalid_content_sha256:{path}:{n}")
+            if item.get("source_revision", "").startswith(("refs/heads/", "refs/tags/")):
+                warnings.append(f"mutable_or_symbolic_revision:{path}:{n}")
+
 def main() -> int:
     errors = []
     warnings = []
     validate_manifest(errors, warnings)
     validate_declared_schemas(errors)
+    validate_provenance(errors, warnings)
     result = {"validator":"gnozis-source-validator","version":VERSION,"result":"FAIL" if errors else "PASS","errors":errors,"warnings":warnings}
     Path("validation-result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))
