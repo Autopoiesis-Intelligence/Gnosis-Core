@@ -273,3 +273,12 @@ Therefore the next implementation must NOT simply inject E7.76 into Core mutatio
 3. add a dedicated external-action execution entrypoint that validates E7.76 before side effects;
 4. keep Core mutation behind its separate owner-authority boundary;
 5. add cross-boundary tests proving an E7.76 authorization cannot grant Core mutation authority and Core authorization cannot be substituted for E7.76 external-action authorization.
+
+
+### E7.76 trusted collaboration runtime — 2026-09-25
+
+Added `gnosis.self_learning.collaboration_runtime.TrustedCollaborationRuntime` as the dedicated external-action execution boundary. The runtime owns the target/evidence resolvers and the external side-effect callable; request callers cannot pass alternate resolvers through `execute()`.
+
+The runtime calls E7.76 validation first and raises a fail-closed `PermissionError` before any external action when authorization, live target, or trusted evidence is invalid. Regression tests prove denial occurs before side effects and successful side effects occur only after authorization.
+
+Important limitation: Python composition is not a cryptographic security boundary. Production acceptance still requires the composition root to construct this runtime from trusted providers and no untrusted path to replace the runtime object. This is now an explicit integration requirement rather than hidden in the authorization function.
