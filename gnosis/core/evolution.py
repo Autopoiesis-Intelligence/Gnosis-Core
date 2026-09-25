@@ -19,7 +19,7 @@ class StopCondition(RuntimeError):
         super().__init__(f"{reason.value}: {detail}".strip())
 
 
-@dataclass
+@dataclass(init=False)
 class Engine:
     _state: State
     budget: Budget = field(default_factory=Budget)
@@ -28,6 +28,19 @@ class Engine:
     test_rule_id: str = "test-rule:default"
 
     STEP_COST: int = 1
+
+    def __init__(
+        self,
+        state: State,
+        budget: Budget | None = None,
+        test_fn: TestFn = default_test,
+        test_rule_id: str = "test-rule:default",
+    ) -> None:
+        self._state = state
+        self.budget = budget if budget is not None else Budget()
+        self.test_fn = test_fn
+        self._history = []
+        self.test_rule_id = test_rule_id
 
     @property
     def state(self) -> State:
