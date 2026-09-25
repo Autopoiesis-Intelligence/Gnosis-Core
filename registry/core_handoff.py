@@ -19,6 +19,16 @@ class FederationCoreHandoff:
 def digest(x):
     return hashlib.sha256(json.dumps(x,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
 
+def verify_handoff(handoff):
+    if not isinstance(handoff,dict): return {"result":"REJECT","errors":["invalid_handoff"]}
+    supplied=handoff.get("handoff_sha256")
+    if not supplied: return {"result":"REJECT","errors":["missing_handoff_digest"]}
+    unsigned=dict(handoff); unsigned.pop("handoff_sha256",None)
+    if digest(unsigned) != supplied: return {"result":"REJECT","errors":["handoff_digest_mismatch"]}
+    if handoff.get("status") != "PENDING_CORE_AUTHORITY": return {"result":"REJECT","errors":["invalid_handoff_status"]}
+    if not handoff.get("federation_authorization_sha256"): return {"result":"REJECT","errors":["missing_authorization_reference"]}
+    return {"result":"VALID","handoff":handoff}
+
 def create_handoff(authorization,candidate,target,action,evidence_refs):
     errors=[]
     if authorization.get("result") != "AUTHORIZED": errors.append("federation_not_authorized")
