@@ -12,6 +12,7 @@ from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord
 from gnosis.instances.instance import Instance, InstanceStatus
 from .database import GENESIS_HASH, transaction
 from .authorization import RecoveryAuthorization, validate_recovery_authorization
+from gnosis.self_learning.collaboration_execution_evidence import ExecutionEvidence, create_execution_evidence
 
 class StorageCorruptionError(ValueError): pass
 class SecretMaterialError(ValueError): pass
@@ -118,6 +119,79 @@ def load_instance(conn: sqlite3.Connection,instance_id: str)->Instance:
     if row is None: raise StorageCorruptionError(f"instance not found: {instance_id}")
     from gnosis.core import Budget,Engine
     budget=Budget(total=row[7],spent=row[8]); return Instance(row[0],row[1],Engine(load_state(conn,row[3]),budget=budget),row[4],row[5],InstanceStatus(row[6]),row[9])
+
+def save_execution_evidence(conn: sqlite3.Connection, evidence: ExecutionEvidence, *, actor: str) -> None:
+    """Persist immutable E7.77 evidence and its audit event atomically."""
+    canonical = create_execution_evidence(
+        authorization_id=evidence.authorization_id, review_id=evidence.review_id,
+        proposal_revision=evidence.proposal_revision, action=evidence.action,
+        target_resource=evidence.target_resource, authorized_scope=evidence.authorized_scope,
+        executor_id=evidence.executor_id, attempt_id=evidence.attempt_id,
+        ordering_evidence=evidence.ordering_evidence, result_status=evidence.result_status,
+        target_before=evidence.target_before, target_after=evidence.target_after,
+        privacy_classification=evidence.privacy_classification,
+        reconciliation_status=evidence.reconciliation_status,
+        provenance_refs=evidence.provenance_refs,
+    )
+    if canonical != evidence:
+        raise StorageCorruptionError("execution evidence digest mismatch")
+    with transaction(conn):
+        existing = conn.execute(
+            "SELECT evidence_id, evidence_digest FROM execution_evidence WHERE attempt_id=?",
+            (evidence.attempt_id,),
+        ).fetchone()
+        if existing:
+            if tuple(existing) != (evidence.evidence_id, evidence.evidence_digest):
+                raise StorageCorruptionError("conflicting execution evidence replay")
+            return
+        conn.execute(
+            """INSERT INTO execution_evidence
+            (evidence_id,authorization_id,review_id,proposal_revision,action,target_resource,
+             authorized_scope,executor_id,attempt_id,ordering_evidence,result_status,target_before,
+             target_after,privacy_classification,reconciliation_status,provenance_refs,evidence_digest)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (evidence.evidence_id,evidence.authorization_id,evidence.review_id,evidence.proposal_revision,
+             evidence.action,evidence.target_resource,evidence.authorized_scope,evidence.executor_id,
+             evidence.attempt_id,evidence.ordering_evidence,evidence.result_status,evidence.target_before,
+             evidence.target_after,evidence.privacy_classification,evidence.reconciliation_status,
+             canonical_json(evidence.provenance_refs),evidence.evidence_digest),
+        )
+        append_audit(
+            conn, actor=actor, action="execution.evidence", resource=evidence.evidence_id,
+            result=evidence.result_status, event_key=f"execution:{evidence.evidence_id}",
+        )
+
+def load_execution_evidence(conn: sqlite3.Connection, evidence_id: str) -> ExecutionEvidence:
+    row = conn.execute(
+        """SELECT evidence_id,authorization_id,review_id,proposal_revision,action,target_resource,
+        authorized_scope,executor_id,attempt_id,ordering_evidence,result_status,target_before,
+        target_after,privacy_classification,reconciliation_status,provenance_refs,evidence_digest
+        FROM execution_evidence WHERE evidence_id=?""", (evidence_id,)
+    ).fetchone()
+    if row is None:
+        raise StorageCorruptionError(f"execution evidence not found: {evidence_id}")
+    try:
+        refs = tuple(json.loads(row[15]))
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise StorageCorruptionError("malformed execution evidence provenance") from exc
+    if not all(isinstance(ref, str) for ref in refs):
+        raise StorageCorruptionError("invalid execution evidence provenance")
+    evidence = create_execution_evidence(
+        authorization_id=row[1], review_id=row[2], proposal_revision=row[3], action=row[4],
+        target_resource=row[5], authorized_scope=row[6], executor_id=row[7], attempt_id=row[8],
+        ordering_evidence=row[9], result_status=row[10], target_before=row[11], target_after=row[12],
+        privacy_classification=row[13], reconciliation_status=row[14], provenance_refs=refs,
+    )
+    if evidence.evidence_id != row[0] or evidence.evidence_digest != row[16]:
+        raise StorageCorruptionError("execution evidence digest mismatch")
+    audit = conn.execute(
+        "SELECT COUNT(*) FROM audit_events WHERE action='execution.evidence' AND resource=? AND event_id=?",
+        (evidence_id, f"execution:{evidence_id}"),
+    ).fetchone()[0]
+    if audit != 1:
+        raise StorageCorruptionError("execution evidence audit mismatch")
+    return evidence
+
 def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
     """Return the digest of the verified durable evidence bound to recovery."""
     verify_durable_graph(conn)
@@ -178,6 +252,8 @@ def recover_instance(
     return instance
 def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
     chain=verify_audit_chain(conn)
+    for evidence_row in conn.execute("SELECT evidence_id FROM execution_evidence ORDER BY evidence_id"):
+        load_execution_evidence(conn, evidence_row[0])
     for row in conn.execute("SELECT instance_id,root_state_id,current_state_id,parent_instance_id,generation,budget_total,budget_spent FROM instances"):
         load_state(conn,row[1]);
         if row[6] > row[5]: raise StorageCorruptionError("instance budget spent exceeds total")
