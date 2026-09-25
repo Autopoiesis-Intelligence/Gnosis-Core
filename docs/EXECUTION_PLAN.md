@@ -164,3 +164,15 @@ Source/diff audit found three acceptance-blocking trust-boundary gaps:
 3. declared `preconditions` are stored but not evaluated during execution validation.
 
 Existing adversarial tests do not cover these cases. A GitHub PR comment was submitted documenting the findings. The PR cannot be accepted on current evidence.
+
+
+### E7.76 remediation specification — 2026-09-25
+
+The audit findings are now converted into an implementation contract for PR #74:
+1. expiry must be validated against a deterministic supplied `now`; no wall-clock lookup inside the validator;
+2. the authorized target revision must be an immutable field of `ExecutionAuthorization` and included in its canonical identity;
+3. preconditions must be represented as machine-verifiable authorization evidence, not caller booleans;
+4. validation must consume the live target revision/evidence and compare it to the authorization-bound value;
+5. new adversarial tests must cover expired authorization, caller-forged target revision, unsatisfied precondition evidence, and canonical-identity tamper.
+
+No acceptance until the amended PR passes these cases.
