@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 GENESIS_HASH = "0" * 64
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -21,6 +21,28 @@ CREATE INDEX IF NOT EXISTS idx_evolution_memory_instance ON evolution_memory(ins
 CREATE INDEX IF NOT EXISTS idx_evolution_memory_proposal_report ON evolution_memory(proposal_report_id);
 CREATE TRIGGER IF NOT EXISTS evolution_memory_no_update BEFORE UPDATE ON evolution_memory BEGIN SELECT RAISE(ABORT,'evolution_memory is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS evolution_memory_no_delete BEFORE DELETE ON evolution_memory BEGIN SELECT RAISE(ABORT,'evolution_memory is append-only'); END;
+CREATE TABLE IF NOT EXISTS execution_evidence (
+    evidence_id TEXT PRIMARY KEY,
+    authorization_id TEXT NOT NULL,
+    review_id TEXT NOT NULL,
+    proposal_revision TEXT NOT NULL,
+    action TEXT NOT NULL,
+    target_resource TEXT NOT NULL,
+    authorized_scope TEXT NOT NULL,
+    executor_id TEXT NOT NULL,
+    attempt_id TEXT NOT NULL UNIQUE,
+    ordering_evidence TEXT NOT NULL,
+    result_status TEXT NOT NULL,
+    target_before TEXT NOT NULL,
+    target_after TEXT NOT NULL,
+    privacy_classification TEXT NOT NULL,
+    reconciliation_status TEXT NOT NULL,
+    provenance_refs TEXT NOT NULL,
+    evidence_digest TEXT NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS idx_execution_evidence_authorization ON execution_evidence(authorization_id);
+CREATE TRIGGER IF NOT EXISTS execution_evidence_no_update BEFORE UPDATE ON execution_evidence BEGIN SELECT RAISE(ABORT,'execution_evidence is append-only'); END;
+CREATE TRIGGER IF NOT EXISTS execution_evidence_no_delete BEFORE DELETE ON execution_evidence BEGIN SELECT RAISE(ABORT,'execution_evidence is append-only'); END;
 CREATE TABLE IF NOT EXISTS audit_events (event_id TEXT PRIMARY KEY, sequence INTEGER NOT NULL UNIQUE CHECK(sequence > 0), transition_id TEXT, actor TEXT NOT NULL, action TEXT NOT NULL, resource TEXT NOT NULL, result TEXT NOT NULL, timestamp TEXT NOT NULL, prev_hash TEXT NOT NULL, event_hash TEXT NOT NULL UNIQUE, FOREIGN KEY(transition_id) REFERENCES transitions(transition_id));
 CREATE TRIGGER IF NOT EXISTS audit_events_no_update BEFORE UPDATE ON audit_events BEGIN SELECT RAISE(ABORT,'audit_events are append-only'); END;
 CREATE TRIGGER IF NOT EXISTS audit_events_no_delete BEFORE DELETE ON audit_events BEGIN SELECT RAISE(ABORT,'audit_events are append-only'); END;
@@ -49,6 +71,8 @@ def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
                 if memory_columns and "proposal_report_id" not in memory_columns:
                     conn.execute("ALTER TABLE evolution_memory ADD COLUMN proposal_report_id TEXT")
+            elif version == 5:
+                conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
             elif version == 4:
                 conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
