@@ -36,7 +36,7 @@ def main() -> int:
         checks = [{"case": "target_revision_identity", "result": "BLOCKED"}]
     else:
         initial = State()
-        engine = Engine(state=initial, budget=Budget(limit=1))
+        engine = Engine(state=initial, budget=Budget(total=1))
         candidate = Candidate(
             parent_state_id=initial.state_id,
             proposed_state=initial.with_elements({"interface_probe": "canonical"}),
