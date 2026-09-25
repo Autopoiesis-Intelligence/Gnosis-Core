@@ -1,128 +1,13 @@
-# Gnozis Execution Plan
+[object Object]
 
-Date: 2026-09-25
-Status: ACTIVE
-Purpose: ordered execution plan derived from the current repository/contract audit.
+### P0 recovery-authorization audit — 2026-09-25
 
-## Gate 0 — Topology and contract control
-- Keep Gnozis as public evidence/opportunity surface.
-- Keep Gnozis-Research-Memory as machine-readable research/mathematics/provenance/context.
-- Keep Genesis/Genezis as protected Core + Module Factory.
-- Treat Mnemosyne, Hermes, Thoth, Athena, Hephaestus, Prometheus and Daedalus as contract-first specialized repositories.
-- Do not grant any specialized repository Core mutation authority.
+Audit result: the current `recover_instance(conn, instance_id)` path performs `verify_durable_graph(conn)` and then loads the instance. No explicit authorization token, governance decision, capability, or authorization state is required by this recovery entry point, and no recovery authorization event is bound to the recovery operation.
 
-Status: 90% complete.
+This is an **OPEN contract gap**, not a defect to patch opportunistically. Adding an arbitrary actor parameter would not constitute authorization. The correct fix belongs to the Governance/Recovery contract and must define the authority source, allowed states, audit binding, and fail-closed behavior first.
 
-## Gate 1 — P0 persistence/recovery acceptance
-Active blockers:
-- Issue #16: P0-R2 persistence/recovery correctness.
-- Reconcile the fixture correction before accepting any failure result.
-- Prove semantic transition tamper fails closed.
-- Prove duplicate provenance/audit links produce controlled recovery failure.
-- Prove transition replay/idempotency behavior.
-- Keep recovery authorization explicit.
-- Require exact Python 3.11/3.12 CI evidence.
-- Do not alter Core semantics, protected commit path, governance authority, audit meaning, fail-closed boundary, or provenance identity model.
-
-Status: 60% acceptance — production gap identified and bounded fix implemented; still BLOCKED pending exact current-main CI/runtime evidence.
-
-Latest verified historical candidate evidence: PR #33 records green CI on exact head `596f6f85f5909f22f68d059b00a6c1dccf9f0a3f` for Python 3.11/3.12 and CodeQL, but explicitly states that main was not yet verified after consolidation. Dependency Review remained unavailable/unverified. Therefore this evidence is historical candidate evidence, not current-main acceptance.
-
-## Gate 2 — E7 consolidation
-Open verification branches/PRs must be treated as evidence candidates, not independently accepted contracts.
-Consolidate E7.49–E7.77 into the Contract Registry with exact SHA and evidence references.
-Resolve duplicate/shadowed definitions before accepting identity contracts.
-
-Status: 70% — CONSOLIDATION REQUIRED. PRs #39–#54 and later E7 work remain evidence candidates until their guarantees are reconciled against the accepted current main.
-
-## Gate 3 — Mutation and integration boundaries
-- PR #80: CORE-MUTATION-BOUNDARY-01.
-- PR #81: CORE-INTEGRATION-BOUNDARY-01.
-Acceptance requires independent adversarial verification on the reconciled main, not branch-only evidence.
-
-Status: 60% — PENDING Gate 1.
-
-## Gate 4 — Reflection and cycle evidence
-- PR #79: R3.1 CycleEvidence.
-- PR #77: E7.15 deterministic vertical slice.
-- Verify evidence lineage, replay determinism, rejected/inconclusive commit prohibition, and persistence integration.
-- These remain evidence infrastructure and do not grant autonomous mutation authority.
-
-Status: 60% — PENDING Gates 1–3.
-
-## Gate 5 — Governance
-Define and verify:
-- proposal vs authority;
-- authorization;
-- activation;
-- monitoring;
-- rollback;
-- explicit human/external boundary;
-- atomic transition/audit/evidence binding.
-
-Status: 30% — NOT ACCEPTED.
-
-## Gate 6 — Research-Memory
-Create the dedicated machine-readable memory repository structure.
-Migrate:
-- AI_CONTEXT;
-- mathematical corpus;
-- evidence/provenance;
-- epochs/history;
-- research branches;
-- contract references.
-Separate accepted contracts from historical hypotheses and research notes.
-
-Status: 5% — PLANNED.
-
-## Gate 7 — Specialized repositories
-Before implementation, each repository must receive:
-REPOSITORY-ID, PURPOSE, INPUTS, OUTPUTS, OWNED DATA, DEPENDENCIES, AUTHORITY, TRUST BOUNDARY, PROVENANCE, FAILURE MODES, ACCEPTANCE TESTS, NON-GOALS.
-
-Order:
-Mnemosyne → Hermes → Thoth → Athena → Hephaestus → Prometheus → Daedalus.
-
-Status: 0% implementation; contract preparation follows Gate 6.
-
-## Gate 8 — Controlled autonomous evolution
-Only after all preceding gates have accepted evidence:
-observe → diagnose → candidate → counterexample → shadow → verify → govern → authorize → commit → observe outcome → learn.
-
-No stage may inherit mutation authority silently.
-
-Status: future / gated.
-
-## Current rule
-No broad new Core architecture and no autonomous mutation while Gate 1 is unresolved. Verification, bounded fixes, contract consolidation, documentation and evidence generation are allowed.
-
-
-## Gate 1 verification checklist — current repository configuration
-
-Checked 2026-09-25:
-- CI matrix explicitly runs Python 3.11 and 3.12.
-- CI installs the package with dev dependencies and runs pytest with coverage.
-- CodeQL runs for Python and GitHub Actions on main/PR/schedule.
-- Dependency Review workflow exists for pull requests and fails on high severity.
-- These workflow definitions establish intended checks but do not themselves prove that the latest canonical main has successful runs.
-- Current acceptance therefore still requires successful workflow-run evidence attached to the accepted main SHA. The connector reports no commit status records and no pull-request-triggered workflow runs for the current documentation commits checked here. The available GitHub connector does not expose a workflow-dispatch operation, so this cannot be resolved by triggering Actions from this execution surface. This is an evidence gap, not a pass. The repository-side workflow configuration remains valid.
-
-
-### P0-R2 code/test reconciliation — 2026-09-25
-
-Source/test inspection identified a concrete fail-closed gap: `verify_durable_graph()` previously used `fetchone()` when locating transition audit evidence. Multiple matching audit rows could therefore be silently accepted. The verifier now requires exactly one matching audit record and raises `StorageCorruptionError("ambiguous transition audit evidence")` otherwise.
-
-Added regression test: `test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification`.
-
-This closes the identified duplicate transition-audit ambiguity at source/test level. It does not close P0-R2 until exact current-main CI/runtime evidence is available.
-
-
-### P0 replay reconciliation — 2026-09-25
-
-Source inspection found that replay handling already rejected conflicting transition identity, but rejected-transition replay incorrectly required the canonical head to equal the rejected candidate's target state. The implementation now derives the expected replay head from `record.accepted`: accepted replay requires `to_state_id`; rejected replay requires `from_state_id`.
-
-Added regression coverage:
-- `test_a53_accepted_transition_replay_is_idempotent`
-- `test_a54_rejected_transition_replay_is_idempotent`
-- `test_a55_conflicting_transition_replay_fails_closed`
-
-Current-main CI/runtime evidence remains required before P0 acceptance.
+P0-R2 therefore remains open with:
+- integrity verification: substantially covered;
+- replay/idempotency: bounded and regression-tested;
+- recovery authorization: MISSING contract/evidence;
+- current-main CI/runtime evidence: MISSING.
