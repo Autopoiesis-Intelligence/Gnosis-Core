@@ -348,3 +348,12 @@ The audit also found a separate duplicate definition of `validate_delivery_build
 The reconciled tree already contains E7.77 execution evidence, E7.78 collaboration recovery, E7.79 incident resolution, and lifecycle closure modules, but these remain contract components rather than a proven end-to-end adapter path from E7.76 side effect to E7.77 evidence.
 
 Next gate remains real external adapter discovery/wiring plus cross-contract integration tests.
+
+
+### E7.76 provider capability contract — 2026-09-25
+
+Added `gnosis.self_learning.collaboration_provider.ExternalActionProvider` as the narrow provider capability boundary. A provider receives only an already-authorized action payload and must return observable post-action state containing a non-empty `target_after`.
+
+The contract deliberately contains no GitHub/network implementation. Concrete provider ownership remains with the application composition root. Regression tests reject provider results that cannot establish observable target state.
+
+This is a contract milestone, not external-integration evidence: no concrete provider or real side effect is claimed yet.
