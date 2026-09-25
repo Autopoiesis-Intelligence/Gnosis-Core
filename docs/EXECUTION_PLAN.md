@@ -243,3 +243,17 @@ Execution validation no longer accepts caller-supplied `current_target_revision`
 The validator fail-closes on resolver errors, missing evidence, target mismatch, evidence digest mismatch, or unsatisfied conditions. Tests were migrated to the resolver contract and include live-target advance rejection.
 
 This is a boundary/API correction, not yet proof that the production wiring is trusted. Acceptance still requires verification that the runtime supplies trusted resolvers and that callers cannot inject arbitrary resolver implementations, plus CI/runtime evidence.
+
+
+### E7.76 runtime-wiring audit — 2026-09-25
+
+Runtime audit of the authorization branch shows the new resolver API is not yet wired into a trusted production execution path. `validate_execution_request` accepts arbitrary callable resolver arguments; no production caller was found that binds these resolvers to a protected evidence store and live target-state provider.
+
+The existing `gnosis/self_learning/execution.py` still routes actual Core mutation through `SQLiteExecutionCommitAdapter` / the older `gnosis.reflection.authority.ExecutionAuthorization` boundary. That older authority path still raises `NotImplementedError` for the trusted owner-authority issuer. Therefore E7.76 must not be marked end-to-end complete.
+
+Required next work:
+1. create a non-injectable runtime execution context/provider owned by the trusted execution boundary;
+2. bind target-state and evidence resolution inside that context;
+3. connect E7.76 authorization validation to the actual execution entrypoint;
+4. add adversarial tests proving caller-controlled resolver injection cannot bypass authorization;
+5. run CI/runtime evidence on the integrated path.
