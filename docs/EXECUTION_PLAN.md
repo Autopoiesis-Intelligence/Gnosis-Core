@@ -51,3 +51,10 @@ Required deterministic cases:
 - recovery must not change the canonical Core state.
 
 Implementation remains blocked until these cases have a concrete machine-readable schema and executable tests.
+
+
+### Gate 5A.2 — deterministic schema implemented
+
+Implemented `gnosis/storage/authorization.py` with an immutable `RecoveryAuthorization` record, canonical digest, and fail-closed validator. Added `tests/test_recovery_authorization.py` covering valid allow, missing, denied, subject mismatch, evidence mismatch, expiry, immutability, and deterministic digest.
+
+This is schema/validation evidence only. It does **not** yet grant recovery authority or integrate authorization into `recover_instance()`. Runtime integration remains a separate gate.
