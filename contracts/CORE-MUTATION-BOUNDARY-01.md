@@ -27,5 +27,14 @@ A permitted mutation MUST be represented by an explicit transition and remain at
 ## Closure rule
 The contract is CLOSED only when the boundary is demonstrated by reproducible runtime tests and persisted audit evidence. Documentation alone is insufficient.
 
+## Evidence closure
+- Runtime adversarial boundary tests: PASS
+- Durable rejected-transition evidence: PASS
+- Bypass/fail-closed tests: PASS
+- Canonical Core source-integrity manifest: PASS
+- CI matrix: Python 3.11 + 3.12 PASS
+- Verified CI run: #2694
+- PR evidence record: PR #80
+
 ## Current status
-SPECIFIED / EXECUTION PENDING
+EVIDENCE COMPLETE / CLOSURE READY
