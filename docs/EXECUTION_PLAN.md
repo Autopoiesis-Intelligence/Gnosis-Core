@@ -369,3 +369,12 @@ Regression coverage proves:
 - provider failure is recorded as FAILED/UNKNOWN, never as success.
 
 This is still provider-agnostic integration evidence. No real GitHub/network side effect is claimed until a concrete provider is implemented and exercised in CI.
+
+
+### E7.76 provider ownership + CI provider — 2026-09-25
+
+Added `TrustedProviderRegistry` as an application-composition-owned provider registry. Added `FakeExternalProvider` for deterministic CI execution tests.
+
+The registry rejects unknown provider IDs. The fake provider records calls and can deterministically return an observed target revision or fail. This establishes the testing capability boundary without claiming any real external service integration.
+
+Remaining gate: prove all production provider resolution originates from the composition root and add a concrete provider implementation only when the target external service contract is explicitly selected.
