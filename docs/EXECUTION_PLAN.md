@@ -73,3 +73,26 @@ Regression coverage verifies:
 The recovery audit event is an outcome record and is intentionally not part of the pre-recovery evidence digest bound by the authorization.
 
 Status: IMPLEMENTED / CI UNVERIFIED.
+
+
+## P0-R2 Acceptance Matrix — 2026-09-25
+
+| Contract | Source evidence | Regression evidence | External CI/runtime evidence | Acceptance |
+|---|---|---|---|---|
+| state/relation integrity | present | present | missing | PROVISIONAL |
+| audit-chain integrity | present | present | missing | PROVISIONAL |
+| missing/duplicate audit evidence | present | present | missing | PROVISIONAL |
+| semantic audit mismatch | present | present | missing | PROVISIONAL |
+| accepted transition replay | present | present | missing | PROVISIONAL |
+| rejected transition replay | present | present | missing | PROVISIONAL |
+| conflicting transition replay | present | present | missing | PROVISIONAL |
+| atomic rollback | present | present | missing | PROVISIONAL |
+| crash/reopen recovery | present | present | missing | PROVISIONAL |
+| recovery authorization | present | present | missing | PROVISIONAL |
+| evidence-bound authorization | present | present | missing | PROVISIONAL |
+| recovery non-mutation | present | present | missing | PROVISIONAL |
+| recovery audit outcome | present | present | missing | PROVISIONAL |
+
+### Acceptance rule
+
+P0-R2 is **not ACCEPTED** while any mandatory row lacks current-main execution evidence. “Provisional” means source and regression evidence are present but the acceptance gate remains open.
