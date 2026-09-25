@@ -219,46 +219,29 @@ def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
                     raise StorageCorruptionError("audit/transition semantic mismatch")
     return chain
 
-def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
+def _persist_transition_in_transaction(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
     def inject(point: str)->None:
         if failure_at==point: raise RuntimeError(f"injected failure at {point}")
     if candidate.parent_state_id!=record.from_state_id: raise ValueError("candidate parent does not match transition source")
     tid=transition_id(record); inject("before_begin")
+    inject("after_begin"); db=load_instance(conn,instance.instance_id)
+    existing_transition = conn.execute("SELECT instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions WHERE transition_id=?",(tid,)).fetchone()
+    if existing_transition is not None:
+        expected=(instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id)
+        if tuple(existing_transition)!=expected: raise StorageCorruptionError("conflicting transition replay")
+        persisted_candidate=load_candidate(conn,record.candidate_id)
+        if (persisted_candidate.parent_state_id!=candidate.parent_state_id or persisted_candidate.proposed_state.state_id!=candidate.proposed_state.state_id or persisted_candidate.origin!=candidate.origin or persisted_candidate.seed!=candidate.seed or persisted_candidate.proposed_state.content_id!=candidate.proposed_state.content_id): raise StorageCorruptionError("conflicting candidate replay")
+        expected_head=record.to_state_id if record.accepted else record.from_state_id
+        if db.engine.state.state_id!=expected_head: raise ValueError("replayed transition has inconsistent canonical head")
+        return
+    if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
+    save_candidate(conn,candidate); inject("after_candidate")
+    conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
+    append_audit(conn,actor=actor,action="transition.commit" if record.accepted else "transition.reject",resource=instance.instance_id,result="accepted" if record.accepted else "rejected",event_key=f"transition:{tid}",transition_id_value=tid); inject("after_audit")
+    if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
+    inject("before_commit")
+
+def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
     with transaction(conn):
-        inject("after_begin"); db=load_instance(conn,instance.instance_id)
-        existing_transition = conn.execute(
-            "SELECT instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions WHERE transition_id=?",
-            (tid,),
-        ).fetchone()
-        if existing_transition is not None:
-            expected = (
-                instance.instance_id,
-                record.candidate_id,
-                record.from_state_id,
-                record.to_state_id,
-                int(record.accepted),
-                canonical_json(record.test_result.reasons),
-                record.test_rule_id,
-            )
-            if tuple(existing_transition) != expected:
-                raise StorageCorruptionError("conflicting transition replay")
-            persisted_candidate = load_candidate(conn, record.candidate_id)
-            if (
-                persisted_candidate.parent_state_id != candidate.parent_state_id
-                or persisted_candidate.proposed_state.state_id != candidate.proposed_state.state_id
-                or persisted_candidate.origin != candidate.origin
-                or persisted_candidate.seed != candidate.seed
-                or persisted_candidate.proposed_state.content_id != candidate.proposed_state.content_id
-            ):
-                raise StorageCorruptionError("conflicting candidate replay")
-            expected_head = record.to_state_id if record.accepted else record.from_state_id
-            if db.engine.state.state_id != expected_head:
-                raise ValueError("replayed transition has inconsistent canonical head")
-            return
-        if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
-        save_candidate(conn,candidate); inject("after_candidate")
-        conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,candidate.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
-        append_audit(conn,actor=actor,action="transition.commit" if record.accepted else "transition.reject",resource=instance.instance_id,result="accepted" if record.accepted else "rejected",event_key=f"transition:{tid}",transition_id_value=tid); inject("after_audit")
-        if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
-        inject("before_commit")
-    inject("after_commit")
+        _persist_transition_in_transaction(conn,instance,candidate,record,actor=actor,failure_at=failure_at)
+    if failure_at=="after_commit": raise RuntimeError("injected failure at after_commit")
