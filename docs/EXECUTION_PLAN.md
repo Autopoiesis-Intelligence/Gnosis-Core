@@ -378,3 +378,12 @@ Added `TrustedProviderRegistry` as an application-composition-owned provider reg
 The registry rejects unknown provider IDs. The fake provider records calls and can deterministically return an observed target revision or fail. This establishes the testing capability boundary without claiming any real external service integration.
 
 Remaining gate: prove all production provider resolution originates from the composition root and add a concrete provider implementation only when the target external service contract is explicitly selected.
+
+
+### E7.76 provider bypass audit — 2026-09-25
+
+Repository-wide source inspection of the reconciled collaboration/provider modules found no production construction or direct provider invocation outside the governed adapter/provider boundary.
+
+Added `tests/test_provider_bypass_audit.py` as a static regression guard against direct provider construction/invocation in production self-learning sources. The guard intentionally excludes the provider registry, fake CI provider, and governed adapter where provider access is expected.
+
+This is a lightweight source-level regression, not a complete security proof; AST/import-graph analysis and runtime integration evidence remain required.
