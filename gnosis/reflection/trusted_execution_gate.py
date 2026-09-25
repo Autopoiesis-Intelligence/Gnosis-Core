@@ -9,15 +9,17 @@ from gnosis.reflection.authority import ExecutionCommitRequest, require_executio
 def require_trusted_execution(
     request: ExecutionCommitRequest,
     *,
-    validity: AuthorizationValidity,
     conn: object,
     actor: str,
 ) -> None:
-    """Validate exact authorization, consume it once, then run canonical Core gate.
+    """Validate request-bound authorization, consume it once, then run canonical Core gate.
 
     The caller must invoke this inside the same transaction that performs the
     eventual mutation. This function itself never mutates Core state.
     """
+    validity = request.authorization_validity
+    if not isinstance(validity, AuthorizationValidity):
+        raise PermissionError("authorization validity is required")
     if validity.authorization_id != request.authorization.approval_id:
         raise PermissionError("authorization validity identity mismatch")
     if validity.policy_version == "":
