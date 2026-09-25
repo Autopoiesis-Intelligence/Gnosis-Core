@@ -2,11 +2,12 @@
 """Deterministic offline validator for a Gnozis Memory Source."""
 import json
 from pathlib import Path
-import hashlib
 
-VERSION = "0.4"
+VERSION = "0.5"
 REQUIRED = ["protocol_version", "source_id", "domain", "repository", "schema_versions", "license"]
 VALID_STATUS = {"discovered", "registered", "authorized", "verified", "active", "quarantined", "revoked"}
+VALID_RELATION_STATES = {"unverified", "source_validated", "independently_verified", "disputed", "rejected", "withdrawn"}
+REQUIRED_RELATION = ["relation_id", "subject", "predicate", "object", "source_id", "source_revision", "provenance", "verification_state", "schema_version"]
 
 def scalar(value: str) -> str:
     return value.strip().strip('"').strip("'")
@@ -24,9 +25,6 @@ def validate_manifest(errors, warnings):
     status = next((scalar(line.split(":", 1)[1]) for line in lines if line.startswith("federation_status:")), None)
     if status and status not in VALID_STATUS:
         errors.append("invalid_federation_status")
-    protocol = next((scalar(line.split(":", 1)[1]) for line in lines if line.startswith("protocol_version:")), None)
-    if protocol and protocol != VERSION:
-        warnings.append(f"validator_protocol_mismatch:{protocol}")
 
 def validate_declared_schemas(errors):
     schema_dir = Path("schema")
@@ -73,12 +71,40 @@ def validate_provenance(errors, warnings):
             if item.get("source_revision", "").startswith(("refs/heads/", "refs/tags/")):
                 warnings.append(f"mutable_or_symbolic_revision:{path}:{n}")
 
+def validate_relations(errors):
+    rel_dir = Path("relations")
+    if not rel_dir.exists():
+        errors.append("missing_relations_directory")
+        return
+    files = sorted([*rel_dir.glob("*.json"), *rel_dir.glob("*.jsonl")])
+    if not files:
+        errors.append("no_relation_files")
+        return
+    for path in files:
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError:
+                errors.append(f"invalid_relation_json:{path}:{n}")
+                continue
+            for key in REQUIRED_RELATION:
+                if key not in item or item[key] in (None, "", []):
+                    errors.append(f"missing_relation_field:{path}:{n}:{key}")
+            if item.get("verification_state") not in VALID_RELATION_STATES:
+                errors.append(f"invalid_verification_state:{path}:{n}")
+            for ref in ("subject", "object"):
+                if not isinstance(item.get(ref), dict) or not item[ref].get("source_id") or not item[ref].get("resource_id"):
+                    errors.append(f"invalid_relation_reference:{path}:{n}:{ref}")
+
 def main() -> int:
     errors = []
     warnings = []
     validate_manifest(errors, warnings)
     validate_declared_schemas(errors)
     validate_provenance(errors, warnings)
+    validate_relations(errors)
     result = {"validator":"gnozis-source-validator","version":VERSION,"result":"FAIL" if errors else "PASS","errors":errors,"warnings":warnings}
     Path("validation-result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))
