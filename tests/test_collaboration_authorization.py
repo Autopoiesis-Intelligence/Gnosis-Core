@@ -98,7 +98,7 @@ def test_conflicting_request_is_denied():
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
         current_target_revision="target-r1",
-        current_precondition_evidence_digest=auth.precondition_evidence_digest,
+        current_precondition_evidence=auth_precondition_evidence(auth),
         now="2026-01-01T00:00:00Z",
     )
 
