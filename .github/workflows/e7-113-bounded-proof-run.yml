@@ -1,0 +1,19 @@
+name: E7.113 Bounded Proof Run Verification
+on:
+  push:
+    paths:
+      - "gnosis/self_learning/e7_113_bounded_proof_run.py"
+      - "tests/test_e7_113_bounded_proof_run.py"
+  workflow_dispatch:
+jobs:
+  e7-113:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -e ".[dev]"
+      - name: Run E7.113 tests
+        run: pytest -q tests/test_e7_113_bounded_proof_run.py
