@@ -72,6 +72,14 @@ jobs:
             --execution-id "PROVENANCE-TAMPER-${{ steps.target.outputs.execution_id }}" \
             --report interface/reports/PROVENANCE-TAMPER-${{ steps.target.outputs.execution_id }}.json
 
+      - name: Execute alternate authority probe
+        if: always()
+        run: |
+          python interface/adapters/gnozis_core/alternate_authority.py \
+            --core-revision "${{ steps.target.outputs.revision }}" \
+            --execution-id "ALTERNATE-AUTHORITY-${{ steps.target.outputs.execution_id }}" \
+            --report interface/reports/ALTERNATE-AUTHORITY-${{ steps.target.outputs.execution_id }}.json
+
       - name: Validate execution report exists
         if: always()
         run: test -s interface/reports/${{ steps.target.outputs.execution_id }}.json
