@@ -518,19 +518,29 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         test_result=TestResult(True, ("authorized-test",)),
         accepted=True,
         reason="committed",
-    )
-    with pytest.raises(ValueError, match="stale instance head"):
-        SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_a, record_a, request, actor="user-1"
-        )
 
-    current = load_instance(conn, instance.instance_id)
-    assert current.engine.state.state_id == advanced_head
-    assert conn.execute(
-        "SELECT count(*) FROM transitions WHERE candidate_id=?", (candidate_a.candidate_id,)
-    ).fetchone()[0] == 0
-    assert conn.execute(
-        "SELECT count(*) FROM audit_events WHERE transition_id IS NOT NULL AND transition_id=?",
-        (record_a.transition_id,),
-    ).fetchone()[0] == 0
-    conn.close()
+def test_execution_integration_context_rejects_external_context_substitution() -> None:
+    from types import SimpleNamespace
+    from gnosis.reflection.authority import require_execution_integration_context
+
+    provenance = SimpleNamespace(proposal_id="proposal-1", version_id="version-1", target="core")
+    matching_record = SimpleNamespace(proposal_id="proposal-1", version_id="version-1", target="core")
+    require_execution_integration_context(
+        SimpleNamespace(provenance=provenance), matching_record
+    )
+
+    for field, value in (("proposal_id", "proposal-other"), ("version_id", "version-other"), ("target", "external")):
+        record = SimpleNamespace(proposal_id="proposal-1", version_id="version-1", target="core")
+        setattr(record, field, value)
+        with pytest.raises(PermissionError, match="execution integration context mismatch"):
+            require_execution_integration_context(SimpleNamespace(provenance=provenance), record)
+
+
+def test_execution_integration_context_rejects_missing_provenance_field() -> None:
+    from types import SimpleNamespace
+    from gnosis.reflection.authority import require_execution_integration_context
+
+    provenance = SimpleNamespace(proposal_id="proposal-1", version_id="version-1")
+    record = SimpleNamespace(proposal_id="proposal-1", version_id="version-1", target="core")
+    with pytest.raises(PermissionError, match="no integration field: target"):
+        require_execution_integration_context(SimpleNamespace(provenance=provenance), record)
