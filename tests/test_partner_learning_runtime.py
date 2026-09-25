@@ -1,8 +1,9 @@
 import pytest
+from dataclasses import replace
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.storage.database import connect
 from gnosis.storage.repositories import save_state, save_candidate
-from gnosis.self_learning.partner_learning_adapter import build_request
+from gnosis.self_learning.partner_learning_adapter import build_request,may_submit
 from gnosis.self_learning.partner_learning_gate import admit_partner_candidate
 from gnosis.self_learning.partner_learning_persistence import commit_partner_learning
 from gnosis.self_learning.partner_learning_runtime import commit_admitted_partner_learning
@@ -36,3 +37,13 @@ def test_unverified_admission_fails_closed():
     blocked=LearningAdmission(admission.admission_id,admission.classification_id,admission.result_id,admission.candidate_digest,admission.evidence_refs,"ADMITTED",False)
     with pytest.raises(ValueError):
         commit_admitted_partner_learning(conn,admission=blocked,request=request,instance_id="i",transition_id=tr.transition_id,state_id=tr.to_state_id,outcome="accepted",actor="partner")
+
+def test_forged_request_id_fails_closed():
+    _,_,_,request=fixture()
+    forged=replace(request,request_id="sha256:forged")
+    assert not may_submit(request=forged)
+
+def test_tampered_request_fields_fail_closed():
+    _,_,_,request=fixture()
+    forged=replace(request,contract_id="attacker-contract")
+    assert not may_submit(request=forged)

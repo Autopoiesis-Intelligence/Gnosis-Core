@@ -30,3 +30,21 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
             proposal,request,conn=object(),instance=object(),
             candidate=object(),record=object(),actor="test"
         )
+
+def test_execution_adapter_rejects_tampered_evolution_identity():
+    proposal=valid_proposal()
+    auth=ExecutionAuthorization(request_provenance="p",owner_approved=True,evolution_identity="e-good",approval_id="a")
+    snapshot=ExecutionIntentSnapshot(provenance_id="p",execution_id="x",parent_state_id="parent",parent_state_digest="sha256:p",evolution_identity="e-bad",candidate_binding_digest="sha256:c",proposed_state_content_id="sha256:content")
+    request=ExecutionCommitRequest(auth,snapshot,"p","e-good",object())
+    with pytest.raises(PermissionError):
+        execute_approved_core_proposal(proposal,request,conn=object(),instance=object(),candidate=object(),record=object(),actor="test")
+
+
+def test_execution_adapter_rejects_unapproved_proposal():
+    record=IntegrationRecord("sha256:i","sha256:p","sha256:v","common-self-learning","merge")
+    proposal=create_core_mutation_proposal(record)
+    auth=ExecutionAuthorization(request_provenance="p",owner_approved=True,evolution_identity="e",approval_id="a")
+    snapshot=ExecutionIntentSnapshot(provenance_id="p",execution_id="x",parent_state_id="parent",parent_state_digest="sha256:p",evolution_identity="e",candidate_binding_digest="sha256:c",proposed_state_content_id="sha256:content")
+    request=ExecutionCommitRequest(auth,snapshot,"p","e",object())
+    with pytest.raises(PermissionError):
+        execute_approved_core_proposal(proposal,request,conn=object(),instance=object(),candidate=object(),record=object(),actor="test")

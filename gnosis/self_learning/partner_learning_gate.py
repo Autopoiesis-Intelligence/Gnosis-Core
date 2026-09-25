@@ -6,6 +6,10 @@ from dataclasses import dataclass
 class LearningAdmission:
     admission_id:str; classification_id:str; result_id:str; candidate_digest:str; evidence_refs:tuple[str,...]; admission_status:str; commit_authorized:bool
 
+def _admission_digest(admission: LearningAdmission) -> str:
+    c=dict(classification_id=admission.classification_id,result_id=admission.result_id,candidate_digest=admission.candidate_digest,evidence_refs=tuple(sorted(set(admission.evidence_refs))),admission_status=admission.admission_status,commit_authorized=admission.commit_authorized)
+    return "sha256:"+hashlib.sha256(json.dumps(c,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+
 def admit_partner_candidate(*,classification_id,result_id,candidate_digest,evidence_refs,classification_verified,replay_verified,receipt_received,core_verified):
     if not all(x.strip() for x in (classification_id,result_id,candidate_digest)): raise ValueError("candidate identity is required")
     if not evidence_refs: raise ValueError("candidate evidence is required")
@@ -16,4 +20,5 @@ def admit_partner_candidate(*,classification_id,result_id,candidate_digest,evide
     aid="sha256:"+hashlib.sha256(json.dumps(c,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     return LearningAdmission(aid,**c)
 
-def may_commit(*,admission): return admission.admission_status=="ADMITTED" and admission.commit_authorized
+def may_commit(*,admission):
+    return admission.admission_status=="ADMITTED" and admission.commit_authorized and admission.admission_id==_admission_digest(admission)
