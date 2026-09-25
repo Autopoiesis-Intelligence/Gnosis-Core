@@ -1,10 +1,15 @@
 import pytest
 
 from gnosis.self_learning.collaboration_authorization import (
+    PreconditionEvidence,
     issue_execution_authorization,
     revoke_execution_authorization,
     validate_execution_request,
 )
+
+
+def auth_precondition_evidence(auth):
+    return PreconditionEvidence(source_id="trusted-review-engine", target_revision=auth.authorized_target_revision, evidence_revision="evidence-r1", observed_conditions=auth.preconditions, provenance="evidence-chain:r1")
 
 
 def _kwargs(**overrides):
@@ -28,6 +33,13 @@ def _kwargs(**overrides):
         authorized_target_revision="target-r1",
     )
     base.update(overrides)
+    base["precondition_evidence"] = PreconditionEvidence(
+        source_id="trusted-review-engine",
+        target_revision=base["authorized_target_revision"],
+        evidence_revision="evidence-r1",
+        observed_conditions=base["preconditions"],
+        provenance="evidence-chain:r1",
+    )
     return base
 
 
@@ -47,7 +59,7 @@ def test_exact_accepted_review_can_issue_authorization():
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
         current_target_revision="target-r1",
-        current_precondition_evidence_digest=auth.precondition_evidence_digest,
+        current_precondition_evidence=auth_precondition_evidence(auth),
         now="2026-01-01T00:00:00Z",
     )
 
@@ -127,7 +139,7 @@ def test_revocation_changes_identity_and_denies_reuse():
         executor_id="executor-1",
         privacy_classification="PUBLIC_APPROVED",
         current_target_revision="target-r1",
-        current_precondition_evidence_digest=revoked.precondition_evidence_digest,
+        current_precondition_evidence=auth_precondition_evidence(revoked),
         now="2026-01-01T00:00:00Z",
     )
 
@@ -180,7 +192,7 @@ def test_unsatisfied_precondition_evidence_is_denied():
         target_resource="repo:public/project", requested_scope="issue:create",
         executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
         current_target_revision="target-r1",
-        current_precondition_evidence_digest="sha256:wrong",
+        current_precondition_evidence=PreconditionEvidence(source_id="trusted-review-engine", target_revision="target-r1", evidence_revision="evidence-r2", observed_conditions=("review-current",), provenance="evidence-chain:r2"),
         now="2026-01-01T00:00:00Z",
     )
 
@@ -195,3 +207,37 @@ def test_canonical_identity_binds_target_and_precondition_evidence():
         type(auth)(
             **{**auth.__dict__, "precondition_evidence_digest": "sha256:wrong"}
         )
+
+
+def test_forged_precondition_digest_cannot_authorize():
+    evidence = PreconditionEvidence(
+        source_id="attacker",
+        target_revision="target-r1",
+        evidence_revision="fake",
+        observed_conditions=("review-current", "target-current"),
+        provenance="forged",
+    )
+    with pytest.raises(ValueError):
+        issue_execution_authorization(**_kwargs(precondition_evidence=evidence))
+
+
+def test_stale_precondition_evidence_is_denied():
+    auth = issue_execution_authorization(**_kwargs())
+    stale = PreconditionEvidence(
+        source_id="trusted-review-engine",
+        target_revision="target-r1",
+        evidence_revision="evidence-r0",
+        observed_conditions=auth.preconditions,
+        provenance="evidence-chain:r0",
+    )
+    assert not validate_execution_request(
+        authorization=auth,
+        review_id="review-1", review_digest="sha256:review",
+        proposal_id="proposal-1", proposal_revision="r1",
+        action_class="CREATE_PUBLIC_ISSUE_OR_PR",
+        target_resource="repo:public/project", requested_scope="issue:create",
+        executor_id="executor-1", privacy_classification="PUBLIC_APPROVED",
+        current_target_revision="target-r1",
+        current_precondition_evidence=stale,
+        now="2026-01-01T00:00:00Z",
+    )
