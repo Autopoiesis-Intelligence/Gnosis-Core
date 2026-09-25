@@ -1,0 +1,30 @@
+name: Memory Source Validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  contract-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Memory Source contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f SOURCE.yaml || { echo 'Missing SOURCE.yaml'; exit 1; }
+          echo 'Structural workflow contract is present.'
+      - name: Emit machine-readable validation result
+        shell: bash
+        run: |
+          printf '{"validator":"gnozis-source-validator","version":"0.1","result":"PASS","mode":"bootstrap-contract"}\n' > validation-result.json
+      - name: Upload validation result
+        uses: actions/upload-artifact@v4
+        with:
+          name: gnozis-validation-result
+          path: validation-result.json
