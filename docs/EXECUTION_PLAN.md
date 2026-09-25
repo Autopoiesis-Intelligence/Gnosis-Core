@@ -24,7 +24,7 @@ Active blockers:
 - Require exact Python 3.11/3.12 CI evidence.
 - Do not alter Core semantics, protected commit path, governance authority, audit meaning, fail-closed boundary, or provenance identity model.
 
-Status: 55% acceptance — BLOCKED pending exact current-main evidence.
+Status: 60% acceptance — production gap identified and bounded fix implemented; still BLOCKED pending exact current-main CI/runtime evidence.
 
 Latest verified historical candidate evidence: PR #33 records green CI on exact head `596f6f85f5909f22f68d059b00a6c1dccf9f0a3f` for Python 3.11/3.12 and CodeQL, but explicitly states that main was not yet verified after consolidation. Dependency Review remained unavailable/unverified. Therefore this evidence is historical candidate evidence, not current-main acceptance.
 
@@ -105,3 +105,12 @@ Checked 2026-09-25:
 - Dependency Review workflow exists for pull requests and fails on high severity.
 - These workflow definitions establish intended checks but do not themselves prove that the latest canonical main has successful runs.
 - Current acceptance therefore still requires successful workflow-run evidence attached to the accepted main SHA. The connector reports no commit status records and no pull-request-triggered workflow runs for the current documentation commits checked here. The available GitHub connector does not expose a workflow-dispatch operation, so this cannot be resolved by triggering Actions from this execution surface. This is an evidence gap, not a pass. The repository-side workflow configuration remains valid.
+
+
+### P0-R2 code/test reconciliation — 2026-09-25
+
+Source/test inspection identified a concrete fail-closed gap: `verify_durable_graph()` previously used `fetchone()` when locating transition audit evidence. Multiple matching audit rows could therefore be silently accepted. The verifier now requires exactly one matching audit record and raises `StorageCorruptionError("ambiguous transition audit evidence")` otherwise.
+
+Added regression test: `test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification`.
+
+This closes the identified duplicate transition-audit ambiguity at source/test level. It does not close P0-R2 until exact current-main CI/runtime evidence is available.
