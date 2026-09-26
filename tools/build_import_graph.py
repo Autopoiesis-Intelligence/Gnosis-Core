@@ -37,9 +37,43 @@ def imports(path: Path) -> set[str]:
     return result
 
 
-if __name__ == "__main__":
+def build_graph() -> dict[str, set[str]]:
     local = local_module_names()
+    graph = {}
     for path in sorted(ROOT.rglob("*.py")):
-        for target in sorted(imports(path)):
-            if target in local or target.startswith("gnosis."):
-                print(f"{path.relative_to(ROOT)} -> {target}")
+        source = "gnosis." + ".".join(path.relative_to(ROOT).with_suffix("").parts)
+        graph[source] = {target for target in imports(path) if target in local}
+    return graph
+
+
+def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
+    cycles = []
+    stack = []
+    active = set()
+
+    def visit(node: str):
+        if node in active:
+            if node in stack:
+                cycles.append(stack[stack.index(node):] + [node])
+            return
+        active.add(node)
+        stack.append(node)
+        for child in graph.get(node, set()):
+            visit(child)
+        stack.pop()
+        active.remove(node)
+
+    for node in graph:
+        visit(node)
+    return cycles
+
+
+if __name__ == "__main__":
+    graph = build_graph()
+    for source, targets in sorted(graph.items()):
+        for target in sorted(targets):
+            print(f"{source} -> {target}")
+    cycles = find_cycles(graph)
+    print("CYCLES:", len(cycles))
+    for cycle in cycles:
+        print(" -> ".join(cycle))
