@@ -14,7 +14,7 @@ from gnosis.self_learning.e7_112_immutable_closure import Closure, create_closur
 from gnosis.self_learning.e7_113_bounded_proof_run import ProofRun, complete_proof_run, plan_proof_run
 from gnosis.self_learning.e7_106_selection import SelectionRecord
 from gnosis.self_learning.e7_114_preflight import assert_preflight_ready, run_preflight
-from gnosis.self_learning.e7_114_scope_lock import ScopeLock
+from gnosis.self_learning.e7_114_scope_lock import ScopeLock, verify_scope_lock
 from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation, attest_checkout, assert_attestation_ready
 
 def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str, RuntimeAttestation, RuntimeAttestation]:
@@ -25,7 +25,10 @@ def execute_locked_command(*, scope_lock: ScopeLock, selection_record: Selection
     assert_attestation_ready(runtime_attestation)
     if len(scope_lock.commands) != 1:
         raise ValueError("bounded proof execution requires exactly one locked command")
-    argv = shlex.split(scope_lock.commands[0])
+    if not verify_scope_lock(scope_lock):
+        raise RuntimeError("scope lock changed after preflight")
+    locked_command = scope_lock.commands[0]
+    argv = shlex.split(locked_command)
     if not argv:
         raise ValueError("locked execution command is empty")
     completed = subprocess.run(argv, cwd=root, capture_output=True, text=True, check=False)
