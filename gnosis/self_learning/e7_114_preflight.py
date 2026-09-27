@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import shutil
 
+from gnosis.self_learning.e7_106_selection import SelectionRecord, selection_digest
 from gnosis.self_learning.e7_114_scope_lock import ScopeLock, verify_scope_lock
 
 
@@ -69,10 +70,26 @@ def run_preflight(
     repository_root: str | os.PathLike[str],
     resolved_commit_sha: str,
     resolved_branch_ref: str | None = None,
+    selection_record: SelectionRecord | None = None,
 ) -> PreflightReport:
     """Validate a frozen scope without executing or mutating anything."""
     checks: list[PreflightCheck] = []
     root = Path(repository_root)
+
+    selection_ok = (
+        selection_record is not None
+        and selection_record.selection_record_id == scope_lock.selection_record_id
+        and selection_digest(selection_record) == scope_lock.selection_record_digest
+    )
+    checks.append(
+        _check(
+            "selection_binding",
+            "PASS" if selection_ok else "FAIL",
+            "frozen E7.106 selection matches scope lock"
+            if selection_ok
+            else "frozen E7.106 selection is missing or does not match scope lock",
+        )
+    )
 
     checks.append(
         _check(
