@@ -115,7 +115,7 @@ def main() -> int:
     output = root / "artifacts" / "e7-113" / "proof-run-evidence.json"
     output.write_text(json.dumps(artifact, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     print(output)
-    return 0
+    return 0 if result.proof_run.state.value == "PASSED" else 1
 
 
 if __name__ == "__main__":
