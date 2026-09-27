@@ -17,7 +17,7 @@ from gnosis.self_learning.e7_110_reconciliation import (
     reconcile,
 )
 from gnosis.self_learning.e7_111_independent_audit import AuditState, audit_chain
-from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation
+from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation, compute_attestation_digest
 
 
 def evidence_chain():
@@ -48,7 +48,8 @@ def evidence_chain():
         acceptance_id="ACC-1",
         metrics=(Metric("M1", 1.0, 1.0),),
     )
-    attestation = RuntimeAttestation("/repo", "abc", "abc", "PASS", "ATT-DIGEST")
+    payload = {"repository_root": "/repo", "actual_head_sha": "abc", "expected_commit_sha": "abc", "status": "PASS"}
+    attestation = RuntimeAttestation("/repo", "abc", "abc", "PASS", compute_attestation_digest(payload))
     return record, acceptance, reconciliation, attestation
 
 
