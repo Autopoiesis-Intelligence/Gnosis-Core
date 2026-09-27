@@ -18,6 +18,7 @@ from gnosis.self_learning.e7_110_reconciliation import (
 )
 from gnosis.self_learning.e7_111_independent_audit import AuditState, audit_chain
 from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation, compute_attestation_digest
+from gnosis.self_learning.e7_114_executable_attestation import ExecutableAttestation
 
 
 def evidence_chain():
@@ -50,11 +51,12 @@ def evidence_chain():
     )
     payload = {"repository_root": "/repo", "actual_head_sha": "abc", "expected_commit_sha": "abc", "status": "PASS"}
     attestation = RuntimeAttestation("/repo", "abc", "abc", "PASS", compute_attestation_digest(payload))
-    return record, acceptance, reconciliation, attestation, attestation
+    executable = ExecutableAttestation("echo", "/bin/echo", "0" * 64)
+    return record, acceptance, reconciliation, attestation, attestation, executable
 
 
 def test_all_independent_checks_pass():
-    record, acceptance, reconciliation, attestation, post_attestation = evidence_chain()
+    record, acceptance, reconciliation, attestation, post_attestation, executable = evidence_chain()
     result = audit_chain(
         batch_id="B",
         target_commit_sha="abc",
@@ -64,13 +66,14 @@ def test_all_independent_checks_pass():
         reconciliation_snapshot=reconciliation,
         runtime_attestation=attestation,
         post_runtime_attestation=post_attestation,
+        executable_attestation=executable,
     )
     assert result.state is AuditState.PASSED
-    assert len(result.findings) == 8
+    assert len(result.findings) == 9
 
 
 def test_wrong_commit_rejects():
-    record, acceptance, reconciliation, _, _ = evidence_chain()
+    record, acceptance, reconciliation, _, _, _ = evidence_chain()
     result = audit_chain(
         batch_id="B",
         target_commit_sha="abc",
@@ -84,7 +87,7 @@ def test_wrong_commit_rejects():
 
 
 def test_tampered_execution_evidence_rejects():
-    record, acceptance, reconciliation = evidence_chain()
+    record, acceptance, reconciliation, _, _, _ = evidence_chain()
     tampered = replace(record, criteria=(
         CriterionEvidence("C1", "expected", "", "E1", True),
     ))
@@ -136,7 +139,7 @@ def test_conflicting_reconciliation_rejects():
 
 
 def test_missing_runtime_attestation_rejects():
-    record, acceptance, reconciliation, _ = evidence_chain()
+    record, acceptance, reconciliation, _, _, _ = evidence_chain()
     result = audit_chain(
         batch_id="B",
         target_commit_sha="abc",
