@@ -77,8 +77,11 @@ def assert_selection_binding(lock: ScopeLock, *, selection_record_id: str, selec
     if selection_record_id!=lock.selection_record_id or selection_record_digest.lower()!=lock.selection_record_digest: raise ScopeLockError("scope lock selection binding does not match frozen selection")
 
 def invalidate_scope_lock(lock: ScopeLock, *, reason: str) -> ScopeLock:
-    _require_nonempty("reason",reason)
-    if lock.status=="INVALIDATED": return lock
+    _require_nonempty("reason", reason)
+    if not verify_scope_lock(lock):
+        raise ScopeLockError("scope lock is invalid or tampered")
+    if lock.status=="INVALIDATED":
+        return lock
     return replace(lock,status="INVALIDATED",revision=lock.revision+1)
 
 def assert_target_commit(lock: ScopeLock, resolved_sha: str) -> None:
