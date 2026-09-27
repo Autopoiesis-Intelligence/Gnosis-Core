@@ -245,3 +245,24 @@ def test_selection_target_sha_mismatch_fails_closed(tmp_path):
     )
     assert report.status == "FAIL"
     assert any(c.check_id == "selection_binding" and c.status == "FAIL" for c in report.checks)
+
+
+def test_actual_checkout_sha_mismatch_fails_closed(tmp_path, monkeypatch):
+    prepare(tmp_path)
+    class Result:
+        returncode = 0
+        stdout = "deadbeef\n"
+        stderr = ""
+    monkeypatch.setattr(
+        "gnosis.self_learning.e7_114_preflight.subprocess.run",
+        lambda *args, **kwargs: Result(),
+    )
+    report = run_preflight(
+        make_lock(),
+        repository_root=tmp_path,
+        resolved_commit_sha=TARGET_SHA,
+        resolved_branch_ref="r2/e7-114-scope-lock",
+        selection_record=make_selection(),
+    )
+    assert report.status == "FAIL"
+    assert any(c.check_id == "actual_checkout_sha" and c.status == "FAIL" for c in report.checks)
