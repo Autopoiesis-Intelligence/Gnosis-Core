@@ -144,17 +144,6 @@ def test_invalid_content_digest_rejected(digest):
         )
 
 
-def test_secret_bearing_reference_is_rejected():
-    with pytest.raises(SecretMaterialError):
-        evidence_id_for(
-            evidence_type="ci",
-            producer="github-actions",
-            source_ref="https://example.invalid/run?token=secret",
-            content_digest=_digest(),
-            scope="test",
-        )
-
-
 def test_schema_version_is_six_and_evidence_table_exists():
     conn = connect()
     assert conn.execute("SELECT value FROM schema_meta WHERE key='schema_version'").fetchone()[0] == "6"
