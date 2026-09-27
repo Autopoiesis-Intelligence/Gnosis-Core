@@ -50,11 +50,11 @@ def evidence_chain():
     )
     payload = {"repository_root": "/repo", "actual_head_sha": "abc", "expected_commit_sha": "abc", "status": "PASS"}
     attestation = RuntimeAttestation("/repo", "abc", "abc", "PASS", compute_attestation_digest(payload))
-    return record, acceptance, reconciliation, attestation
+    return record, acceptance, reconciliation, attestation, attestation
 
 
 def test_all_independent_checks_pass():
-    record, acceptance, reconciliation, attestation = evidence_chain()
+    record, acceptance, reconciliation, attestation, post_attestation = evidence_chain()
     result = audit_chain(
         batch_id="B",
         target_commit_sha="abc",
@@ -63,13 +63,14 @@ def test_all_independent_checks_pass():
         acceptance_result=acceptance,
         reconciliation_snapshot=reconciliation,
         runtime_attestation=attestation,
+        post_runtime_attestation=post_attestation,
     )
     assert result.state is AuditState.PASSED
     assert len(result.findings) == 8
 
 
 def test_wrong_commit_rejects():
-    record, acceptance, reconciliation = evidence_chain()
+    record, acceptance, reconciliation, _, _ = evidence_chain()
     result = audit_chain(
         batch_id="B",
         target_commit_sha="abc",
