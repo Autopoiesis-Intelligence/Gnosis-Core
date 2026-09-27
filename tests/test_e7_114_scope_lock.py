@@ -200,3 +200,61 @@ def test_revision_cannot_mutate_frozen_execution_scope():
         revise_scope_lock(invalid, target_commit_sha="fedcba9876543210fedcba9876543210fedcba98")
     with pytest.raises(ScopeLockError, match="frozen execution scope"):
         revise_scope_lock(invalid, selection_record_id="SEL-OTHER")
+
+
+@pytest.mark.parametrize("command", [
+    "python -m pytest tests/test_e7_114_scope_lock.py && echo bypass",
+    "python -m pytest tests/test_e7_114_scope_lock.py | cat",
+    "bash -c 'python -m pytest tests/test_e7_114_scope_lock.py'",
+    "python -c 'print(1)'",
+])
+def test_shell_semantics_are_rejected(command):
+    frozen = selection()
+    with pytest.raises(ScopeLockError):
+        create_scope_lock(
+            batch_id="B-E7",
+            selection_record_id=frozen.selection_record_id,
+            selection_record_digest=selection_digest(frozen),
+            scope_lock_id="SL-SHELL",
+            repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
+            branch_ref="r2/e7-114-scope-lock",
+            target_commit_sha=TEST_FIXTURE_SHA,
+            contract_ids=("E7.114",),
+            criterion_ids=("C114.1",),
+            implementation_paths=("gnosis/self_learning/e7_114_scope_lock.py",),
+            runtime_paths=("tests/test_e7_114_scope_lock.py",),
+            commands=(command,),
+            expected_outcomes=("VALID",),
+            evidence_destinations=("artifacts/e7-114",),
+            environment_prerequisites=("python",),
+            stop_conditions=("commit_mismatch",),
+            evidence_policy_revision="r1",
+            verification_matrix_revision="r1",
+            progress_policy_revision="r1",
+        )
+
+
+def test_valid_bounded_command_is_argv_semantics():
+    frozen = selection()
+    lock_value = create_scope_lock(
+        batch_id="B-E7",
+        selection_record_id=frozen.selection_record_id,
+        selection_record_digest=selection_digest(frozen),
+        scope_lock_id="SL-ARGV",
+        repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
+        branch_ref="r2/e7-114-scope-lock",
+        target_commit_sha=TEST_FIXTURE_SHA,
+        contract_ids=("E7.114",),
+        criterion_ids=("C114.1",),
+        implementation_paths=("gnosis/self_learning/e7_114_scope_lock.py",),
+        runtime_paths=("tests/test_e7_114_scope_lock.py",),
+        commands=("python -m pytest tests/test_e7_114_scope_lock.py",),
+        expected_outcomes=("VALID",),
+        evidence_destinations=("artifacts/e7-114",),
+        environment_prerequisites=("python",),
+        stop_conditions=("commit_mismatch",),
+        evidence_policy_revision="r1",
+        verification_matrix_revision="r1",
+        progress_policy_revision="r1",
+    )
+    assert verify_scope_lock(lock_value)
