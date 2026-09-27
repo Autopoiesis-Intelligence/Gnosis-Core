@@ -11,34 +11,24 @@ from gnosis.self_learning.e7_110_reconciliation import Metric, reconcile
 from gnosis.self_learning.e7_111_independent_audit import AUDIT_CHECKS, audit_chain
 from gnosis.self_learning.e7_112_immutable_closure import create_closure, verify_closure
 from gnosis.self_learning.e7_113_bounded_proof_run import complete_proof_run, plan_proof_run
+from gnosis.self_learning.e7_106_selection import SelectionRecord
+from gnosis.self_learning.e7_114_preflight import assert_preflight_ready, run_preflight
+from gnosis.self_learning.e7_114_scope_lock import ScopeLock
+
+def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str]:
+    root = Path(repository_root)
+    report = run_preflight(scope_lock, repository_root=root, resolved_commit_sha=resolved_commit_sha, resolved_branch_ref=resolved_branch_ref, selection_record=selection_record)
+    assert_preflight_ready(report)
+    if len(scope_lock.commands) != 1:
+        raise ValueError("bounded proof execution requires exactly one locked command")
+    argv = shlex.split(scope_lock.commands[0])
+    if not argv:
+        raise ValueError("locked execution command is empty")
+    completed = subprocess.run(argv, cwd=root, capture_output=True, text=True, check=False)
+    return completed.returncode, completed.stdout, completed.stderr
 
 def main() -> int:
-    run_id=os.environ.get("E7_RUN_ID","e7-113-local")
-    commit=os.environ.get("GITHUB_SHA","unknown")
-    record=ExecutionRecord(run_id,commit,"main",{"python":"3.12","mode":"observe-only"},
-        ("python -m gnosis.self_learning.e7_113_execute_bounded_proof",),
-        "SEL-BOUNDED-01","BASELINE-01","E7-R1","E7-R1",(),ExecutionState.RUNNING)
-    criteria=tuple(CriterionEvidence(f"C{i}","PASS","PASS",f"EV-{i}",True) for i in range(107,113))
-    record=complete(record,criteria)
-    accepted=accept_evidence(batch_id=run_id,execution_record_id=run_id,
-        items=tuple(EvidenceItem(c.criterion_id,c.evidence_id,c.expected,c.observed,c.passed) for c in criteria))
-    metrics=tuple(Metric(c.criterion_id,1.0,1.0) for c in criteria)
-    reconciliation=reconcile(batch_id=run_id,acceptance_id=run_id,metrics=metrics)
-    checks={k:True for k in AUDIT_CHECKS}
-    audit=audit_chain(batch_id=run_id,target_commit_sha=commit,record_commit_sha=commit,checks=checks)
-    digests=(
-        sha256(json.dumps(asdict(record),sort_keys=True,default=str).encode()).hexdigest(),
-        sha256(json.dumps(asdict(accepted),sort_keys=True,default=str).encode()).hexdigest(),
-        reconciliation.snapshot_digest,
-        sha256(json.dumps(asdict(audit),sort_keys=True,default=str).encode()).hexdigest(),
-    )
-    closure=create_closure(batch_id=run_id,target_commit_sha=commit,chain_digests=digests)
-    closed=verify_closure(closure,digests)
-    proof=plan_proof_run(run_id=run_id,target_commit_sha=commit)
-    proof=complete_proof_run(proof,("E7.107:PASS","E7.108:PASS","E7.109:ACCEPTED","E7.110:RECONCILED","E7.111:PASSED","E7.112:CLOSED"),closed)
-    out=Path("proof-run-evidence.json")
-    out.write_text(json.dumps({"record":asdict(record),"acceptance":asdict(accepted),"reconciliation":asdict(reconciliation),"audit":asdict(audit),"closure":asdict(closure),"closure_verified":closed,"proof":asdict(proof)},sort_keys=True,indent=2,default=str))
-    return 0 if closed and proof.state.value=="PASSED" else 1
+    raise SystemExit("E7.113 execution is fail-closed: frozen SelectionRecord + ScopeLock must be supplied to execute_locked_command")
 
 if __name__ == "__main__":
     raise SystemExit(main())
