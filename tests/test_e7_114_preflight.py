@@ -158,3 +158,35 @@ def test_missing_command_fails_closed(tmp_path):
     )
     assert report.status == "FAIL"
     assert any(c.check_id == "commands" and c.status == "FAIL" for c in report.checks)
+
+
+def test_selection_binding_fails_closed(tmp_path):
+    prepare(tmp_path)
+    lock = make_lock()
+    mismatched = create_selection_record(
+        selection_record_id="SEL-PREFLIGHT-TAMPER",
+        batch_id="B-E7",
+        baseline_id="BASE",
+        repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
+        target_commit_sha=TARGET_SHA,
+        candidates=make_selection().candidates,
+        selected_candidate_ids=("C1",),
+        reserve_candidate_ids=(),
+        excluded_candidate_ids=(),
+        blocked_candidate_ids=(),
+        runtime_scenarios=("bounded proof",),
+        evidence_capture_points=("stdout",),
+        stop_conditions=("failure",),
+        selection_policy_revision="r1",
+    )
+    report = run_preflight(
+        lock,
+        repository_root=tmp_path,
+        resolved_commit_sha=TARGET_SHA,
+        resolved_branch_ref="r2/e7-114-scope-lock",
+        selection_record=mismatched,
+    )
+    assert report.status == "FAIL"
+    assert any(c.check_id == "selection_binding" and c.status == "FAIL" for c in report.checks)
+    with pytest.raises(PreflightError):
+        assert_preflight_ready(report)
