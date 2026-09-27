@@ -2,6 +2,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
+from gnosis.self_learning.e7_114_runtime_attestation import verify_attestation
 
 class AuditState(str, Enum):
     PASSED="PASSED"; REJECTED="REJECTED"; BLOCKED="BLOCKED"
