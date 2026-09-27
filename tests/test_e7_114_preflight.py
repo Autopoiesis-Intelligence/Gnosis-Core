@@ -65,11 +65,9 @@ def make_lock():
 
 
 def prepare(root: Path):
-    (root / "src.py").write_text("x = 1
-")
+    (root / "src.py").write_text("x = 1\n")
     (root / "tests").mkdir()
-    (root / "tests/test.py").write_text("def test_ok(): pass
-")
+    (root / "tests/test.py").write_text("def test_ok(): pass\n")
     (root / "artifacts").mkdir()
 
 
@@ -116,11 +114,9 @@ def test_missing_required_path_fails_closed(tmp_path):
 
 
 def test_missing_evidence_destination_fails_closed(tmp_path):
-    (tmp_path / "src.py").write_text("x = 1
-")
+    (tmp_path / "src.py").write_text("x = 1\n")
     (tmp_path / "tests").mkdir()
-    (tmp_path / "tests/test.py").write_text("def test_ok(): pass
-")
+    (tmp_path / "tests/test.py").write_text("def test_ok(): pass\n")
     report = run_preflight(
         make_lock(),
         repository_root=tmp_path,
