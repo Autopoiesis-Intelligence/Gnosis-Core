@@ -148,8 +148,8 @@ def test_missing_runtime_attestation_rejects():
 
 
 def test_tampered_runtime_attestation_rejects():
-    record, acceptance, reconciliation, _ = evidence_chain()
-    tampered = RuntimeAttestation("/repo", "def", "abc", "PASS", "TAMPER")
+    record, acceptance, reconciliation, attestation = evidence_chain()
+    tampered = replace(attestation, evidence_digest="TAMPER")
     result = audit_chain(
         batch_id="B",
         target_commit_sha="abc",
