@@ -17,32 +17,7 @@ from gnosis.self_learning.e7_114_preflight import assert_preflight_ready, run_pr
 from gnosis.self_learning.e7_114_scope_lock import ScopeLock, verify_scope_lock
 from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation, attest_checkout, assert_attestation_ready
 
-@dataclass(frozen=True)
-class ExecutableAttestation:
-    argv0: str
-    resolved_path: str
-    digest: str
-
-
-def attest_executable(argv0: str, *, repository_root: Path) -> ExecutableAttestation:
-    resolved = shutil.which(argv0, path=os.environ.get("PATH"))
-    if not resolved:
-        raise RuntimeError(f"locked executable is not resolvable: {argv0}")
-    path = Path(resolved).resolve()
-    if not path.is_file():
-        raise RuntimeError("resolved executable is not a regular file")
-    digest = sha256(path.read_bytes()).hexdigest()
-    return ExecutableAttestation(argv0=argv0, resolved_path=str(path), digest=digest)
-
-
-def assert_executable_unchanged(attestation: ExecutableAttestation) -> None:
-    path = Path(attestation.resolved_path)
-    if not path.is_file():
-        raise RuntimeError("resolved executable disappeared")
-    current = sha256(path.read_bytes()).hexdigest()
-    if current != attestation.digest:
-        raise RuntimeError("resolved executable changed after attestation")
-
+from gnosis.self_learning.e7_114_executable_attestation import ExecutableAttestation, attest_executable, verify_executable_attestation
 
 def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str, RuntimeAttestation, RuntimeAttestation, ExecutableAttestation]:
     root = Path(repository_root)
@@ -57,12 +32,14 @@ def execute_locked_command(*, scope_lock: ScopeLock, selection_record: Selection
     locked_command = scope_lock.commands[0]
     argv = shlex.split(locked_command)
     executable_attestation = attest_executable(argv[0], repository_root=root)
-    assert_executable_unchanged(executable_attestation)
+    if not verify_executable_attestation(executable_attestation):
+        raise RuntimeError("resolved executable changed after attestation")
     argv[0] = executable_attestation.resolved_path
     if not argv:
         raise ValueError("locked execution command is empty")
     completed = subprocess.run(argv, cwd=root, capture_output=True, text=True, check=False)
-    assert_executable_unchanged(executable_attestation)
+    if not verify_executable_attestation(executable_attestation):
+        raise RuntimeError("resolved executable changed after execution")
     post_runtime_attestation = attest_checkout(root, scope_lock.target_commit_sha)
     assert_attestation_ready(post_runtime_attestation)
     return completed.returncode, completed.stdout, completed.stderr, runtime_attestation, post_runtime_attestation, executable_attestation
