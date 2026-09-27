@@ -11,12 +11,12 @@ jobs:
           python-version: "3.12"
       - name: Install test dependencies
         run: pip install -e ".[dev]"
-      - name: Execute bounded proof run
+      - name: Execute real bounded proof run
         env:
           E7_RUN_ID: e7-113-${{ github.run_id }}
-        run: python -m gnosis.self_learning.e7_113_execute_bounded_proof
+        run: python -m gnosis.self_learning.e7_113_ci_entrypoint
       - name: Upload proof evidence
         uses: actions/upload-artifact@v4
         with:
           name: e7-113-proof-evidence
-          path: proof-run-evidence.json
+          path: artifacts/e7-113/proof-run-evidence.json
