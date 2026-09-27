@@ -7,13 +7,17 @@ from gnosis.self_learning.e7_114_scope_lock import (
 )
 
 
-def lock():
+TEST_FIXTURE_SHA = "0123456789abcdef0123456789abcdef01234567"
+REAL_TARGET_SHA = "a748627a2418567cd120897a4f06e1d193fe4a7e"
+
+
+def lock(target_sha=TEST_FIXTURE_SHA):
     return create_scope_lock(
         batch_id="B-E7",
         scope_lock_id="SL-1",
         repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
         branch_ref="r2/e7-114-scope-lock",
-        target_commit_sha="0123456789abcdef0123456789abcdef01234567",
+        target_commit_sha=target_sha,
         contract_ids=("E7.106", "E7.107", "E7.114"),
         criterion_ids=("C114.1", "C114.2"),
         implementation_paths=("gnosis/self_learning/e7_114_scope_lock.py",),
@@ -32,13 +36,17 @@ def test_scope_lock_is_integrity_bound():
     assert verify_scope_lock(lock())
 
 
-def test_scope_lock_binds_exact_commit():
-    assert_target_commit(lock(), "0123456789abcdef0123456789abcdef01234567")
+def test_scope_lock_binds_fixture_commit():
+    assert_target_commit(lock(), TEST_FIXTURE_SHA)
+
+
+def test_integration_scope_binds_exact_current_commit():
+    assert_target_commit(lock(REAL_TARGET_SHA), REAL_TARGET_SHA)
 
 
 def test_wrong_commit_fails_closed():
     try:
-        assert_target_commit(lock(), "fedcba9876543210fedcba9876543210fedcba98")
+        assert_target_commit(lock(REAL_TARGET_SHA), TEST_FIXTURE_SHA)
     except ScopeLockError:
         return
     raise AssertionError("wrong commit must fail closed")
