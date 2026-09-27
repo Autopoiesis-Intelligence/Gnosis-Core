@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 GENESIS_HASH = "0" * 64
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS candidates (candidate_id TEXT PRIMARY KEY, parent_sta
 CREATE TABLE IF NOT EXISTS instances (instance_id TEXT PRIMARY KEY, parent_instance_id TEXT, owner_id TEXT NOT NULL, root_state_id TEXT NOT NULL, current_state_id TEXT NOT NULL, generation INTEGER NOT NULL CHECK(generation >= 0), status TEXT NOT NULL CHECK(status IN ('active','stopped','archived')), budget_total INTEGER NOT NULL CHECK(budget_total >= 0), budget_spent INTEGER NOT NULL CHECK(budget_spent >= 0), created_at TEXT NOT NULL, FOREIGN KEY(parent_instance_id) REFERENCES instances(instance_id), FOREIGN KEY(root_state_id) REFERENCES states(state_id), FOREIGN KEY(current_state_id) REFERENCES states(state_id));
 CREATE TABLE IF NOT EXISTS transitions (transition_id TEXT PRIMARY KEY, instance_id TEXT NOT NULL, candidate_id TEXT NOT NULL, from_state_id TEXT NOT NULL, to_state_id TEXT NOT NULL, accepted INTEGER NOT NULL CHECK(accepted IN(0,1)), reasons TEXT NOT NULL, test_rule_id TEXT NOT NULL DEFAULT 'test-rule:unspecified', created_at TEXT NOT NULL, FOREIGN KEY(instance_id) REFERENCES instances(instance_id), FOREIGN KEY(candidate_id) REFERENCES candidates(candidate_id), FOREIGN KEY(from_state_id) REFERENCES states(state_id), FOREIGN KEY(to_state_id) REFERENCES states(state_id));
 CREATE INDEX IF NOT EXISTS idx_transitions_instance ON transitions(instance_id);
-CREATE TABLE IF NOT EXISTS evolution_memory (memory_id TEXT PRIMARY KEY, instance_id TEXT NOT NULL, candidate_id TEXT NOT NULL, transition_id TEXT NOT NULL, state_id TEXT NOT NULL, proposal_id TEXT, outcome TEXT NOT NULL CHECK(outcome IN ('accepted','rejected','inconclusive')), evidence TEXT NOT NULL, created_at TEXT NOT NULL, proposal_report_id TEXT, FOREIGN KEY(instance_id) REFERENCES instances(instance_id), FOREIGN KEY(candidate_id) REFERENCES candidates(candidate_id), FOREIGN KEY(transition_id) REFERENCES transitions(transition_id), FOREIGN KEY(state_id) REFERENCES states(state_id));
+CREATE TABLE IF NOT EXISTS evidence_references (evidence_id TEXT PRIMARY KEY, evidence_type TEXT NOT NULL, producer TEXT NOT NULL, created_at TEXT NOT NULL, source_ref TEXT NOT NULL, content_digest TEXT NOT NULL CHECK(length(content_digest)=64), scope TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('observed','reproducible','independently_verified')), related_task_id TEXT, related_checkpoint_id TEXT, baseline_commit TEXT, test_command TEXT);\nCREATE TRIGGER IF NOT EXISTS evidence_references_no_update BEFORE UPDATE ON evidence_references BEGIN SELECT RAISE(ABORT,'evidence_references are append-only'); END;\nCREATE TRIGGER IF NOT EXISTS evidence_references_no_delete BEFORE DELETE ON evidence_references BEGIN SELECT RAISE(ABORT,'evidence_references are append-only'); END;\nCREATE TABLE IF NOT EXISTS evolution_memory (memory_id TEXT PRIMARY KEY, instance_id TEXT NOT NULL, candidate_id TEXT NOT NULL, transition_id TEXT NOT NULL, state_id TEXT NOT NULL, proposal_id TEXT, outcome TEXT NOT NULL CHECK(outcome IN ('accepted','rejected','inconclusive')), evidence TEXT NOT NULL, created_at TEXT NOT NULL, proposal_report_id TEXT, FOREIGN KEY(instance_id) REFERENCES instances(instance_id), FOREIGN KEY(candidate_id) REFERENCES candidates(candidate_id), FOREIGN KEY(transition_id) REFERENCES transitions(transition_id), FOREIGN KEY(state_id) REFERENCES states(state_id));
 CREATE INDEX IF NOT EXISTS idx_evolution_memory_instance ON evolution_memory(instance_id);
 CREATE INDEX IF NOT EXISTS idx_evolution_memory_proposal_report ON evolution_memory(proposal_report_id);
 CREATE TRIGGER IF NOT EXISTS evolution_memory_no_update BEFORE UPDATE ON evolution_memory BEGIN SELECT RAISE(ABORT,'evolution_memory is append-only'); END;
@@ -49,7 +49,8 @@ def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
                 if memory_columns and "proposal_report_id" not in memory_columns:
                     conn.execute("ALTER TABLE evolution_memory ADD COLUMN proposal_report_id TEXT")
-            elif version == 4:
+            elif version == 5:
+                conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))\n            elif version == 4:
                 conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
                 if memory_columns and "proposal_report_id" not in memory_columns:
