@@ -15,6 +15,7 @@ from gnosis.self_learning.e7_113_bounded_proof_run import ProofRun, complete_pro
 from gnosis.self_learning.e7_106_selection import SelectionRecord
 from gnosis.self_learning.e7_114_preflight import assert_preflight_ready, run_preflight
 from gnosis.self_learning.e7_114_scope_lock import ScopeLock
+from gnosis.self_learning.e7_114_runtime_attestation import attest_checkout, assert_attestation_ready
 
 def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str]:
     root = Path(repository_root)
@@ -47,6 +48,8 @@ def _object_digest(value: object) -> str:
     return sha256(payload.encode()).hexdigest()
 
 def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> BoundedProofResult:
+    runtime_attestation = attest_checkout(repository_root, scope_lock.target_commit_sha)
+    assert_attestation_ready(runtime_attestation)
     returncode, stdout, stderr = execute_locked_command(
         scope_lock=scope_lock,
         selection_record=selection_record,
@@ -92,10 +95,11 @@ def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: S
         execution_record=record,
         acceptance_result=acceptance,
         reconciliation_snapshot=reconciliation,
+        runtime_attestation=runtime_attestation,
     )
     if audit.state.value != "PASSED":
         raise RuntimeError("bounded proof evidence chain failed independent audit")
-    digests = tuple(_object_digest(v) for v in (record, acceptance, reconciliation, audit))
+    digests = tuple(_object_digest(v) for v in (record, acceptance, reconciliation, audit, runtime_attestation))
     closure = create_closure(batch_id=scope_lock.batch_id, target_commit_sha=scope_lock.target_commit_sha, chain_digests=digests)
     if not verify_closure(closure, digests, batch_id=scope_lock.batch_id, target_commit_sha=scope_lock.target_commit_sha):
         raise RuntimeError("immutable closure verification failed")
