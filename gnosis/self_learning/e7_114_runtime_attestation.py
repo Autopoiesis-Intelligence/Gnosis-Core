@@ -17,6 +17,20 @@ class RuntimeAttestation:
     evidence_digest: str
 
 
+def compute_attestation_digest(payload: dict) -> str:
+    return sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def verify_attestation(attestation: RuntimeAttestation) -> bool:
+    payload = {
+        "repository_root": attestation.repository_root,
+        "actual_head_sha": attestation.actual_head_sha,
+        "expected_commit_sha": attestation.expected_commit_sha,
+        "status": attestation.status,
+    }
+    return attestation.evidence_digest == compute_attestation_digest(payload)
+
+
 def attest_checkout(repository_root: str | Path, expected_commit_sha: str) -> RuntimeAttestation:
     root = Path(repository_root).resolve()
     try:
@@ -38,7 +52,7 @@ def attest_checkout(repository_root: str | Path, expected_commit_sha: str) -> Ru
         "expected_commit_sha": expected_commit_sha.lower(),
         "status": status,
     }
-    digest = sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    digest = compute_attestation_digest(payload)
     return RuntimeAttestation(
         repository_root=str(root),
         actual_head_sha=actual,
