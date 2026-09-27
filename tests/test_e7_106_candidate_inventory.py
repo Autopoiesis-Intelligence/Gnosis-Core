@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 from gnosis.self_learning.e7_106_candidate_inventory import (
     CandidateInventory,
     CandidateInventoryEntry,
@@ -66,9 +68,7 @@ def test_only_observe_only_candidate_can_be_selected():
 
 def test_mutating_candidate_is_blocked():
     candidate = entry("mutating")
-    mutating = CandidateInventoryEntry(
-        **{**candidate.__dict__, "execution_mode": "MUTATING"}
-    )
+    mutating = replace(candidate, execution_mode="MUTATING")
     inventory = CandidateInventory.build(
         target_repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
         target_ref="beb8463",
