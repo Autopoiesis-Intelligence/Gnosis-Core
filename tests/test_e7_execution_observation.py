@@ -15,18 +15,18 @@ from gnosis.self_learning.e7_execution_observation import (
             False,
         ),
         (
-            ExecutionEvidence("completed", "failure", True, True, True),
-            ExecutionStatus.FAIL_WITH_EVIDENCE,
+            ExecutionObservation("completed", "failure", True, True, True),
+            ExecutionObservationStatus.FAIL_WITH_EVIDENCE,
             True,
         ),
         (
-            ExecutionEvidence("completed", "failure", False, False, False),
-            ExecutionStatus.UNOBSERVABLE_FAILURE,
+            ExecutionObservation("completed", "failure", False, False, False),
+            ExecutionObservationStatus.UNOBSERVABLE_FAILURE,
             False,
         ),
         (
-            ExecutionEvidence("completed", "cancelled", False, False, False),
-            ExecutionStatus.CANCELLED,
+            ExecutionObservation("completed", "cancelled", False, False, False),
+            ExecutionObservationStatus.CANCELLED,
             False,
         ),
     ],
@@ -37,8 +37,8 @@ def test_execution_classification(evidence, expected, causal):
 
 
 def test_failure_without_failure_output_cannot_be_causal():
-    evidence = ExecutionEvidence(
+    evidence = ExecutionObservation(
         "completed", "failure", True, True, False
     )
-    assert evidence.classification == ExecutionStatus.UNOBSERVABLE_FAILURE
+    assert evidence.classification == ExecutionObservationStatus.UNOBSERVABLE_FAILURE
     assert not evidence.permits_causal_attribution
