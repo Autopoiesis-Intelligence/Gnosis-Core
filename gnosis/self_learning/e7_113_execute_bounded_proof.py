@@ -1,6 +1,6 @@
 """Concrete E7.113 bounded proof execution; observe-only, no Core mutation."""
 from __future__ import annotations
-import json, os, shlex, subprocess
+import json, os, shlex, subprocess, shutil
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from enum import Enum
@@ -17,7 +17,34 @@ from gnosis.self_learning.e7_114_preflight import assert_preflight_ready, run_pr
 from gnosis.self_learning.e7_114_scope_lock import ScopeLock, verify_scope_lock
 from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation, attest_checkout, assert_attestation_ready
 
-def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str, RuntimeAttestation, RuntimeAttestation]:
+@dataclass(frozen=True)
+class ExecutableAttestation:
+    argv0: str
+    resolved_path: str
+    digest: str
+
+
+def attest_executable(argv0: str, *, repository_root: Path) -> ExecutableAttestation:
+    resolved = shutil.which(argv0, path=os.environ.get("PATH"))
+    if not resolved:
+        raise RuntimeError(f"locked executable is not resolvable: {argv0}")
+    path = Path(resolved).resolve()
+    if not path.is_file():
+        raise RuntimeError("resolved executable is not a regular file")
+    digest = sha256(path.read_bytes()).hexdigest()
+    return ExecutableAttestation(argv0=argv0, resolved_path=str(path), digest=digest)
+
+
+def assert_executable_unchanged(attestation: ExecutableAttestation) -> None:
+    path = Path(attestation.resolved_path)
+    if not path.is_file():
+        raise RuntimeError("resolved executable disappeared")
+    current = sha256(path.read_bytes()).hexdigest()
+    if current != attestation.digest:
+        raise RuntimeError("resolved executable changed after attestation")
+
+
+def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str, RuntimeAttestation, RuntimeAttestation, ExecutableAttestation]:
     root = Path(repository_root)
     report = run_preflight(scope_lock, repository_root=root, resolved_commit_sha=resolved_commit_sha, resolved_branch_ref=resolved_branch_ref, selection_record=selection_record)
     assert_preflight_ready(report)
@@ -29,12 +56,16 @@ def execute_locked_command(*, scope_lock: ScopeLock, selection_record: Selection
         raise RuntimeError("scope lock changed after preflight")
     locked_command = scope_lock.commands[0]
     argv = shlex.split(locked_command)
+    executable_attestation = attest_executable(argv[0], repository_root=root)
+    assert_executable_unchanged(executable_attestation)
+    argv[0] = executable_attestation.resolved_path
     if not argv:
         raise ValueError("locked execution command is empty")
     completed = subprocess.run(argv, cwd=root, capture_output=True, text=True, check=False)
+    assert_executable_unchanged(executable_attestation)
     post_runtime_attestation = attest_checkout(root, scope_lock.target_commit_sha)
     assert_attestation_ready(post_runtime_attestation)
-    return completed.returncode, completed.stdout, completed.stderr, runtime_attestation, post_runtime_attestation
+    return completed.returncode, completed.stdout, completed.stderr, runtime_attestation, post_runtime_attestation, executable_attestation
 
 
 @dataclass(frozen=True)
@@ -55,7 +86,7 @@ def _object_digest(value: object) -> str:
     return sha256(payload.encode()).hexdigest()
 
 def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> BoundedProofResult:
-    returncode, stdout, stderr, runtime_attestation, post_runtime_attestation = execute_locked_command(
+    returncode, stdout, stderr, runtime_attestation, post_runtime_attestation, executable_attestation = execute_locked_command(
         scope_lock=scope_lock,
         selection_record=selection_record,
         repository_root=repository_root,
@@ -105,7 +136,7 @@ def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: S
     )
     if audit.state.value != "PASSED":
         raise RuntimeError("bounded proof evidence chain failed independent audit")
-    digests = tuple(_object_digest(v) for v in (record, acceptance, reconciliation, audit, runtime_attestation, post_runtime_attestation))
+    digests = tuple(_object_digest(v) for v in (record, acceptance, reconciliation, audit, runtime_attestation, post_runtime_attestation, executable_attestation))
     closure = create_closure(batch_id=scope_lock.batch_id, target_commit_sha=scope_lock.target_commit_sha, chain_digests=digests)
     if not verify_closure(closure, digests, batch_id=scope_lock.batch_id, target_commit_sha=scope_lock.target_commit_sha):
         raise RuntimeError("immutable closure verification failed")
