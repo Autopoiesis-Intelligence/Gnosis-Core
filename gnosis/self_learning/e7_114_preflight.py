@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 
 from gnosis.self_learning.e7_106_selection import SelectionRecord, selection_digest
 from gnosis.self_learning.e7_114_scope_lock import ScopeLock, verify_scope_lock
@@ -119,6 +120,30 @@ def run_preflight(
             "resolved commit matches locked SHA"
             if sha_ok
             else "resolved commit does not match locked SHA",
+        )
+    )
+
+    actual_head = None
+    try:
+        git_head = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if git_head.returncode == 0:
+            actual_head = git_head.stdout.strip().lower()
+    except (OSError, subprocess.SubprocessError):
+        actual_head = None
+    checkout_ok = actual_head is not None and actual_head == scope_lock.target_commit_sha.lower()
+    checks.append(
+        _check(
+            "actual_checkout_sha",
+            "PASS" if checkout_ok else "FAIL",
+            "working tree HEAD matches locked SHA"
+            if checkout_ok
+            else "working tree HEAD does not match locked SHA: " + (actual_head or "unavailable"),
         )
     )
 
