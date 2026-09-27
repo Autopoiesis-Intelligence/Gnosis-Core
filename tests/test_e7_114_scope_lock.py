@@ -14,6 +14,7 @@ from gnosis.self_learning.e7_114_scope_lock import (
     assert_target_commit,
     create_scope_lock,
     invalidate_scope_lock,
+    revise_scope_lock,
     verify_scope_lock,
 )
 
@@ -165,3 +166,30 @@ def test_tamper_is_detected():
 
     tampered = replace(lock(), criterion_ids=("C114.TAMPERED",))
     assert not verify_scope_lock(tampered)
+
+
+def test_tampered_scope_cannot_be_invalidated():
+    from dataclasses import replace
+
+    tampered = replace(lock(), criterion_ids=("C114.TAMPERED",))
+    with pytest.raises(ScopeLockError, match="invalid or tampered"):
+        invalidate_scope_lock(tampered, reason="reject tampered lifecycle")
+
+
+def test_valid_scope_invalidate_revise_and_reverify():
+    invalid = invalidate_scope_lock(lock(), reason="target changed")
+    assert invalid.status == "INVALIDATED"
+    revised = revise_scope_lock(
+        invalid,
+        scope_lock_id="SL-1-R2",
+        target_commit_sha=TEST_FIXTURE_SHA,
+    )
+    assert revised.status == "VALID"
+    assert revised.revision == invalid.revision + 1
+    assert verify_scope_lock(revised)
+    frozen = selection()
+    assert_selection_binding(
+        revised,
+        selection_record_id=frozen.selection_record_id,
+        selection_record_digest=selection_digest(frozen),
+    )
