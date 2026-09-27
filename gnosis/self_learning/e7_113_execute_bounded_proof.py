@@ -3,6 +3,7 @@ from __future__ import annotations
 import json, os, shlex, subprocess
 from dataclasses import asdict, dataclass
 from hashlib import sha256
+from enum import Enum
 from pathlib import Path
 
 from gnosis.self_learning.e7_108_execution_record import CriterionEvidence, ExecutionRecord, ExecutionState, complete
