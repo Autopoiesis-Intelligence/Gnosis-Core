@@ -1,6 +1,6 @@
 """Concrete E7.113 bounded proof execution; observe-only, no Core mutation."""
 from __future__ import annotations
-import json, os
+import json, os, shlex, subprocess
 from dataclasses import asdict
 from hashlib import sha256
 from pathlib import Path
