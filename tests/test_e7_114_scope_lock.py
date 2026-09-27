@@ -1,3 +1,7 @@
+import os
+
+import pytest
+
 from gnosis.self_learning.e7_114_scope_lock import (
     ScopeLockError,
     assert_target_commit,
@@ -8,7 +12,6 @@ from gnosis.self_learning.e7_114_scope_lock import (
 
 
 TEST_FIXTURE_SHA = "0123456789abcdef0123456789abcdef01234567"
-REAL_TARGET_SHA = "a748627a2418567cd120897a4f06e1d193fe4a7e"
 
 
 def lock(target_sha=TEST_FIXTURE_SHA):
@@ -41,13 +44,16 @@ def test_scope_lock_binds_fixture_commit():
     assert_target_commit(lock(), TEST_FIXTURE_SHA)
 
 
-def test_integration_scope_binds_exact_current_commit():
-    assert_target_commit(lock(REAL_TARGET_SHA), REAL_TARGET_SHA)
+def test_integration_scope_binds_exact_ci_commit():
+    ci_sha = os.environ.get("GITHUB_SHA")
+    if not ci_sha:
+        pytest.skip("GITHUB_SHA is available only in CI execution")
+    assert_target_commit(lock(ci_sha), ci_sha)
 
 
 def test_wrong_commit_fails_closed():
     try:
-        assert_target_commit(lock(REAL_TARGET_SHA), TEST_FIXTURE_SHA)
+        assert_target_commit(lock("fedcba9876543210fedcba9876543210fedcba98"), TEST_FIXTURE_SHA)
     except ScopeLockError:
         return
     raise AssertionError("wrong commit must fail closed")
