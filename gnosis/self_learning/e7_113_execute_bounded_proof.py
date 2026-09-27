@@ -15,19 +15,21 @@ from gnosis.self_learning.e7_113_bounded_proof_run import ProofRun, complete_pro
 from gnosis.self_learning.e7_106_selection import SelectionRecord
 from gnosis.self_learning.e7_114_preflight import assert_preflight_ready, run_preflight
 from gnosis.self_learning.e7_114_scope_lock import ScopeLock
-from gnosis.self_learning.e7_114_runtime_attestation import attest_checkout, assert_attestation_ready
+from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation, attest_checkout, assert_attestation_ready
 
-def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str]:
+def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str, RuntimeAttestation]:
     root = Path(repository_root)
     report = run_preflight(scope_lock, repository_root=root, resolved_commit_sha=resolved_commit_sha, resolved_branch_ref=resolved_branch_ref, selection_record=selection_record)
     assert_preflight_ready(report)
+    runtime_attestation = attest_checkout(root, scope_lock.target_commit_sha)
+    assert_attestation_ready(runtime_attestation)
     if len(scope_lock.commands) != 1:
         raise ValueError("bounded proof execution requires exactly one locked command")
     argv = shlex.split(scope_lock.commands[0])
     if not argv:
         raise ValueError("locked execution command is empty")
     completed = subprocess.run(argv, cwd=root, capture_output=True, text=True, check=False)
-    return completed.returncode, completed.stdout, completed.stderr
+    return completed.returncode, completed.stdout, completed.stderr, runtime_attestation
 
 
 @dataclass(frozen=True)
@@ -48,9 +50,7 @@ def _object_digest(value: object) -> str:
     return sha256(payload.encode()).hexdigest()
 
 def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> BoundedProofResult:
-    runtime_attestation = attest_checkout(repository_root, scope_lock.target_commit_sha)
-    assert_attestation_ready(runtime_attestation)
-    returncode, stdout, stderr = execute_locked_command(
+    returncode, stdout, stderr, runtime_attestation = execute_locked_command(
         scope_lock=scope_lock,
         selection_record=selection_record,
         repository_root=repository_root,
