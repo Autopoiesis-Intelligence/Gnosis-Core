@@ -22,6 +22,7 @@ def lock(target_sha=TEST_FIXTURE_SHA):
         criterion_ids=("C114.1", "C114.2"),
         implementation_paths=("gnosis/self_learning/e7_114_scope_lock.py",),
         runtime_paths=("tests/test_e7_114_scope_lock.py",),
+        commands=("python -m pytest tests/test_e7_114_scope_lock.py",),
         expected_outcomes=("VALID",),
         evidence_destinations=("artifacts/e7-114",),
         environment_prerequisites=("python",),
@@ -56,6 +57,27 @@ def test_invalidation_blocks_verification():
     invalid = invalidate_scope_lock(lock(), reason="target changed")
     assert invalid.status == "INVALIDATED"
     assert not verify_scope_lock(invalid)
+
+
+def test_missing_commands_are_rejected():
+    try:
+        create_scope_lock(
+            batch_id="B-E7", scope_lock_id="SL-2",
+            repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
+            branch_ref="r2/e7-114-scope-lock",
+            target_commit_sha=TEST_FIXTURE_SHA,
+            contract_ids=("E7.114",), criterion_ids=("C114.1",),
+            implementation_paths=("gnosis/self_learning/e7_114_scope_lock.py",),
+            runtime_paths=("tests/test_e7_114_scope_lock.py",),
+            commands=(), expected_outcomes=("VALID",),
+            evidence_destinations=("artifacts/e7-114",),
+            environment_prerequisites=("python",), stop_conditions=("commit_mismatch",),
+            evidence_policy_revision="r1", verification_matrix_revision="r1",
+            progress_policy_revision="r1",
+        )
+    except ScopeLockError:
+        return
+    raise AssertionError("empty commands must fail closed")
 
 
 def test_tamper_is_detected():
