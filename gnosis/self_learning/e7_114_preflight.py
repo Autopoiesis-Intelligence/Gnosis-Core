@@ -79,6 +79,8 @@ def run_preflight(
     selection_ok = (
         selection_record is not None
         and selection_record.selection_record_id == scope_lock.selection_record_id
+        and selection_record.repository == scope_lock.repository
+        and selection_record.target_commit_sha.lower() == scope_lock.target_commit_sha.lower()
         and selection_digest(selection_record) == scope_lock.selection_record_digest
     )
     checks.append(
