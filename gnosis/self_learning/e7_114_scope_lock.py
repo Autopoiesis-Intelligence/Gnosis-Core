@@ -90,7 +90,23 @@ def assert_target_commit(lock: ScopeLock, resolved_sha: str) -> None:
     if resolved_sha.lower()!=lock.target_commit_sha: raise ScopeLockError("target commit does not match locked SHA")
 
 def revise_scope_lock(lock: ScopeLock, **changes) -> ScopeLock:
-    if lock.status!="INVALIDATED": raise ScopeLockError("scope lock must be invalidated before revision")
-    changes.pop("status",None); changes["revision"]=lock.revision+1; changes["status"]="VALID"
-    candidate=replace(lock,**changes,integrity_digest="")
-    return replace(candidate,integrity_digest=_digest(candidate))
+    if lock.status!="INVALIDATED":
+        raise ScopeLockError("scope lock must be invalidated before revision")
+    immutable_scope = (
+        "batch_id", "selection_record_id", "selection_record_digest",
+        "repository", "branch_ref", "target_commit_sha",
+        "contract_ids", "criterion_ids", "implementation_paths",
+        "runtime_paths", "commands", "expected_outcomes",
+        "evidence_destinations", "environment_prerequisites", "stop_conditions",
+    )
+    forbidden = sorted(set(changes).intersection(immutable_scope))
+    if forbidden:
+        raise ScopeLockError(
+            "scope revision cannot mutate frozen execution scope: "
+            + ", ".join(forbidden)
+        )
+    changes.pop("status", None)
+    changes["revision"] = lock.revision + 1
+    changes["status"] = "VALID"
+    candidate = replace(lock, **changes, integrity_digest="")
+    return replace(candidate, integrity_digest=_digest(candidate))
