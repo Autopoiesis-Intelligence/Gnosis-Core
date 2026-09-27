@@ -1,5 +1,12 @@
 name: E7.113 Bounded Proof Execution
 on:
+  push:
+    paths:
+      - "gnosis/self_learning/e7_113_*.py"
+      - "gnosis/self_learning/e7_114_*.py"
+      - "tests/test_e7_113_*.py"
+      - "tests/test_e7_114_*.py"
+      - ".github/workflows/e7-113-bounded-proof-execution.yml"
   workflow_dispatch:
 jobs:
   bounded-proof:
