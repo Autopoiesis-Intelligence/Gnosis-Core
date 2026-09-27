@@ -26,6 +26,7 @@ class ScopeLock:
     criterion_ids: tuple[str, ...]
     implementation_paths: tuple[str, ...]
     runtime_paths: tuple[str, ...]
+    commands: tuple[str, ...]
     expected_outcomes: tuple[str, ...]
     evidence_destinations: tuple[str, ...]
     environment_prerequisites: tuple[str, ...]
@@ -59,6 +60,7 @@ def _payload(lock: ScopeLock) -> dict:
         "criterion_ids": list(lock.criterion_ids),
         "implementation_paths": list(lock.implementation_paths),
         "runtime_paths": list(lock.runtime_paths),
+        "commands": list(lock.commands),
         "expected_outcomes": list(lock.expected_outcomes),
         "evidence_destinations": list(lock.evidence_destinations),
         "environment_prerequisites": list(lock.environment_prerequisites),
@@ -86,6 +88,7 @@ def create_scope_lock(
     criterion_ids: tuple[str, ...],
     implementation_paths: tuple[str, ...],
     runtime_paths: tuple[str, ...],
+    commands: tuple[str, ...],
     expected_outcomes: tuple[str, ...],
     evidence_destinations: tuple[str, ...],
     environment_prerequisites: tuple[str, ...],
@@ -110,6 +113,8 @@ def create_scope_lock(
         raise ScopeLockError("frozen contract and criterion selections are required")
     if not implementation_paths or not runtime_paths:
         raise ScopeLockError("implementation and runtime paths are required")
+    if not commands:
+        raise ScopeLockError("immutable proof commands are required")
     if not expected_outcomes or not evidence_destinations:
         raise ScopeLockError("expected outcomes and evidence destinations are required")
     if not environment_prerequisites or not stop_conditions:
@@ -125,6 +130,7 @@ def create_scope_lock(
         criterion_ids=tuple(criterion_ids),
         implementation_paths=tuple(implementation_paths),
         runtime_paths=tuple(runtime_paths),
+        commands=tuple(commands),
         expected_outcomes=tuple(expected_outcomes),
         evidence_destinations=tuple(evidence_destinations),
         environment_prerequisites=tuple(environment_prerequisites),
