@@ -18,3 +18,17 @@ def test_modified_chain_fails_verification():
 def test_empty_or_nonclosed_cannot_verify():
     c=create_closure(batch_id="B",target_commit_sha="abc",chain_digests=())
     assert not verify_closure(c,())
+
+
+def test_closure_binds_batch_and_target_commit():
+    d=("D107","D108","D109","D110","D111")
+    closure = create_closure(batch_id="B", target_commit_sha="abc", chain_digests=d)
+    assert verify_closure(closure, d, batch_id="B", target_commit_sha="abc")
+    assert not verify_closure(closure, d, batch_id="OTHER", target_commit_sha="abc")
+    assert not verify_closure(closure, d, batch_id="B", target_commit_sha="def")
+
+
+def test_reordered_chain_fails_verification():
+    d=("D107","D108","D109","D110","D111")
+    closure = create_closure(batch_id="B", target_commit_sha="abc", chain_digests=d)
+    assert not verify_closure(closure, tuple(reversed(d)))
