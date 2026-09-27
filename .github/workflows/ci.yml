@@ -17,6 +17,27 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install package + dev deps
-        run: pip install -e ".[dev]"
+        run: |
+          set -o pipefail
+          {
+            echo "=== environment ==="
+            python --version
+            python -m pip --version
+            echo "=== install ==="
+            python -m pip install -e ".[dev]"
+          } 2>&1 | tee install.log
       - name: Run tests
-        run: pytest -v --cov=gnosis --cov-report=term-missing
+        run: |
+          set -o pipefail
+          pytest -v --junitxml="test-results-${{ matrix.python-version}}.xml" --cov=gnosis --cov-report=term-missing 2>&1 | tee pytest.log
+      - name: Upload CI diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-diagnostic-evidence-python-${{ matrix.python-version }}
+          path: |
+            install.log
+            pytest.log
+            test-results-${{ matrix.python-version}}.xml
+          if-no-files-found: warn
+          retention-days: 14
