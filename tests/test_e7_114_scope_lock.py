@@ -68,7 +68,8 @@ def test_invalidation_blocks_verification():
 def test_missing_commands_are_rejected():
     try:
         create_scope_lock(
-            batch_id="B-E7", scope_lock_id="SL-2",
+            batch_id="B-E7", selection_record_id="SEL-E7-106-1", selection_record_digest="a" * 64,
+            scope_lock_id="SL-2",
             repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
             branch_ref="r2/e7-114-scope-lock",
             target_commit_sha=TEST_FIXTURE_SHA,
