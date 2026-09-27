@@ -82,7 +82,7 @@ def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: S
     reconciliation = reconcile(
         batch_id=scope_lock.batch_id,
         acceptance_id=run_id,
-        metrics=(Metric("criterion_pass", 1.0 if passed else 0.0, 1.0 if passed else 0.0),),
+        metrics=(Metric("criterion_pass", 1.0, 1.0 if passed else 0.0),),
     )
     audit = audit_chain(
         batch_id=scope_lock.batch_id,
