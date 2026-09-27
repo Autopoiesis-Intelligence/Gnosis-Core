@@ -2,6 +2,12 @@ from pathlib import Path
 
 import pytest
 
+from gnosis.self_learning.e7_106_selection import (
+    CandidateRecord,
+    SelectionStatus,
+    create_selection_record,
+    selection_digest,
+)
 from gnosis.self_learning.e7_114_preflight import (
     PreflightError,
     assert_preflight_ready,
@@ -13,9 +19,32 @@ from gnosis.self_learning.e7_114_scope_lock import create_scope_lock
 TARGET_SHA = "0123456789abcdef0123456789abcdef01234567"
 
 
+def make_selection():
+    candidate = CandidateRecord(
+        candidate_id="C1", contract_id="E7.114", revision="r1",
+        current_status="IMPLEMENTED", dependency_status="SATISFIED",
+        implementation_paths=("src.py",), acceptance_criteria_count=1,
+        mapped_test_count=1, runtime_proof_requirements=("exact_commit",),
+        existing_evidence_ids=(), evidence_commits=(TARGET_SHA,),
+        known_gaps=(), trust_boundary_relevance="HIGH",
+        execution_prerequisites=("python",), selection_status=SelectionStatus.SELECTED,
+        selection_rationale="preflight fixture",
+    )
+    return create_selection_record(
+        selection_record_id="SEL-PREFLIGHT", batch_id="B-E7", baseline_id="BASE",
+        repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis", target_commit_sha=TARGET_SHA,
+        candidates=(candidate,), selected_candidate_ids=("C1",),
+        reserve_candidate_ids=(), excluded_candidate_ids=(), blocked_candidate_ids=(),
+        runtime_scenarios=("bounded proof",), evidence_capture_points=("stdout",),
+        stop_conditions=("failure",), selection_policy_revision="r1",
+    )
+
+
 def make_lock():
     return create_scope_lock(
         batch_id="B-E7",
+        selection_record_id=make_selection().selection_record_id,
+        selection_record_digest=selection_digest(make_selection()),
         scope_lock_id="SL-PREFLIGHT",
         repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
         branch_ref="r2/e7-114-scope-lock",
@@ -52,6 +81,7 @@ def test_preflight_all_passes_without_side_effects(tmp_path):
         repository_root=tmp_path,
         resolved_commit_sha=TARGET_SHA,
         resolved_branch_ref="r2/e7-114-scope-lock",
+        selection_record=make_selection(),
     )
     assert report.status == "PASS"
     assert_preflight_ready(report)
@@ -105,6 +135,8 @@ def test_missing_command_fails_closed(tmp_path):
     prepare(tmp_path)
     lock = create_scope_lock(
         batch_id="B-E7",
+        selection_record_id=make_selection().selection_record_id,
+        selection_record_digest=selection_digest(make_selection()),
         scope_lock_id="SL-PREFLIGHT-MISSING",
         repository="Mikhail-Kucheriavyi-23/Gnozis-Genesis",
         branch_ref="r2/e7-114-scope-lock",
