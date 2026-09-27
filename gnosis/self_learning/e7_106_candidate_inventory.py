@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 
 SELECTION_STATES = frozenset(
@@ -125,15 +125,13 @@ class CandidateInventory:
             raise ValueError("inventory already has a selected candidate")
 
         updated = tuple(
-            CandidateInventoryEntry(
-                **{
-                    **e.__dict__,
-                    "selection_state": (
-                        "SELECTED"
-                        if e.candidate_id == candidate_id
-                        else e.selection_state
-                    ),
-                }
+            replace(
+                e,
+                selection_state=(
+                    "SELECTED"
+                    if e.candidate_id == candidate_id
+                    else e.selection_state
+                ),
             )
             for e in self.entries
         )
