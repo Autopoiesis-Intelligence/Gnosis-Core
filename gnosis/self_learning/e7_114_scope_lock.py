@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from hashlib import sha256
 import json
+import shlex
 
 class ScopeLockError(ValueError):
     """Raised when a scope lock cannot be created or validated."""
@@ -52,6 +53,27 @@ def _payload(lock: ScopeLock) -> dict:
         "evidence_policy_revision":lock.evidence_policy_revision,"verification_matrix_revision":lock.verification_matrix_revision,
         "progress_policy_revision":lock.progress_policy_revision,"revision":lock.revision}.items()}
 
+
+_SHELL_EXECUTABLES = {"sh", "bash", "dash", "zsh", "fish", "csh", "tcsh", "ksh", "cmd", "powershell", "pwsh"}
+_SHELL_OPERATORS = {";", "&&", "||", "|", "|&", ">", ">>", "<", "<<", "&"}
+
+
+def _validate_command(command: str) -> None:
+    _require_nonempty("command", command)
+    try:
+        argv = shlex.split(command, posix=True)
+    except ValueError as exc:
+        raise ScopeLockError(f"invalid locked command syntax: {exc}") from exc
+    if not argv:
+        raise ScopeLockError("locked command is empty")
+    if any(token in _SHELL_OPERATORS for token in argv):
+        raise ScopeLockError("shell operators are forbidden in locked commands")
+    executable = argv[0].rsplit("/", 1)[-1].lower()
+    if executable in _SHELL_EXECUTABLES:
+        raise ScopeLockError("shell executables are forbidden in locked commands")
+    if executable in {"python", "python3", "py"} and "-c" in argv:
+        raise ScopeLockError("interpreter -c execution is forbidden in locked commands")
+
 def _digest(lock: ScopeLock) -> str:
     return sha256(json.dumps(_payload(lock), sort_keys=True, separators=(",",":")).encode()).hexdigest()
 
@@ -61,6 +83,8 @@ def create_scope_lock(*, batch_id, selection_record_id, selection_record_digest,
     if not contract_ids or not criterion_ids: raise ScopeLockError("frozen contract and criterion selections are required")
     if not implementation_paths or not runtime_paths: raise ScopeLockError("implementation and runtime paths are required")
     if not commands: raise ScopeLockError("immutable proof commands are required")
+    if len(commands) != 1: raise ScopeLockError("bounded proof requires exactly one immutable command")
+    for command in commands: _validate_command(command)
     if not expected_outcomes or not evidence_destinations: raise ScopeLockError("expected outcomes and evidence destinations are required")
     if not environment_prerequisites or not stop_conditions: raise ScopeLockError("environment prerequisites and stop conditions are required")
     lock=ScopeLock(batch_id=batch_id,selection_record_id=selection_record_id,selection_record_digest=selection_record_digest.lower(),scope_lock_id=scope_lock_id,repository=repository,branch_ref=branch_ref,target_commit_sha=target_commit_sha.lower(),contract_ids=tuple(contract_ids),criterion_ids=tuple(criterion_ids),implementation_paths=tuple(implementation_paths),runtime_paths=tuple(runtime_paths),commands=tuple(commands),expected_outcomes=tuple(expected_outcomes),evidence_destinations=tuple(evidence_destinations),environment_prerequisites=tuple(environment_prerequisites),stop_conditions=tuple(stop_conditions),evidence_policy_revision=evidence_policy_revision,verification_matrix_revision=verification_matrix_revision,progress_policy_revision=progress_policy_revision,integrity_digest="")
