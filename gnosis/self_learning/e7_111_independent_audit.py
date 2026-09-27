@@ -47,7 +47,7 @@ def audit_chain(*, batch_id: str, target_commit_sha: str, record_commit_sha: str
         AuditFinding("reconciliation_consistency", reconciliation_snapshot.batch_id == batch_id and bool(metrics) and reconciliation_snapshot.state.value == "RECONCILED" and all(m.expected == m.observed for m in metrics), "reconciliation is internally consistent"),
         AuditFinding("no_conflicting_evidence", len({c.criterion_id for c in criteria}) == len(criteria) and len({i.evidence_id for i in accepted_items}) == len(accepted_items), "criterion/evidence identities are unique"),
         AuditFinding("terminal_state_consistency", execution_record.terminal and execution_record.passed, "execution must be terminal and passed"),
-        AuditFinding("runtime_checkout_attestation", runtime_attestation is not None and runtime_attestation.status == "PASS" and runtime_attestation.actual_head_sha == target_commit_sha.lower(), "runtime checkout attestation must match target commit"),
+        AuditFinding("runtime_checkout_attestation", runtime_attestation is not None and verify_attestation(runtime_attestation) and runtime_attestation.status == "PASS" and runtime_attestation.actual_head_sha == target_commit_sha.lower(), "runtime checkout attestation must match target commit"),
     )
     state = AuditState.PASSED if all(f.passed for f in findings) else AuditState.REJECTED
     return AuditResult(batch_id, target_commit_sha, findings, state)
