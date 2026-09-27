@@ -182,7 +182,6 @@ def test_valid_scope_invalidate_revise_and_reverify():
     revised = revise_scope_lock(
         invalid,
         scope_lock_id="SL-1-R2",
-        target_commit_sha=TEST_FIXTURE_SHA,
     )
     assert revised.status == "VALID"
     assert revised.revision == invalid.revision + 1
@@ -193,3 +192,11 @@ def test_valid_scope_invalidate_revise_and_reverify():
         selection_record_id=frozen.selection_record_id,
         selection_record_digest=selection_digest(frozen),
     )
+
+
+def test_revision_cannot_mutate_frozen_execution_scope():
+    invalid = invalidate_scope_lock(lock(), reason="scope change requested")
+    with pytest.raises(ScopeLockError, match="frozen execution scope"):
+        revise_scope_lock(invalid, target_commit_sha="fedcba9876543210fedcba9876543210fedcba98")
+    with pytest.raises(ScopeLockError, match="frozen execution scope"):
+        revise_scope_lock(invalid, selection_record_id="SEL-OTHER")
