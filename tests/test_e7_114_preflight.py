@@ -190,3 +190,58 @@ def test_selection_binding_fails_closed(tmp_path):
     assert any(c.check_id == "selection_binding" and c.status == "FAIL" for c in report.checks)
     with pytest.raises(PreflightError):
         assert_preflight_ready(report)
+
+
+def test_selection_repository_mismatch_fails_closed(tmp_path):
+    prepare(tmp_path)
+    original = make_selection()
+    mismatched = create_selection_record(
+        selection_record_id=original.selection_record_id,
+        batch_id=original.batch_id,
+        baseline_id=original.baseline_id,
+        repository="different/repository",
+        target_commit_sha=original.target_commit_sha,
+        candidates=original.candidates,
+        selected_candidate_ids=original.selected_candidate_ids,
+        reserve_candidate_ids=original.reserve_candidate_ids,
+        excluded_candidate_ids=original.excluded_candidate_ids,
+        blocked_candidate_ids=original.blocked_candidate_ids,
+        runtime_scenarios=original.runtime_scenarios,
+        evidence_capture_points=original.evidence_capture_points,
+        stop_conditions=original.stop_conditions,
+        selection_policy_revision=original.selection_policy_revision,
+    )
+    report = run_preflight(
+        make_lock(), repository_root=tmp_path, resolved_commit_sha=TARGET_SHA,
+        resolved_branch_ref="r2/e7-114-scope-lock", selection_record=mismatched,
+    )
+    assert report.status == "FAIL"
+    assert any(c.check_id == "selection_binding" and c.status == "FAIL" for c in report.checks)
+
+
+def test_selection_target_sha_mismatch_fails_closed(tmp_path):
+    prepare(tmp_path)
+    original = make_selection()
+    other_sha = "fedcba9876543210fedcba9876543210fedcba98"
+    mismatched = create_selection_record(
+        selection_record_id=original.selection_record_id,
+        batch_id=original.batch_id,
+        baseline_id=original.baseline_id,
+        repository=original.repository,
+        target_commit_sha=other_sha,
+        candidates=original.candidates,
+        selected_candidate_ids=original.selected_candidate_ids,
+        reserve_candidate_ids=original.reserve_candidate_ids,
+        excluded_candidate_ids=original.excluded_candidate_ids,
+        blocked_candidate_ids=original.blocked_candidate_ids,
+        runtime_scenarios=original.runtime_scenarios,
+        evidence_capture_points=original.evidence_capture_points,
+        stop_conditions=original.stop_conditions,
+        selection_policy_revision=original.selection_policy_revision,
+    )
+    report = run_preflight(
+        make_lock(), repository_root=tmp_path, resolved_commit_sha=TARGET_SHA,
+        resolved_branch_ref="r2/e7-114-scope-lock", selection_record=mismatched,
+    )
+    assert report.status == "FAIL"
+    assert any(c.check_id == "selection_binding" and c.status == "FAIL" for c in report.checks)
