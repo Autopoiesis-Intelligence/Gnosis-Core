@@ -2,6 +2,9 @@ from dataclasses import replace
 
 import pytest
 
+from gnosis.core.select import SelectionResult
+from gnosis.core.types import Candidate, State, TestResult
+
 from gnosis.self_learning.e7_106_selection import (
     CandidateRecord,
     SelectionError,
@@ -112,3 +115,34 @@ def test_unknown_candidate_cannot_be_selected():
             stop_conditions=("failure",),
             selection_policy_revision="E7.106-r1",
         )
+
+
+def test_core_selection_result_binds_to_frozen_record():
+    from gnosis.self_learning.e7_106_selection import assert_selection_result_matches_record
+
+    current = State()
+    c1 = Candidate(current.state_id, current.with_elements({"x": 1}), "A")
+    c2 = Candidate(current.state_id, current.with_elements({"x": 2}), "B")
+    result = SelectionResult(
+        selected=c1,
+        evaluated=((c1, TestResult(True)), (c2, TestResult(False))),
+    )
+    record_candidate = candidate(c1.candidate_id, SelectionStatus.SELECTED)
+    record_reserve = candidate(c2.candidate_id, SelectionStatus.RESERVE)
+    frozen = record((record_candidate, record_reserve))
+    assert_selection_result_matches_record(result, frozen)
+
+
+def test_core_selection_result_mismatch_is_rejected():
+    from gnosis.self_learning.e7_106_selection import assert_selection_result_matches_record
+
+    current = State()
+    c1 = Candidate(current.state_id, current.with_elements({"x": 1}), "A")
+    c2 = Candidate(current.state_id, current.with_elements({"x": 2}), "B")
+    result = SelectionResult(
+        selected=c2,
+        evaluated=((c1, TestResult(True)), (c2, TestResult(False))),
+    )
+    frozen = record((candidate(c1.candidate_id, SelectionStatus.SELECTED), candidate(c2.candidate_id, SelectionStatus.RESERVE)))
+    with pytest.raises(SelectionError, match="does not match core selection result"):
+        assert_selection_result_matches_record(result, frozen)
