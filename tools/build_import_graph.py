@@ -65,15 +65,23 @@ def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
 
     for node in graph:
         visit(node)
+
     return cycles
 
 
-if __name__ == "__main__":
+def main() -> int:
     graph = build_graph()
     for source, targets in sorted(graph.items()):
         for target in sorted(targets):
             print(f"{source} -> {target}")
+
     cycles = find_cycles(graph)
     print("CYCLES:", len(cycles))
     for cycle in cycles:
         print(" -> ".join(cycle))
+
+    return 1 if cycles else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
