@@ -49,7 +49,6 @@ def main() -> int:
         dependency_status="E7.106-E7.112",
         implementation_paths=(
             "gnosis/self_learning/e7_113_execute_bounded_proof.py",
-            "gnosis/self_learning/e7_113_ci_entrypoint.py",
         ),
         acceptance_criteria_count=1,
         mapped_test_count=2,
@@ -91,8 +90,12 @@ def main() -> int:
         contract_ids=("E7.113",),
         criterion_ids=("E7.113.REAL-RUNNER",),
         implementation_paths=selection.candidates[0].implementation_paths,
-        runtime_paths=("tests/test_e7_111_independent_audit.py", "tests/test_e7_112_immutable_closure.py"),
-        commands=("pytest -q tests/test_e7_111_independent_audit.py tests/test_e7_112_immutable_closure.py",),
+        runtime_paths=(
+            "tests/test_e7_111_independent_audit.py",
+            "tests/test_e7_112_immutable_closure.py",
+            "tests/test_e7_113_execute_bounded_proof.py",
+        ),
+        commands=("pytest -q tests/test_e7_111_independent_audit.py tests/test_e7_112_immutable_closure.py tests/test_e7_113_execute_bounded_proof.py",),
         expected_outcomes=("pytest exits successfully",),
         evidence_destinations=("artifacts/e7-113",),
         environment_prerequisites=("python", "pytest"),
