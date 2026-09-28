@@ -125,3 +125,13 @@ def test_full_vertical_slice_generate_test_select_evolve():
     assert record.from_state_id == psi0_id
     assert engine.state.state_id == record.to_state_id
     assert engine.state.state_id != psi0_id
+
+
+def test_engine_step_select_with_result_preserves_exact_selection():
+    engine = Engine(state=make_current())
+    candidates = [make_candidate(engine.state, "b", 1), make_candidate(engine.state, "c", 2)]
+    result, record = engine.step_select_with_result(candidates)
+    assert result.selected is not None
+    assert result.selected.candidate_id == record.candidate_id
+    assert tuple(c.candidate_id for c, _ in result.evaluated) == tuple(c.candidate_id for c in candidates)
+    assert engine.budget.spent == 1
