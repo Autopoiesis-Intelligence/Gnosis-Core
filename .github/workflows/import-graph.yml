@@ -18,6 +18,12 @@ jobs:
         with:
           python-version: "3.12"
       - name: Build import graph
-        run: python tools/build_import_graph.py
+        shell: bash
+        run: |
+          set +e
+          python tools/build_import_graph.py
+          status=$?
+          echo "IMPORT_GRAPH_EXIT_CODE=$status"
+          exit "$status"
       - name: Run import graph test
         run: pytest -q tests/test_import_graph.py
