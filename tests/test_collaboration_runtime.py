@@ -48,7 +48,10 @@ def test_runtime_denies_before_external_side_effect():
     runtime = build_trusted_collaboration_runtime(
         target_revision_resolver=lambda resource: "target-r2",
         evidence_resolver=lambda digest: None,
-        external_action=lambda payload: calls.append(payload) or ExternalExecutionReceipt(\n            authorization_id=auth.authorization_id if "auth" in locals() else "unused",\n            effect_id="effect-denied", effect_status="not-run", evidence_digest="sha256:none"\n        ),
+        external_action=lambda payload: calls.append(payload) or ExternalExecutionReceipt(
+            authorization_id="unused", effect_id="effect-denied",
+            effect_status="not-run", evidence_digest="sha256:none"
+        ),
     )
     with pytest.raises(PermissionError):
         runtime.execute(
@@ -81,7 +84,10 @@ def test_runtime_executes_only_after_authorization():
     runtime = build_trusted_collaboration_runtime(
         target_revision_resolver=lambda resource: "target-r1",
         evidence_resolver=lambda digest: evidence,
-        external_action=lambda payload: calls.append(payload) or ExternalExecutionReceipt(\n            authorization_id=auth.authorization_id, effect_id="effect-1", effect_status="executed", evidence_digest="sha256:evidence-1"\n        ),
+        external_action=lambda payload: calls.append(payload) or ExternalExecutionReceipt(
+            authorization_id=auth.authorization_id, effect_id="effect-1",
+            effect_status="executed", evidence_digest="sha256:evidence-1"
+        ),
     )
     result = runtime.execute(
         authorization=auth,
@@ -132,7 +138,10 @@ def test_runtime_builds_canonical_request_from_validated_authorization():
     runtime = build_trusted_collaboration_runtime(
         target_revision_resolver=lambda resource: "target-r1",
         evidence_resolver=lambda digest: evidence,
-        external_action=lambda request: calls.append(request) or ExternalExecutionReceipt(\n            authorization_id=auth.authorization_id, effect_id="effect-2", effect_status="executed", evidence_digest="sha256:evidence-2"\n        ),
+        external_action=lambda request: calls.append(request) or ExternalExecutionReceipt(
+            authorization_id=auth.authorization_id, effect_id="effect-2",
+            effect_status="executed", evidence_digest="sha256:evidence-2"
+        ),
     )
     runtime.execute(
         authorization=auth,
