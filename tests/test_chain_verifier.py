@@ -163,12 +163,12 @@ def _identity_chain_fixture():
     p=build_provenance(candidate_id=candidate_id,parent_state_id=state.state_id,
         parent_state_digest="pd",proposed_state_digest="sd",observations=observations,
         evidence_digest=canonical_digest(observations),evaluation_status="PASS",
-        shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW")
+        shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW", candidate_binding_digest="binding-C1")
     tr=TransitionRecord(from_state_id=state.state_id,to_state_id="sd",candidate_id=candidate_id,
         test_result=TestResult(True),accepted=True,reason="committed",test_rule_id="rule")
     a=make_audit_record(sequence=0,event_type="PROVENANCE",candidate_id=candidate_id,
         execution_id=p.execution_id,provenance_id=p.provenance_id,parent_state_digest="pd",
-        proposed_state_digest="sd",evidence_digest=p.evidence_digest,payload={"status":"RECORDED"})
+        proposed_state_digest="sd",evidence_digest=p.evidence_digest,candidate_binding_digest=p.candidate_binding_digest,payload={"status":"RECORDED"})
     return selection,tr,{"provenance_id":p.provenance_id,"execution_id":p.execution_id,
         "candidate_id":candidate_id,"parent_state_id":state.state_id,"parent_state_digest":"pd",
         "proposed_state_digest":"sd","evidence_digest":p.evidence_digest,
@@ -212,6 +212,22 @@ def test_persisted_audit_binding_tamper_is_detected():
     conn.execute(
         "UPDATE evolution_audit SET candidate_binding_digest=? WHERE sequence=?",
         ("binding-tampered", result.audit_record.sequence),
+    )
+    conn.commit()
+    with pytest.raises((AssertionError, ValueError, RuntimeError)):
+        verify_evolution_identity_chain(conn)
+
+
+def test_persisted_multi_transaction_chain_detects_prior_binding_tamper():
+    conn = make_connection()
+    p1 = make_provenance(candidate_binding_digest="binding-1")
+    p2 = make_provenance(candidate_binding_digest="binding-2")
+    a1 = persist_evolution_transaction(conn, p1, event_type="EVOLUTION", payload={"n": 1}).audit_record
+    a2 = persist_evolution_transaction(conn, p2, event_type="EVOLUTION", payload={"n": 2}).audit_record
+    assert a2.previous_digest == a1.record_digest
+    conn.execute(
+        "UPDATE evolution_audit SET candidate_binding_digest=? WHERE sequence=?",
+        ("binding-tampered", a1.sequence),
     )
     conn.commit()
     with pytest.raises((AssertionError, ValueError, RuntimeError)):
