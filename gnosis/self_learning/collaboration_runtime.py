@@ -11,9 +11,6 @@ from typing import Callable, Mapping
 
 from .collaboration_authorization import (
     ExecutionAuthorization,
-    PreconditionEvidence,
-    TrustedEvidenceResolver,
-    TargetRevisionResolver,
     validate_execution_request,
 )
 
