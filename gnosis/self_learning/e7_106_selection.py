@@ -288,3 +288,44 @@ def assert_candidate_record_matches_core_candidate(
         raise SelectionError("candidate_binding_digest does not match Core Candidate")
     if record.candidate_binding_digest == "":
         raise SelectionError("candidate_binding_digest is required")
+
+
+def build_candidate_record_from_core_candidate(
+    candidate: object,
+    *,
+    contract_id: str,
+    revision: str,
+    current_status: str,
+    dependency_status: str,
+    implementation_paths: tuple[str, ...],
+    acceptance_criteria_count: int,
+    mapped_test_count: int,
+    runtime_proof_requirements: tuple[str, ...],
+    existing_evidence_ids: tuple[str, ...],
+    evidence_commits: tuple[str, ...],
+    known_gaps: tuple[str, ...],
+    trust_boundary_relevance: str,
+    execution_prerequisites: tuple[str, ...],
+    selection_status: SelectionStatus,
+    selection_rationale: str,
+) -> CandidateRecord:
+    """Create an evidence CandidateRecord directly from the exact Core Candidate."""
+    return CandidateRecord(
+        candidate_id=candidate.candidate_id,
+        contract_id=contract_id,
+        revision=revision,
+        current_status=current_status,
+        dependency_status=dependency_status,
+        implementation_paths=implementation_paths,
+        acceptance_criteria_count=acceptance_criteria_count,
+        mapped_test_count=mapped_test_count,
+        runtime_proof_requirements=runtime_proof_requirements,
+        existing_evidence_ids=existing_evidence_ids,
+        evidence_commits=evidence_commits,
+        known_gaps=known_gaps,
+        trust_boundary_relevance=trust_boundary_relevance,
+        execution_prerequisites=execution_prerequisites,
+        selection_status=selection_status,
+        selection_rationale=selection_rationale,
+        candidate_binding_digest=candidate_binding_digest(candidate),
+    )
