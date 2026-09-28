@@ -1,0 +1,38 @@
+name: Observer Contract Test
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Simulate regression failure
+        id: regression
+        continue-on-error: true
+        run: |
+          python -c "raise SystemExit(1)"
+      - name: Run diagnostic after regression failure
+        id: diagnostic
+        if: always()
+        run: |
+          python diagnostic_corpus/generate.py
+          test -f diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
+      - name: Verify evidence exists
+        if: always()
+        run: test -f diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
+      - name: Contract passed
+        if: always()
+        run: |
+          test "${{ steps.regression.outcome }}" = "failure"
+          test "${{ steps.diagnostic.outcome }}" = "success"
