@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from gnosis.self_learning.e7_114_runtime_attestation import verify_attestation
 from gnosis.self_learning.e7_114_executable_attestation import verify_executable_attestation
+from gnosis.self_learning.e7_114_implementation_attestation import verify_implementation_attestations
 
 class AuditState(str, Enum):
     PASSED="PASSED"; REJECTED="REJECTED"; BLOCKED="BLOCKED"
@@ -31,9 +32,10 @@ AUDIT_CHECKS=(
  "terminal_state_consistency",
  "runtime_checkout_attestation",
  "executable_identity_attestation",
+ "implementation_identity_attestation",
 )
 
-def audit_chain(*, batch_id: str, target_commit_sha: str, record_commit_sha: str, execution_record, acceptance_result, reconciliation_snapshot, runtime_attestation=None, post_runtime_attestation=None, executable_attestation=None) -> AuditResult:
+def audit_chain(*, batch_id: str, target_commit_sha: str, record_commit_sha: str, execution_record, acceptance_result, reconciliation_snapshot, runtime_attestation=None, post_runtime_attestation=None, executable_attestation=None, implementation_attestations=None, repository_root=None, implementation_paths=()) -> AuditResult:
     if not batch_id or not target_commit_sha or not record_commit_sha:
         raise ValueError("audit identity is required")
 
@@ -51,6 +53,7 @@ def audit_chain(*, batch_id: str, target_commit_sha: str, record_commit_sha: str
         AuditFinding("terminal_state_consistency", execution_record.terminal and execution_record.passed, "execution must be terminal and passed"),
         AuditFinding("runtime_checkout_attestation", runtime_attestation is not None and verify_attestation(runtime_attestation) and runtime_attestation.status == "PASS" and runtime_attestation.actual_head_sha == target_commit_sha.lower() and post_runtime_attestation is not None and verify_attestation(post_runtime_attestation) and post_runtime_attestation.status == "PASS" and post_runtime_attestation.actual_head_sha == target_commit_sha.lower(), "pre/post runtime checkout attestations must match target commit"),
         AuditFinding("executable_identity_attestation", executable_attestation is not None and verify_executable_attestation(executable_attestation), "resolved executable identity must remain attested"),
+        AuditFinding("implementation_identity_attestation", repository_root is not None and implementation_attestations is not None and verify_implementation_attestations(repository_root, implementation_attestations, tuple(implementation_paths)), "implementation files must remain identical in locked checkout"),
     )
     state = AuditState.PASSED if all(f.passed for f in findings) else AuditState.REJECTED
     return AuditResult(batch_id, target_commit_sha, findings, state)
