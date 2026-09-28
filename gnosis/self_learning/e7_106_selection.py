@@ -210,3 +210,14 @@ def assert_selection_frozen(record: SelectionRecord) -> None:
 def selection_digest(record: SelectionRecord) -> str:
     assert_selection_frozen(record)
     return record.integrity_digest
+
+
+def selected_implementation_paths(record: SelectionRecord) -> tuple[str, ...]:
+    """Return the canonical implementation scope of frozen selected candidates."""
+    assert_selection_frozen(record)
+    selected = set(record.selected_candidate_ids)
+    paths = []
+    for candidate in record.candidates:
+        if candidate.candidate_id in selected:
+            paths.extend(candidate.implementation_paths)
+    return tuple(dict.fromkeys(paths))
