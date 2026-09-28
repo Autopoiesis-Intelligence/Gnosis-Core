@@ -7,6 +7,7 @@ from gnosis.self_learning.collaboration_authorization import (
     issue_execution_authorization,
 )
 from gnosis.self_learning.collaboration_runtime import (
+    ExternalActionRequest,
     build_trusted_collaboration_runtime,
 )
 
@@ -96,7 +97,16 @@ def test_runtime_executes_only_after_authorization():
         action_payload={"title": "allowed"},
     )
     assert result == "executed"
-    assert calls == [{"title": "allowed"}]
+    assert len(calls) == 1
+    request = calls[0]
+    assert isinstance(request, ExternalActionRequest)
+    assert request.authorization_id == auth.authorization_id
+    assert request.action_class == auth.action_class
+    assert request.target_resource == auth.target_resource
+    assert request.authorized_scope == auth.authorized_scope
+    assert request.executor_id == auth.executor_id
+    assert request.privacy_classification == auth.privacy_classification
+    assert request.parameters == {"title": "allowed"}
 
 
 def test_runtime_requires_callable_trusted_dependencies():
