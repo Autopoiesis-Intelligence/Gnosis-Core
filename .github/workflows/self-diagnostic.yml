@@ -2,6 +2,15 @@ name: Self-Diagnostic
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'gnosis/reflection/**'
+      - 'gnosis/core/**'
+      - 'gnosis/storage/**'
+      - 'gnosis/self_learning/**'
+      - 'tests/**'
+      - 'diagnostic_corpus/**'
+      - '.github/workflows/self-diagnostic.yml'
   push:
     paths:
       - 'gnosis/reflection/**'
