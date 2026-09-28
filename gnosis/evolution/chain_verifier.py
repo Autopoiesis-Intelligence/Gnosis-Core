@@ -10,6 +10,7 @@ from typing import Any, Mapping, Sequence
 
 from .audit import EvolutionAuditRecord, crosscheck_provenance_audit, verify_audit_chain
 from .provenance import EvidenceProvenance, crosscheck_provenance
+from gnosis.self_learning.e7_106_selection import SelectionRecord, assert_selection_record_matches_transition
 
 
 @dataclass(frozen=True)
@@ -102,4 +103,40 @@ def verify_persisted_chain(
     supplied_identity = provenance_row.get("evolution_identity")
     if supplied_identity is not None and supplied_identity != expected_identity:
         reasons.append("evolution identity mismatch")
+    return ChainVerification(not reasons, tuple(dict.fromkeys(reasons)))
+
+
+def verify_selection_transition_binding(
+    selection_record: SelectionRecord,
+    transition: Any,
+) -> ChainVerification:
+    """Verify the frozen selection identity against a persisted transition-like record."""
+    reasons: list[str] = []
+    try:
+        candidate_id = transition["candidate_id"] if isinstance(transition, Mapping) else transition.candidate_id
+        accepted = transition["accepted"] if isinstance(transition, Mapping) else transition.accepted
+    except (KeyError, AttributeError, TypeError) as exc:
+        return ChainVerification(False, (f"malformed transition record: {exc}",))
+    try:
+        # Reconstruct only the fields needed by the existing fail-closed contract.
+        # Full TransitionRecord validation remains owned by Core types.
+        if isinstance(transition, Mapping):
+            from gnosis.core.types import TestResult, TransitionRecord
+            test_result = transition.get("test_result")
+            if not isinstance(test_result, TestResult):
+                test_result = TestResult(bool(accepted))
+            transition_obj = TransitionRecord(
+                from_state_id=transition["from_state_id"],
+                to_state_id=transition["to_state_id"],
+                candidate_id=candidate_id,
+                test_result=test_result,
+                accepted=accepted,
+                reason=transition["reason"],
+                test_rule_id=transition.get("test_rule_id", "test-rule:unspecified"),
+            )
+        else:
+            transition_obj = transition
+        assert_selection_record_matches_transition(selection_record, transition_obj)
+    except (KeyError, TypeError, ValueError) as exc:
+        reasons.append(str(exc))
     return ChainVerification(not reasons, tuple(dict.fromkeys(reasons)))
