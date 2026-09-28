@@ -182,3 +182,65 @@ def test_selection_record_rejects_different_transition_candidate():
     )
     with pytest.raises(SelectionError, match="does not match"):
         assert_selection_record_matches_transition(frozen, transition)
+
+
+def test_candidate_record_binds_to_exact_core_candidate():
+    from gnosis.evolution.provenance import candidate_binding_digest
+    from gnosis.self_learning.e7_106_selection import (
+        CandidateRecord, SelectionStatus, assert_candidate_record_matches_core_candidate,
+    )
+    state = State()
+    core = Candidate(state.state_id, state.with_elements({"x": 1}), "C1")
+    record = CandidateRecord(
+        candidate_id="C1", contract_id="E7.114", revision="r1",
+        current_status="IMPLEMENTED", dependency_status="SATISFIED",
+        implementation_paths=("x.py",), acceptance_criteria_count=1,
+        mapped_test_count=1, runtime_proof_requirements=("exact_commit",),
+        existing_evidence_ids=(), evidence_commits=("0"*40,),
+        known_gaps=(), trust_boundary_relevance="HIGH",
+        execution_prerequisites=("python",), selection_status=SelectionStatus.SELECTED,
+        selection_rationale="fixture", candidate_binding_digest=candidate_binding_digest(core),
+    )
+    assert_candidate_record_matches_core_candidate(core, record)
+
+
+def test_candidate_record_rejects_same_id_with_changed_proposed_state():
+    from gnosis.evolution.provenance import candidate_binding_digest
+    from gnosis.self_learning.e7_106_selection import (
+        CandidateRecord, SelectionStatus, SelectionError, assert_candidate_record_matches_core_candidate,
+    )
+    state = State()
+    core = Candidate(state.state_id, state.with_elements({"x": 1}), "C1")
+    record = CandidateRecord(
+        candidate_id="C1", contract_id="E7.114", revision="r1",
+        current_status="IMPLEMENTED", dependency_status="SATISFIED",
+        implementation_paths=("x.py",), acceptance_criteria_count=1,
+        mapped_test_count=1, runtime_proof_requirements=("exact_commit",),
+        existing_evidence_ids=(), evidence_commits=("0"*40,),
+        known_gaps=(), trust_boundary_relevance="HIGH",
+        execution_prerequisites=("python",), selection_status=SelectionStatus.SELECTED,
+        selection_rationale="fixture", candidate_binding_digest=candidate_binding_digest(core),
+    )
+    changed = Candidate(state.state_id, state.with_elements({"x": 2}), "C1")
+    with pytest.raises(SelectionError, match="does not match"):
+        assert_candidate_record_matches_core_candidate(changed, record)
+
+
+def test_candidate_record_rejects_forged_binding_digest():
+    from gnosis.self_learning.e7_106_selection import (
+        CandidateRecord, SelectionStatus, SelectionError, assert_candidate_record_matches_core_candidate,
+    )
+    state = State()
+    core = Candidate(state.state_id, state.with_elements({"x": 1}), "C1")
+    record = CandidateRecord(
+        candidate_id="C1", contract_id="E7.114", revision="r1",
+        current_status="IMPLEMENTED", dependency_status="SATISFIED",
+        implementation_paths=("x.py",), acceptance_criteria_count=1,
+        mapped_test_count=1, runtime_proof_requirements=("exact_commit",),
+        existing_evidence_ids=(), evidence_commits=("0"*40,),
+        known_gaps=(), trust_boundary_relevance="HIGH",
+        execution_prerequisites=("python",), selection_status=SelectionStatus.SELECTED,
+        selection_rationale="fixture", candidate_binding_digest="f"*64,
+    )
+    with pytest.raises(SelectionError, match="does not match"):
+        assert_candidate_record_matches_core_candidate(core, record)
