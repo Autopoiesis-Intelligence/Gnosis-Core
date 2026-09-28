@@ -213,3 +213,28 @@ def test_append_audit_does_not_commit_outer_transaction() -> None:
     assert conn.execute("SELECT count(*) FROM evolution_provenance").fetchone()[0] == 0
     assert conn.execute("SELECT count(*) FROM evolution_audit").fetchone()[0] == 0
     conn.close()
+
+
+def test_tampered_prior_binding_with_recomputed_digest_breaks_next_previous_digest():
+    conn = make_connection()
+    p1 = make_provenance(candidate_binding_digest="binding-1")
+    p2 = make_provenance(candidate_binding_digest="binding-2")
+    a1 = persist_evolution_transaction(conn, p1, event_type="EVOLUTION", payload={"n": 1}).audit_record
+    a2 = persist_evolution_transaction(conn, p2, event_type="EVOLUTION", payload={"n": 2}).audit_record
+    tampered = make_audit_record(
+        sequence=a1.sequence,
+        event_type=a1.event_type,
+        candidate_id=a1.candidate_id,
+        execution_id=a1.execution_id,
+        provenance_id=a1.provenance_id,
+        parent_state_digest=a1.parent_state_digest,
+        proposed_state_digest=a1.proposed_state_digest,
+        evidence_digest=a1.evidence_digest,
+        candidate_binding_digest="binding-tampered",
+        payload={"n": 1},
+        previous_digest=a1.previous_digest,
+    )
+    assert tampered.record_digest != a1.record_digest
+    assert a2.previous_digest == a1.record_digest
+    with pytest.raises((AssertionError, ValueError, RuntimeError)):
+        verify_audit_chain([tampered, a2])
