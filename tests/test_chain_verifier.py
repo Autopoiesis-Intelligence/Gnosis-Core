@@ -1,6 +1,6 @@
 import sqlite3
 
-from gnosis.evolution.chain_verifier import verify_persisted_chain
+from gnosis.evolution.chain_verifier import verify_persisted_chain, verify_evolution_identity_chain
 from gnosis.evolution.provenance import EvidenceProvenance, build_provenance, canonical_digest
 from gnosis.reflection.persistence import append_evolution_audit, ensure_reflection_schema, save_evolution_provenance, list_evolution_audit
 
@@ -122,3 +122,82 @@ def test_verify_persisted_chain_rejects_duplicate_audit_links() -> None:
     result = verify_persisted_chain(row, [a0.__dict__, a1.__dict__], observations=observations)
     assert not result.valid
     assert "multiple audit records linked to provenance" in result.reasons
+
+
+def _identity_chain_fixture():
+    from gnosis.core.types import State, Candidate, TestResult, TransitionRecord
+    from gnosis.self_learning.e7_106_selection import CandidateRecord, SelectionStatus, create_selection_record
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.evolution.audit import make_audit_record
+    state = State()
+    candidate_id = "C1"
+    candidate = CandidateRecord(
+        candidate_id=candidate_id, contract_id="E7.114", revision="r1",
+        current_status="IMPLEMENTED", dependency_status="SATISFIED",
+        implementation_paths=("x.py",), acceptance_criteria_count=1,
+        mapped_test_count=1, runtime_proof_requirements=("exact_commit",),
+        existing_evidence_ids=(), evidence_commits=("0"*40,),
+        known_gaps=(), trust_boundary_relevance="HIGH",
+        execution_prerequisites=("python",), selection_status=SelectionStatus.SELECTED,
+        selection_rationale="fixture",
+    )
+    reserve = CandidateRecord(
+        candidate_id="C2", contract_id="E7.114", revision="r1",
+        current_status="IMPLEMENTED", dependency_status="SATISFIED",
+        implementation_paths=("y.py",), acceptance_criteria_count=1,
+        mapped_test_count=1, runtime_proof_requirements=("exact_commit",),
+        existing_evidence_ids=(), evidence_commits=("1"*40,),
+        known_gaps=(), trust_boundary_relevance="HIGH",
+        execution_prerequisites=("python",), selection_status=SelectionStatus.RESERVE,
+        selection_rationale="fixture",
+    )
+    selection = create_selection_record(
+        selection_record_id="SEL-1", batch_id="B-1", baseline_id="BASE-1",
+        repository="repo", target_commit_sha="0"*40,
+        candidates=(candidate,reserve), selected_candidate_ids=(candidate_id,),
+        reserve_candidate_ids=("C2",), excluded_candidate_ids=(), blocked_candidate_ids=(),
+        runtime_scenarios=("proof",), evidence_capture_points=("stdout",),
+        stop_conditions=("failure",), selection_policy_revision="r1",
+    )
+    observations={"ok":True}
+    p=build_provenance(candidate_id=candidate_id,parent_state_id=state.state_id,
+        parent_state_digest="pd",proposed_state_digest="sd",observations=observations,
+        evidence_digest=canonical_digest(observations),evaluation_status="PASS",
+        shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW")
+    tr=TransitionRecord(from_state_id=state.state_id,to_state_id="sd",candidate_id=candidate_id,
+        test_result=TestResult(True),accepted=True,reason="committed",test_rule_id="rule")
+    a=make_audit_record(sequence=0,event_type="PROVENANCE",candidate_id=candidate_id,
+        execution_id=p.execution_id,provenance_id=p.provenance_id,parent_state_digest="pd",
+        proposed_state_digest="sd",evidence_digest=p.evidence_digest,payload={"status":"RECORDED"})
+    return selection,tr,{"provenance_id":p.provenance_id,"execution_id":p.execution_id,
+        "candidate_id":candidate_id,"parent_state_id":state.state_id,"parent_state_digest":"pd",
+        "proposed_state_digest":"sd","evidence_digest":p.evidence_digest,
+        "evaluation_status":"PASS","shadow_status":"UNCHANGED","invariant_status":"PRESERVED",
+        "governance_decision":"ALLOW","status":"RECORDED"},[a.__dict__],observations
+
+def test_evolution_identity_chain_accepts_consistent_chain():
+    selection,tr,prov,aud,obs=_identity_chain_fixture()
+    result=verify_evolution_identity_chain(selection,tr,prov,aud,observations=obs)
+    assert result.valid, result.reasons
+
+def test_evolution_identity_chain_rejects_selection_transition_mismatch():
+    selection,tr,prov,aud,obs=_identity_chain_fixture()
+    from dataclasses import replace
+    tr=replace(tr,candidate_id="C2")
+    result=verify_evolution_identity_chain(selection,tr,prov,aud,observations=obs)
+    assert not result.valid
+    assert any("selection" in r or "candidate" in r for r in result.reasons)
+
+def test_evolution_identity_chain_rejects_transition_provenance_mismatch():
+    selection,tr,prov,aud,obs=_identity_chain_fixture()
+    prov=dict(prov,candidate_id="C2")
+    result=verify_evolution_identity_chain(selection,tr,prov,aud,observations=obs)
+    assert not result.valid
+    assert any("provenance" in r or "candidate" in r for r in result.reasons)
+
+def test_evolution_identity_chain_rejects_provenance_audit_mismatch():
+    selection,tr,prov,aud,obs=_identity_chain_fixture()
+    aud=[dict(aud[0],candidate_id="C2")]
+    result=verify_evolution_identity_chain(selection,tr,prov,aud,observations=obs)
+    assert not result.valid
+    assert any("audit" in r or "candidate" in r for r in result.reasons)
