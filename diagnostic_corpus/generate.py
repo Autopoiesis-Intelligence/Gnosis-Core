@@ -60,7 +60,6 @@ def generate(output_dir: Path | str = DEFAULT_OUT) -> Path:
         accepted = Candidate(
             parent_state_id=instance.engine.state.state_id,
             proposed_state=State(elements={"n": 1}, version=1),
-            version=1,
             origin="diagnostic-corpus:accepted-transition",
             seed=99,
         )
