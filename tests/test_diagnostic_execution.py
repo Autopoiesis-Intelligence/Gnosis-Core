@@ -1,13 +1,10 @@
 import json
-from pathlib import Path
 
 from diagnostic_corpus.generate import generate
 
 
-def test_self_diagnostic_generator_executes_end_to_end():
-    generate()
-
-    root = Path("diagnostic_corpus/SELF-DIAGNOSTIC-0001")
+def test_self_diagnostic_generator_executes_end_to_end(tmp_path):
+    root = generate(tmp_path / "SELF-DIAGNOSTIC-0001")
     metadata = json.loads((root / "metadata.json").read_text(encoding="utf-8"))
     transitions = json.loads((root / "transitions.json").read_text(encoding="utf-8"))
     artifact = json.loads((root / "diagnostic.json").read_text(encoding="utf-8"))
@@ -22,3 +19,11 @@ def test_self_diagnostic_generator_executes_end_to_end():
     assert artifact["report"]["observations"]
     assert all("provenance" in observation for observation in artifact["report"]["observations"])
     assert "limitations" in artifact
+
+
+def test_self_diagnostic_output_boundary_smoke(tmp_path):
+    root = generate(tmp_path / "SMOKE")
+    assert root.is_dir()
+    assert (root / "metadata.json").is_file()
+    assert (root / "transitions.json").is_file()
+    assert (root / "diagnostic.json").is_file()

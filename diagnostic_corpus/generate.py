@@ -1,6 +1,7 @@
 """Generate a reproducible controlled evidence corpus through real persistence."""
 from __future__ import annotations
 
+import argparse
 import json
 import tempfile
 from dataclasses import asdict, is_dataclass
@@ -10,16 +11,10 @@ from gnosis.core import Candidate, Engine, State
 from gnosis.instances.instance import Instance
 from gnosis.reflection.diagnostic_artifact import serialize_artifact
 from gnosis.reflection.self_diagnostic import diagnose
-from gnosis.storage import (
-
-    connect,
-    load_transition_records,
-    save_instance,
-    verify_durable_graph,
-)
+from gnosis.storage import connect, load_transition_records, save_instance, verify_durable_graph
 from gnosis.storage.repositories import _persist_transition
 
-OUT = Path(__file__).parent / "SELF-DIAGNOSTIC-0001"
+DEFAULT_OUT = Path(__file__).parent / "SELF-DIAGNOSTIC-0001"
 
 
 def _plain(value):
@@ -36,8 +31,9 @@ def _test(state: State, candidate: Candidate) -> bool:
     return "bad" not in candidate.proposed_state.elements
 
 
-def generate() -> None:
+def generate(output_dir: Path | str = DEFAULT_OUT) -> Path:
     """Execute, persist, recover, and diagnose a controlled Core scenario."""
+    out = Path(output_dir)
     instance = Instance.create_root("diagnostic-corpus", State(elements={"n": 0}))
     instance.engine = Engine(
         state=instance.engine.state,
@@ -78,12 +74,12 @@ def generate() -> None:
         assert all(record.test_rule_id == "test-rule:diagnostic-policy" for record in recovered_history)
 
         diagnostic = diagnose(recovered_history)
-        OUT.mkdir(parents=True, exist_ok=True)
-        (OUT / "transitions.json").write_text(
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "transitions.json").write_text(
             json.dumps([_plain(t) for t in recovered_history], ensure_ascii=False, indent=2, sort_keys=True),
             encoding="utf-8",
         )
-        (OUT / "metadata.json").write_text(
+        (out / "metadata.json").write_text(
             json.dumps(
                 {
                     "artifact_id": "SELF-DIAGNOSTIC-0001",
@@ -101,12 +97,15 @@ def generate() -> None:
             ),
             encoding="utf-8",
         )
-        (OUT / "diagnostic.json").write_text(
+        (out / "diagnostic.json").write_text(
             serialize_artifact(diagnostic, artifact_id="SELF-DIAGNOSTIC-0001"),
             encoding="utf-8",
         )
         conn.close()
+    return out
 
 
 if __name__ == "__main__":
-    generate()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
+    generate(parser.parse_args().output_dir)
