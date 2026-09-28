@@ -267,3 +267,35 @@ def test_core_candidate_to_candidate_record_preserves_exact_identity():
     assert record.candidate_id == core.candidate_id
     assert record.candidate_binding_digest == candidate_binding_digest(core)
     assert_candidate_record_matches_core_candidate(core, record)
+
+
+def test_real_engine_selection_to_frozen_record_vertical_slice():
+    from gnosis.self_learning.e7_106_selection import (
+        build_selection_record_from_core_result, assert_selection_result_matches_record,
+    )
+    current = State()
+    engine = Engine(state=current)
+    c1 = Candidate(current.state_id, current.with_elements({"x": 1}), "A")
+    c2 = Candidate(current.state_id, current.with_elements({"x": 2}), "B")
+    result, transition = engine.step_select_with_result((c1, c2))
+    metadata = {
+        c.candidate_id: {
+            "contract_id": "E7.114", "revision": "r1",
+            "current_status": "IMPLEMENTED", "dependency_status": "SATISFIED",
+            "implementation_paths": ("x.py",), "acceptance_criteria_count": 1,
+            "mapped_test_count": 1, "runtime_proof_requirements": ("exact_commit",),
+            "existing_evidence_ids": (), "evidence_commits": ("0"*40,),
+            "known_gaps": (), "trust_boundary_relevance": "HIGH",
+            "execution_prerequisites": ("python",),
+        } for c in (c1, c2)
+    }
+    frozen = build_selection_record_from_core_result(
+        result, selection_record_id="SEL-RUNTIME", batch_id="B-RUNTIME",
+        baseline_id=current.state_id, repository="Gnozis-Genesis",
+        target_commit_sha="0"*40, candidate_metadata=metadata,
+        runtime_scenarios=("vertical",), evidence_capture_points=("selection",),
+        stop_conditions=("failure",), selection_policy_revision="r1",
+    )
+    assert_selection_result_matches_record(result, frozen)
+    assert frozen.selected_candidate_ids == (transition.candidate_id,)
+    assert engine.state.state_id == transition.to_state_id
