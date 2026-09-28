@@ -11,8 +11,11 @@ from typing import Callable, Mapping
 
 from .collaboration_authorization import (
     ExecutionAuthorization,
+    TargetRevisionResolver,
+    TrustedEvidenceResolver,
     validate_execution_request,
 )
+
 
 @dataclass(frozen=True)
 class ExternalActionRequest:
