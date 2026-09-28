@@ -79,6 +79,7 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             parent_state_digest TEXT NOT NULL,
             proposed_state_digest TEXT NOT NULL,
             evidence_digest TEXT NOT NULL,
+            candidate_binding_digest TEXT NOT NULL DEFAULT '',
             payload_digest TEXT NOT NULL,
             previous_digest TEXT NOT NULL,
             record_digest TEXT NOT NULL UNIQUE
