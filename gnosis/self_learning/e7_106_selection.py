@@ -12,6 +12,7 @@ import json
 
 from gnosis.core.select import SelectionResult
 from gnosis.core.types import TransitionRecord
+from gnosis.evolution.provenance import candidate_binding_digest
 
 
 class SelectionError(ValueError):
@@ -44,6 +45,7 @@ class CandidateRecord:
     execution_prerequisites: tuple[str, ...]
     selection_status: SelectionStatus
     selection_rationale: str
+    candidate_binding_digest: str = ""
 
 
 @dataclass(frozen=True)
@@ -96,6 +98,7 @@ def _payload(record: SelectionRecord) -> dict:
                 "execution_prerequisites": list(c.execution_prerequisites),
                 "selection_status": c.selection_status.value,
                 "selection_rationale": c.selection_rationale,
+                "candidate_binding_digest": c.candidate_binding_digest,
             }
             for c in record.candidates
         ],
@@ -176,6 +179,8 @@ def create_selection_record(
             raise SelectionError("INVALIDATED candidates cannot be part of a frozen selection")
         if candidate.candidate_id not in declared[candidate.selection_status]:
             raise SelectionError("candidate status does not match frozen partition")
+        if not candidate.candidate_binding_digest:
+            raise SelectionError("candidate_binding_digest is required for frozen selection")
 
     if not selected_candidate_ids:
         raise SelectionError("at least one SELECTED candidate is required")
