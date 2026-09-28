@@ -40,7 +40,12 @@ def test_composition_owns_provider_wiring_and_executes_after_validation():
     composition = compose_collaboration_runtime(
         target_revision_resolver=lambda resource: "target-r1",
         evidence_resolver=lambda digest: evidence,
-        external_action=lambda payload: calls.append(payload) or ExternalExecutionReceipt(\n            authorization_id=_authorization().authorization_id,\n            effect_id="effect-1", effect_status="executed", evidence_digest="sha256:evidence-1"\n        ),
+        external_action=lambda payload: calls.append(payload) or ExternalExecutionReceipt(
+            authorization_id=_authorization().authorization_id,
+            effect_id="effect-1",
+            effect_status="executed",
+            evidence_digest="sha256:evidence-1",
+        ),
     )
     result = composition.execute(
         authorization=_authorization(),
