@@ -146,3 +146,39 @@ def test_core_selection_result_mismatch_is_rejected():
     frozen = record((candidate(c1.candidate_id, SelectionStatus.SELECTED), candidate(c2.candidate_id, SelectionStatus.RESERVE)))
     with pytest.raises(SelectionError, match="does not match core selection result"):
         assert_selection_result_matches_record(result, frozen)
+
+
+def test_selection_record_matches_committed_transition():
+    from gnosis.self_learning.e7_106_selection import assert_selection_record_matches_transition
+    current = State()
+    c1 = Candidate(current.state_id, current.with_elements({"x": 1}), "A")
+    frozen = record((candidate(c1.candidate_id, SelectionStatus.SELECTED),))
+    transition = TransitionRecord(
+        from_state_id=current.state_id,
+        to_state_id=c1.proposed_state.state_id,
+        candidate_id=c1.candidate_id,
+        test_result=TestResult(True),
+        accepted=True,
+        reason="committed",
+        test_rule_id="test-rule:default",
+    )
+    assert_selection_record_matches_transition(frozen, transition)
+
+
+def test_selection_record_rejects_different_transition_candidate():
+    from gnosis.self_learning.e7_106_selection import assert_selection_record_matches_transition
+    current = State()
+    c1 = Candidate(current.state_id, current.with_elements({"x": 1}), "A")
+    c2 = Candidate(current.state_id, current.with_elements({"x": 2}), "B")
+    frozen = record((candidate(c1.candidate_id, SelectionStatus.SELECTED),))
+    transition = TransitionRecord(
+        from_state_id=current.state_id,
+        to_state_id=c2.proposed_state.state_id,
+        candidate_id=c2.candidate_id,
+        test_result=TestResult(True),
+        accepted=True,
+        reason="committed",
+        test_rule_id="test-rule:default",
+    )
+    with pytest.raises(SelectionError, match="does not match"):
+        assert_selection_record_matches_transition(frozen, transition)
