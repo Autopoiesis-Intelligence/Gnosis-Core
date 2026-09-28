@@ -15,6 +15,21 @@ def canonical_digest(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def candidate_binding_digest(candidate: Any) -> str:
+    """Canonical identity digest for a Core candidate and its proposed state."""
+    try:
+        payload = {
+            "candidate_id": candidate.candidate_id,
+            "parent_state_id": candidate.parent_state_id,
+            "proposed_state_id": candidate.proposed_state.state_id,
+            "proposed_state": candidate.proposed_state.to_dict(),
+            "origin": candidate.origin,
+        }
+    except AttributeError as exc:
+        raise TypeError("candidate binding requires a Core Candidate") from exc
+    return canonical_digest(payload)
+
+
 def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: str, parent_state_digest: str, proposed_state_digest: str, evidence_digest: str, evaluation_status: str, shadow_status: str, invariant_status: str, governance_decision: str, status: str = "RECORDED", proposed_state_content_id: str = "", candidate_binding_digest: str = "") -> str:
     return "provenance:" + canonical_digest({
         "execution_id": execution_id,
