@@ -204,6 +204,8 @@ def crosscheck_provenance(
     if not verify_evidence_digest(observations, evidence_digest):
         reasons.append("observation digest mismatch")
     expected_execution = execution_id(candidate_id, parent_state_id, evidence_digest, parent_state_digest, proposed_state_digest, candidate_binding_digest)
+    if provenance.candidate_binding_digest != candidate_binding_digest:
+        raise ValueError("candidate binding mismatch")
     if execution_id_value != expected_execution:
         reasons.append("execution identity mismatch")
     expected_provenance = EvidenceProvenance(
