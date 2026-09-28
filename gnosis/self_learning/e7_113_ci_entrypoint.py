@@ -51,7 +51,7 @@ def main() -> int:
             "gnosis/self_learning/e7_113_execute_bounded_proof.py",
         ),
         acceptance_criteria_count=1,
-        mapped_test_count=2,
+        mapped_test_count=3,
         runtime_proof_requirements=("real GitHub runner command",),
         existing_evidence_ids=(),
         evidence_commits=(sha,),
