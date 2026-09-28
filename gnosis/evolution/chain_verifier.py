@@ -41,7 +41,7 @@ def _audit_from_mapping(row: Mapping[str, Any]) -> EvolutionAuditRecord:
     required = (
         "sequence", "event_type", "candidate_id", "execution_id",
         "provenance_id", "parent_state_digest", "proposed_state_digest",
-        "evidence_digest", "payload_digest", "previous_digest", "record_digest",
+        "evidence_digest", "candidate_binding_digest", "payload_digest", "previous_digest", "record_digest",
     )
     missing = [key for key in required if key not in row]
     if missing:
