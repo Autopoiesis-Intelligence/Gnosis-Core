@@ -54,6 +54,12 @@ class BoundedProofResult:
     closure: Closure
     proof_run: ProofRun
 
+def evaluate_expected_outcome(expected: str, *, returncode: int, stdout: str, stderr: str) -> bool:
+    if expected == "pytest exits successfully":
+        return returncode == 0
+    raise ValueError(f"unsupported immutable expected outcome: {expected}")
+
+
 def _object_digest(value: object) -> str:
     def encode(item):
         if isinstance(item, Enum):
@@ -74,8 +80,9 @@ def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: S
         raise ValueError("bounded executor requires exactly one criterion and expected outcome")
     criterion_id = scope_lock.criterion_ids[0]
     expected = scope_lock.expected_outcomes[0]
-    observed = json.dumps({"returncode": returncode, "stdout": stdout, "stderr": stderr}, sort_keys=True, separators=(",", ":"))
-    passed = returncode == 0
+    observed_payload = {"returncode": returncode, "stdout": stdout, "stderr": stderr}
+    observed = json.dumps(observed_payload, sort_keys=True, separators=(",", ":"))
+    passed = evaluate_expected_outcome(expected, returncode=returncode, stdout=stdout, stderr=stderr)
     evidence_id = sha256(observed.encode()).hexdigest()
     initial = ExecutionRecord(
         batch_id=scope_lock.batch_id,
