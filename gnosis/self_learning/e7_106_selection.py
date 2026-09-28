@@ -10,6 +10,8 @@ from enum import Enum
 from hashlib import sha256
 import json
 
+from gnosis.core.select import SelectionResult
+
 
 class SelectionError(ValueError):
     """Raised when an E7.106 selection record is invalid."""
@@ -221,3 +223,22 @@ def selected_implementation_paths(record: SelectionRecord) -> tuple[str, ...]:
         if candidate.candidate_id in selected:
             paths.extend(candidate.implementation_paths)
     return tuple(dict.fromkeys(paths))
+
+
+def assert_selection_result_matches_record(
+    result: SelectionResult,
+    record: SelectionRecord,
+) -> None:
+    """Verify that a frozen evidence record faithfully binds a core selection result."""
+    assert_selection_frozen(record)
+    evaluated_ids = tuple(candidate.candidate_id for candidate, _ in result.evaluated)
+    record_ids = tuple(candidate.candidate_id for candidate in record.candidates)
+    if set(evaluated_ids) != set(record_ids):
+        raise SelectionError("selection result candidate set does not match frozen record")
+    selected_id = result.selected.candidate_id if result.selected is not None else None
+    record_selected = tuple(record.selected_candidate_ids)
+    if selected_id is None:
+        if record_selected:
+            raise SelectionError("frozen record claims a selected candidate but core selection selected none")
+    elif record_selected != (selected_id,):
+        raise SelectionError("frozen selected candidate does not match core selection result")
