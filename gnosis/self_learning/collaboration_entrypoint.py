@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Mapping
 
-from .collaboration_authorization import ExecutionAuthorization, TrustedEvidenceResolver, TargetRevisionResolver
+from .collaboration_authorization import TrustedEvidenceResolver, TargetRevisionResolver
 from .collaboration_runtime import ExternalAction, TrustedCollaborationRuntime, build_trusted_collaboration_runtime
 
 
