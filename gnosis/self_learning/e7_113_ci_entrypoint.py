@@ -59,7 +59,7 @@ def main() -> int:
         trust_boundary_relevance="real execution must derive evidence without caller-supplied PASS",
         execution_prerequisites=("python", "pytest"),
         selection_status=SelectionStatus.SELECTED,
-        selection_rationale="Selected from the actual workflow target at GITHUB_SHA.",
+        selection_rationale="Integration fixture selected for the actual workflow target at GITHUB_SHA; this is not endogenous candidate selection.",
     )
 
     selection = create_selection_record(
