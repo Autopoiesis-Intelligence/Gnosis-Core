@@ -47,7 +47,7 @@ def persist_evolution_transaction(
             if existing != expected:
                 raise RuntimeError("conflicting replay for existing provenance")
             existing_audit = conn.execute(
-                "SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit WHERE provenance_id=?",
+                "SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,candidate_binding_digest,payload_digest,previous_digest,record_digest FROM evolution_audit WHERE provenance_id=?",
                 (provenance.provenance_id,),
             ).fetchone()
             if existing_audit is None:
@@ -75,6 +75,7 @@ def persist_evolution_transaction(
             parent_state_digest=provenance.parent_state_digest,
             proposed_state_digest=provenance.proposed_state_digest,
             evidence_digest=provenance.evidence_digest,
+            candidate_binding_digest=provenance.candidate_binding_digest,
             payload=payload,
             previous_digest=previous_digest,
         )
@@ -96,12 +97,12 @@ def persist_evolution_transaction(
         )
         conn.execute(
             """INSERT INTO evolution_audit
-            (sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest)
+            (sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,candidate_binding_digest,payload_digest,previous_digest,record_digest)
             VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 record.sequence, record.event_type, record.candidate_id,
                 record.execution_id, record.provenance_id, record.parent_state_digest,
-                record.proposed_state_digest, record.evidence_digest, record.payload_digest,
+                record.proposed_state_digest, record.evidence_digest, record.candidate_binding_digest, record.payload_digest,
                 record.previous_digest, record.record_digest,
             ),
         )
