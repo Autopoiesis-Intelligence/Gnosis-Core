@@ -19,3 +19,11 @@ def test_self_diagnostic_generator_executes_end_to_end(tmp_path):
     assert artifact["report"]["observations"]
     assert all("provenance" in observation for observation in artifact["report"]["observations"])
     assert "limitations" in artifact
+
+
+def test_self_diagnostic_output_boundary_smoke(tmp_path):
+    root = generate(tmp_path / "SMOKE")
+    assert root.is_dir()
+    assert (root / "metadata.json").is_file()
+    assert (root / "transitions.json").is_file()
+    assert (root / "diagnostic.json").is_file()
