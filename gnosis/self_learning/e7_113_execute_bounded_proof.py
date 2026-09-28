@@ -124,6 +124,8 @@ def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: S
         post_runtime_attestation=post_runtime_attestation,
         executable_attestation=executable_attestation,
         implementation_attestations=implementation_attestations,
+        repository_root=repository_root,
+        implementation_paths=scope_lock.implementation_paths,
     )
     if audit.state.value != "PASSED":
         raise RuntimeError("bounded proof evidence chain failed independent audit")
