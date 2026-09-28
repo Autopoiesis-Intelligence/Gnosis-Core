@@ -36,3 +36,28 @@ def test_audit_prev_hash_tampering_is_rejected(persisted_transition):
     conn.execute("UPDATE audit_events SET prev_hash=? WHERE event_id=?", ("a" * 64, rows[1][0]))
     with pytest.raises(StorageCorruptionError, match="sequence/link mismatch"):
         verify_audit_chain(conn)
+
+
+def test_candidate_binding_tamper_breaks_audit_record_digest():
+    conn = make_connection()
+    provenance = make_provenance(candidate_binding_digest="binding-original")
+    result = persist_evolution_transaction(
+        conn, provenance, event_type="EVOLUTION", payload={"ok": True}
+    )
+    row = conn.execute(
+        "SELECT record_digest FROM evolution_audit WHERE sequence=?",
+        (result.audit_record.sequence,),
+    ).fetchone()
+    original_digest = row[0]
+    conn.execute(
+        "UPDATE evolution_audit SET candidate_binding_digest=? WHERE sequence=?",
+        ("binding-tampered", result.audit_record.sequence),
+    )
+    conn.commit()
+    tampered = conn.execute(
+        "SELECT record_digest FROM evolution_audit WHERE sequence=?",
+        (result.audit_record.sequence,),
+    ).fetchone()[0]
+    assert tampered == original_digest
+    with pytest.raises((AssertionError, ValueError, RuntimeError)):
+        verify_evolution_identity_chain(conn)
