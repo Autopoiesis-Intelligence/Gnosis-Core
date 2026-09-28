@@ -19,8 +19,9 @@ from gnosis.self_learning.e7_114_runtime_attestation import RuntimeAttestation, 
 
 from gnosis.self_learning.e7_114_executable_attestation import ExecutableAttestation, attest_executable, verify_executable_attestation
 from gnosis.self_learning.e7_114_implementation_attestation import ImplementationAttestation, attest_implementation_paths, verify_implementation_attestations
+from gnosis.self_learning.e7_114_causal_execution_attestation import CausalExecutionAttestation, run_with_causal_trace, attest_causal_execution
 
-def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str, RuntimeAttestation, RuntimeAttestation, ExecutableAttestation]:
+def execute_locked_command(*, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> tuple[int, str, str, RuntimeAttestation, RuntimeAttestation, ExecutableAttestation, tuple[ImplementationAttestation, ...], CausalExecutionAttestation]:
     root = Path(repository_root)
     report = run_preflight(scope_lock, repository_root=root, resolved_commit_sha=resolved_commit_sha, resolved_branch_ref=resolved_branch_ref, selection_record=selection_record)
     assert_preflight_ready(report)
@@ -39,14 +40,17 @@ def execute_locked_command(*, scope_lock: ScopeLock, selection_record: Selection
     argv[0] = executable_attestation.resolved_path
     if not argv:
         raise ValueError("locked execution command is empty")
-    completed = subprocess.run(argv, cwd=root, capture_output=True, text=True, check=False)
+    completed, executed_paths = run_with_causal_trace(argv, repository_root=root, cwd=root, env=os.environ)
     if not verify_executable_attestation(executable_attestation):
         raise RuntimeError("resolved executable changed after execution")
     post_runtime_attestation = attest_checkout(root, scope_lock.target_commit_sha)
     assert_attestation_ready(post_runtime_attestation)
     if not verify_implementation_attestations(root, implementation_attestations, scope_lock.implementation_paths):
         raise RuntimeError("implementation files changed after execution")
-    return completed.returncode, completed.stdout, completed.stderr, runtime_attestation, post_runtime_attestation, executable_attestation, implementation_attestations
+    causal = attest_causal_execution(executed_paths=executed_paths, required_paths=scope_lock.implementation_paths)
+    if causal.status != "PASS":
+        raise RuntimeError("locked implementation paths were not causally executed")
+    return completed.returncode, completed.stdout, completed.stderr, runtime_attestation, post_runtime_attestation, executable_attestation, implementation_attestations, causal
 
 
 @dataclass(frozen=True)
@@ -58,6 +62,7 @@ class BoundedProofResult:
     closure: Closure
     implementation_attestations: tuple[ImplementationAttestation, ...]
     proof_run: ProofRun
+    causal_execution_attestation: CausalExecutionAttestation
 
 def evaluate_expected_outcome(expected: str, *, returncode: int, stdout: str, stderr: str) -> bool:
     if expected == "pytest exits successfully":
@@ -74,7 +79,7 @@ def _object_digest(value: object) -> str:
     return sha256(payload.encode()).hexdigest()
 
 def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: SelectionRecord, repository_root: str | os.PathLike[str], resolved_commit_sha: str, resolved_branch_ref: str) -> BoundedProofResult:
-    returncode, stdout, stderr, runtime_attestation, post_runtime_attestation, executable_attestation, implementation_attestations = execute_locked_command(
+    returncode, stdout, stderr, runtime_attestation, post_runtime_attestation, executable_attestation, implementation_attestations, causal_execution_attestation = execute_locked_command(
         scope_lock=scope_lock,
         selection_record=selection_record,
         repository_root=repository_root,
@@ -125,17 +130,18 @@ def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: S
         executable_attestation=executable_attestation,
         implementation_attestations=implementation_attestations,
         repository_root=repository_root,
+        causal_execution_attestation=causal_execution_attestation,
         implementation_paths=scope_lock.implementation_paths,
     )
     if audit.state.value != "PASSED":
         raise RuntimeError("bounded proof evidence chain failed independent audit")
-    digests = tuple(_object_digest(v) for v in (record, acceptance, reconciliation, audit, runtime_attestation, post_runtime_attestation, executable_attestation, implementation_attestations))
+    digests = tuple(_object_digest(v) for v in (record, acceptance, reconciliation, audit, runtime_attestation, post_runtime_attestation, executable_attestation, implementation_attestations, causal_execution_attestation))
     closure = create_closure(batch_id=scope_lock.batch_id, target_commit_sha=scope_lock.target_commit_sha, chain_digests=digests)
     if not verify_closure(closure, digests, batch_id=scope_lock.batch_id, target_commit_sha=scope_lock.target_commit_sha):
         raise RuntimeError("immutable closure verification failed")
     proof = plan_proof_run(run_id=run_id, target_commit_sha=scope_lock.target_commit_sha, mutation_authorized=False)
     proof = complete_proof_run(proof, observations=(evidence_id, closure.chain_digest), passed=passed)
-    return BoundedProofResult(record, acceptance, reconciliation, audit, closure, proof, implementation_attestations)
+    return BoundedProofResult(record, acceptance, reconciliation, audit, closure, implementation_attestations, proof)
 
 def main() -> int:
     raise SystemExit("E7.113 execution is fail-closed: frozen SelectionRecord + ScopeLock must be supplied to execute_locked_command")
