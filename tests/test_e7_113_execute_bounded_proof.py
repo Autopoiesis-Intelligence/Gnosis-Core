@@ -28,7 +28,7 @@ def selection():
 def test_run_bounded_proof_derives_chain_from_observation(monkeypatch):
     monkeypatch.setattr(executor, "run_preflight", lambda **kwargs: SimpleNamespace(status="PASS"))
     monkeypatch.setattr(executor, "assert_preflight_ready", lambda report: None)
-    monkeypatch.setattr(executor, "execute_locked_command", lambda **kwargs: (0, "observed", "", SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(argv0="echo", resolved_path="/bin/echo", digest="d"*64)))
+    monkeypatch.setattr(executor, "execute_locked_command", lambda **kwargs: (0, "observed", "", SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(argv0="echo", resolved_path="/bin/echo", digest="d"*64), (SimpleNamespace(path="gnosis/self_learning/e7_113_execute_bounded_proof.py", digest="d"*64),), SimpleNamespace(status="PASS", executed_paths=("gnosis/self_learning/e7_113_execute_bounded_proof.py",))))
 
     result = executor.run_bounded_proof(
         run_id="RUN-1",
@@ -51,7 +51,7 @@ def test_run_bounded_proof_derives_chain_from_observation(monkeypatch):
 def test_failed_command_cannot_become_pass(monkeypatch):
     monkeypatch.setattr(executor, "run_preflight", lambda **kwargs: SimpleNamespace(status="PASS"))
     monkeypatch.setattr(executor, "assert_preflight_ready", lambda report: None)
-    monkeypatch.setattr(executor, "execute_locked_command", lambda **kwargs: (1, "", "failure", SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(argv0="echo", resolved_path="/bin/echo", digest="d"*64)))
+    monkeypatch.setattr(executor, "execute_locked_command", lambda **kwargs: (1, "", "failure", SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(argv0="echo", resolved_path="/bin/echo", digest="d"*64), (SimpleNamespace(path="gnosis/self_learning/e7_113_execute_bounded_proof.py", digest="d"*64),), SimpleNamespace(status="PASS", executed_paths=("gnosis/self_learning/e7_113_execute_bounded_proof.py",))))
 
     with pytest.raises(RuntimeError, match="independent audit"):
         executor.run_bounded_proof(
