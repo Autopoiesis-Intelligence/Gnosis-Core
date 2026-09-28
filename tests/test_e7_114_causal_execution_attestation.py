@@ -25,3 +25,27 @@ def test_causal_trace_observes_executed_repository_file(tmp_path):
     )
     assert completed.returncode == 0
     assert "pkg/target.py" in executed
+
+
+def test_causal_trace_observes_pytest_executed_repository_file(tmp_path):
+    package = tmp_path / "pkg"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    (package / "target.py").write_text(
+        "def value():\n"
+        "    return 1\n"
+    )
+    (tmp_path / "test_target.py").write_text(
+        "from pkg.target import value\n"
+        "\n"
+        "def test_value():\n"
+        "    assert value() == 1\n"
+    )
+    completed, executed = run_with_causal_trace(
+        ["python", "-m", "pytest", "-q", "test_target.py"],
+        repository_root=tmp_path,
+        cwd=tmp_path,
+        env={},
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert "pkg/target.py" in executed
