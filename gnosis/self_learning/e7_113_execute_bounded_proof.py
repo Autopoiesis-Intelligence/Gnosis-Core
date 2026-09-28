@@ -141,7 +141,7 @@ def run_bounded_proof(*, run_id: str, scope_lock: ScopeLock, selection_record: S
         raise RuntimeError("immutable closure verification failed")
     proof = plan_proof_run(run_id=run_id, target_commit_sha=scope_lock.target_commit_sha, mutation_authorized=False)
     proof = complete_proof_run(proof, observations=(evidence_id, closure.chain_digest), passed=passed)
-    return BoundedProofResult(record, acceptance, reconciliation, audit, closure, implementation_attestations, proof)
+    return BoundedProofResult(record, acceptance, reconciliation, audit, closure, implementation_attestations, proof, causal_execution_attestation)
 
 def main() -> int:
     raise SystemExit("E7.113 execution is fail-closed: frozen SelectionRecord + ScopeLock must be supplied to execute_locked_command")
