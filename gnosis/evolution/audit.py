@@ -18,6 +18,7 @@ class EvolutionAuditRecord:
     parent_state_digest: str = ""
     proposed_state_digest: str = ""
     evidence_digest: str = ""
+    candidate_binding_digest: str = ""
     payload_digest: str = ""
     previous_digest: str = ""
     record_digest: str = ""
@@ -33,6 +34,7 @@ def audit_record_digest(
     parent_state_digest: str = "",
     proposed_state_digest: str = "",
     evidence_digest: str = "",
+    candidate_binding_digest: str = "",
     payload_digest: str,
     previous_digest: str,
 ) -> str:
@@ -45,6 +47,7 @@ def audit_record_digest(
         "parent_state_digest": parent_state_digest,
         "proposed_state_digest": proposed_state_digest,
         "evidence_digest": evidence_digest,
+        "candidate_binding_digest": candidate_binding_digest,
         "payload_digest": payload_digest,
         "previous_digest": previous_digest,
     })
@@ -62,6 +65,7 @@ def make_audit_record(
     evidence_digest: str = "",
     payload: Mapping[str, Any],
     previous_digest: str = "",
+    candidate_binding_digest: str = "", str = "",
 ) -> EvolutionAuditRecord:
     if sequence < 0:
         raise ValueError("audit sequence must be non-negative")
@@ -77,6 +81,7 @@ def make_audit_record(
         parent_state_digest=parent_state_digest,
         proposed_state_digest=proposed_state_digest,
         evidence_digest=evidence_digest,
+        candidate_binding_digest=candidate_binding_digest,
         payload_digest=payload_digest,
         previous_digest=previous_digest,
     )
@@ -89,6 +94,7 @@ def make_audit_record(
         parent_state_digest=parent_state_digest,
         proposed_state_digest=proposed_state_digest,
         evidence_digest=evidence_digest,
+        candidate_binding_digest=candidate_binding_digest,
         payload_digest=payload_digest,
         previous_digest=previous_digest,
         record_digest=record_digest,
@@ -113,6 +119,7 @@ def verify_audit_chain(records: list[EvolutionAuditRecord]) -> tuple[bool, tuple
             parent_state_digest=record.parent_state_digest,
             proposed_state_digest=record.proposed_state_digest,
             evidence_digest=record.evidence_digest,
+            candidate_binding_digest=record.candidate_binding_digest,
             payload_digest=record.payload_digest,
             previous_digest=record.previous_digest,
         )
@@ -141,6 +148,7 @@ def crosscheck_provenance_audit(
         "parent_state_digest",
         "proposed_state_digest",
         "evidence_digest",
+        "candidate_binding_digest",
     ):
         if getattr(provenance, field, None) != getattr(audit_record, field, None):
             reasons.append(f"{field} mismatch")
@@ -158,6 +166,7 @@ def crosscheck_provenance_audit(
         parent_state_digest=audit_record.parent_state_digest,
         proposed_state_digest=audit_record.proposed_state_digest,
         evidence_digest=audit_record.evidence_digest,
+        candidate_binding_digest=audit_record.candidate_binding_digest,
         payload_digest=audit_record.payload_digest,
         previous_digest=audit_record.previous_digest,
     )

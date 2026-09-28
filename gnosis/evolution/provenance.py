@@ -15,6 +15,21 @@ def canonical_digest(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def candidate_binding_digest(candidate: Any) -> str:
+    """Canonical identity digest for a Core candidate and its proposed state."""
+    try:
+        payload = {
+            "candidate_id": candidate.candidate_id,
+            "parent_state_id": candidate.parent_state_id,
+            "proposed_state_id": candidate.proposed_state.state_id,
+            "proposed_state": candidate.proposed_state.to_dict(),
+            "origin": candidate.origin,
+        }
+    except AttributeError as exc:
+        raise TypeError("candidate binding requires a Core Candidate") from exc
+    return canonical_digest(payload)
+
+
 def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: str, parent_state_digest: str, proposed_state_digest: str, evidence_digest: str, evaluation_status: str, shadow_status: str, invariant_status: str, governance_decision: str, status: str = "RECORDED", proposed_state_content_id: str = "", candidate_binding_digest: str = "") -> str:
     return "provenance:" + canonical_digest({
         "execution_id": execution_id,
@@ -86,11 +101,11 @@ class EvidenceProvenance:
         )
 
 
-def execution_id(candidate_id: str, parent_state_id: str, evidence_digest: str, parent_state_digest: str = "", proposed_state_digest: str = "") -> str:
+def execution_id(candidate_id: str, parent_state_id: str, evidence_digest: str, parent_state_digest: str = "", proposed_state_digest: str = "", candidate_binding_digest: str = "") -> str:
     if not candidate_id or not parent_state_id or not evidence_digest:
         raise ValueError("execution provenance requires candidate, parent state and evidence digest")
     return "execution:" + canonical_digest(
-        {"candidate_id": candidate_id, "parent_state_id": parent_state_id, "parent_state_digest": parent_state_digest, "proposed_state_digest": proposed_state_digest, "evidence_digest": evidence_digest}
+        {"candidate_id": candidate_id, "parent_state_id": parent_state_id, "parent_state_digest": parent_state_digest, "proposed_state_digest": proposed_state_digest, "candidate_binding_digest": candidate_binding_digest, "evidence_digest": evidence_digest}
     )[:24]
 
 
@@ -117,11 +132,12 @@ def build_provenance(
 ) -> EvidenceProvenance:
     if not parent_state_digest or not proposed_state_digest:
         raise ValueError("state digests are required")
-    # Empty binding is retained for legacy fixtures; canonical provenance must bind it before trusted activation.
+    if not candidate_binding_digest:
+        raise ValueError("candidate binding digest is required for trusted provenance")
     if not verify_evidence_digest(observations, evidence_digest):
         raise ValueError("evidence digest mismatch")
     return EvidenceProvenance(
-        execution_id=execution_id(candidate_id, parent_state_id, evidence_digest, parent_state_digest, proposed_state_digest),
+        execution_id=execution_id(candidate_id, parent_state_id, evidence_digest, parent_state_digest, proposed_state_digest, candidate_binding_digest),
         candidate_id=candidate_id,
         parent_state_id=parent_state_id,
         parent_state_digest=parent_state_digest,
@@ -187,7 +203,9 @@ def crosscheck_provenance(
         reasons.append("governance_decision mismatch")
     if not verify_evidence_digest(observations, evidence_digest):
         reasons.append("observation digest mismatch")
-    expected_execution = execution_id(candidate_id, parent_state_id, evidence_digest, parent_state_digest, proposed_state_digest)
+    expected_execution = execution_id(candidate_id, parent_state_id, evidence_digest, parent_state_digest, proposed_state_digest, candidate_binding_digest)
+    if provenance.candidate_binding_digest != candidate_binding_digest:
+        raise ValueError("candidate binding mismatch")
     if execution_id_value != expected_execution:
         reasons.append("execution identity mismatch")
     expected_provenance = EvidenceProvenance(
