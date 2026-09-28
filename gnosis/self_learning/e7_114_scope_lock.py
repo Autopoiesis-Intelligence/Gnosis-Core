@@ -79,9 +79,18 @@ def assert_command_scope_binding(lock: ScopeLock) -> None:
     if len(lock.commands) != 1:
         raise ScopeLockError("bounded proof requires exactly one command")
     argv = shlex.split(lock.commands[0], posix=True)
-    if not argv or argv[0].rsplit("/", 1)[-1] not in {"pytest", "pytest.exe"}:
+    if not argv:
         raise ScopeLockError("bounded proof scope binding requires pytest command")
-    command_paths = tuple(token for token in argv[1:] if token.endswith(".py") or token.startswith("tests/"))
+    executable = argv[0].rsplit("/", 1)[-1]
+    if executable in {"python", "python3", "py"}:
+        if len(argv) < 3 or argv[1] != "-m" or argv[2] != "pytest":
+            raise ScopeLockError("bounded proof scope binding requires python -m pytest")
+        path_tokens = argv[3:]
+    elif executable in {"pytest", "pytest.exe"}:
+        path_tokens = argv[1:]
+    else:
+        raise ScopeLockError("bounded proof scope binding requires pytest command")
+    command_paths = tuple(token for token in path_tokens if token.endswith(".py") or token.startswith("tests/"))
     if tuple(command_paths) != tuple(lock.runtime_paths):
         raise ScopeLockError("pytest command paths do not exactly match frozen runtime paths")
 
@@ -105,7 +114,13 @@ def create_scope_lock(*, batch_id, selection_record_id, selection_record_digest,
 def verify_scope_lock(lock: ScopeLock) -> bool:
     if lock.status!="VALID": return False
     _require_sha(lock.target_commit_sha); _require_digest(lock.selection_record_digest)
-    return lock.integrity_digest==_digest(lock)
+    if lock.integrity_digest != _digest(lock):
+        return False
+    try:
+        assert_command_scope_binding(lock)
+    except ScopeLockError:
+        return False
+    return True
 
 def assert_selection_binding(lock: ScopeLock, *, selection_record_id: str, selection_record_digest: str) -> None:
     if not verify_scope_lock(lock): raise ScopeLockError("scope lock is invalid or tampered")
