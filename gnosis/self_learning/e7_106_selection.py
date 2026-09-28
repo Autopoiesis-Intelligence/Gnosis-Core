@@ -267,3 +267,24 @@ def assert_selection_record_matches_transition(
         raise SelectionError("transition candidate does not match frozen selected candidate")
     if not transition.accepted:
         raise SelectionError("selected candidate did not produce an accepted transition")
+
+
+def assert_candidate_record_matches_core_candidate(
+    candidate: object,
+    record: CandidateRecord,
+) -> None:
+    """Fail closed unless a frozen CandidateRecord is bound to the exact Core Candidate."""
+    try:
+        core_id = candidate.candidate_id
+        core_parent = candidate.parent_state_id
+        core_proposed = candidate.proposed_state.state_id
+        core_origin = candidate.origin
+        binding = candidate_binding_digest(candidate)
+    except AttributeError as exc:
+        raise SelectionError("invalid Core Candidate for identity binding") from exc
+    if record.candidate_id != core_id:
+        raise SelectionError("candidate_id does not match Core Candidate")
+    if record.candidate_binding_digest != binding:
+        raise SelectionError("candidate_binding_digest does not match Core Candidate")
+    if record.candidate_binding_digest == "":
+        raise SelectionError("candidate_binding_digest is required")
