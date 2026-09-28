@@ -116,4 +116,39 @@ def test_runtime_requires_callable_trusted_dependencies():
             evidence_resolver=lambda digest: None,
             external_action=lambda payload: None,
         )
-\n\ndef test_runtime_builds_canonical_request_from_validated_authorization():\n    auth = _authorization()\n    evidence = PreconditionEvidence(\n        source_id="trusted-review-engine",\n        target_revision="target-r1",\n        evidence_revision="evidence-r1",\n        observed_conditions=("review-current",),\n        provenance="trusted-chain:r1",\n    )\n    calls = []\n    runtime = build_trusted_collaboration_runtime(\n        target_revision_resolver=lambda resource: "target-r1",\n        evidence_resolver=lambda digest: evidence,\n        external_action=lambda request: calls.append(request) or "executed",\n    )\n    runtime.execute(\n        authorization=auth,\n        review_id="review-1",\n        review_digest="sha256:review",\n        proposal_id="proposal-1",\n        proposal_revision="r1",\n        action_class="CREATE_PUBLIC_ISSUE_OR_PR",\n        target_resource="repo:public/project",\n        requested_scope="issue:create",\n        executor_id="executor-1",\n        privacy_classification="PUBLIC_APPROVED",\n        now="2026-01-01T00:00:00Z",\n        action_payload={"title": "allowed"},\n    )\n    assert isinstance(calls[0], ExternalActionRequest)\n    assert calls[0].authorization_id == auth.authorization_id\n    assert calls[0].target_resource == auth.target_resource\n    assert calls[0].action_class == auth.action_class\n    assert calls[0].authorized_scope == auth.authorized_scope\n
+
+
+def test_runtime_builds_canonical_request_from_validated_authorization():
+    auth = _authorization()
+    evidence = PreconditionEvidence(
+        source_id="trusted-review-engine",
+        target_revision="target-r1",
+        evidence_revision="evidence-r1",
+        observed_conditions=("review-current",),
+        provenance="trusted-chain:r1",
+    )
+    calls = []
+    runtime = build_trusted_collaboration_runtime(
+        target_revision_resolver=lambda resource: "target-r1",
+        evidence_resolver=lambda digest: evidence,
+        external_action=lambda request: calls.append(request) or "executed",
+    )
+    runtime.execute(
+        authorization=auth,
+        review_id="review-1",
+        review_digest="sha256:review",
+        proposal_id="proposal-1",
+        proposal_revision="r1",
+        action_class="CREATE_PUBLIC_ISSUE_OR_PR",
+        target_resource="repo:public/project",
+        requested_scope="issue:create",
+        executor_id="executor-1",
+        privacy_classification="PUBLIC_APPROVED",
+        now="2026-01-01T00:00:00Z",
+        action_payload={"title": "allowed"},
+    )
+    assert isinstance(calls[0], ExternalActionRequest)
+    assert calls[0].authorization_id == auth.authorization_id
+    assert calls[0].target_resource == auth.target_resource
+    assert calls[0].action_class == auth.action_class
+    assert calls[0].authorized_scope == auth.authorized_scope
