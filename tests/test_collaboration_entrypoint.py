@@ -4,7 +4,7 @@ import pytest
 
 from gnosis.self_learning.collaboration_authorization import PreconditionEvidence, issue_execution_authorization
 from gnosis.self_learning.collaboration_entrypoint import compose_collaboration_runtime
-from gnosis.self_learning.collaboration_runtime import ExternalActionRequest
+from gnosis.self_learning.collaboration_runtime import ExternalActionRequest, ExternalExecutionReceipt
 
 
 def _authorization():
@@ -40,7 +40,7 @@ def test_composition_owns_provider_wiring_and_executes_after_validation():
     composition = compose_collaboration_runtime(
         target_revision_resolver=lambda resource: "target-r1",
         evidence_resolver=lambda digest: evidence,
-        external_action=lambda payload: calls.append(payload) or "ok",
+        external_action=lambda payload: calls.append(payload) or ExternalExecutionReceipt(\n            authorization_id=_authorization().authorization_id,\n            effect_id="effect-1", effect_status="executed", evidence_digest="sha256:evidence-1"\n        ),
     )
     result = composition.execute(
         authorization=_authorization(),
@@ -56,7 +56,7 @@ def test_composition_owns_provider_wiring_and_executes_after_validation():
         now="2026-01-01T00:00:00Z",
         action_payload={"title": "allowed"},
     )
-    assert result == "ok"
+    assert result.effect_id == "effect-1"
     assert len(calls) == 1
     assert isinstance(calls[0], ExternalActionRequest)
     assert calls[0].parameters == {"title": "allowed"}
