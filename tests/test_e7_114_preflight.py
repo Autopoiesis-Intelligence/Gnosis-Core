@@ -266,3 +266,22 @@ def test_actual_checkout_sha_mismatch_fails_closed(tmp_path, monkeypatch):
     )
     assert report.status == "FAIL"
     assert any(c.check_id == "actual_checkout_sha" and c.status == "FAIL" for c in report.checks)
+
+
+def test_preflight_rejects_scope_lock_implementation_mismatch(selection_record, scope_lock, tmp_path):
+    from gnosis.self_learning.e7_114_scope_lock import ScopeLock
+    from gnosis.self_learning.e7_114_preflight import run_preflight
+    bad = ScopeLock(
+        **{**scope_lock.__dict__, "implementation_paths": ("gnosis/not_selected.py",), "integrity_digest": ""}
+    )
+    from dataclasses import replace
+    from gnosis.self_learning.e7_114_scope_lock import _digest
+    bad = replace(bad, integrity_digest=_digest(bad))
+    report = run_preflight(
+        bad,
+        repository_root=tmp_path,
+        resolved_commit_sha=bad.target_commit_sha,
+        resolved_branch_ref=bad.branch_ref,
+        selection_record=selection_record,
+    )
+    assert any(c.check_id == "implementation_scope_binding" and c.status == "FAIL" for c in report.checks)
