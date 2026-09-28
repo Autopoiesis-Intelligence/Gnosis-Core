@@ -4,6 +4,7 @@ import pytest
 
 from gnosis.self_learning.collaboration_authorization import PreconditionEvidence
 from gnosis.self_learning.collaboration_entrypoint import compose_collaboration_runtime
+from gnosis.self_learning.collaboration_runtime import ExternalActionRequest
 from tests.test_collaboration_runtime import _authorization
 
 
@@ -36,7 +37,9 @@ def test_composition_owns_provider_wiring_and_executes_after_validation():
         action_payload={"title": "allowed"},
     )
     assert result == "ok"
-    assert calls == [{"title": "allowed"}]
+    assert len(calls) == 1
+    assert isinstance(calls[0], ExternalActionRequest)
+    assert calls[0].parameters == {"title": "allowed"}
 
 
 def test_request_cannot_replace_provider_wiring():
