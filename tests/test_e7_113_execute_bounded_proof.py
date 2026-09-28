@@ -67,7 +67,7 @@ def test_failed_command_cannot_become_pass(monkeypatch):
 def test_multiple_criteria_fail_closed(monkeypatch):
     monkeypatch.setattr(executor, "run_preflight", lambda **kwargs: SimpleNamespace(status="PASS"))
     monkeypatch.setattr(executor, "assert_preflight_ready", lambda report: None)
-    monkeypatch.setattr(executor, "execute_locked_command", lambda **kwargs: (0, "observed", ""))
+    monkeypatch.setattr(executor, "execute_locked_command", lambda **kwargs: (0, "observed", "", SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(status="PASS", actual_head_sha="a"*40), SimpleNamespace(argv0="echo", resolved_path="/bin/echo", digest="d"*64), (SimpleNamespace(path="gnosis/self_learning/e7_113_execute_bounded_proof.py", digest="d"*64),), SimpleNamespace(status="PASS", executed_paths=("gnosis/self_learning/e7_113_execute_bounded_proof.py",))))
 
     locked = scope()
     locked.criterion_ids = ("C1", "C2")
