@@ -74,6 +74,18 @@ def _validate_command(command: str) -> None:
     if executable in {"python", "python3", "py"} and "-c" in argv:
         raise ScopeLockError("interpreter -c execution is forbidden in locked commands")
 
+def assert_command_scope_binding(lock: ScopeLock) -> None:
+    """Require the frozen pytest command to execute exactly the frozen runtime scope."""
+    if len(lock.commands) != 1:
+        raise ScopeLockError("bounded proof requires exactly one command")
+    argv = shlex.split(lock.commands[0], posix=True)
+    if not argv or argv[0].rsplit("/", 1)[-1] not in {"pytest", "pytest.exe"}:
+        raise ScopeLockError("bounded proof scope binding requires pytest command")
+    command_paths = tuple(token for token in argv[1:] if token.endswith(".py") or token.startswith("tests/"))
+    if tuple(command_paths) != tuple(lock.runtime_paths):
+        raise ScopeLockError("pytest command paths do not exactly match frozen runtime paths")
+
+
 def _digest(lock: ScopeLock) -> str:
     return sha256(json.dumps(_payload(lock), sort_keys=True, separators=(",",":")).encode()).hexdigest()
 
