@@ -140,3 +140,55 @@ def verify_selection_transition_binding(
     except (KeyError, TypeError, ValueError) as exc:
         reasons.append(str(exc))
     return ChainVerification(not reasons, tuple(dict.fromkeys(reasons)))
+
+
+def verify_evolution_identity_chain(
+    selection_record: SelectionRecord,
+    transition: Any,
+    provenance_row: Mapping[str, Any],
+    audit_rows: Sequence[Mapping[str, Any]],
+    *,
+    observations: Mapping[str, Any],
+) -> ChainVerification:
+    """Verify Selection -> Transition -> Provenance -> Audit as one read-only chain."""
+    reasons: list[str] = []
+
+    selection_check = verify_selection_transition_binding(selection_record, transition)
+    reasons.extend(selection_check.reasons)
+
+    persisted_check = verify_persisted_chain(
+        provenance_row,
+        audit_rows,
+        observations=observations,
+    )
+    reasons.extend(persisted_check.reasons)
+
+    try:
+        selected_ids = tuple(selection_record.selected_candidate_ids)
+        transition_candidate = transition["candidate_id"] if isinstance(transition, Mapping) else transition.candidate_id
+        transition_accepted = transition["accepted"] if isinstance(transition, Mapping) else transition.accepted
+        provenance_candidate = provenance_row["candidate_id"]
+        provenance_execution = provenance_row["execution_id"]
+        matching = [row for row in audit_rows if row.get("provenance_id") == provenance_row.get("provenance_id")]
+        if selected_ids:
+            if len(selected_ids) != 1:
+                reasons.append("selection must contain exactly one selected candidate")
+            elif transition_candidate != selected_ids[0]:
+                reasons.append("selection/transition candidate identity mismatch")
+            if provenance_candidate != selected_ids[0]:
+                reasons.append("selection/provenance candidate identity mismatch")
+        if not transition_accepted:
+            reasons.append("transition is not accepted")
+        if transition_candidate != provenance_candidate:
+            reasons.append("transition/provenance candidate identity mismatch")
+        if not matching:
+            reasons.append("provenance/audit identity link missing")
+        else:
+            if any(row.get("candidate_id") != provenance_candidate for row in matching):
+                reasons.append("audit candidate identity mismatch")
+            if any(row.get("execution_id") != provenance_execution for row in matching):
+                reasons.append("audit execution identity mismatch")
+    except (KeyError, AttributeError, TypeError) as exc:
+        reasons.append(f"malformed evolution identity chain: {exc}")
+
+    return ChainVerification(not reasons, tuple(dict.fromkeys(reasons)))
