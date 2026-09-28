@@ -17,7 +17,20 @@ from .collaboration_authorization import (
     validate_execution_request,
 )
 
-ExternalAction = Callable[[Mapping[str, object]], object]
+@dataclass(frozen=True)
+class ExternalActionRequest:
+    """Canonical, validated execution envelope passed to an external adapter."""
+
+    authorization_id: str
+    action_class: str
+    target_resource: str
+    authorized_scope: str
+    executor_id: str
+    privacy_classification: str
+    parameters: Mapping[str, object]
+
+
+ExternalAction = Callable[[ExternalActionRequest], object]
 
 
 @dataclass(frozen=True)
@@ -61,7 +74,16 @@ class TrustedCollaborationRuntime:
         )
         if not allowed:
             raise PermissionError("E7.76 authorization denied")
-        return self.external_action(action_payload)
+        request = ExternalActionRequest(
+            authorization_id=authorization.authorization_id,
+            action_class=action_class,
+            target_resource=target_resource,
+            authorized_scope=requested_scope,
+            executor_id=executor_id,
+            privacy_classification=privacy_classification,
+            parameters=dict(action_payload),
+        )
+        return self.external_action(request)
 
 
 def build_trusted_collaboration_runtime(
