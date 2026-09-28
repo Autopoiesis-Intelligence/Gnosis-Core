@@ -40,6 +40,8 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Run full regression
+        id: regression
+        continue-on-error: true
         run: |
           set +e
           pytest -q > autonomous-tests.txt 2>&1
@@ -53,6 +55,8 @@ jobs:
           echo "RESULT=PASS" | tee -a autonomous-observer-report.txt
 
       - name: Run self-diagnostic corpus
+        id: diagnostic
+        if: always()
         run: |
           python diagnostic_corpus/generate.py
           test -f diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
@@ -66,4 +70,12 @@ jobs:
             autonomous-observer-report.txt
             autonomous-tests.txt
             diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
+          if-no-files-found: warn
           retention-days: 14
+
+      - name: Preserve regression result
+        if: always()
+        run: |
+          if [ "${{ steps.regression.outcome }}" != "success" ]; then
+            exit 1
+          fi
