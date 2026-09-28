@@ -502,3 +502,15 @@ def test_build_provenance_rejects_missing_candidate_binding():
             proposed_state_digest="proposed-digest",
             candidate_binding_digest="",
         )
+
+
+def test_crosscheck_rejects_tampered_candidate_binding_with_stale_execution_id():
+    provenance = make_provenance(
+        candidate_binding_digest="binding-original",
+    )
+    tampered = dataclasses.replace(
+        provenance,
+        candidate_binding_digest="binding-tampered",
+    )
+    with pytest.raises(ValueError, match="candidate binding mismatch"):
+        crosscheck_provenance(tampered)
