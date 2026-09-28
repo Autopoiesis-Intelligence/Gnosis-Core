@@ -11,6 +11,7 @@ from hashlib import sha256
 import json
 
 from gnosis.core.select import SelectionResult
+from gnosis.core.types import TransitionRecord
 
 
 class SelectionError(ValueError):
@@ -242,3 +243,22 @@ def assert_selection_result_matches_record(
             raise SelectionError("frozen record claims a selected candidate but core selection selected none")
     elif record_selected != (selected_id,):
         raise SelectionError("frozen selected candidate does not match core selection result")
+
+
+def assert_selection_record_matches_transition(
+    record: SelectionRecord,
+    transition: TransitionRecord,
+) -> None:
+    """Verify that the committed transition is the candidate selected by frozen evidence."""
+    assert_selection_frozen(record)
+    selected_ids = tuple(record.selected_candidate_ids)
+    if not selected_ids:
+        if transition.accepted:
+            raise SelectionError("accepted transition exists but frozen selection selected no candidate")
+        return
+    if len(selected_ids) != 1:
+        raise SelectionError("frozen selection must contain exactly one selected candidate")
+    if transition.candidate_id != selected_ids[0]:
+        raise SelectionError("transition candidate does not match frozen selected candidate")
+    if not transition.accepted:
+        raise SelectionError("selected candidate did not produce an accepted transition")
