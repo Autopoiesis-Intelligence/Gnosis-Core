@@ -201,3 +201,18 @@ def test_evolution_identity_chain_rejects_provenance_audit_mismatch():
     result=verify_evolution_identity_chain(selection,tr,prov,aud,observations=obs)
     assert not result.valid
     assert any("audit" in r or "candidate" in r for r in result.reasons)
+
+
+def test_persisted_audit_binding_tamper_is_detected():
+    conn = make_connection()
+    provenance = make_provenance(candidate_binding_digest="binding-original")
+    result = persist_evolution_transaction(
+        conn, provenance, event_type="EVOLUTION", payload={"ok": True}
+    )
+    conn.execute(
+        "UPDATE evolution_audit SET candidate_binding_digest=? WHERE sequence=?",
+        ("binding-tampered", result.audit_record.sequence),
+    )
+    conn.commit()
+    with pytest.raises((AssertionError, ValueError, RuntimeError)):
+        verify_evolution_identity_chain(conn)
