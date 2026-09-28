@@ -19,3 +19,5 @@ jobs:
           python-version: "3.12"
       - name: Build import graph
         run: python tools/build_import_graph.py
+      - name: Run import graph test
+        run: pytest -q tests/test_import_graph.py
