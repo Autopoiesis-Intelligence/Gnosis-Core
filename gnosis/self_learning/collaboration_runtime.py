@@ -7,7 +7,7 @@ boundary responsibility, not an authorization input.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Mapping
+from typing import Callable, Mapping, Protocol
 
 from .collaboration_authorization import (
     ExecutionAuthorization,
@@ -29,7 +29,29 @@ class ExternalActionRequest:
     parameters: Mapping[str, object]
 
 
-ExternalAction = Callable[[ExternalActionRequest], object]
+@dataclass(frozen=True)
+class ExternalExecutionReceipt:
+    """Explicit receipt returned by an external-action boundary."""
+
+    authorization_id: str
+    effect_id: str
+    effect_status: str
+    evidence_digest: str
+
+    def __post_init__(self) -> None:
+        if not all(value.strip() for value in (
+            self.authorization_id, self.effect_id, self.effect_status, self.evidence_digest
+        )):
+            raise ValueError("external execution receipt fields are required")
+
+
+class ExternalActionPort(Protocol):
+    """Bounded port: receives only the canonical request and returns a receipt."""
+
+    def __call__(self, request: ExternalActionRequest) -> ExternalExecutionReceipt: ...
+
+
+ExternalAction = Callable[[ExternalActionRequest], ExternalExecutionReceipt]
 
 
 @dataclass(frozen=True)
@@ -82,14 +104,19 @@ class TrustedCollaborationRuntime:
             privacy_classification=privacy_classification,
             parameters=dict(action_payload),
         )
-        return self.external_action(request)
+        receipt = self.external_action(request)
+        if not isinstance(receipt, ExternalExecutionReceipt):
+            raise TypeError("external action adapter must return an execution receipt")
+        if receipt.authorization_id != authorization.authorization_id:
+            raise ValueError("execution receipt is not bound to authorization")
+        return receipt
 
 
 def build_trusted_collaboration_runtime(
     *,
     target_revision_resolver: TargetRevisionResolver,
     evidence_resolver: TrustedEvidenceResolver,
-    external_action: ExternalAction,
+    external_action: ExternalActionPort,
 ) -> TrustedCollaborationRuntime:
     """Composition-root factory.
 
