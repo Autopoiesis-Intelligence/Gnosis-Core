@@ -128,3 +128,13 @@ def test_executable_mutation_fails_closed(monkeypatch):
     attestation = executor.ExecutableAttestation("python", "/tmp/python", "0" * 64)
     with pytest.raises(RuntimeError, match="changed after attestation"):
         executor.assert_executable_unchanged(attestation)
+
+
+def test_expected_outcome_is_immutable_and_semantic():
+    assert executor.evaluate_expected_outcome("pytest exits successfully", returncode=0, stdout="", stderr="")
+    assert not executor.evaluate_expected_outcome("pytest exits successfully", returncode=1, stdout="", stderr="")
+
+
+def test_unknown_expected_outcome_fails_closed():
+    with pytest.raises(ValueError, match="unsupported immutable expected outcome"):
+        executor.evaluate_expected_outcome("anything else", returncode=0, stdout="", stderr="")
