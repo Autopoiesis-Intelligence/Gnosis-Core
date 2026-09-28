@@ -106,7 +106,7 @@ def test_crosscheck_accepts_intact_provenance():
         evidence_digest=digest,
         parent_state_digest="parent-digest",
         proposed_state_digest="proposed-digest",
-        execution_id_value=execution_id("candidate:3", "state:3", digest, "parent-digest", "proposed-digest"),
+        execution_id_value=execution_id("candidate:3", "state:3", digest, "parent-digest", "proposed-digest", "candidate-binding-digest"),
         evaluation_status="PASS",
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
@@ -140,7 +140,7 @@ def test_crosscheck_rejects_chain_mismatch():
         evidence_digest=digest,
         parent_state_digest="parent-digest",
         proposed_state_digest="proposed-digest",
-        execution_id_value=execution_id("candidate:tampered", "state:4", digest, "parent-digest", "proposed-digest"),
+        execution_id_value=execution_id("candidate:tampered", "state:4", digest, "parent-digest", "proposed-digest", "candidate-binding-digest"),
         evaluation_status="PASS",
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
@@ -482,3 +482,23 @@ def test_provenance_lifecycle_status_does_not_change_identity() -> None:
     consumed = replace(base, status="CONSUMED")
     assert consumed.provenance_id == base.provenance_id
     assert consumed.evolution_identity == base.evolution_identity
+
+
+def test_execution_id_changes_when_candidate_binding_changes():
+    digest = "evidence-digest"
+    a = execution_id("candidate:3", "state:3", digest, "parent-digest", "proposed-digest", "binding-a")
+    b = execution_id("candidate:3", "state:3", digest, "parent-digest", "proposed-digest", "binding-b")
+    assert a != b
+
+
+def test_build_provenance_rejects_missing_candidate_binding():
+    with pytest.raises(ValueError, match="candidate binding digest is required"):
+        build_provenance(
+            candidate_id="candidate:3",
+            parent_state_id="state:3",
+            evidence_digest="evidence-digest",
+            observations=(),
+            parent_state_digest="parent-digest",
+            proposed_state_digest="proposed-digest",
+            candidate_binding_digest="",
+        )
