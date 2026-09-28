@@ -329,3 +329,61 @@ def build_candidate_record_from_core_candidate(
         selection_rationale=selection_rationale,
         candidate_binding_digest=candidate_binding_digest(candidate),
     )
+
+
+def build_selection_record_from_core_result(
+    result: SelectionResult,
+    *,
+    selection_record_id: str,
+    batch_id: str,
+    baseline_id: str,
+    repository: str,
+    target_commit_sha: str,
+    candidate_metadata: dict[str, dict[str, object]],
+    runtime_scenarios: tuple[str, ...],
+    evidence_capture_points: tuple[str, ...],
+    stop_conditions: tuple[str, ...],
+    selection_policy_revision: str,
+) -> SelectionRecord:
+    """Build frozen selection evidence from the exact Core SelectionResult."""
+    records: list[CandidateRecord] = []
+    selected = result.selected.candidate_id if result.selected is not None else None
+    for candidate, _test in result.evaluated:
+        meta = candidate_metadata.get(candidate.candidate_id)
+        if meta is None:
+            raise SelectionError(f"missing evidence metadata for Core candidate {candidate.candidate_id}")
+        record = build_candidate_record_from_core_candidate(
+            candidate,
+            contract_id=str(meta["contract_id"]),
+            revision=str(meta["revision"]),
+            current_status=str(meta["current_status"]),
+            dependency_status=str(meta["dependency_status"]),
+            implementation_paths=tuple(meta["implementation_paths"]),
+            acceptance_criteria_count=int(meta["acceptance_criteria_count"]),
+            mapped_test_count=int(meta["mapped_test_count"]),
+            runtime_proof_requirements=tuple(meta["runtime_proof_requirements"]),
+            existing_evidence_ids=tuple(meta["existing_evidence_ids"]),
+            evidence_commits=tuple(meta["evidence_commits"]),
+            known_gaps=tuple(meta["known_gaps"]),
+            trust_boundary_relevance=str(meta["trust_boundary_relevance"]),
+            execution_prerequisites=tuple(meta["execution_prerequisites"]),
+            selection_status=SelectionStatus.SELECTED if candidate.candidate_id == selected else SelectionStatus.RESERVE,
+            selection_rationale="derived from exact Core SelectionResult",
+        )
+        records.append(record)
+    return create_selection_record(
+        selection_record_id=selection_record_id,
+        batch_id=batch_id,
+        baseline_id=baseline_id,
+        repository=repository,
+        target_commit_sha=target_commit_sha,
+        candidates=tuple(records),
+        selected_candidate_ids=(selected,) if selected else (),
+        reserve_candidate_ids=tuple(c.candidate_id for c in records if c.candidate_id != selected),
+        excluded_candidate_ids=(),
+        blocked_candidate_ids=(),
+        runtime_scenarios=runtime_scenarios,
+        evidence_capture_points=evidence_capture_points,
+        stop_conditions=stop_conditions,
+        selection_policy_revision=selection_policy_revision,
+    )
