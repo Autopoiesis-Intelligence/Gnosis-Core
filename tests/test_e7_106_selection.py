@@ -244,3 +244,26 @@ def test_candidate_record_rejects_forged_binding_digest():
     )
     with pytest.raises(SelectionError, match="does not match"):
         assert_candidate_record_matches_core_candidate(core, record)
+
+
+def test_core_candidate_to_candidate_record_preserves_exact_identity():
+    from gnosis.evolution.provenance import candidate_binding_digest
+    from gnosis.self_learning.e7_106_selection import (
+        build_candidate_record_from_core_candidate, SelectionStatus,
+        assert_candidate_record_matches_core_candidate,
+    )
+    state = State()
+    core = Candidate(state.state_id, state.with_elements({"x": 7}), "C1")
+    record = build_candidate_record_from_core_candidate(
+        core, contract_id="E7.114", revision="r1",
+        current_status="IMPLEMENTED", dependency_status="SATISFIED",
+        implementation_paths=("x.py",), acceptance_criteria_count=1,
+        mapped_test_count=1, runtime_proof_requirements=("exact_commit",),
+        existing_evidence_ids=(), evidence_commits=("0"*40,),
+        known_gaps=(), trust_boundary_relevance="HIGH",
+        execution_prerequisites=("python",), selection_status=SelectionStatus.SELECTED,
+        selection_rationale="runtime fixture",
+    )
+    assert record.candidate_id == core.candidate_id
+    assert record.candidate_binding_digest == candidate_binding_digest(core)
+    assert_candidate_record_matches_core_candidate(core, record)
