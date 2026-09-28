@@ -56,15 +56,20 @@ class Engine:
             self.state = candidate.proposed_state
         return record
 
-    def step_select(self, candidates: Sequence[Candidate]) -> TransitionRecord:
+    def step_select_with_result(
+        self, candidates: Sequence[Candidate]
+    ) -> tuple[SelectionResult, TransitionRecord]:
+        """Execute Select once and retain its exact result for an external evidence boundary."""
         self._charge_step()
         result: SelectionResult = select(self.state, candidates, self.test_fn)
         if result.selected is None:
-            reasons: tuple[str, ...]
             if not result.evaluated:
                 reasons = ("no candidates supplied to step_select",)
             else:
-                reasons = tuple(f"{c.candidate_id}: " + "; ".join(r.reasons) for c, r in result.evaluated)
+                reasons = tuple(
+                    f"{c.candidate_id}: " + "; ".join(r.reasons)
+                    for c, r in result.evaluated
+                )
             failed_result = TestResult(passed=False, reasons=reasons)
             detail = "; ".join(reasons) if reasons else "no candidate passed Test/Select"
             record = TransitionRecord(
@@ -77,10 +82,13 @@ class Engine:
                 test_rule_id=self.test_rule_id,
             )
             self.history.append(record)
-            return record
+            return result, record
         selected = result.selected
         if selected.parent_state_id != self.state.state_id:
-            raise StopCondition(StopReason.INVALID_STATE, f"selected candidate parent {selected.parent_state_id} does not match current state {self.state.state_id}")
+            raise StopCondition(
+                StopReason.INVALID_STATE,
+                f"selected candidate parent {selected.parent_state_id} does not match current state {self.state.state_id}",
+            )
         selected_result = result.result_for(selected)
         record = TransitionRecord(
             from_state_id=self.state.state_id,
@@ -93,6 +101,11 @@ class Engine:
         )
         self.history.append(record)
         self.state = selected.proposed_state
+        return result, record
+
+    def step_select(self, candidates: Sequence[Candidate]) -> TransitionRecord:
+        """Execute Select once and return only the transition for backward compatibility."""
+        _result, record = self.step_select_with_result(candidates)
         return record
 
     def run(self, generate_fn: GenerateFn, max_steps: int | None = None) -> list[TransitionRecord]:
