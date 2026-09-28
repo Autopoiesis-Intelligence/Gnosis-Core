@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import shutil
 
-from gnosis.self_learning.e7_106_selection import SelectionRecord, selection_digest
+from gnosis.self_learning.e7_106_selection import SelectionRecord, selection_digest, selected_implementation_paths
 from gnosis.self_learning.e7_114_scope_lock import ScopeLock, verify_scope_lock
 from gnosis.self_learning.e7_114_runtime_attestation import attest_checkout
 
@@ -91,6 +91,20 @@ def run_preflight(
             "frozen E7.106 selection matches scope lock"
             if selection_ok
             else "frozen E7.106 selection is missing or does not match scope lock",
+        )
+    )
+
+    implementation_scope_ok = (
+        selection_ok
+        and tuple(scope_lock.implementation_paths) == selected_implementation_paths(selection_record)
+    )
+    checks.append(
+        _check(
+            "implementation_scope_binding",
+            "PASS" if implementation_scope_ok else "FAIL",
+            "scope-lock implementation paths match selected candidate scope"
+            if implementation_scope_ok
+            else "scope-lock implementation paths do not match selected candidate scope",
         )
     )
 
