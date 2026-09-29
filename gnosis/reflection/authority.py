@@ -63,6 +63,7 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    evidence_digest: str = ""
 
     @property
     def can_execute(self) -> bool:
@@ -200,6 +201,10 @@ def require_execution_commit(request: ExecutionCommitRequest) -> None:
         request_provenance=request.request_provenance,
         evolution_identity=request.evolution_identity,
     )
+    if not request.authorization.evidence_digest:
+        raise PermissionError("execution authorization evidence is missing")
+    if request.authorization.evidence_digest != str(getattr(request.provenance, "evidence_digest", "")):
+        raise PermissionError("execution authorization evidence mismatch")
     if request.authorization.evolution_identity != request.intent_snapshot.evolution_identity:
         raise PermissionError("execution commit identity mismatch")
     if _canonical_evolution_identity(request.provenance) != request.evolution_identity:
