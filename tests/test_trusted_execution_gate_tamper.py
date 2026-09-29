@@ -23,3 +23,29 @@ def test_tampered_policy_is_rejected_before_consumption(sqlite_conn, provenance)
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
     row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-t",)).fetchone()
     assert row is None
+
+
+def test_direct_execution_authorization_is_rejected_without_issuer_proof(sqlite_conn, provenance):
+    """A structurally valid caller-created authorization is not production authority."""
+    validity = AuthorizationValidity("auth-direct", "policy-1", "ev-1")
+    req = make_request(provenance, validity)
+    with pytest.raises(PermissionError, match="issuer"):
+        require_trusted_execution(req, conn=sqlite_conn, actor="trusted-owner")
+    row = sqlite_conn.execute(
+        "SELECT event_hash FROM audit_events WHERE event_id=?",
+        ("execution-authorization:auth-direct",),
+    ).fetchone()
+    assert row is None
+
+
+def test_valid_authorization_rejects_substituted_policy_and_evidence(sqlite_conn, provenance):
+    """Caller-selected validity material cannot redefine issued authority."""
+    validity = AuthorizationValidity("auth-substitution", "policy-forged", "evidence-forged")
+    req = make_request(provenance, validity)
+    with pytest.raises(PermissionError, match="issued|policy|evidence"):
+        require_trusted_execution(req, conn=sqlite_conn, actor="trusted-owner")
+    row = sqlite_conn.execute(
+        "SELECT event_hash FROM audit_events WHERE event_id=?",
+        ("execution-authorization:auth-substitution",),
+    ).fetchone()
+    assert row is None
