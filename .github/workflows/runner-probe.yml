@@ -1,0 +1,19 @@
+name: Runner Probe
+
+on:
+  push:
+    branches:
+      - diagnostic/runner-probe-20260929
+  workflow_dispatch:
+
+jobs:
+  runner-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Runner identity
+        run: |
+          echo "runner-probe"
+          echo "RUNNER_NAME=$RUNNER_NAME"
+          echo "RUNNER_OS=$RUNNER_OS"
+      - name: Minimal execution
+        run: echo "runner execution reached"
