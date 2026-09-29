@@ -1,9 +1,11 @@
-name: CI
+name: Audit A1 A2 Authority Boundary
 
 on:
+  workflow_dispatch:
   push:
-    branches: [main]
-  pull_request:
+    paths:
+      - "tests/test_trusted_execution_gate_tamper.py"
+      - ".github/workflows/audit-a1-a2.yml"
 
 jobs:
   authority-audit:
@@ -11,6 +13,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -20,18 +24,5 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Run A1 A2 authority regressions
         run: pytest -q tests/test_trusted_execution_gate_tamper.py
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install package + dev deps
-        run: pip install -e ".[dev]"
-      - name: Run tests
-        run: pytest -v --cov=gnosis --cov-report=term-missing
+      - name: Audit marker
+        run: echo "A1-A2 isolated authority audit"

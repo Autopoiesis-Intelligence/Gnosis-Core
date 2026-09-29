@@ -24,9 +24,14 @@ def require_trusted_execution(
         raise PermissionError("authorization validity identity mismatch")
     if validity.policy_version == "":
         raise PermissionError("authorization policy is missing")
+    provenance_evidence = str(getattr(request.provenance, "evidence_digest", ""))
+    if not provenance_evidence:
+        raise PermissionError("execution provenance evidence is missing")
+    if validity.validity_evidence_digest != provenance_evidence:
+        raise PermissionError("authorization validity evidence mismatch")
     validity.require_valid(
         expected_policy_version=validity.policy_version,
-        expected_evidence_digest=validity.validity_evidence_digest,
+        expected_evidence_digest=provenance_evidence,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(

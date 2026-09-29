@@ -24,6 +24,30 @@ def test_authority_request_requires_owner_and_grants_no_capability() -> None:
     assert request.rationale == ("behavior_changed",)
 
 
+def test_issue_execution_authorization_requires_trusted_issuer():
+    approval = OwnerApproval("approval-1", "p", "e")
+    with pytest.raises(PermissionError, match="trusted owner-authority issuer"):
+        issue_execution_authorization(approval, request_provenance="p", evolution_identity="e")
+
+
+def test_issue_execution_authorization_uses_trusted_issuer():
+    from gnosis.reflection.trusted_issuer import TrustedOwnerIssuer
+    approval = OwnerApproval("approval-1", "p", "e")
+    issuer = TrustedOwnerIssuer("root-1", "evolution.commit", "policy-1")
+    auth = issue_execution_authorization(
+        approval,
+        request_provenance="p",
+        evolution_identity="e",
+        issuer=issuer,
+        authority_root="root-1",
+        scope="evolution.commit",
+        policy_version="policy-1",
+        evidence_digest="evidence-1",
+    )
+    assert auth.can_execute is True
+    assert auth.approval_id == "approval-1"
+
+
 def test_execution_authorization_fails_closed_without_explicit_owner_approval():
     with pytest.raises(PermissionError, match="does not match evolution"):
         require_execution_authorization(None, request_provenance="p", evolution_identity="e")

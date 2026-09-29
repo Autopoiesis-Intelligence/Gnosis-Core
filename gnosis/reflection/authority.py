@@ -63,6 +63,7 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    evidence_digest: str = ""
 
     @property
     def can_execute(self) -> bool:
@@ -79,8 +80,13 @@ def issue_execution_authorization(
     *,
     request_provenance: str,
     evolution_identity: str,
+    issuer: object | None = None,
+    authority_root: str = "",
+    scope: str = "",
+    policy_version: str = "",
+    evidence_digest: str = "",
 ) -> ExecutionAuthorization:
-    """Refuse boolean-only approval; real owner issuer remains an explicit boundary."""
+    """Issue execution authority only through an explicit trusted issuer."""
     if (
         approval is None
         or not approval.approval_id
@@ -88,7 +94,23 @@ def issue_execution_authorization(
         or approval.evolution_identity != evolution_identity
     ):
         raise PermissionError("owner approval does not match evolution")
-    raise NotImplementedError("trusted owner-authority issuer is not implemented")
+    if issuer is None:
+        raise PermissionError("trusted owner-authority issuer is required")
+    issue = getattr(issuer, "issue", None)
+    if not callable(issue):
+        raise PermissionError("trusted owner-authority issuer is invalid")
+    from .trusted_issuer import TrustedIssuerInput
+    return issue(
+        TrustedIssuerInput(
+            approval=approval,
+            authority_root=authority_root,
+            scope=scope,
+            policy_version=policy_version,
+            evidence_digest=evidence_digest,
+        ),
+        request_provenance=request_provenance,
+        evolution_identity=evolution_identity,
+    )
 
 def require_execution_authorization(
     auth: ExecutionAuthorization | None,
@@ -179,6 +201,10 @@ def require_execution_commit(request: ExecutionCommitRequest) -> None:
         request_provenance=request.request_provenance,
         evolution_identity=request.evolution_identity,
     )
+    if not request.authorization.evidence_digest:
+        raise PermissionError("execution authorization evidence is missing")
+    if request.authorization.evidence_digest != str(getattr(request.provenance, "evidence_digest", "")):
+        raise PermissionError("execution authorization evidence mismatch")
     if request.authorization.evolution_identity != request.intent_snapshot.evolution_identity:
         raise PermissionError("execution commit identity mismatch")
     if _canonical_evolution_identity(request.provenance) != request.evolution_identity:

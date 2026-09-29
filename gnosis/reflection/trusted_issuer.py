@@ -50,4 +50,5 @@ class TrustedOwnerIssuer:
             owner_approved=True,
             evolution_identity=evolution_identity,
             approval_id=approval.approval_id,
+            evidence_digest=request.evidence_digest,
         )
