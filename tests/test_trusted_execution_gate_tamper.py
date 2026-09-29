@@ -1,10 +1,44 @@
 import pytest
 from dataclasses import FrozenInstanceError
+from gnosis.evolution.federation_admission import admit_federation_evidence, build_core_provenance
+from registry.core_handoff import create_handoff
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot
 from gnosis.reflection.trusted_execution_gate import require_trusted_execution
-from gnosis.reflection.authorization_validity import AuthorizationValidity
+from gnosis.storage import connect
 
 
+@pytest.fixture
+def sqlite_conn():
+    conn = connect()
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+@pytest.fixture
+def provenance():
+    handoff = create_handoff(
+        {"result": "AUTHORIZED", "authorization_sha256": "a" * 64},
+        {"candidate_id": "c1", "source_id": "s1", "resource_id": "r1"},
+        "core-evolution",
+        "propose",
+        ["e1"],
+    )["handoff"]
+    env = admit_federation_evidence(handoff, {"observation": "value"})
+    return build_core_provenance(
+        env,
+        parent_state_id="p1",
+        parent_state_digest="pd",
+        proposed_state_digest="qd",
+        proposed_state_content_id="content",
+        candidate_binding_digest="binding",
+        evaluation_status="PASS",
+        shadow_status="PASS",
+        invariant_status="PASS",
+        governance_decision="ALLOW",
+    )
 def make_request(provenance, validity):
     auth = ExecutionAuthorization(
         request_provenance=provenance.provenance_id,
