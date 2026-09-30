@@ -42,6 +42,5 @@ def test_epistemic_transition_storage_is_append_only_and_tamper_evident():
     save_epistemic_transition(conn, transition)
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("DELETE FROM epistemic_transitions WHERE transition_id=?", (transition.transition_id,))
-    conn.execute("UPDATE epistemic_transitions SET to_state='ACCEPTED' WHERE transition_id=?", (transition.transition_id,))
-    with pytest.raises(StorageCorruptionError):
-        load_epistemic_transition(conn, transition.transition_id)
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("UPDATE epistemic_transitions SET to_state='ACCEPTED' WHERE transition_id=?", (transition.transition_id,))
