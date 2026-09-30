@@ -3,8 +3,22 @@ import pytest
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.reflection.gate import run_reflection_gate
-from gnosis.storage import connect, save_instance
+from gnosis.storage import RecoveryAuthorization, connect, recovery_evidence_digest, save_instance
 from gnosis.storage.repositories import _persist_transition
+
+
+def _recovery_authorization(conn, instance_id):
+    return RecoveryAuthorization(
+        authorization_id="gate-recovery",
+        subject=instance_id,
+        requested_by="test-principal",
+        authority="governance/recovery",
+        decision="allow",
+        reason="reflection gate recovery",
+        issued_at="2026-10-01T00:00:00Z",
+        expires_at=None,
+        evidence_digest=recovery_evidence_digest(conn, instance_id),
+    )
 
 
 def test_reflection_gate_reaches_durable_read_only_evidence():
@@ -16,7 +30,7 @@ def test_reflection_gate_reaches_durable_read_only_evidence():
     record = instance.engine.step(candidate)
     _persist_transition(conn, instance, candidate, record, actor="test")
 
-    result = run_reflection_gate(instance.engine, conn, instance.instance_id)
+    result = run_reflection_gate(instance.engine, conn, instance.instance_id, authorization=_recovery_authorization(conn, instance.instance_id), now="2026-10-01T00:00:00Z")
 
     assert result.passed
     assert result.transition_count == 1
