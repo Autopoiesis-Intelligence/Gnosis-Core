@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord
+from gnosis.world import WorldObservation
 from gnosis.instances.instance import Instance, InstanceStatus
 from .database import GENESIS_HASH, transaction
 from .authorization import RecoveryAuthorization, validate_recovery_authorization
@@ -35,6 +36,71 @@ def _reject_secrets(value: Any, path: str = "payload") -> None:
 def canonical_json(value: Any) -> str:
     _reject_secrets(value); return json.dumps(_plain(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 def state_payload(state: State) -> str: return canonical_json({"elements": state.elements, "version": state.version})
+
+def world_observation_payload(observation: WorldObservation) -> tuple[str, str]:
+    return (
+        canonical_json(observation.properties),
+        canonical_json(observation.relations),
+    )
+
+
+def save_world_observation(
+    conn: sqlite3.Connection,
+    observation: WorldObservation,
+    *,
+    created_at: str | None = None,
+) -> None:
+    created_at = created_at or utc_now()
+    properties, relations = world_observation_payload(observation)
+    existing = conn.execute(
+        "SELECT context_ref,distinction,carrier_ref,properties,relations FROM world_observations WHERE observation_id=?",
+        (observation.observation_id,),
+    ).fetchone()
+    expected = (
+        observation.context_ref,
+        observation.distinction,
+        observation.carrier_ref,
+        properties,
+        relations,
+    )
+    if existing is not None:
+        if tuple(existing) != expected:
+            raise StorageCorruptionError("observation_id collision or tampering")
+        return
+    conn.execute(
+        "INSERT INTO world_observations(observation_id,context_ref,distinction,carrier_ref,properties,relations,created_at) VALUES(?,?,?,?,?,?,?)",
+        (observation.observation_id, *expected, created_at),
+    )
+
+
+def load_world_observation(
+    conn: sqlite3.Connection,
+    observation_id: str,
+) -> WorldObservation:
+    row = conn.execute(
+        "SELECT context_ref,distinction,carrier_ref,properties,relations FROM world_observations WHERE observation_id=?",
+        (observation_id,),
+    ).fetchone()
+    if row is None:
+        raise StorageCorruptionError(f"world observation not found: {observation_id}")
+    try:
+        properties = json.loads(row[3])
+        relations = json.loads(row[4])
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise StorageCorruptionError("malformed world observation payload") from exc
+    if not isinstance(properties, dict) or not isinstance(relations, list):
+        raise StorageCorruptionError("invalid world observation payload structure")
+    observation = WorldObservation(
+        context_ref=row[0],
+        distinction=row[1],
+        carrier_ref=row[2],
+        properties=properties,
+        relations=tuple(relations),
+    )
+    if observation.observation_id != observation_id:
+        raise StorageCorruptionError(f"world observation identity mismatch: {observation_id}")
+    return observation
+
 def _decode_payload(payload: str) -> dict[str, Any]:
     try: value=json.loads(payload)
     except (TypeError,json.JSONDecodeError) as exc: raise StorageCorruptionError("malformed state JSON") from exc
