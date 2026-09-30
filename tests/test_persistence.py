@@ -311,7 +311,7 @@ def test_a30_atomicity_rolls_back_after_audit_before_commit(monkeypatch):
 
     with pytest.raises(RuntimeError, match="injected failure at after_audit"):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_audit")
-    assert recover_instance(conn, instance.instance_id).engine.state.state_id == original_state_id
+    assert _recover(conn, instance.instance_id).engine.state.state_id == original_state_id
 
 
 def test_a13_process_exit_after_commit_reopens_valid_database(tmp_path):
@@ -344,7 +344,7 @@ def test_a19_delete_final_audit_event_fails_recovery():
     transition_id_value = conn.execute("SELECT transition_id FROM transitions WHERE instance_id=?", (instance.instance_id,)).fetchone()[0]
     conn.execute("DELETE FROM audit_events WHERE transition_id=?", (transition_id_value,))
     with pytest.raises(StorageCorruptionError, match="audit evidence"):
-        recover_instance(conn, instance.instance_id)
+        _recover(conn, instance.instance_id)
 
 
 def test_a25_duplicate_state_id_with_different_payload_is_rejected():
@@ -431,7 +431,7 @@ def test_a54_rejected_transition_replay_is_idempotent():
     before = conn.execute("SELECT count(*) FROM transitions").fetchone()[0]
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == before
-    assert recover_instance(conn, instance.instance_id).engine.state.state_id == record.from_state_id
+    assert _recover(conn, instance.instance_id).engine.state.state_id == record.from_state_id
 
 
 def test_a55_conflicting_transition_replay_fails_closed():
