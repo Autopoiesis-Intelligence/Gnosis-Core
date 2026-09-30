@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from gnosis.storage import recover_instance, verify_durable_graph
+from gnosis.storage import recover_instance, verify_durable_graph, RecoveryAuthorization
 from gnosis.evolution.recovery import recover_evolution_audit
 
 from .diagnostic_artifact import build_artifact
@@ -25,7 +25,7 @@ class ReflectionGateResult:
     reasons: tuple[str, ...] = ()
 
 
-def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, minimum_repetitions: int = 2) -> ReflectionGateResult:
+def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, authorization: RecoveryAuthorization, now: str, minimum_repetitions: int = 2) -> ReflectionGateResult:
     """Verify that one canonical execution history reaches durable reflection evidence.
 
     This function is observational only: it does not commit Core state, issue authority,
@@ -44,7 +44,7 @@ def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, minimum_rep
         reasons.append(f"durable graph verification failed: {type(exc).__name__}")
 
     try:
-        recovered = recover_instance(conn, instance_id)
+        recovered = recover_instance(conn, instance_id, authorization, now=now)
         recovery_state_id = recovered.engine.state.state_id
     except Exception as exc:
         recovery_state_id = ""
