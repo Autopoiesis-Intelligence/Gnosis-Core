@@ -22,6 +22,8 @@ from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.instances.instance import Instance
 from gnosis.instances.fork import fork_instance
 from gnosis.storage import (
+    RecoveryAuthorization,
+    recovery_evidence_digest,
     SecretMaterialError,
     StorageCorruptionError,
     append_audit,
@@ -296,8 +298,8 @@ def test_a37_concurrent_different_heads_keep_instance_isolation(tmp_path):
     for thread in threads: thread.start()
     for thread in threads: thread.join()
     assert errors == []
-    assert recover_instance(setup, first.instance_id).engine.state.elements["first-next"] == 1
-    assert recover_instance(setup, second.instance_id).engine.state.elements["second-next"] == 1
+    assert _authorized_recover(setup, first.instance_id).engine.state.elements["first-next"] == 1
+    assert _authorized_recover(setup, second.instance_id).engine.state.elements["second-next"] == 1
 
 
 def test_a40_malformed_json_fails_with_storage_corruption_error():
