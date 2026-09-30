@@ -133,3 +133,36 @@ class Measurement:
             "unit": self.unit,
             "scale": self.scale,
         })
+
+
+@dataclass(frozen=True)
+class WorldRelation:
+    """Immutable relation proposal between world-model objects.
+
+    A relation records a typed connection; it does not assert that the
+    connection is true or accepted.
+    """
+
+    subject_ref: str
+    predicate: str
+    object_ref: str
+    context_ref: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.subject_ref.strip():
+            raise ValueError("subject_ref must not be empty")
+        if not self.predicate.strip():
+            raise ValueError("predicate must not be empty")
+        if not self.object_ref.strip():
+            raise ValueError("object_ref must not be empty")
+        if self.context_ref is not None and not self.context_ref.strip():
+            raise ValueError("context_ref must be empty or omitted")
+
+    @property
+    def relation_id(self) -> str:
+        return _stable_hash({
+            "subject_ref": self.subject_ref,
+            "predicate": self.predicate,
+            "object_ref": self.object_ref,
+            "context_ref": self.context_ref,
+        })
