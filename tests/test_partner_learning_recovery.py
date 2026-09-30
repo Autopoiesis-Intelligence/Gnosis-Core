@@ -2,12 +2,28 @@ import pytest
 from pathlib import Path
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.instances.instance import Instance
+from gnosis.storage import RecoveryAuthorization, recovery_evidence_digest
 from gnosis.storage.database import connect
 from gnosis.storage.repositories import save_state, _persist_transition, save_candidate, save_instance
 from gnosis.self_learning.partner_learning_adapter import build_request
 from gnosis.self_learning.partner_learning_gate import admit_partner_candidate
 from gnosis.self_learning.partner_learning_runtime import commit_admitted_partner_learning
 from gnosis.self_learning.partner_learning_recovery import recover_partner_learning
+
+
+def recovery_auth(path, instance_id):
+    conn = connect(path)
+    try:
+        digest = recovery_evidence_digest(conn, instance_id)
+    finally:
+        conn.close()
+    return RecoveryAuthorization(
+        authorization_id="test-recovery", subject=instance_id,
+        requested_by="test-principal", authority="test-governance",
+        decision="allow", reason="test recovery",
+        issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
 
 def fixture(path):
     conn=connect(path)
@@ -26,7 +42,7 @@ def fixture(path):
 
 def test_partner_learning_survives_close_reopen(tmp_path):
     path=tmp_path/"gnozis.db"; tr,instance_id=fixture(str(path))
-    instance,memory=recover_partner_learning(str(path),instance_id)
+    instance,memory=recover_partner_learning(str(path), instance_id, authorization=recovery_auth(str(path), instance_id), now="2026-09-25T12:00:00Z")
     assert instance.engine.state.state_id==tr.to_state_id
     assert len(memory)==1 and memory[0].transition_id==tr.transition_id
 
@@ -37,7 +53,7 @@ def test_audit_tamper_is_detected_on_recovery(tmp_path):
     conn.execute("DROP TRIGGER audit_events_no_update")
     conn.execute("UPDATE audit_events SET result=? WHERE event_id=?",("tampered",row[0]))
     conn.commit(); conn.close()
-    with pytest.raises(Exception): recover_partner_learning(str(path),instance_id)
+    with pytest.raises(Exception): recover_partner_learning(str(path), instance_id, authorization=recovery_auth(str(path), instance_id), now="2026-09-25T12:00:00Z")
 
 def test_memory_tamper_is_detected_on_recovery(tmp_path):
     path=tmp_path/"gnozis.db"; tr,instance_id=fixture(str(path))
@@ -47,4 +63,4 @@ def test_memory_tamper_is_detected_on_recovery(tmp_path):
     conn.execute("DROP TRIGGER evolution_memory_no_delete")
     conn.execute("UPDATE evolution_memory SET evidence=? WHERE memory_id=?", ('["tampered"]', row[0]))
     conn.commit(); conn.close()
-    with pytest.raises(Exception): recover_partner_learning(str(path),instance_id)
+    with pytest.raises(Exception): recover_partner_learning(str(path), instance_id, authorization=recovery_auth(str(path), instance_id), now="2026-09-25T12:00:00Z")
