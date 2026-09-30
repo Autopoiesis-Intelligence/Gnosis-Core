@@ -298,3 +298,43 @@ _TRANSITION_AUTHORITY_SEAL = object()\n\n\nclass TransitionAuthority:
         )
         object.__setattr__(transition, "_authority_seal", _TRANSITION_AUTHORITY_SEAL)
         return transition
+
+
+@dataclass(frozen=True)
+class EpistemicReplay:
+    """Deterministic reconstruction result from an ordered transition chain."""
+
+    subject_ref: str
+    initial_state: EpistemicState
+    final_state: EpistemicState
+    applied_transition_ids: tuple[str, ...] = ()
+
+    @classmethod
+    def reconstruct(
+        cls,
+        subject_ref: str,
+        initial_state: EpistemicState,
+        transitions: Sequence[EpistemicTransition],
+    ) -> "EpistemicReplay":
+        state = initial_state
+        applied: list[str] = []
+        for transition in transitions:
+            if transition.subject_ref != subject_ref:
+                raise ValueError("replay transition subject mismatch")
+            from_state = EpistemicState(transition.from_state)
+            to_state = EpistemicState(transition.to_state)
+            if from_state != state:
+                raise ValueError("replay transition continuity mismatch")
+            TransitionPolicy.validate(
+                from_state,
+                to_state,
+                basis_refs=transition.basis_refs,
+            )
+            state = to_state
+            applied.append(transition.transition_id)
+        return cls(
+            subject_ref=subject_ref,
+            initial_state=initial_state,
+            final_state=state,
+            applied_transition_ids=tuple(applied),
+        )
