@@ -17,6 +17,7 @@ from .counterexample import CounterexampleEngine, validate_counterexample_result
 from .history import HistoricalFinding, ReflectionHistorySummary, summarize_reflection_history, unresolved_findings
 from .persistence import list_reflection_reports, reflection_id, save_reflection_report
 from .memory_evidence import EvolutionEvidence, project_evolution_memory
+from .endogenous import generate_endogenous_candidates
 from gnosis.storage.evolution_memory import load_evolution_memory
 
 
@@ -41,6 +42,38 @@ def reflect(engine: Any, minimum_repetitions: int = 2) -> ReflectionReport:
         validate_counterexample_result(finding, candidate, result, engine.history)
     return replace(report, counterexample_results=results)
 
+
+
+def run_endogenous(
+    engine: Any,
+    *,
+    minimum_repetitions: int = 2,
+    max_steps: int | None = None,
+) -> tuple[Any, ...]:
+    """Run bounded endogenous candidates through the canonical Engine path.
+
+    Reflection has no execution authority. Every generated Candidate is passed
+    through Engine.step_select(), preserving the normal Test/Select/Commit path.
+    """
+    records: list[Any] = []
+    steps = 0
+    while not engine.budget.exhausted():
+        if max_steps is not None and steps >= max_steps:
+            break
+        report = reflect(engine, minimum_repetitions=minimum_repetitions)
+        generation = generate_endogenous_candidates(
+            engine.state,
+            report,
+            budget=engine.budget,
+        )
+        if not generation.candidates:
+            break
+        record = engine.step_select(generation.candidates)
+        records.append(record)
+        steps += 1
+        if not record.accepted:
+            break
+    return tuple(records)
 
 def reflect_with_history(
     engine: Any,
