@@ -107,12 +107,15 @@ def test_rollback_removes_transition_and_audit_together():
         to_state=EpistemicState.SUPPORTED,
         basis_refs=("evidence:rollback",),
     )
-    original_commit = conn.commit
-    def fail_commit():
-        raise RuntimeError("forced commit failure")
-    conn.commit = fail_commit
-    with pytest.raises(RuntimeError, match="forced commit failure"):
-        _append_epistemic_transition(conn, transition)
-    conn.commit = original_commit
+    import gnosis.storage.repositories as repositories
+    original_append_audit = repositories.append_audit
+    def fail_audit(*args, **kwargs):
+        raise RuntimeError("forced audit failure")
+    repositories.append_audit = fail_audit
+    try:
+        with pytest.raises(RuntimeError, match="forced audit failure"):
+            _append_epistemic_transition(conn, transition)
+    finally:
+        repositories.append_audit = original_append_audit
     assert conn.execute("SELECT COUNT(*) FROM epistemic_transitions").fetchone()[0] == 0
     assert conn.execute("SELECT COUNT(*) FROM audit_events").fetchone()[0] == 0
