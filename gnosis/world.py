@@ -58,3 +58,49 @@ class WorldObservation:
     @property
     def content_digest(self) -> str:
         return self.observation_id
+
+
+
+def _validate_representation_value(value: Any, path: str = "content") -> None:
+    if value is None or isinstance(value, (str, bool, int, float)):
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise TypeError(f"{path} mapping keys must be strings")
+            _validate_representation_value(item, f"{path}.{key}")
+        return
+    if isinstance(value, (list, tuple)):
+        for index, item in enumerate(value):
+            _validate_representation_value(item, f"{path}[{index}]")
+        return
+    raise TypeError(f"{path} contains unsupported value type: {type(value).__name__}")
+
+
+@dataclass(frozen=True)
+class Representation:
+    """Immutable description of a content encoding/carrier."""
+
+    encoding: str
+    content: Any
+    media_type: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.encoding.strip():
+            raise ValueError("encoding must not be empty")
+        _validate_representation_value(self.content)
+        if self.media_type is not None and not self.media_type.strip():
+            raise ValueError("media_type must not be empty when provided")
+        object.__setattr__(self, "content", deep_freeze(self.content))
+
+    @property
+    def representation_id(self) -> str:
+        return _stable_hash({
+            "encoding": self.encoding,
+            "content": self.content,
+            "media_type": self.media_type,
+        })
+
+    @property
+    def content_digest(self) -> str:
+        return self.representation_id
