@@ -69,3 +69,21 @@ def test_durable_replay_uses_ledger_position_not_timestamp():
         conn, "observation:1", EpistemicState.OBSERVED
     )
     assert replay.final_state is EpistemicState.ACCEPTED
+
+
+def test_ledger_position_is_monotonic_across_multiple_appends():
+    conn = connect(":memory:")
+    transitions = [
+        TransitionAuthority.create(
+            subject_ref="observation:1",
+            from_state=EpistemicState.OBSERVED if i == 0 else EpistemicState.SUPPORTED,
+            to_state=EpistemicState.SUPPORTED if i == 0 else EpistemicState.ACCEPTED,
+            basis_refs=(f"evidence:{i}",),
+        )
+        for i in range(2)
+    ]
+    for transition in transitions:
+        _append_epistemic_transition(conn, transition)
+    assert conn.execute(
+        "SELECT ledger_position FROM epistemic_transitions ORDER BY ledger_position"
+    ).fetchall() == [(1,), (2,)]
