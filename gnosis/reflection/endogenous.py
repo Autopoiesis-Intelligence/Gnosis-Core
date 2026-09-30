@@ -8,6 +8,7 @@ bounded endogenous state transition rather than an external callback.
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
+from gnosis.core.evolution import Engine
 from gnosis.core.types import Candidate, Relation, State
 from gnosis.core.budget import Budget
 from .analyzer import ReflectionReport, RuleProposal
@@ -116,3 +117,22 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
         if relation.source == REFLECTION_NODE and relation.target == proposal.proposal_id
     )
     return len(relations) == 1 and relations[0].relation_type == "proposed_rule"
+
+
+def commit_endogenous_candidates(
+    engine: Engine,
+    report: ReflectionReport,
+    candidates: Sequence[Candidate],
+) -> object:
+    """Commit endogenous candidates only after exact proposal provenance validation."""
+    proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
+    for candidate in candidates:
+        proposal_id = next(
+            (relation.target for relation in candidate.proposed_state.relations
+             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
+            None,
+        )
+        proposal = proposals.get(proposal_id)
+        if proposal is None or not candidate_binds_proposal(candidate, proposal):
+            raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
+    return engine.step_select(candidates)
