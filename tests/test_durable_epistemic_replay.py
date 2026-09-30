@@ -3,6 +3,7 @@ import pytest
 from gnosis.storage.database import connect
 from gnosis.storage.repositories import _append_epistemic_transition
 from gnosis.world import EpistemicReplay, EpistemicState, TransitionAuthority
+from gnosis.storage.repositories import reconstruct_epistemic_replay_from_ledger
 
 
 def test_durable_replay_reconstructs_from_sqlite():
@@ -22,7 +23,7 @@ def test_durable_replay_reconstructs_from_sqlite():
     _append_epistemic_transition(conn, t1)
     _append_epistemic_transition(conn, t2)
 
-    replay = EpistemicReplay.reconstruct_from_ledger(
+    replay = reconstruct_epistemic_replay_from_ledger(
         conn, "observation:1", EpistemicState.OBSERVED
     )
     assert replay.final_state is EpistemicState.ACCEPTED
