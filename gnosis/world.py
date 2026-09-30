@@ -182,6 +182,7 @@ class EpistemicTransition:
     to_state: str
     basis_refs: Sequence[str] = field(default_factory=tuple)
     reason_ref: str | None = None
+    _authority_seal: object | None = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if not self.subject_ref.strip():
@@ -270,7 +271,7 @@ class TransitionPolicy:
             raise ValueError("ACCEPTED transition requires basis_refs")
 
 
-class TransitionAuthority:
+_TRANSITION_AUTHORITY_SEAL = object()\n\n\nclass TransitionAuthority:
     """Single construction boundary for policy-valid epistemic transitions."""
 
     @staticmethod
@@ -288,10 +289,12 @@ class TransitionAuthority:
             to_state,
             basis_refs=normalized_basis,
         )
-        return EpistemicTransition(
+        transition = EpistemicTransition(
             subject_ref=subject_ref,
             from_state=from_state.value,
             to_state=to_state.value,
             basis_refs=normalized_basis,
             reason_ref=reason_ref,
         )
+        object.__setattr__(transition, "_authority_seal", _TRANSITION_AUTHORITY_SEAL)
+        return transition
