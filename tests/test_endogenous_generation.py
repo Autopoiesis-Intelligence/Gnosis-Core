@@ -1,6 +1,6 @@
 from gnosis.core.types import State
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
-from gnosis.reflection.endogenous import MAX_ENDOGENOUS_CANDIDATES, generate_endogenous_candidates
+from gnosis.reflection.endogenous import MAX_ENDOGENOUS_CANDIDATES, candidate_binds_proposal, generate_endogenous_candidates
 
 
 def proposal(i):
@@ -98,3 +98,18 @@ def test_memory_history_changes_hypothesis_context_deterministically():
     assert a.proposal_ids == b.proposal_ids == ("proposal:1",)
     again = generate_endogenous_candidates(state, report, memory_evidence=memory_a)
     assert again.candidates[0].proposed_state.state_id == a.candidates[0].proposed_state.state_id
+
+
+def test_endogenous_candidate_binds_exact_proposal():
+    state = State(elements={"a": 1})
+    report = ReflectionReport(proposals=(proposal(1),))
+    candidate = generate_endogenous_candidates(state, report).candidates[0]
+    assert candidate_binds_proposal(candidate, report.proposals[0])
+
+
+def test_endogenous_candidate_rejects_proposal_substitution():
+    state = State(elements={"a": 1})
+    report = ReflectionReport(proposals=(proposal(1), proposal(2)))
+    generation = generate_endogenous_candidates(state, report)
+    assert candidate_binds_proposal(generation.candidates[0], report.proposals[0])
+    assert not candidate_binds_proposal(generation.candidates[0], report.proposals[1])
