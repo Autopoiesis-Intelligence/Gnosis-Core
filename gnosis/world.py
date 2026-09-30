@@ -166,3 +166,41 @@ class WorldRelation:
             "object_ref": self.object_ref,
             "context_ref": self.context_ref,
         })
+
+
+@dataclass(frozen=True)
+class EpistemicTransition:
+    """Immutable record of an epistemic state transition.
+
+    The transition records a claim about state change; it does not mutate the
+    referenced world object and does not itself make the target state true.
+    """
+
+    subject_ref: str
+    from_state: str
+    to_state: str
+    basis_refs: Sequence[str] = field(default_factory=tuple)
+    reason_ref: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.subject_ref.strip():
+            raise ValueError("subject_ref must not be empty")
+        if not self.from_state.strip():
+            raise ValueError("from_state must not be empty")
+        if not self.to_state.strip():
+            raise ValueError("to_state must not be empty")
+        if not all(isinstance(ref, str) and ref.strip() for ref in self.basis_refs):
+            raise TypeError("basis_refs must contain non-empty string references")
+        if self.reason_ref is not None and not self.reason_ref.strip():
+            raise ValueError("reason_ref must be empty or omitted")
+        object.__setattr__(self, "basis_refs", tuple(self.basis_refs))
+
+    @property
+    def transition_id(self) -> str:
+        return _stable_hash({
+            "subject_ref": self.subject_ref,
+            "from_state": self.from_state,
+            "to_state": self.to_state,
+            "basis_refs": self.basis_refs,
+            "reason_ref": self.reason_ref,
+        })
