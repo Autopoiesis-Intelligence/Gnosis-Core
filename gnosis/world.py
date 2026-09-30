@@ -318,6 +318,9 @@ class EpistemicReplay:
     ) -> "EpistemicReplay":
         from gnosis.storage.repositories import load_epistemic_transitions_for_subject
         transitions = load_epistemic_transitions_for_subject(conn, subject_ref)
+        from gnosis.storage.repositories import verify_epistemic_transition_audit
+        for transition in transitions:
+            verify_epistemic_transition_audit(conn, transition.transition_id)
         return cls.reconstruct(subject_ref, initial_state, transitions)
 
     @classmethod
