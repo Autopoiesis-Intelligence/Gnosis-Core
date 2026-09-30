@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Mapping, Sequence
 
 from gnosis.core.types import _stable_hash, deep_freeze
@@ -267,3 +268,30 @@ class TransitionPolicy:
             )
         if to_state == EpistemicState.ACCEPTED and not basis_refs:
             raise ValueError("ACCEPTED transition requires basis_refs")
+
+
+class TransitionAuthority:
+    """Single construction boundary for policy-valid epistemic transitions."""
+
+    @staticmethod
+    def create(
+        *,
+        subject_ref: str,
+        from_state: EpistemicState,
+        to_state: EpistemicState,
+        basis_refs: Sequence[str] = (),
+        reason_ref: str | None = None,
+    ) -> EpistemicTransition:
+        normalized_basis = tuple(basis_refs)
+        TransitionPolicy.validate(
+            from_state,
+            to_state,
+            basis_refs=normalized_basis,
+        )
+        return EpistemicTransition(
+            subject_ref=subject_ref,
+            from_state=from_state.value,
+            to_state=to_state.value,
+            basis_refs=normalized_basis,
+            reason_ref=reason_ref,
+        )
