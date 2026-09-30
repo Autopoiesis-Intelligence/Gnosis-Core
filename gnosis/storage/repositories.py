@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord
-from gnosis.world import WorldObservation
+from gnosis.world import EpistemicTransition, WorldObservation
 from gnosis.instances.instance import Instance, InstanceStatus
 from .database import GENESIS_HASH, transaction
 from .authorization import RecoveryAuthorization, validate_recovery_authorization
@@ -100,6 +100,63 @@ def load_world_observation(
     if observation.observation_id != observation_id:
         raise StorageCorruptionError(f"world observation identity mismatch: {observation_id}")
     return observation
+
+def save_epistemic_transition(
+    conn: sqlite3.Connection,
+    transition: EpistemicTransition,
+    *,
+    created_at: str | None = None,
+) -> None:
+    created_at = created_at or utc_now()
+    basis_refs = canonical_json(transition.basis_refs)
+    existing = conn.execute(
+        "SELECT subject_ref,from_state,to_state,basis_refs,reason_ref FROM epistemic_transitions WHERE transition_id=?",
+        (transition.transition_id,),
+    ).fetchone()
+    expected = (
+        transition.subject_ref,
+        transition.from_state,
+        transition.to_state,
+        basis_refs,
+        transition.reason_ref,
+    )
+    if existing is not None:
+        if tuple(existing) != expected:
+            raise StorageCorruptionError("epistemic transition identity collision or tampering")
+        return
+    conn.execute(
+        "INSERT INTO epistemic_transitions(transition_id,subject_ref,from_state,to_state,basis_refs,reason_ref,created_at) VALUES(?,?,?,?,?,?,?)",
+        (transition.transition_id, *expected, created_at),
+    )
+
+
+def load_epistemic_transition(
+    conn: sqlite3.Connection,
+    transition_id: str,
+) -> EpistemicTransition:
+    row = conn.execute(
+        "SELECT subject_ref,from_state,to_state,basis_refs,reason_ref FROM epistemic_transitions WHERE transition_id=?",
+        (transition_id,),
+    ).fetchone()
+    if row is None:
+        raise StorageCorruptionError(f"epistemic transition not found: {transition_id}")
+    try:
+        basis_refs = json.loads(row[3])
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise StorageCorruptionError("malformed epistemic transition basis") from exc
+    if not isinstance(basis_refs, list) or not all(isinstance(ref, str) for ref in basis_refs):
+        raise StorageCorruptionError("invalid epistemic transition basis")
+    transition = EpistemicTransition(
+        subject_ref=row[0],
+        from_state=row[1],
+        to_state=row[2],
+        basis_refs=tuple(basis_refs),
+        reason_ref=row[4],
+    )
+    if transition.transition_id != transition_id:
+        raise StorageCorruptionError(f"epistemic transition identity mismatch: {transition_id}")
+    return transition
+
 
 def _decode_payload(payload: str) -> dict[str, Any]:
     try: value=json.loads(payload)
