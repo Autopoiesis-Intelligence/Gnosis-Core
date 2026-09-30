@@ -232,8 +232,8 @@ def test_a35_multiple_instances_interleaved_commits_keep_independent_heads():
     for instance, key in ((first, "first-next"), (second, "second-next"), (first, "first-final"), (second, "second-final")):
         candidate, record = _transition(instance, key)
         _persist_transition(conn, instance, candidate, record, actor="u")
-    recovered_first = recover_instance(conn, first.instance_id)
-    recovered_second = recover_instance(conn, second.instance_id)
+    recovered_first = _authorized_recover(conn, first.instance_id)
+    recovered_second = _authorized_recover(conn, second.instance_id)
     assert recovered_first.engine.state.elements["first-final"] == 1
     assert "second-final" not in recovered_first.engine.state.elements
     assert recovered_second.engine.state.elements["second-final"] == 1
