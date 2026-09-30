@@ -127,20 +127,27 @@ def _append_epistemic_transition(
         if tuple(existing) != expected:
             raise StorageCorruptionError("epistemic transition identity collision or tampering")
         return
-    position = conn.execute("SELECT COALESCE(MAX(ledger_position), 0) + 1 FROM epistemic_transitions").fetchone()[0]
-    conn.execute(
+    # SQLite serializes writers for this transaction; position allocation and append are atomic.
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        position = conn.execute("SELECT COALESCE(MAX(ledger_position), 0) + 1 FROM epistemic_transitions").fetchone()[0]
+        conn.execute(
         "INSERT INTO epistemic_transitions(transition_id,ledger_position,subject_ref,from_state,to_state,basis_refs,reason_ref,created_at) VALUES(?,?,?,?,?,?,?,?)",
-        (transition.transition_id, position, *expected, created_at),
-    )
-    append_audit(
+            (transition.transition_id, position, *expected, created_at),
+        )
+        append_audit(
         conn,
         actor="TransitionAuthority",
         action="epistemic_transition.append",
         resource=transition.subject_ref,
         result="accepted",
         event_key=f"epistemic-transition:{transition.transition_id}",
-        transition_id_value=transition.transition_id,
-    )
+            transition_id_value=transition.transition_id,
+        )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
 
 
 def load_epistemic_transitions_for_subject(
