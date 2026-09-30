@@ -73,3 +73,46 @@ def test_epistemic_transition_audit_is_idempotent_on_replay():
     _append_epistemic_transition(conn, transition)
     assert conn.execute("SELECT COUNT(*) FROM epistemic_transitions").fetchone()[0] == 1
     assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id=?", (transition.transition_id,)).fetchone()[0] == 1
+
+
+def test_duplicate_transition_is_idempotent_but_tampered_duplicate_is_rejected():
+    conn = connect(":memory:")
+    transition = TransitionAuthority.create(
+        subject_ref="observation:1",
+        from_state=EpistemicState.OBSERVED,
+        to_state=EpistemicState.SUPPORTED,
+        basis_refs=("evidence:1",),
+    )
+    _append_epistemic_transition(conn, transition)
+    _append_epistemic_transition(conn, transition)
+    assert conn.execute("SELECT COUNT(*) FROM epistemic_transitions").fetchone()[0] == 1
+    assert conn.execute("SELECT COUNT(*) FROM audit_events").fetchone()[0] == 1
+
+    with pytest.raises(PermissionError):
+        from gnosis.world import EpistemicTransition
+        forged = EpistemicTransition(
+            subject_ref="observation:1",
+            from_state="OBSERVED",
+            to_state="ACCEPTED",
+            basis_refs=("evidence:1",),
+        )
+        _append_epistemic_transition(conn, forged)
+
+
+def test_rollback_removes_transition_and_audit_together():
+    conn = connect(":memory:")
+    transition = TransitionAuthority.create(
+        subject_ref="observation:rollback",
+        from_state=EpistemicState.OBSERVED,
+        to_state=EpistemicState.SUPPORTED,
+        basis_refs=("evidence:rollback",),
+    )
+    original_commit = conn.commit
+    def fail_commit():
+        raise RuntimeError("forced commit failure")
+    conn.commit = fail_commit
+    with pytest.raises(RuntimeError, match="forced commit failure"):
+        _append_epistemic_transition(conn, transition)
+    conn.commit = original_commit
+    assert conn.execute("SELECT COUNT(*) FROM epistemic_transitions").fetchone()[0] == 0
+    assert conn.execute("SELECT COUNT(*) FROM audit_events").fetchone()[0] == 0
