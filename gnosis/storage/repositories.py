@@ -131,6 +131,15 @@ def _append_epistemic_transition(
         "INSERT INTO epistemic_transitions(transition_id,subject_ref,from_state,to_state,basis_refs,reason_ref,created_at) VALUES(?,?,?,?,?,?,?)",
         (transition.transition_id, *expected, created_at),
     )
+    append_audit(
+        conn,
+        actor="TransitionAuthority",
+        action="epistemic_transition.append",
+        resource=transition.subject_ref,
+        result="accepted",
+        event_key=f"epistemic-transition:{transition.transition_id}",
+        transition_id_value=transition.transition_id,
+    )
 
 
 def load_epistemic_transition(
