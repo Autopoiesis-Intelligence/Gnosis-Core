@@ -241,6 +241,34 @@ def _persist_transition_in_transaction(conn: sqlite3.Connection,instance: Instan
     if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
     inject("before_commit")
 
+def _persist_transition_with_evolution_memory(
+    conn: sqlite3.Connection,
+    instance: Instance,
+    candidate: Candidate,
+    record: TransitionRecord,
+    *,
+    actor: str,
+    proposal_id: str | None,
+    proposal_report_id: str | None,
+    evidence: tuple[str, ...],
+) -> None:
+    """Atomically persist an endogenous transition and its evidence memory."""
+    from .evolution_memory import append_evolution_memory
+    with transaction(conn):
+        _persist_transition_in_transaction(conn, instance, candidate, record, actor=actor)
+        append_evolution_memory(
+            conn,
+            instance_id=instance.instance_id,
+            candidate_id=candidate.candidate_id,
+            transition_id=record.transition_id,
+            state_id=record.to_state_id,
+            proposal_id=proposal_id,
+            outcome="accepted" if record.accepted else "rejected",
+            evidence=evidence,
+            proposal_report_id=proposal_report_id,
+        )
+
+
 def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: Candidate,record: TransitionRecord,*,actor: str,failure_at: str|None=None)->None:
     with transaction(conn):
         _persist_transition_in_transaction(conn,instance,candidate,record,actor=actor,failure_at=failure_at)
