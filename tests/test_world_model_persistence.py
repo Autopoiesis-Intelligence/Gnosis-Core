@@ -41,7 +41,7 @@ def test_epistemic_transition_storage_is_append_only_and_tamper_evident():
         to_state=EpistemicState.SUPPORTED,
         basis_refs=("evidence:1",),
     )
-    save_epistemic_transition(conn, transition)
+    _append_epistemic_transition(conn, transition)
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("DELETE FROM epistemic_transitions WHERE transition_id=?", (transition.transition_id,))
     with pytest.raises(sqlite3.IntegrityError):
