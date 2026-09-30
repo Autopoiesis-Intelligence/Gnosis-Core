@@ -420,3 +420,14 @@ def _persist_transition(conn: sqlite3.Connection,instance: Instance,candidate: C
     with transaction(conn):
         _persist_transition_in_transaction(conn,instance,candidate,record,actor=actor,failure_at=failure_at)
     if failure_at=="after_commit": raise RuntimeError("injected failure at after_commit")
+
+
+def reconstruct_epistemic_replay_from_ledger(
+    conn: sqlite3.Connection,
+    subject_ref: str,
+    initial_state: EpistemicState,
+) -> EpistemicReplay:
+    transitions = load_epistemic_transitions_for_subject(conn, subject_ref)
+    for transition in transitions:
+        verify_epistemic_transition_audit(conn, transition.transition_id)
+    return EpistemicReplay.reconstruct(subject_ref, initial_state, transitions)
