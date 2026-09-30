@@ -150,6 +150,27 @@ def _append_epistemic_transition(
         raise
 
 
+def verify_epistemic_transition_audit(
+    conn: sqlite3.Connection,
+    transition_id: str,
+) -> bool:
+    row = conn.execute(
+        "SELECT subject_ref FROM epistemic_transitions WHERE transition_id=?",
+        (transition_id,),
+    ).fetchone()
+    if row is None:
+        raise StorageCorruptionError(f"epistemic transition not found: {transition_id}")
+    audit = conn.execute(
+        "SELECT COUNT(*) FROM audit_events WHERE transition_id=? AND action=? AND resource=? AND result=?",
+        (transition_id, "epistemic_transition.append", row[0], "accepted"),
+    ).fetchone()[0]
+    if audit != 1:
+        raise StorageCorruptionError(
+            f"epistemic transition audit mismatch: {transition_id}"
+        )
+    return True
+
+
 def load_epistemic_transitions_for_subject(
     conn: sqlite3.Connection,
     subject_ref: str,
