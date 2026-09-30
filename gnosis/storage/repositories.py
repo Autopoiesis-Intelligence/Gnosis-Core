@@ -101,7 +101,7 @@ def load_world_observation(
         raise StorageCorruptionError(f"world observation identity mismatch: {observation_id}")
     return observation
 
-def save_epistemic_transition(
+def _append_epistemic_transition(
     conn: sqlite3.Connection,
     transition: EpistemicTransition,
     *,
@@ -109,6 +109,9 @@ def save_epistemic_transition(
 ) -> None:
     created_at = created_at or utc_now()
     basis_refs = canonical_json(transition.basis_refs)
+    from gnosis.world import _TRANSITION_AUTHORITY_SEAL
+    if transition._authority_seal is not _TRANSITION_AUTHORITY_SEAL:
+        raise PermissionError("epistemic transition must be issued by TransitionAuthority")
     existing = conn.execute(
         "SELECT subject_ref,from_state,to_state,basis_refs,reason_ref FROM epistemic_transitions WHERE transition_id=?",
         (transition.transition_id,),
