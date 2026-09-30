@@ -204,3 +204,66 @@ class EpistemicTransition:
             "basis_refs": self.basis_refs,
             "reason_ref": self.reason_ref,
         })
+
+
+class EpistemicState(str, Enum):
+    OBSERVED = "OBSERVED"
+    HYPOTHESIZED = "HYPOTHESIZED"
+    SUPPORTED = "SUPPORTED"
+    ACCEPTED = "ACCEPTED"
+    UNRESOLVED = "UNRESOLVED"
+    REJECTED = "REJECTED"
+    SUPERSEDED = "SUPERSEDED"
+
+
+class TransitionPolicy:
+    """Pure deterministic policy for allowed epistemic transitions."""
+
+    _ALLOWED: dict[EpistemicState, frozenset[EpistemicState]] = {
+        EpistemicState.OBSERVED: frozenset({
+            EpistemicState.HYPOTHESIZED,
+            EpistemicState.SUPPORTED,
+            EpistemicState.REJECTED,
+            EpistemicState.UNRESOLVED,
+        }),
+        EpistemicState.HYPOTHESIZED: frozenset({
+            EpistemicState.SUPPORTED,
+            EpistemicState.REJECTED,
+            EpistemicState.UNRESOLVED,
+        }),
+        EpistemicState.SUPPORTED: frozenset({
+            EpistemicState.ACCEPTED,
+            EpistemicState.REJECTED,
+            EpistemicState.UNRESOLVED,
+        }),
+        EpistemicState.ACCEPTED: frozenset({
+            EpistemicState.SUPERSEDED,
+            EpistemicState.UNRESOLVED,
+        }),
+        EpistemicState.UNRESOLVED: frozenset({
+            EpistemicState.SUPPORTED,
+            EpistemicState.ACCEPTED,
+            EpistemicState.REJECTED,
+        }),
+        EpistemicState.REJECTED: frozenset(),
+        EpistemicState.SUPERSEDED: frozenset(),
+    }
+
+    @classmethod
+    def allows(cls, from_state: EpistemicState, to_state: EpistemicState) -> bool:
+        return to_state in cls._ALLOWED[from_state]
+
+    @classmethod
+    def validate(
+        cls,
+        from_state: EpistemicState,
+        to_state: EpistemicState,
+        *,
+        basis_refs: Sequence[str] = (),
+    ) -> None:
+        if not cls.allows(from_state, to_state):
+            raise ValueError(
+                f"epistemic transition not allowed: {from_state.value} -> {to_state.value}"
+            )
+        if to_state == EpistemicState.ACCEPTED and not basis_refs:
+            raise ValueError("ACCEPTED transition requires basis_refs")
