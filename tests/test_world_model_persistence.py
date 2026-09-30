@@ -29,6 +29,8 @@ def test_world_model_observation_and_transition_round_trip():
     _append_epistemic_transition(conn, transition)
     assert load_world_observation(conn, observation.observation_id) == observation
     assert load_epistemic_transition(conn, transition.transition_id) == transition
+    audit = conn.execute("SELECT action,resource,result,transition_id FROM audit_events WHERE transition_id=?", (transition.transition_id,)).fetchall()
+    assert audit == [("epistemic_transition.append", observation.observation_id, "accepted", transition.transition_id)]
 
 
 def test_epistemic_transition_storage_is_append_only_and_tamper_evident():
@@ -57,3 +59,17 @@ def test_unsealed_epistemic_transition_cannot_enter_persistence():
     )
     with pytest.raises(PermissionError, match="TransitionAuthority"):
         _append_epistemic_transition(conn, transition)
+
+
+def test_epistemic_transition_audit_is_idempotent_on_replay():
+    conn = connect(":memory:")
+    transition = TransitionAuthority.create(
+        subject_ref="observation:1",
+        from_state=EpistemicState.OBSERVED,
+        to_state=EpistemicState.SUPPORTED,
+        basis_refs=("evidence:1",),
+    )
+    _append_epistemic_transition(conn, transition)
+    _append_epistemic_transition(conn, transition)
+    assert conn.execute("SELECT COUNT(*) FROM epistemic_transitions").fetchone()[0] == 1
+    assert conn.execute("SELECT COUNT(*) FROM audit_events WHERE transition_id=?", (transition.transition_id,)).fetchone()[0] == 1
