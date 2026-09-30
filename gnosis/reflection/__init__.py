@@ -17,7 +17,7 @@ from .governance import GovernanceDecision, evaluate_governance
 from .history import HistoricalFinding, ReflectionHistorySummary, summarize_reflection_history, unresolved_findings
 from .invariant_delta import InvariantDelta, analyze_invariant_delta
 from .rules import RuleMetadata, RuleRegistry
-from .runtime import reflect
+from .runtime import reflect, run_endogenous
 from .gate import ReflectionGateResult, run_reflection_gate
 from .shadow import ShadowCase, ShadowEvaluation, evaluate_shadow
 from .shadow_adapter import ProposalShadowAssessment, evaluate_proposal_shadow
@@ -45,6 +45,7 @@ __all__ = [
     "analyze_invariant_delta",
     "evaluate_governance",
     "reflect",
+    "run_endogenous",
     "ReflectionGateResult",
     "run_reflection_gate",
     "summarize_reflection_history",
