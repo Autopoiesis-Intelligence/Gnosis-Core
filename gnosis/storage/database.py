@@ -5,12 +5,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 GENESIS_HASH = "0" * 64
 SCHEMA = """
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS states (state_id TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK(version >= 0), payload TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS world_observations (observation_id TEXT PRIMARY KEY, context_ref TEXT NOT NULL, distinction TEXT NOT NULL, carrier_ref TEXT, properties TEXT NOT NULL, relations TEXT NOT NULL, created_at TEXT NOT NULL);\nCREATE TRIGGER IF NOT EXISTS world_observations_no_update BEFORE UPDATE ON world_observations BEGIN SELECT RAISE(ABORT,'world_observations are append-only'); END;\nCREATE TRIGGER IF NOT EXISTS world_observations_no_delete BEFORE DELETE ON world_observations BEGIN SELECT RAISE(ABORT,'world_observations are append-only'); END;\nCREATE TABLE IF NOT EXISTS states (state_id TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK(version >= 0), payload TEXT NOT NULL, created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS relations (state_id TEXT NOT NULL, relation_order INTEGER NOT NULL CHECK(relation_order >= 0), relation_id TEXT NOT NULL, source_id TEXT NOT NULL, target_id TEXT NOT NULL, relation_type TEXT NOT NULL, value TEXT, created_at TEXT NOT NULL, PRIMARY KEY(state_id, relation_id), UNIQUE(state_id, relation_order), FOREIGN KEY(state_id) REFERENCES states(state_id) ON DELETE CASCADE);
 CREATE TABLE IF NOT EXISTS candidates (candidate_id TEXT PRIMARY KEY, parent_state_id TEXT NOT NULL, candidate_state_id TEXT NOT NULL, origin TEXT NOT NULL, seed INTEGER, created_at TEXT NOT NULL, FOREIGN KEY(parent_state_id) REFERENCES states(state_id), FOREIGN KEY(candidate_state_id) REFERENCES states(state_id));
 CREATE TABLE IF NOT EXISTS instances (instance_id TEXT PRIMARY KEY, parent_instance_id TEXT, owner_id TEXT NOT NULL, root_state_id TEXT NOT NULL, current_state_id TEXT NOT NULL, generation INTEGER NOT NULL CHECK(generation >= 0), status TEXT NOT NULL CHECK(status IN ('active','stopped','archived')), budget_total INTEGER NOT NULL CHECK(budget_total >= 0), budget_spent INTEGER NOT NULL CHECK(budget_spent >= 0), created_at TEXT NOT NULL, FOREIGN KEY(parent_instance_id) REFERENCES instances(instance_id), FOREIGN KEY(root_state_id) REFERENCES states(state_id), FOREIGN KEY(current_state_id) REFERENCES states(state_id));
@@ -49,7 +49,7 @@ def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
                 if memory_columns and "proposal_report_id" not in memory_columns:
                     conn.execute("ALTER TABLE evolution_memory ADD COLUMN proposal_report_id TEXT")
-            elif version == 4:
+            elif version == 5:\n                conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))\n            elif version == 4:
                 conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
                 if memory_columns and "proposal_report_id" not in memory_columns:
