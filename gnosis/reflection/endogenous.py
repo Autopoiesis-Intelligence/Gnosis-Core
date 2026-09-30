@@ -90,3 +90,29 @@ def generate_endogenous_candidates(
         candidates=tuple(candidates),
         proposal_ids=tuple(p.proposal_id for p in proposals),
     )
+
+
+def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bool:
+    """Return True only when an endogenous Candidate is deterministically bound to its RuleProposal."""
+    if candidate.origin != "reflection:endogenous":
+        return False
+    node = candidate.proposed_state.elements.get(proposal.proposal_id)
+    if not isinstance(node, dict):
+        return False
+    if node.get("kind") != "rule_proposal":
+        return False
+    if node.get("finding_id") != proposal.finding_id:
+        return False
+    if node.get("rule_id") != proposal.rule_id:
+        return False
+    if node.get("current_version") != proposal.current_version:
+        return False
+    if node.get("proposed_version") != proposal.proposed_version:
+        return False
+    if tuple(node.get("evidence_refs", ())) != tuple(proposal.evidence_refs):
+        return False
+    relations = tuple(
+        relation for relation in candidate.proposed_state.relations
+        if relation.source == REFLECTION_NODE and relation.target == proposal.proposal_id
+    )
+    return len(relations) == 1 and relations[0].relation_type == "proposed_rule"
