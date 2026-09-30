@@ -127,9 +127,10 @@ def _append_epistemic_transition(
         if tuple(existing) != expected:
             raise StorageCorruptionError("epistemic transition identity collision or tampering")
         return
+    position = conn.execute("SELECT COALESCE(MAX(ledger_position), 0) + 1 FROM epistemic_transitions").fetchone()[0]
     conn.execute(
-        "INSERT INTO epistemic_transitions(transition_id,subject_ref,from_state,to_state,basis_refs,reason_ref,created_at) VALUES(?,?,?,?,?,?,?)",
-        (transition.transition_id, *expected, created_at),
+        "INSERT INTO epistemic_transitions(transition_id,ledger_position,subject_ref,from_state,to_state,basis_refs,reason_ref,created_at) VALUES(?,?,?,?,?,?,?,?)",
+        (transition.transition_id, position, *expected, created_at),
     )
     append_audit(
         conn,
@@ -147,7 +148,7 @@ def load_epistemic_transitions_for_subject(
     subject_ref: str,
 ) -> tuple[EpistemicTransition, ...]:
     rows = conn.execute(
-        "SELECT transition_id FROM epistemic_transitions WHERE subject_ref=? ORDER BY created_at, rowid",
+        "SELECT transition_id FROM epistemic_transitions WHERE subject_ref=? ORDER BY ledger_position",
         (subject_ref,),
     ).fetchall()
     return tuple(load_epistemic_transition(conn, row[0]) for row in rows)
