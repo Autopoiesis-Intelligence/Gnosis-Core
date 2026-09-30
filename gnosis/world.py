@@ -271,7 +271,10 @@ class TransitionPolicy:
             raise ValueError("ACCEPTED transition requires basis_refs")
 
 
-_TRANSITION_AUTHORITY_SEAL = object()\n\n\nclass TransitionAuthority:
+_TRANSITION_AUTHORITY_SEAL = object()
+
+
+class TransitionAuthority:
     """Single construction boundary for policy-valid epistemic transitions."""
 
     @staticmethod
