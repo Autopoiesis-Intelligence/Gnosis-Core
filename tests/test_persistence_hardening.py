@@ -1,5 +1,17 @@
 from gnosis.storage.repositories import _persist_transition
 
+def _authorized_recover(conn, instance_id):
+    digest = recovery_evidence_digest(conn, instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="test-recovery", subject=instance_id,
+        requested_by="test-principal", authority="test-governance",
+        decision="allow", reason="test recovery",
+        issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
+    return recover_instance(conn, instance_id, authorization, now="2026-09-25T12:00:00Z")
+
+
 import json
 import sqlite3
 import threading
@@ -96,7 +108,7 @@ def test_recover_instance_runs_graph_validation():
     conn = connect()
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
-    assert recover_instance(conn, instance.instance_id).instance_id == instance.instance_id
+    assert _authorized_recover(conn, instance.instance_id).instance_id == instance.instance_id
 
 
 def test_after_commit_failure_leaves_committed_transition_durable():
@@ -122,7 +134,7 @@ def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
     _persist_transition(conn, root, ca1, ra1, actor="u")
 
     # Simulated restart: recover A at A1 before creating the fork.
-    recovered_a = recover_instance(conn, root.instance_id)
+    recovered_a = _authorized_recover(conn, root.instance_id)
     child = fork_instance(recovered_a)
     save_instance(conn, child)
 
@@ -136,8 +148,8 @@ def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
     rb1 = child.engine.step(cb1)
     _persist_transition(conn, child, cb1, rb1, actor="u")
 
-    recovered_a2 = recover_instance(conn, recovered_a.instance_id)
-    recovered_b1 = recover_instance(conn, child.instance_id)
+    recovered_a2 = _authorized_recover(conn, recovered_a.instance_id)
+    recovered_b1 = _authorized_recover(conn, child.instance_id)
     assert recovered_a2.engine.state.state_id == a2.state_id
     assert recovered_b1.engine.state.state_id == b1.state_id
     assert recovered_a2.parent_instance_id is None
@@ -183,7 +195,7 @@ def test_a31_fork_creation_failure_rolls_back_child(monkeypatch):
     with pytest.raises(RuntimeError, match="injected fork audit failure"):
         save_instance(conn, child)
     assert conn.execute("SELECT 1 FROM instances WHERE instance_id=?", (child.instance_id,)).fetchone() is None
-    assert recover_instance(conn, parent.instance_id).instance_id == parent.instance_id
+    assert _authorized_recover(conn, parent.instance_id).instance_id == parent.instance_id
 
 
 def test_a33_lineage_cycle_fails_recovery():
@@ -195,7 +207,7 @@ def test_a33_lineage_cycle_fails_recovery():
     conn.execute("PRAGMA foreign_keys=OFF")
     conn.execute("UPDATE instances SET parent_instance_id=?, generation=? WHERE instance_id=?", (child.instance_id, child.generation, child.instance_id))
     with pytest.raises(StorageCorruptionError, match="invalid fork lineage"):
-        recover_instance(conn, child.instance_id)
+        _authorized_recover(conn, child.instance_id)
 
 
 def test_a34_generation_mismatch_fails_recovery():
@@ -206,7 +218,7 @@ def test_a34_generation_mismatch_fails_recovery():
     save_instance(conn, child)
     conn.execute("UPDATE instances SET generation=? WHERE instance_id=?", (child.generation + 1, child.instance_id))
     with pytest.raises(StorageCorruptionError, match="invalid fork lineage"):
-        recover_instance(conn, child.instance_id)
+        _authorized_recover(conn, child.instance_id)
 
 
 def test_a35_multiple_instances_interleaved_commits_keep_independent_heads():
@@ -304,7 +316,7 @@ def test_a41_missing_current_head_fails_recovery():
     conn.execute("PRAGMA foreign_keys=OFF")
     conn.execute("UPDATE instances SET current_state_id='missing-state' WHERE instance_id=?", (instance.instance_id,))
     with pytest.raises(StorageCorruptionError, match="current head lacks transition provenance"):
-        recover_instance(conn, instance.instance_id)
+        _authorized_recover(conn, instance.instance_id)
 
 
 def test_durable_graph_rejects_tampered_unheaded_transition_source():
@@ -371,7 +383,7 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
     )
     _persist_transition(conn, instance, candidate, rejected, actor="u")
 
-    recovered = recover_instance(conn, instance.instance_id)
+    recovered = _authorized_recover(conn, instance.instance_id)
     assert recovered.engine.state.state_id == original_head
     assert (recovered.engine.budget.total, recovered.engine.budget.spent) == original_budget
     assert conn.execute(
