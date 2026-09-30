@@ -132,16 +132,16 @@ def _append_epistemic_transition(
     try:
         position = conn.execute("SELECT COALESCE(MAX(ledger_position), 0) + 1 FROM epistemic_transitions").fetchone()[0]
         conn.execute(
-        "INSERT INTO epistemic_transitions(transition_id,ledger_position,subject_ref,from_state,to_state,basis_refs,reason_ref,created_at) VALUES(?,?,?,?,?,?,?,?)",
+            "INSERT INTO epistemic_transitions(transition_id,ledger_position,subject_ref,from_state,to_state,basis_refs,reason_ref,created_at) VALUES(?,?,?,?,?,?,?,?)",
             (transition.transition_id, position, *expected, created_at),
         )
         append_audit(
-        conn,
-        actor="TransitionAuthority",
-        action="epistemic_transition.append",
-        resource=transition.subject_ref,
-        result="accepted",
-        event_key=f"epistemic-transition:{transition.transition_id}",
+            conn,
+            actor="TransitionAuthority",
+            action="epistemic_transition.append",
+            resource=transition.subject_ref,
+            result="accepted",
+            event_key=f"epistemic-transition:{transition.transition_id}",
             transition_id_value=transition.transition_id,
         )
         conn.commit()
