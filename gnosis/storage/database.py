@@ -51,6 +51,8 @@ def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
                     conn.execute("ALTER TABLE evolution_memory ADD COLUMN proposal_report_id TEXT")
             elif version == 5:
                 conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
+            elif version == 6:
+                conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
             elif version == 4:
                 conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
