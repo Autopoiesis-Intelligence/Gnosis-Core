@@ -142,6 +142,17 @@ def _append_epistemic_transition(
     )
 
 
+def load_epistemic_transitions_for_subject(
+    conn: sqlite3.Connection,
+    subject_ref: str,
+) -> tuple[EpistemicTransition, ...]:
+    rows = conn.execute(
+        "SELECT transition_id FROM epistemic_transitions WHERE subject_ref=? ORDER BY created_at, rowid",
+        (subject_ref,),
+    ).fetchall()
+    return tuple(load_epistemic_transition(conn, row[0]) for row in rows)
+
+
 def load_epistemic_transition(
     conn: sqlite3.Connection,
     transition_id: str,
