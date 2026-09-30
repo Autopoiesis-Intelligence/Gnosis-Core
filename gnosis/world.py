@@ -104,3 +104,32 @@ class Representation:
     @property
     def content_digest(self) -> str:
         return self.representation_id
+
+
+@dataclass(frozen=True)
+class Measurement:
+    """Immutable quantitative interpretation; not an epistemic assertion."""
+
+    quantity: str
+    magnitude: int | float
+    unit: str
+    scale: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.quantity.strip():
+            raise ValueError("quantity must not be empty")
+        if not isinstance(self.magnitude, (int, float)) or isinstance(self.magnitude, bool):
+            raise TypeError("magnitude must be a number")
+        if not self.unit.strip():
+            raise ValueError("unit must not be empty")
+        if self.scale is not None and not self.scale.strip():
+            raise ValueError("scale must not be empty when provided")
+
+    @property
+    def measurement_id(self) -> str:
+        return _stable_hash({
+            "quantity": self.quantity,
+            "magnitude": self.magnitude,
+            "unit": self.unit,
+            "scale": self.scale,
+        })
