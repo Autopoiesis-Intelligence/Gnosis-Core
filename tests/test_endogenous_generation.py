@@ -1,6 +1,6 @@
 from gnosis.core.types import State
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
-from gnosis.reflection.endogenous import MAX_ENDOGENOUS_CANDIDATES, candidate_binds_proposal, generate_endogenous_candidates
+from gnosis.reflection.endogenous import MAX_ENDOGENOUS_CANDIDATES, candidate_binds_proposal, commit_endogenous_candidates, generate_endogenous_candidates
 
 
 def proposal(i):
@@ -113,3 +113,24 @@ def test_endogenous_candidate_rejects_proposal_substitution():
     generation = generate_endogenous_candidates(state, report)
     assert candidate_binds_proposal(generation.candidates[0], report.proposals[0])
     assert not candidate_binds_proposal(generation.candidates[0], report.proposals[1])
+
+
+def test_endogenous_commit_requires_exact_proposal_binding():
+    from gnosis.core import Budget, Engine
+    state = State(elements={"a": 1})
+    report = ReflectionReport(proposals=(proposal(1), proposal(2)))
+    generation = generate_endogenous_candidates(state, report, budget=Budget(total=3))
+    engine = Engine(state=state, budget=Budget(total=3))
+    record = commit_endogenous_candidates(engine, report, generation.candidates)
+    assert record.accepted
+
+
+def test_endogenous_commit_rejects_substituted_proposal():
+    import pytest
+    from gnosis.core import Budget, Engine
+    state = State(elements={"a": 1})
+    report = ReflectionReport(proposals=(proposal(1),))
+    generation = generate_endogenous_candidates(state, report, budget=Budget(total=2))
+    substituted = ReflectionReport(proposals=(proposal(2),))
+    with pytest.raises(ValueError, match="not bound"):
+        commit_endogenous_candidates(Engine(state=state, budget=Budget(total=2)), substituted, generation.candidates)
