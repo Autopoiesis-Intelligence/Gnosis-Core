@@ -2,12 +2,28 @@ import pytest
 from dataclasses import replace
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.instances.instance import Instance
+from gnosis.storage import RecoveryAuthorization, recovery_evidence_digest
 from gnosis.storage.database import connect
 from gnosis.storage.repositories import save_state, _persist_transition, save_candidate, append_audit, save_instance
 from gnosis.self_learning.partner_learning_adapter import build_request
 from gnosis.self_learning.partner_learning_gate import admit_partner_candidate
 from gnosis.self_learning.partner_learning_runtime import commit_admitted_partner_learning
 from gnosis.self_learning.partner_learning_recovery import recover_partner_learning
+
+
+def recovery_auth(path, instance_id):
+    conn = connect(path)
+    try:
+        digest = recovery_evidence_digest(conn, instance_id)
+    finally:
+        conn.close()
+    return RecoveryAuthorization(
+        authorization_id="test-recovery", subject=instance_id,
+        requested_by="test-principal", authority="test-governance",
+        decision="allow", reason="test recovery",
+        issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
 
 def fixture(path):
     conn=connect(path); parent=State(elements={"v":1}); proposed=parent.with_elements({"v":2})
@@ -28,7 +44,7 @@ def test_conflicting_replay_after_reopen_fails_closed(tmp_path):
     row=conn.execute("SELECT result FROM audit_events WHERE event_id LIKE 'partner-learning:%'").fetchone()
     assert row is not None; conn.close()
     # Reopen through the public recovery boundary first.
-    instance,memory=recover_partner_learning(str(path),instance_id); assert len(memory)==1
+    instance,memory=recover_partner_learning(str(path), instance_id, authorization=recovery_auth(str(path), instance_id), now="2026-09-25T12:00:00Z"); assert len(memory)==1
     conn=connect(str(path))
     from gnosis.self_learning.partner_learning_adapter import build_request
     from gnosis.self_learning.partner_learning_gate import admit_partner_candidate
@@ -42,7 +58,7 @@ def test_conflicting_replay_after_reopen_fails_closed(tmp_path):
     conn.close()
 
 def test_cross_layer_candidate_binding_after_reopen_fails_closed(tmp_path):
-    path=tmp_path/"g.db"; tr,instance_id=fixture(str(path)); instance,memory=recover_partner_learning(str(path),instance_id)
+    path=tmp_path/"g.db"; tr,instance_id=fixture(str(path)); instance,memory=recover_partner_learning(str(path), instance_id, authorization=recovery_auth(str(path), instance_id), now="2026-09-25T12:00:00Z")
     conn=connect(str(path))
     admission=admit_partner_candidate(classification_id="class:1",result_id="result:1",candidate_digest="prov:1",evidence_refs=("ev:1",),classification_verified=True,replay_verified=True,receipt_received=True,core_verified=True)
     bad=build_request(candidate_id="candidate:tampered",result_id="result:1",contract_id="contract:1",provenance_digest="prov:1",evidence_refs=("ev:1",),state_digest=memory[0].state_id,admission_verified=True)
