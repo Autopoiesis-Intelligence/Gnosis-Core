@@ -204,7 +204,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     )
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
+    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance, AuthorizationValidity(auth.approval_id, "policy-1", "evidence-1"))
     result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
