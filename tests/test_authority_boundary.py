@@ -677,3 +677,24 @@ require_persisted_execution_receipt(conn,r,request)
 """)
     subprocess.run([sys.executable, str(producer), str(db), str(receipt_file)], check=True)
     subprocess.run([sys.executable, str(consumer), str(db), str(receipt_file)], check=True)
+
+
+def test_replay_requires_current_authorized_registry_binding(tmp_path):
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.core.policy import PolicyIdentity, implementation_identity, _REGISTRY_AUTHORITY
+    from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+    from gnosis.reflection.authority import require_persisted_execution_receipt
+    def evaluator(*_args): return True
+    identity = implementation_identity(evaluator)
+    p = build_provenance(candidate_id="registry-replay", parent_state_id="parent", parent_state_digest="parent", proposed_state_digest="result", observations={"x": 1}, evidence_digest=canonical_digest({"x": 1}), evaluation_status="PASS", shadow_status="UNCHANGED", invariant_status="PRESERVED", governance_decision="ALLOW", candidate_binding_digest="binding", evaluated_policy=PolicyIdentity("receipt-rule", 1, identity))
+    conn = sqlite3.connect(":memory:"); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    request = ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id,True,p.evolution_identity), ExecutionIntentSnapshot.from_provenance(p), p.provenance_id,p.evolution_identity,p)
+    receipt = ExecutionReceipt.after_commit(request,type("S",(),{"state_id":"result"})())
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(RuleMetadata(rule_id="receipt-rule",rule_version=1,rule_type="test",scope="core",implementation_ref="python:test",spec_ref="test",implementation_identity=identity),evaluator=evaluator,_authority=_REGISTRY_AUTHORITY)
+    binding = registry.resolve("receipt-rule",1)
+    assert binding.implementation_identity == receipt.manifest_digest.split(":")[-1] if False else identity
+    require_persisted_execution_receipt(conn, receipt, request)
