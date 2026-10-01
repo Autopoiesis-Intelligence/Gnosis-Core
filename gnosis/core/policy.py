@@ -105,16 +105,14 @@ def executable_binding_manifest_digest(
         raise ValueError("parent state digest is required")
     if not isinstance(policy, PolicyIdentity):
         raise TypeError("policy must be a PolicyIdentity")
-    payload = {
-        "candidate_binding_digest": candidate.binding_digest(parent_state_digest),
-        "policy": {
-            "rule_id": policy.rule_id,
-            "rule_version": policy.rule_version,
-            "implementation_identity": policy.implementation_identity,
-        },
-    }
-    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    return "sha256:" + hashlib.sha256(blob).hexdigest()
+    manifest = ImmutableExecutableManifest(
+        candidate_binding_digest=candidate.binding_digest(parent_state_digest),
+        parent_state_digest=parent_state_digest,
+        rule_id=policy.rule_id,
+        rule_version=policy.rule_version,
+        implementation_identity=policy.implementation_identity,
+    )
+    return manifest.manifest_digest
 
 
 @dataclass(frozen=True)
