@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 GENESIS_HASH = "0" * 64
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NUL
 CREATE TABLE IF NOT EXISTS states (state_id TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK(version >= 0), payload TEXT NOT NULL, created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS relations (state_id TEXT NOT NULL, relation_order INTEGER NOT NULL CHECK(relation_order >= 0), relation_id TEXT NOT NULL, source_id TEXT NOT NULL, target_id TEXT NOT NULL, relation_type TEXT NOT NULL, value TEXT, created_at TEXT NOT NULL, PRIMARY KEY(state_id, relation_id), UNIQUE(state_id, relation_order), FOREIGN KEY(state_id) REFERENCES states(state_id) ON DELETE CASCADE);
 CREATE TABLE IF NOT EXISTS candidates (candidate_id TEXT PRIMARY KEY, parent_state_id TEXT NOT NULL, candidate_state_id TEXT NOT NULL, origin TEXT NOT NULL, seed INTEGER, created_at TEXT NOT NULL, FOREIGN KEY(parent_state_id) REFERENCES states(state_id), FOREIGN KEY(candidate_state_id) REFERENCES states(state_id));
-CREATE TABLE IF NOT EXISTS instances (instance_id TEXT PRIMARY KEY, parent_instance_id TEXT, owner_id TEXT NOT NULL, root_state_id TEXT NOT NULL, current_state_id TEXT NOT NULL, generation INTEGER NOT NULL CHECK(generation >= 0), status TEXT NOT NULL CHECK(status IN ('active','stopped','archived')), budget_total INTEGER NOT NULL CHECK(budget_total >= 0), budget_spent INTEGER NOT NULL CHECK(budget_spent >= 0), created_at TEXT NOT NULL, FOREIGN KEY(parent_instance_id) REFERENCES instances(instance_id), FOREIGN KEY(root_state_id) REFERENCES states(state_id), FOREIGN KEY(current_state_id) REFERENCES states(state_id));
-CREATE TABLE IF NOT EXISTS transitions (transition_id TEXT PRIMARY KEY, instance_id TEXT NOT NULL, candidate_id TEXT NOT NULL, from_state_id TEXT NOT NULL, to_state_id TEXT NOT NULL, accepted INTEGER NOT NULL CHECK(accepted IN(0,1)), reasons TEXT NOT NULL, test_rule_id TEXT NOT NULL DEFAULT 'test-rule:unspecified', created_at TEXT NOT NULL, FOREIGN KEY(instance_id) REFERENCES instances(instance_id), FOREIGN KEY(candidate_id) REFERENCES candidates(candidate_id), FOREIGN KEY(from_state_id) REFERENCES states(state_id), FOREIGN KEY(to_state_id) REFERENCES states(state_id));
+CREATE TABLE IF NOT EXISTS instances (instance_id TEXT PRIMARY KEY, parent_instance_id TEXT, owner_id TEXT NOT NULL, root_state_id TEXT NOT NULL, current_state_id TEXT NOT NULL, generation INTEGER NOT NULL CHECK(generation >= 0), status TEXT NOT NULL CHECK(status IN ('active','stopped','archived')), budget_total INTEGER NOT NULL CHECK(budget_total >= 0), budget_spent INTEGER NOT NULL CHECK(budget_spent >= 0), policy_rule_id TEXT, policy_rule_version INTEGER, policy_implementation_identity TEXT, created_at TEXT NOT NULL, FOREIGN KEY(parent_instance_id) REFERENCES instances(instance_id), FOREIGN KEY(root_state_id) REFERENCES states(state_id), FOREIGN KEY(current_state_id) REFERENCES states(state_id));
+CREATE TABLE IF NOT EXISTS transitions (transition_id TEXT PRIMARY KEY, instance_id TEXT NOT NULL, candidate_id TEXT NOT NULL, from_state_id TEXT NOT NULL, to_state_id TEXT NOT NULL, accepted INTEGER NOT NULL CHECK(accepted IN(0,1)), reasons TEXT NOT NULL, test_rule_id TEXT NOT NULL DEFAULT 'test-rule:unspecified', policy_rule_id TEXT, policy_rule_version INTEGER, policy_implementation_identity TEXT, policy_invoked INTEGER, created_at TEXT NOT NULL, FOREIGN KEY(instance_id) REFERENCES instances(instance_id), FOREIGN KEY(candidate_id) REFERENCES candidates(candidate_id), FOREIGN KEY(from_state_id) REFERENCES states(state_id), FOREIGN KEY(to_state_id) REFERENCES states(state_id));
 CREATE INDEX IF NOT EXISTS idx_transitions_instance ON transitions(instance_id);
 CREATE TABLE IF NOT EXISTS evolution_memory (memory_id TEXT PRIMARY KEY, instance_id TEXT NOT NULL, candidate_id TEXT NOT NULL, transition_id TEXT NOT NULL, state_id TEXT NOT NULL, proposal_id TEXT, outcome TEXT NOT NULL CHECK(outcome IN ('accepted','rejected','inconclusive')), evidence TEXT NOT NULL, created_at TEXT NOT NULL, proposal_report_id TEXT, FOREIGN KEY(instance_id) REFERENCES instances(instance_id), FOREIGN KEY(candidate_id) REFERENCES candidates(candidate_id), FOREIGN KEY(transition_id) REFERENCES transitions(transition_id), FOREIGN KEY(state_id) REFERENCES states(state_id));
 CREATE INDEX IF NOT EXISTS idx_evolution_memory_instance ON evolution_memory(instance_id);
@@ -54,12 +54,23 @@ def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
                 memory_columns = {row[1] for row in conn.execute("PRAGMA table_info(evolution_memory)")}
                 if memory_columns and "proposal_report_id" not in memory_columns:
                     conn.execute("ALTER TABLE evolution_memory ADD COLUMN proposal_report_id TEXT")
+            elif version == 5:
+                conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(SCHEMA_VERSION),))
             elif version != SCHEMA_VERSION:
                 conn.close()
                 raise RuntimeError(
                     f"incompatible schema version: {version} (expected {SCHEMA_VERSION})"
                 )
     conn.executescript(SCHEMA)
+    # v6 policy-binding columns are additive and preserve legacy records as unverified.
+    for table, columns in {
+        "instances": {"policy_rule_id": "TEXT", "policy_rule_version": "INTEGER", "policy_implementation_identity": "TEXT"},
+        "transitions": {"policy_rule_id": "TEXT", "policy_rule_version": "INTEGER", "policy_implementation_identity": "TEXT", "policy_invoked": "INTEGER"},
+    }.items():
+        existing = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        for column, definition in columns.items():
+            if column not in existing:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
     # Reflection persistence is part of the canonical database schema; initialize it once at connection boundary.
     from ..reflection.persistence import ensure_reflection_schema
     ensure_reflection_schema(conn)
