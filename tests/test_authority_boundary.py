@@ -487,7 +487,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
-        AuthorizationValidity(provenance_a.provenance_id, "policy-1", "evidence-1"),
+        AuthorizationValidity(provenance_a.provenance_id, "policy-1", provenance_a.evidence_digest),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
