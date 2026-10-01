@@ -185,3 +185,35 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
     assert replay.valid, replay.reasons
     conn.close()
+
+
+def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
+    from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
+    from gnosis.reflection.governance import GovernanceDecision
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory
+    from gnosis.reflection.runtime import reflect_with_history
+    db = tmp_path / "e9.sqlite"
+    state = State(elements={"a": 1})
+    engine = Engine(state=state, budget=Budget(total=3))
+    proposal1 = type("P", (), {"proposal_id":"p-e9-1","finding_id":"f-e9-1","rule_id":"r-e9-1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f-e9-1",)})()
+    cumulative1 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal1,)), history=None, recurring_unresolved=(), evolution_evidence=())
+    candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
+    sandbox1, evaluation1 = evaluate_candidate_in_sandbox(engine, candidate1, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable-1"})
+    governance1 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
+    provenance1 = build_endogenous_provenance(candidate1, sandbox1, evaluation1, governance1, parent_state_digest=state.content_id)
+    conn = connect(db); ensure_reflection_schema(conn)
+    tx1 = persist_evolution_transaction(conn, provenance1, event_type="PROVENANCE", payload={"status":"RECORDED","cycle":1})
+    memory1 = append_evolution_memory(conn, instance_id="e9-instance", candidate_id=candidate1.candidate_id, transition_id=tx1.audit_record.record_digest, state_id=candidate1.parent_state_id, proposal_id=proposal1.proposal_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
+    conn.close()
+    conn = connect(db)
+    restored = load_evolution_memory(conn, "e9-instance")
+    assert restored and restored[0].memory_id == memory1.memory_id
+    reflection = reflect_with_history(engine, conn, instance_id="e9-instance")
+    assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
+    proposal2 = type("P", (), {"proposal_id":"p-e9-2","finding_id":"f-e9-2","rule_id":"r-e9-2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f-e9-2",)})()
+    cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=reflection.history, recurring_unresolved=(), evolution_evidence=reflection.evolution_evidence)
+    candidate2 = generate_from_cumulative_reflection(engine, cumulative2).candidates[0]
+    refs = candidate2.proposed_state.elements[proposal2.proposal_id]["memory_evidence_refs"]
+    assert memory1.memory_id in refs
+    conn.close()
