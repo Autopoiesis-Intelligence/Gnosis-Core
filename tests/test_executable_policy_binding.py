@@ -7,6 +7,7 @@ from gnosis.core import (
     Engine,
     PolicyIdentity,
     State,
+    bind_policy,
 )
 from gnosis.reflection.rules import RuleMetadata, RuleRegistry
 
@@ -165,7 +166,9 @@ def test_custom_policy_recovery_fails_closed_without_registry(sqlite_conn):
     from gnosis.storage import save_instance, load_instance
 
     instance = Instance.create_root("u", State())
-    binding = bind_policy("R", 1, policy_v1)
+    registry = RuleRegistry()
+    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    binding = registry.resolve("R", 1)
     instance.engine.policy_binding = binding
     instance.engine.test_fn = binding.evaluator
     instance.engine.test_rule_id = binding.policy.rule_id
