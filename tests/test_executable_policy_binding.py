@@ -181,3 +181,16 @@ def test_custom_policy_recovery_fails_closed_without_registry(sqlite_conn):
 def test_caller_cannot_issue_trusted_binding():
     with pytest.raises(PermissionError, match="RuleRegistry"):
         bind_policy("forged", 1, policy_v1)
+
+
+def test_legacy_raw_callable_cannot_enter_durable_instance_chain(sqlite_conn):
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import save_instance
+
+    instance = Instance(
+        instance_id="legacy-raw-policy",
+        owner_id="u",
+        engine=Engine(state=State(), test_fn=policy_v1, test_rule_id="R"),
+    )
+    with pytest.raises(Exception, match="no executable policy binding"):
+        save_instance(sqlite_conn, instance)
