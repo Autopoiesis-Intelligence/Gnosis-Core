@@ -7,7 +7,6 @@ from gnosis.core import (
     Engine,
     PolicyIdentity,
     State,
-    bind_policy,
 )
 from gnosis.reflection.rules import RuleMetadata, RuleRegistry
 
@@ -141,7 +140,9 @@ def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
     from gnosis.storage import save_instance, load_instance
 
     state = State()
-    binding = bind_policy("R", 1, policy_v1)
+    registry = RuleRegistry()
+    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    binding = registry.resolve("R", 1)
     instance = Instance.create_root("u", state)
     instance.engine.policy_binding = binding
     instance.engine.test_fn = binding.evaluator
