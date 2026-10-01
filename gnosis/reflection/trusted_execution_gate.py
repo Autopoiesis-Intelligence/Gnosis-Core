@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from gnosis.reflection.authorization_consumption import consume_authorization_in_transaction
 from gnosis.reflection.authorization_validity import AuthorizationValidity
-from gnosis.reflection.authority import ExecutionCommitRequest, require_execution_commit
+from gnosis.reflection.execution_contract import ExecutionCommitRequest, require_execution_commit
 
 
 def require_trusted_execution(
