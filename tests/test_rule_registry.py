@@ -59,3 +59,21 @@ def test_authorized_registry_issues_exact_executable_binding():
     registry.register(_rule(1), evaluator=evaluator)
     binding = registry.resolve("test-rule:diagnostic-policy", 1)
     assert binding.evaluator is evaluator
+
+
+def test_authorized_registry_rejects_caller_construction_without_authority():
+    from gnosis.reflection.rules import AuthorizedRuleRegistry
+
+    with pytest.raises(PermissionError, match="Core authority"):
+        AuthorizedRuleRegistry()
+    with pytest.raises(PermissionError, match="Core authority"):
+        AuthorizedRuleRegistry(_authority=object())
+
+
+def test_default_rule_registry_is_core_authorized_and_resolves_default():
+    from gnosis.reflection.rules import default_rule_registry
+
+    registry = default_rule_registry()
+    binding = registry.resolve("test-rule:default", 1)
+    assert binding.policy.rule_id == "test-rule:default"
+    assert binding.policy.rule_version == 1
