@@ -1,6 +1,7 @@
 import pytest
 
-from gnosis.reflection.rules import RuleMetadata, RuleRegistry\nfrom gnosis.core.policy import _REGISTRY_AUTHORITY
+from gnosis.reflection.rules import RuleMetadata, RuleRegistry
+from gnosis.core.policy import _REGISTRY_AUTHORITY
 
 
 def _rule(version: int) -> RuleMetadata:
