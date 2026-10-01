@@ -21,25 +21,22 @@ class RuleMetadata:
 
 
 class RuleRegistry:
-    """In-memory registry for immutable rule metadata.
+    """Read-only metadata registry for reflection-visible rules.
 
-    Registry operations only describe rules. They do not execute, activate,
-    replace, or mutate any Core rule.
+    This registry deliberately has no executable evaluator storage or binding
+    issuance capability. Metadata visibility never implies executable authority.
     """
 
     def __init__(self, rules: Mapping[tuple[str, int], RuleMetadata] | None = None):
         self._rules = dict(rules or {})
-        self._evaluators: dict[tuple[str, int], PolicyCallable] = {}
 
-    def register(self, rule: RuleMetadata, evaluator: PolicyCallable | None = None) -> RuleMetadata:
+    def register(self, rule: RuleMetadata) -> RuleMetadata:
         key = (rule.rule_id, rule.rule_version)
         if key in self._rules:
             raise ValueError(f"rule version already registered: {rule.rule_id}:v{rule.rule_version}")
         if rule.rule_version < 1:
             raise ValueError("rule_version must be >= 1")
         self._rules[key] = rule
-        if evaluator is not None:
-            self._evaluators[key] = evaluator
         return rule
 
     def get(self, rule_id: str, rule_version: int) -> RuleMetadata:
@@ -60,8 +57,25 @@ class RuleRegistry:
     def snapshot(self) -> tuple[RuleMetadata, ...]:
         return tuple(self._rules[key] for key in sorted(self._rules))
 
+
+class AuthorizedRuleRegistry(RuleRegistry):
+    """Core-authorized registry that can issue executable policy bindings."""
+
+    def __init__(
+        self,
+        rules: Mapping[tuple[str, int], RuleMetadata] | None = None,
+        evaluators: Mapping[tuple[str, int], PolicyCallable] | None = None,
+    ):
+        super().__init__(rules)
+        self._evaluators = dict(evaluators or {})
+
+    def register(self, rule: RuleMetadata, evaluator: PolicyCallable | None = None) -> RuleMetadata:
+        registered = super().register(rule)
+        if evaluator is not None:
+            self._evaluators[(rule.rule_id, rule.rule_version)] = evaluator
+        return registered
+
     def resolve(self, rule_id: str, rule_version: int) -> ExecutablePolicyBinding:
-        """Resolve an exact registered version to the callable registered with it."""
         rule = self.get(rule_id, rule_version)
         evaluator = self._evaluators.get((rule_id, rule_version))
         if evaluator is None:
@@ -71,7 +85,7 @@ class RuleRegistry:
 
 def default_rule_registry() -> RuleRegistry:
     from gnosis.core.verification import default_test
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(
         RuleMetadata(
             rule_id="test-rule:default",
