@@ -25,7 +25,7 @@ def fork_instance(parent: Instance, owner_id: str | None = None, budget: Budget 
     different user.
     """
     forked_state = clone_state(parent.engine.state)
-    new_engine = Engine(state=forked_state, budget=budget or Budget())
+    new_engine = Engine(state=forked_state, budget=budget or Budget(), policy_binding=parent.engine.policy_binding)
     return Instance(
         instance_id=_new_id(),
         owner_id=owner_id if owner_id is not None else parent.owner_id,
