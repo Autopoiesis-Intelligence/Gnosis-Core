@@ -170,11 +170,11 @@ def test_execution_receipt_rejects_unproven_result_content():
         ExecutionReceipt.after_commit(request, {"state": "tampered"})
 
 
-def _make_real_commit_fixture(label):
+def _make_real_commit_fixture(label, db_path=None):
     from gnosis.instances.instance import Instance
     from gnosis.storage import connect, save_instance
     from gnosis.core import Candidate, State
-    conn = connect()
+    conn = connect(db_path or ":memory:")
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
     save_instance(conn, instance)
     proposed = instance.engine.state.with_elements({"b": 2})
@@ -1000,14 +1000,9 @@ def test_durable_transition_records_parent_and_resulting_state_across_restart(tm
     import sqlite3
     from gnosis.reflection.persistence import ensure_reflection_schema
     from gnosis.evolution.transaction import persist_evolution_transaction
-    from gnosis.evolution.provenance import build_provenance, canonical_digest
-    from gnosis.core.policy import PolicyIdentity, implementation_identity
     from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
-    def evaluator(*_): return True
-    identity=implementation_identity(evaluator); obs={"x":1}
-    p=build_provenance(candidate_id="causal-transition",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("causal-rule",1,identity))
     db=tmp_path/"causal.sqlite3"
-    conn, instance, candidate, record, p = _make_real_commit_fixture("causal-transition")
+    conn, instance, candidate, record, p = _make_real_commit_fixture("causal-transition", db)
     ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     request=_make_execution_commit_request(p)
     committed=SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="causal")
@@ -1029,11 +1024,11 @@ def test_accepted_transition_replay_is_idempotent_after_restart(tmp_path):
     from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
     def evaluator(*_): return True
     identity=implementation_identity(evaluator)
-    conn, instance, candidate, record, p = _make_real_commit_fixture("idempotent-replay")
+    db=tmp_path/"idempotent.sqlite3"
+    conn, instance, candidate, record, p = _make_real_commit_fixture("idempotent-replay", db)
     request=_make_execution_commit_request(p); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="idempotent")
     first_count=conn.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
-    db = conn.execute("PRAGMA database_list").fetchone()[2]
     conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
     second=adapter.commit(reopened,instance,candidate,record,request,actor="idempotent")
     second_count=reopened.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
@@ -1051,10 +1046,10 @@ def test_conflicting_replay_of_same_transition_identity_fails_closed(tmp_path):
     from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
     def evaluator(*_): return True
     identity=implementation_identity(evaluator)
-    conn, instance, candidate, record, p = _make_real_commit_fixture("conflicting-replay")
+    db=tmp_path/"conflicting.sqlite3"
+    conn, instance, candidate, record, p = _make_real_commit_fixture("conflicting-replay", db)
     request=_make_execution_commit_request(p); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="conflict")
-    db = conn.execute("PRAGMA database_list").fetchone()[2]
     conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
     conflicting=type(record)(**{**record.__dict__,"to_state_id":"conflicting-result"})
     with pytest.raises(Exception):
