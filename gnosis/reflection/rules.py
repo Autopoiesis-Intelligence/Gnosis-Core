@@ -9,6 +9,7 @@ from gnosis.core.policy import (
     PolicyCallable,
     _REGISTRY_AUTHORITY,
     _issue_binding,
+    implementation_identity,
 )
 
 
@@ -23,6 +24,7 @@ class RuleMetadata:
     invariant_refs: tuple[str, ...] = ()
     provenance: str = "reflection-registry"
     status: str = "ACTIVE"
+    implementation_identity: str = ""
 
 
 class RuleRegistry:
@@ -88,6 +90,8 @@ class AuthorizedRuleRegistry(RuleRegistry):
             raise PermissionError("executable registry mutation requires Core authority")
         registered = super().register(rule)
         if evaluator is not None:
+            if not rule.implementation_identity:
+                raise ValueError("trusted executable rule requires implementation_identity")
             self._evaluators[(rule.rule_id, rule.rule_version)] = evaluator
         return registered
 
@@ -96,6 +100,8 @@ class AuthorizedRuleRegistry(RuleRegistry):
         evaluator = self._evaluators.get((rule_id, rule_version))
         if evaluator is None:
             raise PermissionError(f"rule has no executable binding: {rule_id}:v{rule_version}")
+        if rule.implementation_identity != implementation_identity(evaluator):
+            raise PermissionError("registered implementation identity does not match evaluator")
         return _issue_binding(rule.rule_id, rule.rule_version, evaluator, _authority=_REGISTRY_AUTHORITY)
 
 
@@ -111,6 +117,7 @@ def default_rule_registry() -> AuthorizedRuleRegistry:
             scope="core",
             implementation_ref="python:test-rule:default",
             spec_ref="core:default-test",
+            implementation_identity=implementation_identity(default_test),
         ),
         evaluator=default_test,
         _authority=_REGISTRY_AUTHORITY,
