@@ -7,8 +7,8 @@ from typing import Callable, Sequence
 from .budget import Budget, BudgetExhaustedError
 from .select import SelectionResult, select, select_binding
 from .types import Candidate, State, StopReason, TestResult, TransitionRecord
-from .verification import TestFn, default_test, evaluate_binding
-from .policy import ExecutablePolicyBinding, bind_policy, default_policy_binding
+from .verification import TestFn, default_test, evaluate, evaluate_binding
+from .policy import ExecutablePolicyBinding, default_policy_binding
 
 GenerateFn = Callable[[State], Candidate]
 
@@ -30,15 +30,13 @@ class Engine:
     policy_binding: ExecutablePolicyBinding | None = None
 
     def __post_init__(self) -> None:
-        if self.policy_binding is None:
-            if self.test_fn is default_test:
-                self.policy_binding = default_policy_binding()
-            else:
-                # Backward-compatible raw callable path. Its identity is derived
-                # from the actual callable, never from a caller-supplied version.
-                self.policy_binding = bind_policy(self.test_rule_id, 1, self.test_fn)
-        self.test_fn = self.policy_binding.evaluator
-        self.test_rule_id = self.policy_binding.policy.rule_id
+        if self.policy_binding is not None:
+            self.test_fn = self.policy_binding.evaluator
+            self.test_rule_id = self.policy_binding.policy.rule_id
+        elif self.test_fn is default_test:
+            self.policy_binding = default_policy_binding()
+            self.test_fn = self.policy_binding.evaluator
+            self.test_rule_id = self.policy_binding.policy.rule_id
 
     STEP_COST: int = 1
 
@@ -54,7 +52,11 @@ class Engine:
         self._charge_step()
         if candidate.parent_state_id != self.state.state_id:
             raise StopCondition(StopReason.INVALID_STATE, f"candidate parent {candidate.parent_state_id} does not match current state {self.state.state_id}")
-        result, evidence = evaluate_binding(self.state, candidate, self.policy_binding)
+        if self.policy_binding is None:
+            result = evaluate(self.state, candidate, self.test_fn)
+            evidence = None
+        else:
+            result, evidence = evaluate_binding(self.state, candidate, self.policy_binding)
         record = TransitionRecord(
             from_state_id=self.state.state_id,
             to_state_id=candidate.proposed_state.state_id,
@@ -72,7 +74,10 @@ class Engine:
 
     def step_select(self, candidates: Sequence[Candidate]) -> TransitionRecord:
         self._charge_step()
-        result: SelectionResult = select_binding(self.state, candidates, self.policy_binding)
+        if self.policy_binding is None:
+            result: SelectionResult = select(self.state, candidates, self.test_fn)
+        else:
+            result = select_binding(self.state, candidates, self.policy_binding)
         if result.selected is None:
             reasons: tuple[str, ...]
             if not result.evaluated:
