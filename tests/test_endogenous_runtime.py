@@ -117,3 +117,24 @@ def test_memory_aware_endogenous_generation_is_deterministically_replayable():
     assert first.candidates[0].candidate_id == second.candidates[0].candidate_id
     assert first.candidates[0].proposed_state.state_id == second.candidates[0].proposed_state.state_id
     assert first.candidates[0].proposed_state.content_id == second.candidates[0].proposed_state.content_id
+
+
+def test_memory_aware_candidate_uses_canonical_sandbox_without_core_mutation():
+    from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox
+    state = State(elements={"a": 1})
+    engine = Engine(state=state, budget=Budget(total=3))
+    proposal = type("P", (), {"proposal_id":"p-sandbox","finding_id":"f-sandbox","rule_id":"r-sandbox","current_version":1,"proposed_version":2,"hypothesis":"sandboxed","evidence_refs":("f-sandbox",)})()
+    report = ReflectionReport(proposals=(proposal,))
+    cumulative = CumulativeReflectionReport(current=report, history=None, recurring_unresolved=(), evolution_evidence=())
+    generation = generate_from_cumulative_reflection(engine, cumulative)
+    candidate = generation.candidates[0]
+    before = engine.state
+    result, evaluation = evaluate_candidate_in_sandbox(
+        engine, candidate, lambda state, candidate: {"candidate_id": candidate.candidate_id, "state_id": state.state_id}
+    )
+    assert result.accepted_for_evaluation
+    assert result.execution.candidate_id == candidate.candidate_id
+    assert result.execution.parent_state_id == before.state_id
+    assert result.execution.evidence_digest
+    assert evaluation.status == "PASS"
+    assert engine.state == before
