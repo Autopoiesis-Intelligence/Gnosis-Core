@@ -1,5 +1,5 @@
 import pytest
-from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
+from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt, require_persisted_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.authorization_validity import AuthorizationValidity
@@ -581,3 +581,18 @@ def test_execution_receipt_rejects_tampered_manifest_digest():
     receipt = ExecutionReceipt.after_commit(request, type("S", (), {"state_id": "result"})())
     object.__setattr__(receipt, "manifest_digest", "sha256:tampered")
     assert not receipt.matches_request(request)
+
+
+def test_execution_receipt_requires_persisted_manifest():
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    def evaluator(*_args): return True
+    identity = implementation_identity(evaluator)
+    p = build_provenance(candidate_id="persisted-receipt", parent_state_id="parent", parent_state_digest="parent", proposed_state_digest="result", observations={"x": 1}, evidence_digest=canonical_digest({"x": 1}), evaluation_status="PASS", shadow_status="UNCHANGED", invariant_status="PRESERVED", governance_decision="ALLOW", candidate_binding_digest="binding", evaluated_policy=PolicyIdentity("receipt-rule", 1, identity))
+    request = ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id, True, p.evolution_identity), ExecutionIntentSnapshot.from_provenance(p), p.provenance_id, p.evolution_identity, p)
+    receipt = ExecutionReceipt.after_commit(request, type("S", (), {"state_id": "result"})())
+    conn = sqlite3.connect(":memory:"); ensure_reflection_schema(conn)
+    with pytest.raises(PermissionError, match="manifest is not persisted"):
+        require_persisted_execution_receipt(conn, receipt, request)
