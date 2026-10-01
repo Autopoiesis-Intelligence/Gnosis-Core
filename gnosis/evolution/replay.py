@@ -16,6 +16,11 @@ class ReplayResult:
     expected_digest: str | None = None
     actual_digest: str | None = None
 
+    @property
+    def valid(self) -> bool:
+        """Compatibility alias for callers using the validation vocabulary."""
+        return self.reproducible
+
 
 def replay_evidence(
     execution: SandboxExecution,
