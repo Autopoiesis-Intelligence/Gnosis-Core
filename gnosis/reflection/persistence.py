@@ -110,6 +110,12 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_evolution_audit_candidate
             ON evolution_audit(candidate_id);
 
+        CREATE TABLE IF NOT EXISTS executable_manifests (
+            manifest_digest TEXT PRIMARY KEY,
+            canonical_payload TEXT NOT NULL,
+            provenance_id TEXT NOT NULL UNIQUE,
+            FOREIGN KEY(provenance_id) REFERENCES evolution_provenance(provenance_id)
+        );
         CREATE TABLE IF NOT EXISTS evolution_provenance (
             provenance_id TEXT PRIMARY KEY,
             execution_id TEXT NOT NULL,
