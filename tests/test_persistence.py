@@ -29,6 +29,9 @@ def root():
     return Instance.create_root("user-1", State(elements={"a": 1}))
 
 
+def _authorized_recover(conn, instance_id):
+    return recover_instance(conn, instance_id, authorization=RecoveryAuthorization("test-recovery", "test-principal", instance_id))
+
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
