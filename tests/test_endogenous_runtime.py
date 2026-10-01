@@ -65,7 +65,7 @@ def test_cumulative_adapter_is_read_only():
 
 def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path):
     from gnosis.reflection.analyzer import ReflectionReport
-    from gnosis.reflection.endogenous import commit_endogenous_candidates
+    from gnosis.reflection.endogenous import candidate_binds_proposal, commit_endogenous_candidates
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.reflection.analyzer import RuleProposal
     from gnosis.storage import append_evolution_memory, connect, close, load_evolution_memory, save_instance
@@ -97,6 +97,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
     gen2 = generate_from_cumulative_reflection(instance.engine, cumulative2)
     assert gen2.candidates[0].proposed_state.elements["p2"]["memory_evidence_refs"] == (mem1.memory_id,)
+    assert candidate_binds_proposal(gen2.candidates[0], proposal2), (gen2.candidates[0].origin, gen2.candidates[0].proposed_state.elements.get(proposal2.proposal_id), tuple((r.source, r.target, r.relation_type) for r in gen2.candidates[0].proposed_state.relations))
     rec2 = commit_endogenous_candidates(instance.engine, cumulative2.current, gen2.candidates)
     _persist_transition(conn, instance, gen2.candidates[0], rec2, actor="e8c")
     mem2 = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=rec2.candidate_id, transition_id=rec2.transition_id, state_id=rec2.to_state_id, proposal_id=proposal2.proposal_id, outcome="accepted", evidence=("cycle-2",), proposal_report_id=report2_id)
