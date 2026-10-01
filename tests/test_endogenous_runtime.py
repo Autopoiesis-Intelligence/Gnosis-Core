@@ -203,6 +203,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
+    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
     sandbox1, evaluation1 = evaluate_candidate_in_sandbox(engine, candidate1, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable-1"})
     governance1 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
@@ -218,6 +219,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
     proposal2 = type("P", (), {"proposal_id":"p-e9-2","finding_id":"f-e9-2","rule_id":"r-e9-2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f-e9-2",)})()
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=reflection.history, recurring_unresolved=(), evolution_evidence=reflection.evolution_evidence)
+    report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
     report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
     report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
     candidate2 = generate_from_cumulative_reflection(engine, cumulative2).candidates[0]
