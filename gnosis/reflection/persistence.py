@@ -625,8 +625,8 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
     conn.execute(
         """INSERT INTO evolution_provenance
         (provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,
-         evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+         evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluated_policy)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             provenance_id,
             provenance.execution_id,
@@ -643,6 +643,7 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
             evolution_identity,
             provenance.proposed_state_content_id,
             provenance.candidate_binding_digest,
+            _policy_json(provenance.evaluated_policy),
         ),
     )
     return provenance_id
@@ -651,7 +652,7 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
 def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> dict[str, Any]:
     ensure_reflection_schema(conn)
     row = conn.execute(
-        """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,
+        """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluated_policy,
                   evaluation_status,shadow_status,invariant_status,governance_decision,status
            FROM evolution_provenance WHERE provenance_id=?""",
         (provenance_id,),
@@ -678,7 +679,7 @@ def list_evolution_provenance(
     ensure_reflection_schema(conn)
     if candidate_id is None:
         rows = conn.execute(
-            "SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,"
+            "SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluated_policy,"
             "evaluation_status,shadow_status,invariant_status,governance_decision,status "
             "FROM evolution_provenance ORDER BY rowid"
         ).fetchall()
