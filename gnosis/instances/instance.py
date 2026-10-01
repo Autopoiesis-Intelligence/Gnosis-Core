@@ -45,7 +45,9 @@ class Instance:
     @classmethod
     def create_root(cls, owner_id: str, initial_state: State, budget: Budget | None = None) -> "Instance":
         """Create a brand-new, generation-0 Instance (spec section 49, step 1+3)."""
-        engine = Engine(state=initial_state, budget=budget or Budget())
+        from gnosis.reflection.rules import default_rule_registry
+        binding = default_rule_registry().resolve("test-rule:default", 1)
+        engine = Engine(state=initial_state, budget=budget or Budget(), policy_binding=binding)
         return cls(
             instance_id=_new_id(),
             owner_id=owner_id,
