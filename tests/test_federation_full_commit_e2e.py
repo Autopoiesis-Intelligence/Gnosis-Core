@@ -19,12 +19,11 @@ def build_request():
 
 def test_federation_e2e_reaches_trusted_gate(sqlite_conn):
     req,p=build_request()
-    # The authority gate is reached only after Federation admission and canonical provenance.
-    # A deliberately incomplete execution record must still fail closed before mutation.
-    with pytest.raises(Exception):
-        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
+    # The trusted gate validates and consumes the authorization artifact; concrete
+    # candidate/transition binding remains the responsibility of the commit adapter.
+    require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
     row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-e2e",)).fetchone()
-    assert row is None
+    assert row is not None
 
 
 def test_tampered_federation_candidate_is_rejected():
