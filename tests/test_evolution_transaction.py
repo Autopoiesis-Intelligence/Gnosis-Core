@@ -6,6 +6,8 @@ import pytest
 
 from gnosis.evolution.provenance import build_provenance, canonical_digest
 from gnosis.core.policy import PolicyIdentity, implementation_identity
+from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+from gnosis.core.policy import _REGISTRY_AUTHORITY
 from gnosis.core.policy import ImmutableExecutableManifest
 from gnosis.evolution.transaction import persist_evolution_transaction
 from gnosis.reflection.persistence import ensure_reflection_schema
@@ -355,6 +357,46 @@ m = load_executable_manifest(conn, digest)
 assert m.rule_id == 'restart-rule'
 assert m.rule_version == 1
 assert m.implementation_identity.startswith('python-source-sha256:')
+""")
+    subprocess.run([sys.executable, str(producer), str(db)], check=True)
+    subprocess.run([sys.executable, str(consumer), str(db)], check=True)
+
+
+def test_restart_recovery_resolves_authorized_binding_across_processes(tmp_path):
+    db = tmp_path / "authorized-restart.sqlite3"
+    producer = tmp_path / "producer_authorized.py"
+    consumer = tmp_path / "consumer_authorized.py"
+    producer.write_text("""
+import sqlite3
+from gnosis.reflection.persistence import ensure_reflection_schema
+from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.evolution.transaction import persist_evolution_transaction
+from gnosis.core.policy import PolicyIdentity, implementation_identity
+
+def evaluator(*_args): return True
+conn = sqlite3.connect(__import__('sys').argv[1])
+ensure_reflection_schema(conn)
+obs={'metric':13}
+identity=implementation_identity(evaluator)
+p=build_provenance(candidate_id='restart-authorized', parent_state_id='state', parent_state_digest='parent', proposed_state_digest='proposed', observations=obs, evidence_digest=canonical_digest(obs), evaluation_status='PASS', shadow_status='NO_BEHAVIORAL_CHANGE', invariant_status='PRESERVED', governance_decision='REVIEW', candidate_binding_digest='binding', evaluated_policy=PolicyIdentity('restart-authorized', 1, identity))
+persist_evolution_transaction(conn,p,event_type='PROVENANCE',payload={'status':'RECORDED'})
+conn.close()
+""")
+    consumer.write_text("""
+import sqlite3
+from gnosis.evolution.transaction import resolve_recovered_executable_manifest
+from gnosis.core.policy import implementation_identity, _REGISTRY_AUTHORITY
+from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+
+def evaluator(*_args): return True
+conn=sqlite3.connect(__import__('sys').argv[1])
+registry=AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+identity=implementation_identity(evaluator)
+registry._register_authorized(RuleMetadata(rule_id='restart-authorized',rule_version=1,rule_type='test',scope='core',implementation_ref='python:test',spec_ref='test',implementation_identity=identity),evaluator=evaluator,_authority=_REGISTRY_AUTHORITY)
+digest=conn.execute('SELECT manifest_digest FROM executable_manifests').fetchone()[0]
+binding=resolve_recovered_executable_manifest(conn,digest,registry)
+assert binding.rule_id == 'restart-authorized'
+assert binding.implementation_identity == identity
 """)
     subprocess.run([sys.executable, str(producer), str(db)], check=True)
     subprocess.run([sys.executable, str(consumer), str(db)], check=True)
