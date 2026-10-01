@@ -1,6 +1,7 @@
 from dataclasses import replace
 
 from gnosis.core import Budget, Engine, State
+from gnosis.storage import save_reflection_report
 from gnosis.reflection.analyzer import ReflectionReport
 from gnosis.reflection.endogenous_runtime import generate_from_cumulative_reflection
 from gnosis.reflection.runtime import CumulativeReflectionReport
