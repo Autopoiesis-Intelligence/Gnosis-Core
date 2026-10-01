@@ -184,6 +184,7 @@ def recover_instance(
     authorization: RecoveryAuthorization,
     *,
     now: str,
+    policy_registry: object | None = None,
 ) -> Instance:
     evidence_digest = recovery_evidence_digest(conn, instance_id)
     validate_recovery_authorization(
@@ -192,7 +193,7 @@ def recover_instance(
         evidence_digest=evidence_digest,
         now=now,
     )
-    instance = load_instance(conn, instance_id, policy_registry=getattr(authorization, "policy_registry", None))
+    instance = load_instance(conn, instance_id, policy_registry=policy_registry)
     append_audit(
         conn,
         actor=authorization.requested_by,
