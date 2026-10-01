@@ -126,3 +126,41 @@ def test_protected_invariant_rejection_marks_policy_not_invoked():
     )
     with pytest.raises(Exception):
         engine.step(bad)
+
+
+def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import save_instance, load_instance
+
+    state = State()
+    binding = bind_policy("R", 1, policy_v1)
+    instance = Instance.create_root("u", state)
+    instance.engine.policy_binding = binding
+    instance.engine.test_fn = binding.evaluator
+    instance.engine.test_rule_id = binding.policy.rule_id
+    save_instance(sqlite_conn, instance)
+
+    registry = RuleRegistry()
+    registry.register(
+        RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
+        evaluator=policy_v1,
+    )
+    restored = load_instance(sqlite_conn, instance.instance_id, policy_registry=registry)
+    assert restored.engine.policy_binding is not None
+    assert restored.engine.policy_binding.policy == binding.policy
+    assert restored.engine.policy_binding.evaluator is policy_v1
+
+
+def test_custom_policy_recovery_fails_closed_without_registry(sqlite_conn):
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import save_instance, load_instance
+
+    instance = Instance.create_root("u", State())
+    binding = bind_policy("R", 1, policy_v1)
+    instance.engine.policy_binding = binding
+    instance.engine.test_fn = binding.evaluator
+    instance.engine.test_rule_id = binding.policy.rule_id
+    save_instance(sqlite_conn, instance)
+
+    with pytest.raises(Exception, match="policy registry"):
+        load_instance(sqlite_conn, instance.instance_id)
