@@ -6,6 +6,15 @@ from gnosis.storage import connect, save_instance
 
 
 @pytest.fixture
+def sqlite_conn():
+    conn = connect()
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+@pytest.fixture
 def persisted_transition():
     conn = connect()
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
