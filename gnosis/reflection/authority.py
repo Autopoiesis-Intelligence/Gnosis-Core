@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from gnosis.core.policy import PolicyIdentity
+from gnosis.core.policy import PolicyIdentity, ImmutableExecutableManifest
 
 from .governance import GovernanceDecision
 from gnosis.evolution.provenance import canonical_digest
@@ -250,6 +250,7 @@ class ExecutionReceipt:
     parent_state_digest: str
     resulting_state_digest: str
     candidate_binding_digest: str
+    manifest_digest: str = ""
 
     @property
     def receipt_id(self) -> str:
@@ -261,6 +262,7 @@ class ExecutionReceipt:
             "parent_state_digest": self.parent_state_digest,
             "resulting_state_digest": self.resulting_state_digest,
             "candidate_binding_digest": self.candidate_binding_digest,
+            "manifest_digest": self.manifest_digest,
         })
 
     @classmethod
@@ -272,6 +274,10 @@ class ExecutionReceipt:
         p = request.provenance
         if str(p.proposed_state_digest) != resulting_state_digest:
             raise PermissionError("resulting state does not match authorized evolution")
+        policy = getattr(p, "evaluated_policy", None)
+        if policy is None:
+            raise PermissionError("execution provenance has no executable policy identity")
+        manifest = ImmutableExecutableManifest(candidate_binding_digest=str(p.candidate_binding_digest), parent_state_digest=str(p.parent_state_digest), rule_id=str(policy.rule_id), rule_version=int(policy.rule_version), implementation_identity=str(policy.implementation_identity))
         return cls(
             execution_id=str(p.execution_id),
             provenance_id=str(p.provenance_id),
@@ -279,12 +285,19 @@ class ExecutionReceipt:
             parent_state_digest=str(p.parent_state_digest),
             resulting_state_digest=str(resulting_state_digest),
             candidate_binding_digest=str(p.candidate_binding_digest),
+            manifest_digest=manifest.manifest_digest,
         )
 
     def matches_request(self, request: ExecutionCommitRequest) -> bool:
         p = request.provenance
+        policy = getattr(p, "evaluated_policy", None)
+        if policy is None:
+            return False
+        expected_manifest = ImmutableExecutableManifest(candidate_binding_digest=str(p.candidate_binding_digest), parent_state_digest=str(p.parent_state_digest), rule_id=str(policy.rule_id), rule_version=int(policy.rule_version), implementation_identity=str(policy.implementation_identity)).manifest_digest
         return (
-            self.execution_id == str(p.execution_id)
+            bool(self.manifest_digest)
+            and self.manifest_digest == expected_manifest
+            and self.execution_id == str(p.execution_id)
             and self.provenance_id == str(p.provenance_id)
             and self.evolution_identity == str(p.evolution_identity)
             and self.parent_state_digest == str(p.parent_state_digest)
