@@ -97,6 +97,7 @@ def test_e7_60_real_execution_receipt_identity_is_not_integration_id():
 def _execution_fixture(proposal=None):
     from types import SimpleNamespace
     from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot, ExecutionReceipt
+    validity=AuthorizationValidity("auth","policy","evidence")
     if proposal is None:
         proposal = accepted()
     p=SimpleNamespace(
@@ -108,7 +109,7 @@ def _execution_fixture(proposal=None):
     )
     auth=ExecutionAuthorization("prov:1",True,"evolution:1","approval:1")
     snapshot=ExecutionIntentSnapshot.from_provenance(p)
-    request=ExecutionCommitRequest(auth,snapshot,"prov:1","evolution:1",p)
+    request=ExecutionCommitRequest(auth,snapshot,"prov:1","evolution:1",p,validity)
     receipt=ExecutionReceipt("exec:1","prov:1","evolution:1","sha256:parent","sha256:result","sha256:binding")
     return request, receipt
 
