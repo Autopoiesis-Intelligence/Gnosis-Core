@@ -44,3 +44,25 @@ def generate_from_reflection_report(
         max_candidates=max_candidates,
         budget=getattr(engine, "budget", None),
     )
+
+
+from gnosis.evolution.sandbox import SandboxBudget, SandboxResult, run_sandbox
+from gnosis.evolution.evaluator import EvaluationResult, evaluate_observation
+
+
+def evaluate_candidate_in_sandbox(
+    engine: Any,
+    candidate: Any,
+    observe: Any,
+    *,
+    predicate: str = "observations_present",
+    budget: SandboxBudget = SandboxBudget(),
+) -> tuple[SandboxResult, EvaluationResult]:
+    """Evaluate an endogenous candidate through the canonical read-only sandbox."""
+    result = run_sandbox(engine.state, candidate, observe, budget=budget)
+    evaluation = evaluate_observation(
+        result.execution.observations,
+        evidence_digest=result.execution.evidence_digest,
+        predicate=predicate,
+    )
+    return result, evaluation
