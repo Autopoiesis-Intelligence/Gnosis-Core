@@ -173,7 +173,6 @@ def _make_execution_commit_request(provenance):
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
         authorization_validity=AuthorizationValidity(auth.approval_id, "policy-1", "evidence-1"),
-        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
     )
 
 
