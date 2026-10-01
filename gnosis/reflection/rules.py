@@ -75,6 +75,17 @@ class AuthorizedRuleRegistry(RuleRegistry):
         self._evaluators = dict(evaluators or {})
 
     def register(self, rule: RuleMetadata, evaluator: PolicyCallable | None = None) -> RuleMetadata:
+        raise PermissionError("executable registry mutation requires Core authority")
+
+    def _register_authorized(
+        self,
+        rule: RuleMetadata,
+        evaluator: PolicyCallable | None = None,
+        *,
+        _authority: object | None = None,
+    ) -> RuleMetadata:
+        if _authority is not _REGISTRY_AUTHORITY:
+            raise PermissionError("executable registry mutation requires Core authority")
         registered = super().register(rule)
         if evaluator is not None:
             self._evaluators[(rule.rule_id, rule.rule_version)] = evaluator
@@ -92,7 +103,7 @@ def default_rule_registry() -> AuthorizedRuleRegistry:
     from gnosis.core.verification import default_test
 
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(
+    registry._register_authorized(
         RuleMetadata(
             rule_id="test-rule:default",
             rule_version=1,
@@ -102,5 +113,6 @@ def default_rule_registry() -> AuthorizedRuleRegistry:
             spec_ref="core:default-test",
         ),
         evaluator=default_test,
+        _authority=_REGISTRY_AUTHORITY,
     )
     return registry
