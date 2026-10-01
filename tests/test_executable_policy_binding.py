@@ -288,3 +288,9 @@ def test_caller_cannot_construct_trusted_binding_by_omitting_authority():
     )
     with pytest.raises(PermissionError, match="trusted authority"):
         ExecutablePolicyBinding(policy=trusted_policy, evaluator=policy_v1)
+
+
+def test_global_binding_issuer_requires_registry_authority():
+    from gnosis.core.policy import _issue_binding
+    with pytest.raises(PermissionError, match="Core registry authority"):
+        _issue_binding("forged", 1, policy_v1)
