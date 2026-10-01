@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import sqlite3
+import json
 from dataclasses import dataclass
 from typing import Any
 
 from .audit import EvolutionAuditRecord, make_audit_record
 from .provenance import EvidenceProvenance, canonical_digest
+from gnosis.core.policy import ImmutableExecutableManifest
 
 
 
@@ -37,6 +39,15 @@ def persist_evolution_transaction(
             "SELECT provenance_id,execution_id,candidate_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest FROM evolution_provenance WHERE provenance_id=?",
             (provenance.provenance_id,),
         ).fetchone()
+        manifest = None
+        if provenance.evaluated_policy is not None and provenance.candidate_binding_digest:
+            manifest = ImmutableExecutableManifest(
+                candidate_binding_digest=provenance.candidate_binding_digest,
+                parent_state_digest=provenance.parent_state_digest,
+                rule_id=provenance.evaluated_policy.rule_id,
+                rule_version=provenance.evaluated_policy.rule_version,
+                implementation_identity=provenance.evaluated_policy.implementation_identity,
+            )
         if existing is not None:
             expected = (
                 provenance.provenance_id, provenance.execution_id, provenance.candidate_id,
@@ -52,6 +63,18 @@ def persist_evolution_transaction(
             ).fetchone()
             if existing_audit is None:
                 raise RuntimeError("existing provenance has no audit record")
+            if manifest is not None:
+                stored_manifest = conn.execute(
+                    "SELECT manifest_digest,canonical_payload,provenance_id FROM executable_manifests WHERE manifest_digest=?",
+                    (manifest.manifest_digest,),
+                ).fetchone()
+                expected_manifest = (
+                    manifest.manifest_digest,
+                    json.dumps(manifest.canonical_payload(), sort_keys=True, separators=(",", ":")),
+                    provenance.provenance_id,
+                )
+                if stored_manifest != expected_manifest:
+                    raise RuntimeError("existing provenance has conflicting executable manifest")
             existing_record = EvolutionAuditRecord(*existing_audit)
             if existing_record.event_type != event_type or existing_record.payload_digest != canonical_digest(payload):
                 raise RuntimeError("conflicting replay for existing audit record")
@@ -78,6 +101,12 @@ def persist_evolution_transaction(
             payload=payload,
             previous_digest=previous_digest,
         )
+        if manifest is not None:
+            payload_json = json.dumps(manifest.canonical_payload(), sort_keys=True, separators=(",", ":"))
+            conn.execute(
+                "INSERT INTO executable_manifests(manifest_digest,canonical_payload,provenance_id) VALUES(?,?,?)",
+                (manifest.manifest_digest, payload_json, provenance.provenance_id),
+            )
         conn.execute(
             """INSERT INTO evolution_provenance
             (provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,
@@ -105,6 +134,18 @@ def persist_evolution_transaction(
                 record.previous_digest, record.record_digest,
             ),
         )
+        if manifest is not None:
+            stored_manifest = conn.execute(
+                "SELECT manifest_digest,canonical_payload,provenance_id FROM executable_manifests WHERE manifest_digest=?",
+                (manifest.manifest_digest,),
+            ).fetchone()
+            expected_manifest = (
+                manifest.manifest_digest,
+                json.dumps(manifest.canonical_payload(), sort_keys=True, separators=(",", ":")),
+                provenance.provenance_id,
+            )
+            if stored_manifest != expected_manifest:
+                raise RuntimeError("executable manifest persistence verification failed")
         stored_provenance = conn.execute(
             "SELECT provenance_id,execution_id,evolution_identity,proposed_state_content_id,candidate_binding_digest FROM evolution_provenance WHERE provenance_id=?",
             (provenance.provenance_id,),
@@ -134,3 +175,26 @@ def persist_evolution_transaction(
             conn.execute(f"ROLLBACK TO SAVEPOINT {savepoint}")
             conn.execute(f"RELEASE SAVEPOINT {savepoint}")
         raise
+
+
+def load_executable_manifest(conn: sqlite3.Connection, manifest_digest: str) -> ImmutableExecutableManifest:
+    row = conn.execute(
+        "SELECT manifest_digest,canonical_payload FROM executable_manifests WHERE manifest_digest=?",
+        (manifest_digest,),
+    ).fetchone()
+    if row is None:
+        raise KeyError(manifest_digest)
+    payload = json.loads(row[1])
+    policy = payload["policy"]
+    manifest = ImmutableExecutableManifest(
+        candidate_binding_digest=payload["candidate_binding_digest"],
+        parent_state_digest=payload["parent_state_digest"],
+        rule_id=policy["rule_id"],
+        rule_version=policy["rule_version"],
+        implementation_identity=policy["implementation_identity"],
+    )
+    if manifest.manifest_digest != row[0]:
+        raise RuntimeError("executable manifest digest mismatch")
+    if json.dumps(manifest.canonical_payload(), sort_keys=True, separators=(",", ":")) != row[1]:
+        raise RuntimeError("executable manifest canonical payload mismatch")
+    return manifest
