@@ -400,3 +400,41 @@ assert binding.implementation_identity == identity
 """)
     subprocess.run([sys.executable, str(producer), str(db)], check=True)
     subprocess.run([sys.executable, str(consumer), str(db)], check=True)
+
+
+def test_restart_recovery_rejects_replaced_registry_implementation(tmp_path):
+    db = tmp_path / "replaced-registry.sqlite3"
+    producer = tmp_path / "producer_replaced.py"
+    consumer = tmp_path / "consumer_replaced.py"
+    producer.write_text("""
+import sqlite3
+from gnosis.reflection.persistence import ensure_reflection_schema
+from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.evolution.transaction import persist_evolution_transaction
+from gnosis.core.policy import PolicyIdentity, implementation_identity
+
+def evaluator_a(*_args): return True
+conn=sqlite3.connect(__import__('sys').argv[1]); ensure_reflection_schema(conn)
+obs={'metric':13}; identity=implementation_identity(evaluator_a)
+p=build_provenance(candidate_id='replaced-registry',parent_state_id='state',parent_state_digest='parent',proposed_state_digest='proposed',observations=obs,evidence_digest=canonical_digest(obs),evaluation_status='PASS',shadow_status='NO_BEHAVIORAL_CHANGE',invariant_status='PRESERVED',governance_decision='REVIEW',candidate_binding_digest='binding',evaluated_policy=PolicyIdentity('replaced-registry',1,identity))
+persist_evolution_transaction(conn,p,event_type='PROVENANCE',payload={'status':'RECORDED'}); conn.close()
+""")
+    consumer.write_text("""
+import sqlite3
+from gnosis.evolution.transaction import resolve_recovered_executable_manifest
+from gnosis.core.policy import implementation_identity, _REGISTRY_AUTHORITY
+from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+
+def evaluator_b(*_args): return True
+conn=sqlite3.connect(__import__('sys').argv[1]); registry=AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+identity=implementation_identity(evaluator_b)
+registry._register_authorized(RuleMetadata(rule_id='replaced-registry',rule_version=1,rule_type='test',scope='core',implementation_ref='python:test',spec_ref='test',implementation_identity=identity),evaluator=evaluator_b,_authority=_REGISTRY_AUTHORITY)
+digest=conn.execute('SELECT manifest_digest FROM executable_manifests').fetchone()[0]
+try:
+    resolve_recovered_executable_manifest(conn,digest,registry)
+except PermissionError:
+    raise SystemExit(0)
+raise SystemExit(1)
+""")
+    subprocess.run([sys.executable, str(producer), str(db)], check=True)
+    subprocess.run([sys.executable, str(consumer), str(db)], check=True)
