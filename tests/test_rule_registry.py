@@ -1,6 +1,6 @@
 import pytest
 
-from gnosis.reflection.rules import RuleMetadata, RuleRegistry
+from gnosis.reflection.rules import RuleMetadata, RuleRegistry, _REGISTRY_AUTHORITY
 
 
 def _rule(version: int) -> RuleMetadata:
@@ -54,7 +54,7 @@ def test_metadata_registry_cannot_issue_executable_binding():
 def test_authorized_registry_issues_exact_executable_binding():
     from gnosis.reflection.rules import AuthorizedRuleRegistry
 
-    registry = AuthorizedRuleRegistry()
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
     evaluator = lambda _state, _candidate: True
     registry.register(_rule(1), evaluator=evaluator)
     binding = registry.resolve("test-rule:diagnostic-policy", 1)
