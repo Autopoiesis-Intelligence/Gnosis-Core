@@ -24,7 +24,7 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
         evolution_identity="e", candidate_binding_digest="sha256:c",
         proposed_state_content_id="sha256:content",
     )
-    request=ExecutionCommitRequest(auth,snapshot,"p","e",object())
+    request=ExecutionCommitRequest(auth,snapshot,"p","e",object(),AuthorizationValidity("auth","policy","evidence"))
     with pytest.raises(PermissionError):
         execute_approved_core_proposal(
             proposal,request,conn=object(),instance=object(),
