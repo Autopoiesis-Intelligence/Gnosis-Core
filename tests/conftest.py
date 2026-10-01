@@ -3,6 +3,16 @@ import pytest
 from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.storage import connect, save_instance
+from gnosis.storage.repositories import _persist_transition
+
+
+@pytest.fixture
+def sqlite_conn():
+    conn = connect()
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 @pytest.fixture
@@ -15,5 +25,3 @@ def persisted_transition():
     record = instance.engine.step(candidate)
     _persist_transition(conn, instance, candidate, record, actor="test")
     return conn, instance, record
-
-from gnosis.storage.repositories import _persist_transition
