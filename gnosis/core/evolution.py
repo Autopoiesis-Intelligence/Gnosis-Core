@@ -94,7 +94,7 @@ class Engine:
                 accepted=False,
                 reason=f"no candidate passed Test/Select: {detail}",
                 test_rule_id=self.test_rule_id,
-                evaluation_evidence=(result.evaluation_evidence[0] if result.evaluation_evidence else None),
+                evaluation_evidence=None,
             )
             self.history.append(record)
             return record
