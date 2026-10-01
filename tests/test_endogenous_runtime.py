@@ -226,29 +226,166 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
     from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory
+    from gnosis.reflection.runtime import reflect_with_history
+
     db = tmp_path / "e9-cycle2.sqlite"
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
-    conn = connect(db); ensure_reflection_schema(conn)
-    previous = None
-    for cycle in (1, 2):
-        proposal = type("P", (), {"proposal_id":f"p-e9-full-{cycle}","finding_id":f"f-e9-full-{cycle}","rule_id":f"r-e9-full-{cycle}","current_version":1,"proposed_version":2,"hypothesis":f"cycle-{cycle}","evidence_refs":(f"f-e9-full-{cycle}",)})()
-        evidence = () if previous is None else (previous.provenance_id, previous.evidence_digest)
-        cumulative = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal,)), history=None, recurring_unresolved=(), evolution_evidence=())
-        candidate = generate_from_cumulative_reflection(engine, cumulative).candidates[0]
-        sandbox, evaluation = evaluate_candidate_in_sandbox(engine, candidate, lambda state, candidate: {"candidate_id": candidate.candidate_id, "cycle": cycle})
-        governance = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
-        provenance = build_endogenous_provenance(candidate, sandbox, evaluation, governance, parent_state_digest=state.content_id)
-        tx = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"cycle":cycle})
-        rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
-        vr = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
-        assert vr.valid, vr.reasons
-        rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
-        assert rr.valid, rr.reasons
-        memory = append_evolution_memory(conn, instance_id="e9-full", candidate_id=candidate.candidate_id, transition_id=tx.audit_record.record_digest, state_id=candidate.parent_state_id, proposal_id=proposal.proposal_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
-        previous = provenance
-    restored = load_evolution_memory(conn, "e9-full")
-    assert len(restored) == 2
-    assert restored[-1].transition_id
-    assert restored[-1].memory_id != restored[0].memory_id
+
+    conn = connect(db)
+    ensure_reflection_schema(conn)
+
+    proposal1 = type("P", (), {
+        "proposal_id":"p-e9-full-1",
+        "finding_id":"f-e9-full-1",
+        "rule_id":"r-e9-full-1",
+        "current_version":1,
+        "proposed_version":2,
+        "hypothesis":"cycle-1",
+        "evidence_refs":("f-e9-full-1",),
+    })()
+    cumulative1 = CumulativeReflectionReport(
+        current=ReflectionReport(proposals=(proposal1,)),
+        history=None,
+        recurring_unresolved=(),
+        evolution_evidence=(),
+    )
+    candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
+    sandbox1, evaluation1 = evaluate_candidate_in_sandbox(
+        engine, candidate1,
+        lambda state, candidate: {"candidate_id": candidate.candidate_id, "cycle": 1},
+    )
+    governance1 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
+    provenance1 = build_endogenous_provenance(
+        candidate1, sandbox1, evaluation1, governance1, parent_state_digest=state.content_id
+    )
+    tx1 = persist_evolution_transaction(
+        conn, provenance1, event_type="PROVENANCE", payload={"cycle": 1}
+    )
+    rows1 = conn.execute(
+        "SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,"
+        "proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest "
+        "FROM evolution_audit ORDER BY sequence"
+    ).fetchall()
+    columns = [
+        "sequence","event_type","candidate_id","execution_id","provenance_id",
+        "parent_state_digest","proposed_state_digest","evidence_digest",
+        "payload_digest","previous_digest","record_digest",
+    ]
+    vr1 = verify_persisted_chain(
+        {
+            "candidate_id": provenance1.candidate_id,
+            "execution_id": provenance1.execution_id,
+            "provenance_id": provenance1.provenance_id,
+            "parent_state_digest": provenance1.parent_state_digest,
+            "proposed_state_digest": provenance1.proposed_state_digest,
+            "evidence_digest": provenance1.evidence_digest,
+            "candidate_binding_digest": provenance1.candidate_binding_digest,
+        },
+        [dict(zip(columns, row)) for row in rows1],
+        observations=sandbox1.execution.observations,
+    )
+    assert vr1.valid, vr1.reasons
+    rr1 = replay_complete(
+        sandbox1.execution, provenance1, tx1.audit_record,
+        observations=sandbox1.execution.observations,
+    )
+    assert rr1.valid, rr1.reasons
+    memory1 = append_evolution_memory(
+        conn,
+        instance_id="e9-full",
+        candidate_id=candidate1.candidate_id,
+        transition_id=tx1.audit_record.record_digest,
+        state_id=candidate1.parent_state_id,
+        proposal_id=proposal1.proposal_id,
+        outcome="accepted",
+        evidence=(provenance1.provenance_id, provenance1.evidence_digest),
+    )
+    conn.close()
+
+    # The second candidate must be generated from persisted Memory #1 after a real restart.
+    conn = connect(db)
+    restored1 = load_evolution_memory(conn, "e9-full")
+    assert [item.memory_id for item in restored1] == [memory1.memory_id]
+    reflection = reflect_with_history(engine, conn, instance_id="e9-full")
+    assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
+
+    proposal2 = type("P", (), {
+        "proposal_id":"p-e9-full-2",
+        "finding_id":"f-e9-full-2",
+        "rule_id":"r-e9-full-2",
+        "current_version":1,
+        "proposed_version":2,
+        "hypothesis":"cycle-2",
+        "evidence_refs":("f-e9-full-2",),
+    })()
+    cumulative2 = CumulativeReflectionReport(
+        current=ReflectionReport(proposals=(proposal2,)),
+        history=reflection.history,
+        recurring_unresolved=(),
+        evolution_evidence=reflection.evolution_evidence,
+    )
+    candidate2 = generate_from_cumulative_reflection(engine, cumulative2).candidates[0]
+    refs2 = candidate2.proposed_state.elements[proposal2.proposal_id]["memory_evidence_refs"]
+    assert memory1.memory_id in refs2
+
+    sandbox2, evaluation2 = evaluate_candidate_in_sandbox(
+        engine, candidate2,
+        lambda state, candidate: {"candidate_id": candidate.candidate_id, "cycle": 2},
+    )
+    governance2 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
+    provenance2 = build_endogenous_provenance(
+        candidate2, sandbox2, evaluation2, governance2, parent_state_digest=state.content_id
+    )
+    tx2 = persist_evolution_transaction(
+        conn, provenance2, event_type="PROVENANCE", payload={"cycle": 2}
+    )
+    rows2 = conn.execute(
+        "SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,"
+        "proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest "
+        "FROM evolution_audit ORDER BY sequence"
+    ).fetchall()
+    vr2 = verify_persisted_chain(
+        {
+            "candidate_id": provenance2.candidate_id,
+            "execution_id": provenance2.execution_id,
+            "provenance_id": provenance2.provenance_id,
+            "parent_state_digest": provenance2.parent_state_digest,
+            "proposed_state_digest": provenance2.proposed_state_digest,
+            "evidence_digest": provenance2.evidence_digest,
+            "candidate_binding_digest": provenance2.candidate_binding_digest,
+        },
+        [dict(zip(columns, row)) for row in rows2],
+        observations=sandbox2.execution.observations,
+    )
+    assert vr2.valid, vr2.reasons
+    rr2 = replay_complete(
+        sandbox2.execution, provenance2, tx2.audit_record,
+        observations=sandbox2.execution.observations,
+    )
+    assert rr2.valid, rr2.reasons
+
+    memory2 = append_evolution_memory(
+        conn,
+        instance_id="e9-full",
+        candidate_id=candidate2.candidate_id,
+        transition_id=tx2.audit_record.record_digest,
+        state_id=candidate2.parent_state_id,
+        proposal_id=proposal2.proposal_id,
+        outcome="accepted",
+        evidence=(provenance2.provenance_id, provenance2.evidence_digest, memory1.memory_id),
+    )
+    conn.close()
+
+    # A second restart must recover both generations and preserve causal references.
+    conn = connect(db)
+    restored2 = load_evolution_memory(conn, "e9-full")
+    assert [item.memory_id for item in restored2] == [memory1.memory_id, memory2.memory_id]
+    assert restored2[-1].transition_id == tx2.audit_record.record_digest
+    assert restored2[-1].memory_id != restored2[0].memory_id
+    assert memory1.memory_id in restored2[-1].evidence
+    reflection2 = reflect_with_history(engine, conn, instance_id="e9-full")
+    assert {item.memory_id for item in reflection2.evolution_evidence} == {
+        memory1.memory_id, memory2.memory_id
+    }
     conn.close()
