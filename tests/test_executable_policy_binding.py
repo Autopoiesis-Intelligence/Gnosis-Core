@@ -277,3 +277,14 @@ def test_engine_rejects_policy_binding_replacement_after_initialization():
     engine = Engine(state=state, policy_binding=registry.resolve("R", 1))
     with pytest.raises(AttributeError, match="policy_binding is immutable"):
         engine.policy_binding = registry.resolve("R", 1)
+
+
+def test_caller_cannot_construct_trusted_binding_by_omitting_authority():
+    from gnosis.core import ExecutablePolicyBinding
+    trusted_policy = PolicyIdentity(
+        rule_id="R",
+        rule_version=1,
+        implementation_identity=implementation_identity(policy_v1),
+    )
+    with pytest.raises(PermissionError, match="trusted authority"):
+        ExecutablePolicyBinding(policy=trusted_policy, evaluator=policy_v1)
