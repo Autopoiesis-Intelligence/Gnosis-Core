@@ -115,12 +115,12 @@ def build_provenance(
     observations: Mapping[str, Any],
     proposed_state_content_id: str = "",
     candidate_binding_digest: str = "",
-    evaluated_policy: PolicyIdentity | None = None,
     evidence_digest: str,
     evaluation_status: str,
     shadow_status: str,
     invariant_status: str,
     governance_decision: str,
+    evaluated_policy: PolicyIdentity | None = None,
 ) -> EvidenceProvenance:
     if not parent_state_digest or not proposed_state_digest:
         raise ValueError("state digests are required")
