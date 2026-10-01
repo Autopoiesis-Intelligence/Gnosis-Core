@@ -162,7 +162,7 @@ def test_execution_receipt_rejects_unproven_result_content():
     provenance = _snapshot_provenance()
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
+    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance, AuthorizationValidity(auth.approval_id, "policy-1", "evidence-1"))
     with pytest.raises(PermissionError, match="resulting state does not match"):
         ExecutionReceipt.after_commit(request, {"state": "tampered"})
 
@@ -367,6 +367,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity(provenance_a.provenance_id, "policy-1", "evidence-1"),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -485,6 +486,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity(provenance_a.provenance_id, "policy-1", "evidence-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
