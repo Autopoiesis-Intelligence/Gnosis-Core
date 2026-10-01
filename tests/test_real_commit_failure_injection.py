@@ -28,4 +28,4 @@ def test_real_commit_failure_injection_is_not_silent(real_commit_fixture):
     record = real_commit_fixture.record
     request = real_commit_fixture.request
     with pytest.raises(RuntimeError, match="after_transition"):
-        real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner", failure_at="after_commit")
+        real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner", failure_at="after_transition")
