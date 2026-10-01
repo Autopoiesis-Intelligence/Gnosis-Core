@@ -264,6 +264,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         recurring_unresolved=(),
         evolution_evidence=(),
     )
+    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
     sandbox1, evaluation1 = evaluate_candidate_in_sandbox(
         engine, candidate1,
@@ -347,6 +348,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         recurring_unresolved=(),
         evolution_evidence=reflection.evolution_evidence,
     )
+    report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
     candidate2 = generate_from_cumulative_reflection(engine, cumulative2).candidates[0]
     refs2 = candidate2.proposed_state.elements[proposal2.proposal_id]["memory_evidence_refs"]
     assert memory1.memory_id in refs2
