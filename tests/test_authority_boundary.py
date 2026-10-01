@@ -196,7 +196,10 @@ def _make_real_commit_fixture(label, db_path=None):
 
 
 def _make_execution_commit_request(provenance):
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
+    policy = provenance.evaluated_policy
+    if policy is None:
+        raise AssertionError("real commit fixture must bind an evaluated policy")
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1", policy)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
