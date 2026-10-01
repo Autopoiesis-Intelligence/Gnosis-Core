@@ -173,7 +173,7 @@ def recover_instance(
         action="recovery.execute",
         resource=instance_id,
         result="accepted",
-        event_key=f"recovery:{authorization.authorization_id}",
+        event_key=f"recovery:{instance_id}:{authorization.authorization_id}",
     )
     return instance
 def verify_durable_graph(conn: sqlite3.Connection)->tuple[int,str]:
