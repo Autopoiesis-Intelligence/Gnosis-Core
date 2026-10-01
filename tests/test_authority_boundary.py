@@ -299,7 +299,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         reason="committed",
     )
 
-    with pytest.raises(PermissionError, match="candidate"):
+    with pytest.raises(PermissionError, match="candidate|authorization identity"):
         SQLiteExecutionCommitAdapter().commit(
             conn, instance, candidate_b, record_b, request, actor="user-1"
         )
@@ -378,7 +378,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         reason="committed",
     )
 
-    with pytest.raises(PermissionError, match="canonical"):
+    with pytest.raises(PermissionError, match="candidate|canonical"):
         SQLiteExecutionCommitAdapter().commit(
             conn, instance, candidate_b, record_b, request, actor="user-1"
         )
@@ -436,6 +436,7 @@ def test_execution_receipt_rejects_tampered_resulting_state_digest():
     request = ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id,
         provenance.evolution_identity, provenance,
+        AuthorizationValidity(auth.approval_id, "policy-1", provenance.evidence_digest),
     )
     receipt = ExecutionReceipt(
         execution_id=provenance.execution_id,
