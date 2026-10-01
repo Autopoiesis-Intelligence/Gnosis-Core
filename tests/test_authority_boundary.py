@@ -972,3 +972,27 @@ def test_real_commit_resulting_state_survives_restart_and_matches_receipt(tmp_pa
     assert state is not None
     assert str(getattr(state,"state_id",state.get("state_id",None) if isinstance(state,dict) else state)) == expected
     reopened.close()
+
+
+def test_durable_transition_records_parent_and_resulting_state_across_restart(tmp_path):
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    def evaluator(*_): return True
+    identity=implementation_identity(evaluator); obs={"x":1}
+    p=build_provenance(candidate_id="causal-transition",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("causal-rule",1,identity))
+    db=tmp_path/"causal.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    from tests.test_authority_boundary import _make_execution_commit_request, _make_execution_instance_candidate_record
+    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    committed=SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="causal")
+    assert committed.receipt.parent_state_digest == "parent"
+    assert committed.receipt.resulting_state_digest == "result"
+    row=conn.execute("SELECT from_state_id,to_state_id,accepted FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()
+    assert row == ("parent","result",1)
+    conn.close(); reopened=sqlite3.connect(db)
+    row=reopened.execute("SELECT from_state_id,to_state_id,accepted FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()
+    assert row == ("parent","result",1)
+    reopened.close()
