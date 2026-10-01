@@ -175,7 +175,8 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     from gnosis.evolution.transaction import persist_evolution_transaction
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
-    from gnosis.storage import connect, ensure_reflection_schema
+    from gnosis.storage import connect
+    from gnosis.reflection.persistence import ensure_reflection_schema
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
     proposal = type("P", (), {"proposal_id":"p-d5","finding_id":"f-d5","rule_id":"r-d5","current_version":1,"proposed_version":2,"hypothesis":"durable","evidence_refs":("f-d5",)})()
@@ -188,7 +189,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     conn = connect(db); ensure_reflection_schema(conn)
     tx = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status":"RECORDED"})
     rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
-    result = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.candidate_id, "provenance_id": provenance.provenance_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
+    result = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
     assert result.valid, result.reasons
     replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
     assert replay.valid, replay.reasons
@@ -217,7 +218,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     provenance1 = build_endogenous_provenance(candidate1, sandbox1, evaluation1, governance1, parent_state_digest=state.content_id)
     conn = connect(db); ensure_reflection_schema(conn)
     tx1 = persist_evolution_transaction(conn, provenance1, event_type="PROVENANCE", payload={"status":"RECORDED","cycle":1})
-    memory1 = append_evolution_memory(conn, instance_id="e9-instance", candidate_id=candidate1.candidate_id, transition_id=tx1.audit_record.record_digest, state_id=candidate1.parent_state_id, proposal_id=proposal1.proposal_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
+    memory1 = append_evolution_memory(conn, instance_id="e9-instance", candidate_id=candidate1.candidate_id, transition_id=tx1.audit_record.record_digest, state_id=candidate1.parent_state_id, proposal_id=proposal1.proposal_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest), proposal_report_id=report1_id)
     conn.close()
     conn = connect(db)
     restored = load_evolution_memory(conn, "e9-instance")
