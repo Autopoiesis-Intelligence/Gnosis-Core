@@ -107,7 +107,7 @@ class ExecutablePolicyBinding:
 
 def default_policy_binding() -> ExecutablePolicyBinding:
     from .verification import default_test
-    return _issue_binding("test-rule:default", 1, default_test)
+    return _issue_binding("test-rule:default", 1, default_test, _authority=_REGISTRY_AUTHORITY)
 
 
 def _issue_binding(rule_id: str, rule_version: int, evaluator: PolicyCallable) -> ExecutablePolicyBinding:
