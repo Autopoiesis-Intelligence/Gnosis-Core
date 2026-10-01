@@ -236,3 +236,20 @@ def test_step_select_evidence_is_bound_to_selected_candidate():
     assert record.candidate_id == first.candidate_id
     assert record.evaluation_evidence is not None
     assert record.evaluation_evidence.candidate_id == first.candidate_id
+
+
+def test_trusted_transition_rule_id_cannot_be_spoofed_via_legacy_field():
+    state = State()
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(
+        RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
+        evaluator=policy_v1,
+        _authority=_REGISTRY_AUTHORITY,
+    )
+    engine = Engine(state=state, policy_binding=registry.resolve("R", 1))
+    engine.test_rule_id = "attacker-spoofed-rule"
+    candidate = Candidate(state.state_id, state.with_elements({"x": 1}), "candidate")
+    record = engine.step(candidate)
+    assert record.test_rule_id == "R"
+    assert record.evaluation_evidence is not None
+    assert record.evaluation_evidence.policy.rule_id == "R"
