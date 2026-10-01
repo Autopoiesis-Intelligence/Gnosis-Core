@@ -66,7 +66,4 @@ class RuleRegistry:
         evaluator = self._evaluators.get((rule_id, rule_version))
         if evaluator is None:
             raise PermissionError(f"rule has no executable binding: {rule_id}:v{rule_version}")
-        binding = bind_policy(rule.rule_id, rule.rule_version, evaluator)
-        if binding.policy.implementation_identity != bind_policy(rule.rule_id, rule.rule_version, evaluator).policy.implementation_identity:
-            raise PermissionError("registered executable identity mismatch")
-        return binding
+        return bind_policy(rule.rule_id, rule.rule_version, evaluator)
