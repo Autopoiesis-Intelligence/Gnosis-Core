@@ -6,6 +6,7 @@ from gnosis.core import (
     Candidate,
     Engine,
     PolicyIdentity,
+    implementation_identity,
     State,
     bind_policy,
 )
