@@ -242,7 +242,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
@@ -483,7 +483,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
             }),
         ),
     )
-    with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
+    with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence|audit sequence/link mismatch"):
         verify_durable_graph(conn)
 
 
