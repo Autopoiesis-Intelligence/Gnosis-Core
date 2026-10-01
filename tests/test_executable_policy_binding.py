@@ -194,3 +194,32 @@ def test_legacy_raw_callable_cannot_enter_durable_instance_chain(sqlite_conn):
     )
     with pytest.raises(Exception, match="no executable policy binding"):
         save_instance(sqlite_conn, instance)
+
+def test_caller_cannot_forge_binding_authority():
+    from gnosis.core import ExecutablePolicyBinding
+
+    registry = RuleRegistry()
+    registry.register(
+        RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
+        evaluator=policy_v1,
+    )
+    trusted = registry.resolve("R", 1)
+    forged = PolicyIdentity(
+        rule_id=trusted.policy.rule_id,
+        rule_version=trusted.policy.rule_version,
+        implementation_identity=trusted.policy.implementation_identity,
+    )
+    with pytest.raises(PermissionError, match="trusted authority"):
+        ExecutablePolicyBinding(policy=forged, evaluator=policy_v1, _authority=object())
+
+
+def test_registry_issued_binding_accepts_exact_identity():
+    from gnosis.core import implementation_identity
+
+    registry = RuleRegistry()
+    registry.register(
+        RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
+        evaluator=policy_v1,
+    )
+    binding = registry.resolve("R", 1)
+    assert binding.policy.implementation_identity == implementation_identity(binding.evaluator)
