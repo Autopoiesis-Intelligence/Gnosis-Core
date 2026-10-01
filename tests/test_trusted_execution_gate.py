@@ -6,7 +6,7 @@ from gnosis.reflection.authorization_validity import AuthorizationValidity
 
 def test_gate_rejects_revoked_before_consumption(sqlite_conn, provenance):
     auth=ExecutionAuthorization(request_provenance=provenance.provenance_id,owner_approved=True,evolution_identity=provenance.evolution_identity,approval_id="auth-1")
-    req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance),AuthorizationValidity("auth-1","policy-1","ev-1")
+    req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,authorization_validity=AuthorizationValidity("auth-1","policy-1","ev-1",revoked=True))
     validity=AuthorizationValidity("auth-1","policy-1","ev-1",revoked=True)
     with pytest.raises(PermissionError,match="revoked"):
         require_trusted_execution(req,validity=validity,conn=sqlite_conn,actor="trusted-owner")
