@@ -147,6 +147,13 @@ class TransitionRecord:
             )
         if not self.reason.strip():
             raise ValueError("TransitionRecord.reason must not be empty")
+        if self.evaluation_evidence is not None:
+            if self.evaluation_evidence.candidate_id != self.candidate_id:
+                raise ValueError("evaluation evidence candidate_id must match transition candidate_id")
+            if self.evaluation_evidence.parent_state_id != self.from_state_id:
+                raise ValueError("evaluation evidence parent_state_id must match transition from_state_id")
+            if self.evaluation_evidence.passed is not self.test_result.passed:
+                raise ValueError("evaluation evidence passed must match transition test result")
 
     @property
     def transition_id(self) -> str:
