@@ -596,3 +596,38 @@ def test_execution_receipt_requires_persisted_manifest():
     conn = sqlite3.connect(":memory:"); ensure_reflection_schema(conn)
     with pytest.raises(PermissionError, match="manifest is not persisted"):
         require_persisted_execution_receipt(conn, receipt, request)
+
+
+def test_persisted_receipt_verifies_after_manifest_persistence():
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    def evaluator(*_args): return True
+    identity = implementation_identity(evaluator)
+    p = build_provenance(candidate_id="persisted-recovery", parent_state_id="parent", parent_state_digest="parent", proposed_state_digest="result", observations={"x": 1}, evidence_digest=canonical_digest({"x": 1}), evaluation_status="PASS", shadow_status="UNCHANGED", invariant_status="PRESERVED", governance_decision="ALLOW", candidate_binding_digest="binding", evaluated_policy=PolicyIdentity("receipt-rule", 1, identity))
+    request = ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id, True, p.evolution_identity), ExecutionIntentSnapshot.from_provenance(p), p.provenance_id, p.evolution_identity, p)
+    receipt = ExecutionReceipt.after_commit(request, type("S", (), {"state_id": "result"})())
+    conn = sqlite3.connect(":memory:"); ensure_reflection_schema(conn)
+    persist_evolution_transaction(conn, p, event_type="PROVENANCE", payload={"status":"RECORDED"})
+    require_persisted_execution_receipt(conn, receipt, request)
+
+
+def test_persisted_receipt_rejects_cross_provenance_manifest():
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    def evaluator(*_args): return True
+    identity = implementation_identity(evaluator)
+    def make(candidate):
+        return build_provenance(candidate_id=candidate, parent_state_id="parent", parent_state_digest="parent", proposed_state_digest="result", observations={"x": 1}, evidence_digest=canonical_digest({"x": 1}), evaluation_status="PASS", shadow_status="UNCHANGED", invariant_status="PRESERVED", governance_decision="ALLOW", candidate_binding_digest="binding-"+candidate, evaluated_policy=PolicyIdentity("receipt-rule", 1, identity))
+    pa, pb = make("A"), make("B")
+    conn = sqlite3.connect(":memory:"); ensure_reflection_schema(conn)
+    persist_evolution_transaction(conn, pa, event_type="PROVENANCE", payload={"status":"RECORDED"})
+    request_b = ExecutionCommitRequest(ExecutionAuthorization(pb.provenance_id, True, pb.evolution_identity), ExecutionIntentSnapshot.from_provenance(pb), pb.provenance_id, pb.evolution_identity, pb)
+    receipt_a = ExecutionReceipt.after_commit(ExecutionCommitRequest(ExecutionAuthorization(pa.provenance_id, True, pa.evolution_identity), ExecutionIntentSnapshot.from_provenance(pa), pa.provenance_id, pa.evolution_identity, pa), type("S", (), {"state_id": "result"})())
+    with pytest.raises(PermissionError, match="provenance mismatch"):
+        require_persisted_execution_receipt(conn, receipt_a, request_b)
