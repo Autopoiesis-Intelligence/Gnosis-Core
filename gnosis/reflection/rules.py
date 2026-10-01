@@ -96,7 +96,7 @@ class AuthorizedRuleRegistry(RuleRegistry):
         evaluator = self._evaluators.get((rule_id, rule_version))
         if evaluator is None:
             raise PermissionError(f"rule has no executable binding: {rule_id}:v{rule_version}")
-        return _issue_binding(rule.rule_id, rule.rule_version, evaluator)
+        return _issue_binding(rule.rule_id, rule.rule_version, evaluator, _authority=_REGISTRY_AUTHORITY)
 
 
 def default_rule_registry() -> AuthorizedRuleRegistry:
