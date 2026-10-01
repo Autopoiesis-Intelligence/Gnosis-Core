@@ -167,7 +167,7 @@ class SQLiteExecutionCommitAdapter:
         require_execution_commit(request)
         require_execution_candidate_binding(request, candidate, record)
         with transaction(conn):
-            require_trusted_execution(request, conn=conn, actor=actor)
+            require_trusted_execution(request, conn=conn, actor=actor, candidate=candidate, record=record)
             require_execution_candidate_binding(request, candidate, record)
             if str(request.provenance.evolution_identity) != request.evolution_identity:
                 raise PermissionError("execution commit identity mismatch")
