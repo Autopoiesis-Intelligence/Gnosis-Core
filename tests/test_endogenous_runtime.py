@@ -192,13 +192,14 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
     from gnosis.storage import connect, append_evolution_memory, load_evolution_memory
-    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.reflection.persistence import ensure_reflection_schema, save_reflection_report
     from gnosis.reflection.runtime import reflect_with_history
     db = tmp_path / "e9.sqlite"
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
     proposal1 = type("P", (), {"proposal_id":"p-e9-1","finding_id":"f-e9-1","rule_id":"r-e9-1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f-e9-1",)})()
     cumulative1 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal1,)), history=None, recurring_unresolved=(), evolution_evidence=())
+    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
     sandbox1, evaluation1 = evaluate_candidate_in_sandbox(engine, candidate1, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable-1"})
     governance1 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
@@ -214,6 +215,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
     proposal2 = type("P", (), {"proposal_id":"p-e9-2","finding_id":"f-e9-2","rule_id":"r-e9-2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f-e9-2",)})()
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=reflection.history, recurring_unresolved=(), evolution_evidence=reflection.evolution_evidence)
+    report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
     candidate2 = generate_from_cumulative_reflection(engine, cumulative2).candidates[0]
     refs = candidate2.proposed_state.elements[proposal2.proposal_id]["memory_evidence_refs"]
     assert memory1.memory_id in refs
@@ -302,6 +304,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         proposal_id=proposal1.proposal_id,
         outcome="accepted",
         evidence=(provenance1.provenance_id, provenance1.evidence_digest),
+        proposal_report_id=report1_id,
     )
     conn.close()
 
@@ -376,6 +379,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         proposal_id=proposal2.proposal_id,
         outcome="accepted",
         evidence=(provenance2.provenance_id, provenance2.evidence_digest, memory1.memory_id),
+        proposal_report_id=report2_id,
     )
     conn.close()
 
