@@ -13,6 +13,6 @@ def decide_proposal(*,proposal_id,proposal_digest,actor_ref,decision,reason):
     did="sha256:"+hashlib.sha256(json.dumps(c,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     return ProposalDecision(did,proposal_id,decision,actor_ref,reason.strip(),proposal_digest)
 
-def may_activate(*,proposal_status,decision): return proposal_status=="PROPOSED" and decision.decision=="ACCEPT"
+def may_activate(*,proposal_status,decision,proposal_id=None,proposal_digest=None):\n    if proposal_status != "PROPOSED" or decision.decision != "ACCEPT":\n        return False\n    if proposal_id is None or proposal_digest is None:\n        return False\n    return decision_binds_proposal(decision=decision, proposal_id=proposal_id, proposal_digest=proposal_digest)
 def decision_binds_proposal(*,decision,proposal_id,proposal_digest): return decision.proposal_id==proposal_id and decision.proposal_digest==proposal_digest
 def creates_execution_authority(*,decision): return False
