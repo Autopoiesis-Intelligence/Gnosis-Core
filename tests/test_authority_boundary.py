@@ -150,7 +150,7 @@ def test_execution_receipt_rejects_cross_evolution():
     provenance = _snapshot_provenance()
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
+    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance, AuthorizationValidity(auth.approval_id or auth.request_provenance, "policy-1", "evidence-1"))
     receipt = ExecutionReceipt.after_commit(request, {"state": "new"})
     changed = type(provenance)(**{**provenance.__dict__, "candidate_binding_digest": "tampered"})
     changed_request = ExecutionCommitRequest(auth, ExecutionIntentSnapshot.from_provenance(changed), provenance.provenance_id, provenance.evolution_identity, changed, AuthorizationValidity(auth.approval_id or auth.request_provenance, "policy-1", "evidence-1"))
