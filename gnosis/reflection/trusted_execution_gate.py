@@ -11,8 +11,6 @@ def require_trusted_execution(
     *,
     conn: object,
     actor: str,
-    candidate: object | None = None,
-    record: object | None = None,
 ) -> None:
     """Validate request-bound authorization, consume it once, then run canonical Core gate.
 
@@ -31,10 +29,6 @@ def require_trusted_execution(
         expected_evidence_digest=validity.validity_evidence_digest,
     )
     require_execution_commit(request)
-    if candidate is None or record is None:
-        raise PermissionError("trusted execution target is required")
-    from gnosis.reflection.execution_contract import require_execution_candidate_binding
-    require_execution_candidate_binding(request, candidate, record)
     consume_authorization_in_transaction(
         conn,
         validity.authorization_id,
