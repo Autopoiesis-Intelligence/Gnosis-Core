@@ -540,3 +540,44 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+
+def test_execution_receipt_binds_to_manifest_digest():
+    from gnosis.core.policy import PolicyIdentity, ImmutableExecutableManifest
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    def evaluator(*_args): return True
+    identity = implementation_identity(evaluator)
+    p = build_provenance(
+        candidate_id="receipt-manifest", parent_state_id="parent",
+        parent_state_digest="parent", proposed_state_digest="result",
+        observations={"x": 1}, evidence_digest=canonical_digest({"x": 1}),
+        evaluation_status="PASS", shadow_status="UNCHANGED",
+        invariant_status="PRESERVED", governance_decision="ALLOW",
+        candidate_binding_digest="binding",
+        evaluated_policy=PolicyIdentity("receipt-rule", 1, identity),
+    )
+    auth = ExecutionAuthorization(p.provenance_id, True, p.evolution_identity)
+    request = ExecutionCommitRequest(auth, ExecutionIntentSnapshot.from_provenance(p), p.provenance_id, p.evolution_identity, p)
+    receipt = ExecutionReceipt.after_commit(request, type("S", (), {"state_id": "result"})())
+    expected = ImmutableExecutableManifest("binding", "parent", "receipt-rule", 1, identity)
+    assert receipt.manifest_digest == expected.manifest_digest
+    assert receipt.matches_request(request)
+
+
+def test_execution_receipt_rejects_tampered_manifest_digest():
+    from gnosis.core.policy import PolicyIdentity
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    def evaluator(*_args): return True
+    identity = implementation_identity(evaluator)
+    p = build_provenance(
+        candidate_id="receipt-tamper", parent_state_id="parent",
+        parent_state_digest="parent", proposed_state_digest="result",
+        observations={"x": 1}, evidence_digest=canonical_digest({"x": 1}),
+        evaluation_status="PASS", shadow_status="UNCHANGED", invariant_status="PRESERVED",
+        governance_decision="ALLOW", candidate_binding_digest="binding",
+        evaluated_policy=PolicyIdentity("receipt-rule", 1, identity),
+    )
+    request = ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id, True, p.evolution_identity), ExecutionIntentSnapshot.from_provenance(p), p.provenance_id, p.evolution_identity, p)
+    receipt = ExecutionReceipt.after_commit(request, type("S", (), {"state_id": "result"})())
+    object.__setattr__(receipt, "manifest_digest", "sha256:tampered")
+    assert not receipt.matches_request(request)
