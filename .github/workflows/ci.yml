@@ -35,6 +35,24 @@ jobs:
       - name: Run tests
         run: pytest -v --cov=gnosis --cov-report=term-missing 2>&1 | tee pytest.log
 
+      - name: Collect runner diagnostics
+        if: always()
+        run: |
+          {
+            echo "=== CI CONTEXT ==="
+            date -u
+            echo "GITHUB_SHA=$GITHUB_SHA"
+            echo "GITHUB_RUN_ID=$GITHUB_RUN_ID"
+            echo "=== PYTHON ==="
+            python --version
+            echo "=== PIP ==="
+            pip --version
+            echo "=== INSTALLED ==="
+            pip freeze
+            echo "=== FILES ==="
+            find . -maxdepth 3 -type f | sort | head -500
+          } > ci-diagnostics.log
+
       - name: Upload test evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,4 +61,5 @@ jobs:
           path: |
             collection.log
             pytest.log
-          if-no-files-found: ignore
+            ci-diagnostics.log
+          if-no-files-found: warn
