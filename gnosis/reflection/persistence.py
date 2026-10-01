@@ -12,6 +12,7 @@ from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
+from gnosis.core.policy import PolicyIdentity
 from gnosis.evolution.provenance import EvidenceProvenance, ProvenanceCrossCheck, crosscheck_provenance, provenance_id_for
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
@@ -24,6 +25,27 @@ def _json(value: Any) -> str:
     elif isinstance(value, (tuple, list)):
         value = [_json_value(v) for v in value]
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _policy_json(policy: PolicyIdentity | None) -> str:
+    if policy is None:
+        return ""
+    return _json({
+        "rule_id": policy.rule_id,
+        "rule_version": policy.rule_version,
+        "implementation_identity": policy.implementation_identity,
+    })
+
+
+def _policy_from_json(payload: str) -> PolicyIdentity | None:
+    if not payload:
+        return None
+    data = json.loads(payload)
+    return PolicyIdentity(
+        rule_id=data["rule_id"],
+        rule_version=data["rule_version"],
+        implementation_identity=data["implementation_identity"],
+    )
 
 
 def _json_value(value: Any) -> Any:
@@ -103,7 +125,8 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             status TEXT NOT NULL,
             evolution_identity TEXT NOT NULL DEFAULT '',
             proposed_state_content_id TEXT NOT NULL DEFAULT '',
-            candidate_binding_digest TEXT NOT NULL DEFAULT ''
+            candidate_binding_digest TEXT NOT NULL DEFAULT '',
+            evaluated_policy TEXT NOT NULL DEFAULT ''
         );
         CREATE INDEX IF NOT EXISTS idx_evolution_provenance_candidate
             ON evolution_provenance(candidate_id);
@@ -159,6 +182,10 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
         pass
     try:
         conn.execute("ALTER TABLE evolution_provenance ADD COLUMN candidate_binding_digest TEXT NOT NULL DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE evolution_provenance ADD COLUMN evaluated_policy TEXT NOT NULL DEFAULT ''")
     except sqlite3.OperationalError:
         pass
 
@@ -578,7 +605,7 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
     existing = conn.execute(
         """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,
                   proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,
-                  candidate_binding_digest,evaluation_status,shadow_status,invariant_status,
+                  candidate_binding_digest,evaluated_policy,evaluation_status,shadow_status,invariant_status,
                   governance_decision,status
            FROM evolution_provenance WHERE provenance_id=?""",
         (provenance_id,),
@@ -587,7 +614,7 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
         provenance_id, provenance.execution_id, provenance.candidate_id, provenance.parent_state_id,
         provenance.parent_state_digest, provenance.proposed_state_digest, provenance.evidence_digest,
         evolution_identity, provenance.proposed_state_content_id, provenance.candidate_binding_digest,
-        provenance.evaluation_status, provenance.shadow_status, provenance.invariant_status,
+        _policy_json(provenance.evaluated_policy), provenance.evaluation_status, provenance.shadow_status, provenance.invariant_status,
         provenance.governance_decision, provenance.status,
     )
     if existing is not None:
@@ -632,13 +659,14 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
     if row is None:
         rows = conn.execute("SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluation_status,shadow_status,invariant_status,governance_decision,status FROM evolution_provenance").fetchall()
         for candidate_row in rows:
-            values = dict(zip(("provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluation_status","shadow_status","invariant_status","governance_decision","status"), candidate_row))
-            expected = provenance_id_for(execution_id=values["execution_id"], candidate_id=values["candidate_id"], parent_state_id=values["parent_state_id"], parent_state_digest=values["parent_state_digest"], proposed_state_digest=values["proposed_state_digest"], evidence_digest=values["evidence_digest"], evaluation_status=values["evaluation_status"], shadow_status=values["shadow_status"], invariant_status=values["invariant_status"], governance_decision=values["governance_decision"], status=values["status"], proposed_state_content_id=values["proposed_state_content_id"], candidate_binding_digest=values["candidate_binding_digest"])
+            values = dict(zip(("provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluated_policy","evaluation_status","shadow_status","invariant_status","governance_decision","status"), candidate_row))
+            expected = provenance_id_for(execution_id=values["execution_id"], candidate_id=values["candidate_id"], parent_state_id=values["parent_state_id"], parent_state_digest=values["parent_state_digest"], proposed_state_digest=values["proposed_state_digest"], evidence_digest=values["evidence_digest"], evaluation_status=values["evaluation_status"], shadow_status=values["shadow_status"], invariant_status=values["invariant_status"], governance_decision=values["governance_decision"], status=values["status"], proposed_state_content_id=values["proposed_state_content_id"], candidate_binding_digest=values["candidate_binding_digest"],
+                evaluated_policy=_policy_from_json(values["evaluated_policy"]))
             if expected == provenance_id:
                 raise RuntimeError("stored provenance identity mismatch")
         raise KeyError(provenance_id)
     keys = (
-        "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest",
+        "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluated_policy",
         "evaluation_status","shadow_status","invariant_status","governance_decision","status",
     )
     return dict(zip(keys, row))
@@ -694,6 +722,7 @@ def crosscheck_stored_provenance(
         status=row["status"],
         proposed_state_content_id=row["proposed_state_content_id"],
         candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        evaluated_policy=_policy_from_json(row.get("evaluated_policy", "")),
     )
     if recomputed != provenance_id:
         return ProvenanceCrossCheck(valid=False, reasons=("stored provenance identity mismatch",))
