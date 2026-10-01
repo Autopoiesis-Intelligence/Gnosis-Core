@@ -307,6 +307,32 @@ class ExecutionReceipt:
         )
 
 
+def require_persisted_execution_receipt(
+    conn: object,
+    receipt: ExecutionReceipt,
+    request: ExecutionCommitRequest,
+) -> None:
+    """Verify a recovered receipt against the persisted manifest identity."""
+    require_execution_receipt(receipt, request)
+    row = conn.execute(
+        "SELECT manifest_digest, canonical_payload, provenance_id FROM executable_manifests WHERE manifest_digest=?",
+        (receipt.manifest_digest,),
+    ).fetchone()
+    if row is None:
+        raise PermissionError("execution receipt manifest is not persisted")
+    if str(row[2]) != str(request.provenance.provenance_id):
+        raise PermissionError("execution receipt manifest provenance mismatch")
+    expected = ImmutableExecutableManifest(
+        candidate_binding_digest=str(request.provenance.candidate_binding_digest),
+        parent_state_digest=str(request.provenance.parent_state_digest),
+        rule_id=str(request.provenance.evaluated_policy.rule_id),
+        rule_version=int(request.provenance.evaluated_policy.rule_version),
+        implementation_identity=str(request.provenance.evaluated_policy.implementation_identity),
+    )
+    if str(row[0]) != expected.manifest_digest:
+        raise PermissionError("persisted executable manifest identity mismatch")
+
+
 def require_execution_receipt(receipt: ExecutionReceipt | None, request: ExecutionCommitRequest) -> None:
     """Fail closed unless a post-commit receipt is bound to the authorized evolution."""
     if receipt is None or not receipt.resulting_state_digest or not receipt.matches_request(request):
