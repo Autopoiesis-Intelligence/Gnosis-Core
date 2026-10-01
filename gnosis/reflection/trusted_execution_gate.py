@@ -27,11 +27,19 @@ def require_trusted_execution(
         raise PermissionError("authorization validity is required")
     if validity.authorization_id != request.authorization.approval_id:
         raise PermissionError("authorization validity identity mismatch")
+    evaluated_policy = getattr(request.provenance, "evaluated_policy", None)
+    if evaluated_policy is None:
+        raise PermissionError("evaluated policy identity is missing")
+    if request.authorization.policy_identity != evaluated_policy:
+        raise PermissionError("authorization evaluated policy mismatch")
+    if validity.policy_identity != evaluated_policy:
+        raise PermissionError("authorization validity evaluated policy mismatch")
     if validity.policy_version == "":
         raise PermissionError("authorization policy is missing")
     validity.require_valid(
         expected_policy_version=validity.policy_version,
         expected_evidence_digest=validity.validity_evidence_digest,
+        expected_policy_identity=evaluated_policy,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(
