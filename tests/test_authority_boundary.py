@@ -160,9 +160,9 @@ def test_execution_receipt_rejects_cross_evolution():
 
 def test_execution_receipt_rejects_unproven_result_content():
     provenance = _snapshot_provenance()
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance, AuthorizationValidity(auth.approval_id, "policy-1", "evidence-1"))
+    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance, AuthorizationValidity(auth.approval_id, "policy-1", provenance.evidence_digest))
     with pytest.raises(PermissionError, match="resulting state does not match"):
         ExecutionReceipt.after_commit(request, {"state": "tampered"})
 
