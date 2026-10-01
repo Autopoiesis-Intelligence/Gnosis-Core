@@ -53,7 +53,7 @@ def test_metadata_registry_cannot_issue_executable_binding():
 def test_authorized_registry_issues_exact_executable_binding():
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
     evaluator = lambda _state, _candidate: True
-    registry.register(_rule(1), evaluator=evaluator)
+    registry._register_authorized(_rule(1), evaluator=evaluator, _authority=_REGISTRY_AUTHORITY)
     binding = registry.resolve("test-rule:diagnostic-policy", 1)
     assert binding.evaluator is evaluator
 
@@ -70,3 +70,9 @@ def test_default_rule_registry_is_core_authorized_and_resolves_default():
     binding = registry.resolve("test-rule:default", 1)
     assert binding.policy.rule_id == "test-rule:default"
     assert binding.policy.rule_version == 1
+
+
+def test_authorized_registry_rejects_public_mutation():
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    with pytest.raises(PermissionError, match="Core authority"):
+        registry.register(_rule(1), evaluator=lambda _state, _candidate: True)
