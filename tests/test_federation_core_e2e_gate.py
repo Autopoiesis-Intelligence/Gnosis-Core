@@ -3,6 +3,7 @@ import pytest
 
 from gnosis.evolution.federation_admission import admit_federation_evidence, build_core_provenance
 from gnosis.reflection.authority import ExecutionIntentSnapshot, ExecutionCommitRequest, ExecutionAuthorization, require_execution_commit
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from registry.core_handoff import create_handoff
 
 
