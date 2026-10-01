@@ -28,6 +28,12 @@ class Engine:
     history: list[TransitionRecord] = field(default_factory=list)
     test_rule_id: str = "test-rule:default"
     policy_binding: ExecutablePolicyBinding | None = None
+    _binding_locked: bool = field(default=False, init=False, repr=False)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if name == "policy_binding" and getattr(self, "_binding_locked", False):
+            raise AttributeError("policy_binding is immutable after Engine initialization")
+        object.__setattr__(self, name, value)
 
     def __post_init__(self) -> None:
         if self.policy_binding is not None:
@@ -37,6 +43,7 @@ class Engine:
             self.policy_binding = default_policy_binding()
             self.test_fn = self.policy_binding.evaluator
             self.test_rule_id = self.policy_binding.policy.rule_id
+        self._binding_locked = True
 
     STEP_COST: int = 1
 
@@ -96,7 +103,7 @@ class Engine:
                 test_result=failed_result,
                 accepted=False,
                 reason=f"no candidate passed Test/Select: {detail}",
-                test_rule_id=self.test_rule_id,
+                test_rule_id=self._effective_test_rule_id(),
                 evaluation_evidence=None,
             )
             self.history.append(record)
@@ -112,7 +119,7 @@ class Engine:
             test_result=selected_result,
             accepted=True,
             reason=f"committed via select (out of {len(candidates)} candidates)",
-            test_rule_id=self.test_rule_id,
+            test_rule_id=self._effective_test_rule_id(),
             evaluation_evidence=next((e for e in result.evaluation_evidence if e.candidate_id == selected.candidate_id), None),
         )
         self.history.append(record)
