@@ -170,6 +170,31 @@ def test_execution_receipt_rejects_unproven_result_content():
         ExecutionReceipt.after_commit(request, {"state": "tampered"})
 
 
+def _make_real_commit_fixture(label):
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, save_instance
+    from gnosis.core import Candidate, State
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    proposed = instance.engine.state.with_elements({"b": 2})
+    candidate = Candidate(instance.engine.state.state_id, proposed, label)
+    record = instance.engine.step(candidate)
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=instance.engine.state.state_id,
+        parent_state_digest=instance.engine.state.state_id,
+        proposed_state_digest=proposed.state_id,
+        observations={"result": "ok"},
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=candidate.binding_digest(instance.engine.state.state_id),
+        evidence_digest=canonical_digest({"result": "ok"}),
+        evaluation_status="PASS", shadow_status="UNCHANGED",
+        invariant_status="PRESERVED", governance_decision="ALLOW",
+    )
+    return conn, instance, candidate, record, provenance
+
+
 def _make_execution_commit_request(provenance):
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
@@ -909,10 +934,9 @@ def test_real_committed_receipt_rejects_post_restart_registry_replacement(tmp_pa
     def evaluator_b(*_): return True
     identity_a=implementation_identity(evaluator_a); identity_b=implementation_identity(evaluator_b)
     p=build_provenance(candidate_id="real-replacement",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations={"x":1},evidence_digest=canonical_digest({"x":1}),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("replace-rule",1,identity_a))
-    conn=sqlite3.connect(db); ensure_reflection_schema(conn)
+    conn, instance, candidate, record, p = _make_real_commit_fixture("replace-rule")
+    ensure_reflection_schema(conn)
     persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
-    # Reuse the repository's established real adapter fixture construction.
-    from tests.test_authority_boundary import _make_execution_commit_request
     request=_make_execution_commit_request(p)
     # Adapter integration itself is already covered by the real SQLite contract above; this test focuses on the durable receipt boundary.
     registry=AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
@@ -939,8 +963,9 @@ def test_real_commit_restart_and_replaced_registry_form_one_fail_closed_e2e(tmp_
     ia=implementation_identity(evaluator_a); ib=implementation_identity(evaluator_b)
     p=build_provenance(candidate_id="real-e2e",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations={"x":1},evidence_digest=canonical_digest({"x":1}),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("real-e2e-rule",1,ia))
     conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
-    from tests.test_authority_boundary import _make_execution_commit_request, _make_execution_instance_candidate_record
-    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    conn, instance, candidate, record, p = _make_real_commit_fixture("real-e2e-rule")
+    ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    request=_make_execution_commit_request(p)
     committed=SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="e2e")
     receipt=committed.receipt; conn.close()
     reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
@@ -1006,9 +1031,8 @@ def test_accepted_transition_replay_is_idempotent_after_restart(tmp_path):
     from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
     def evaluator(*_): return True
     identity=implementation_identity(evaluator)
-    p=_make_provenance("idempotent-replay",identity)
-    db=tmp_path/"idempotent.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
-    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    conn, instance, candidate, record, p = _make_real_commit_fixture("idempotent-replay")
+    request=_make_execution_commit_request(p); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="idempotent")
     first_count=conn.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
     conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
@@ -1028,9 +1052,8 @@ def test_conflicting_replay_of_same_transition_identity_fails_closed(tmp_path):
     from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
     def evaluator(*_): return True
     identity=implementation_identity(evaluator)
-    p=_make_provenance("conflicting-replay",identity)
-    db=tmp_path/"conflict.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
-    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    conn, instance, candidate, record, p = _make_real_commit_fixture("conflicting-replay")
+    request=_make_execution_commit_request(p); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="conflict")
     conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
     conflicting=type(record)(**{**record.__dict__,"to_state_id":"conflicting-result"})
