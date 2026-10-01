@@ -66,3 +66,43 @@ def evaluate_candidate_in_sandbox(
         predicate=predicate,
     )
     return result, evaluation
+
+
+from gnosis.evolution.provenance import EvidenceProvenance, build_provenance
+from .governance import GovernanceDecision
+
+
+def build_endogenous_provenance(
+    candidate: Any,
+    sandbox: SandboxResult,
+    evaluation: EvaluationResult,
+    governance: GovernanceDecision,
+    *,
+    parent_state_digest: str,
+) -> EvidenceProvenance:
+    """Bind endogenous sandbox evidence to canonical provenance without authority."""
+    execution = sandbox.execution
+    if execution.candidate_id != candidate.candidate_id:
+        raise ValueError("sandbox candidate does not match endogenous candidate")
+    if execution.parent_state_id != candidate.parent_state_id:
+        raise ValueError("sandbox parent state does not match endogenous candidate")
+    if not sandbox.accepted_for_evaluation:
+        raise ValueError("sandbox execution is not admissible for provenance")
+    if evaluation.evidence_digest != execution.evidence_digest:
+        raise ValueError("evaluation evidence digest does not match sandbox evidence")
+    if governance.can_activate or governance.can_rollback:
+        raise ValueError("governance evidence must not grant authority")
+    return build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=candidate.parent_state_id,
+        parent_state_digest=parent_state_digest,
+        proposed_state_digest=execution.proposed_state_digest,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(parent_state_digest),
+        observations=execution.observations,
+        evidence_digest=execution.evidence_digest,
+        evaluation_status=evaluation.status,
+        shadow_status=governance.shadow_status,
+        invariant_status=governance.invariant_status,
+        governance_decision=governance.decision,
+    )
