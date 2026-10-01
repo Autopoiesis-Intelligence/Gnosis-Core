@@ -110,6 +110,7 @@ def test_execution_commit_gate_requires_all_boundaries():
         request_provenance=provenance.provenance_id,
         evolution_identity=provenance.evolution_identity,
         provenance=provenance,
+        authorization_validity=AuthorizationValidity(auth.approval_id, "policy-1", "evidence-1"),
     )
     require_execution_commit(request)
 
@@ -118,7 +119,7 @@ def test_execution_commit_gate_rejects_cross_bound_evolution():
     provenance = _snapshot_provenance()
     auth = ExecutionAuthorization(request_provenance=provenance.provenance_id, evolution_identity="wrong", owner_approved=True)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, "wrong", provenance)
+    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, "wrong", provenance, AuthorizationValidity(auth.approval_id, "policy-1", "evidence-1"))
     with pytest.raises(PermissionError):
         require_execution_commit(request)
 
