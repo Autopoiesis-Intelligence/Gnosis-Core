@@ -5,9 +5,10 @@ from dataclasses import dataclass, field
 from typing import Callable, Sequence
 
 from .budget import Budget, BudgetExhaustedError
-from .select import SelectionResult, select
+from .select import SelectionResult, select, select_binding
 from .types import Candidate, State, StopReason, TestResult, TransitionRecord
-from .verification import TestFn, default_test, evaluate
+from .verification import TestFn, default_test, evaluate_binding
+from .policy import ExecutablePolicyBinding, bind_policy, default_policy_binding
 
 GenerateFn = Callable[[State], Candidate]
 
@@ -26,6 +27,18 @@ class Engine:
     test_fn: TestFn = default_test
     history: list[TransitionRecord] = field(default_factory=list)
     test_rule_id: str = "test-rule:default"
+    policy_binding: ExecutablePolicyBinding | None = None
+
+    def __post_init__(self) -> None:
+        if self.policy_binding is None:
+            if self.test_fn is default_test:
+                self.policy_binding = default_policy_binding()
+            else:
+                # Backward-compatible raw callable path. Its identity is derived
+                # from the actual callable, never from a caller-supplied version.
+                self.policy_binding = bind_policy(self.test_rule_id, 1, self.test_fn)
+        self.test_fn = self.policy_binding.evaluator
+        self.test_rule_id = self.policy_binding.policy.rule_id
 
     STEP_COST: int = 1
 
@@ -41,7 +54,7 @@ class Engine:
         self._charge_step()
         if candidate.parent_state_id != self.state.state_id:
             raise StopCondition(StopReason.INVALID_STATE, f"candidate parent {candidate.parent_state_id} does not match current state {self.state.state_id}")
-        result = evaluate(self.state, candidate, self.test_fn)
+        result, evidence = evaluate_binding(self.state, candidate, self.policy_binding)
         record = TransitionRecord(
             from_state_id=self.state.state_id,
             to_state_id=candidate.proposed_state.state_id,
@@ -50,6 +63,7 @@ class Engine:
             accepted=result.passed,
             reason="committed" if result.passed else "rejected: " + "; ".join(result.reasons),
             test_rule_id=self.test_rule_id,
+            evaluation_evidence=evidence,
         )
         self.history.append(record)
         if result.passed:
@@ -58,7 +72,7 @@ class Engine:
 
     def step_select(self, candidates: Sequence[Candidate]) -> TransitionRecord:
         self._charge_step()
-        result: SelectionResult = select(self.state, candidates, self.test_fn)
+        result: SelectionResult = select_binding(self.state, candidates, self.policy_binding)
         if result.selected is None:
             reasons: tuple[str, ...]
             if not result.evaluated:
@@ -75,6 +89,7 @@ class Engine:
                 accepted=False,
                 reason=f"no candidate passed Test/Select: {detail}",
                 test_rule_id=self.test_rule_id,
+                evaluation_evidence=(result.evaluation_evidence[0] if result.evaluation_evidence else None),
             )
             self.history.append(record)
             return record
@@ -90,6 +105,7 @@ class Engine:
             accepted=True,
             reason=f"committed via select (out of {len(candidates)} candidates)",
             test_rule_id=self.test_rule_id,
+            evaluation_evidence=(result.evaluation_evidence[result.evaluated.index((selected, selected_result))] if result.evaluation_evidence else None),
         )
         self.history.append(record)
         self.state = selected.proposed_state
