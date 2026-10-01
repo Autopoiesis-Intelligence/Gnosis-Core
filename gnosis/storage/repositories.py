@@ -157,7 +157,7 @@ def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
     transitions = [
         tuple(row)
         for row in conn.execute(
-            "SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at "
+            "SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked,created_at "
             "FROM transitions WHERE instance_id=? ORDER BY created_at,transition_id",
             (instance_id,),
         )
