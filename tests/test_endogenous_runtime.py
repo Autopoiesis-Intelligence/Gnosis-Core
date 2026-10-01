@@ -68,7 +68,6 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     from gnosis.reflection.endogenous import commit_endogenous_candidates
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.reflection.analyzer import RuleProposal
-    from gnosis.reflection.analyzer import RuleProposal
     from gnosis.storage import append_evolution_memory, connect, close, load_evolution_memory, save_instance
     from gnosis.storage.repositories import _persist_transition
     from gnosis.instances.instance import Instance
@@ -78,7 +77,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     instance = Instance.create_root("e8c", State(elements={"a": 1}))
     save_instance(conn, instance)
 
-    proposal1 = type("P", (), {"proposal_id":"p1","finding_id":"f1","rule_id":"r1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f1",)})()
+    proposal1 = RuleProposal(proposal_id="p1", finding_id="f1", rule_id="r1", target="e8c", hypothesis="cycle-1", evidence_refs=("f1",), expected_effect="cycle-1", regression_risk="low", required_test="e8c-cycle-1")
     report1 = ReflectionReport(proposals=(proposal1,))
     cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
     report1_id = save_reflection_report(conn, report1, created_at="2026-10-01T00:00:01Z")
@@ -94,7 +93,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     reflection = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
     report2_id = save_reflection_report(conn, reflection.current, created_at="2026-10-01T00:00:02Z")
     history = reflection
-    proposal2 = type("P", (), {"proposal_id":"p2","finding_id":"f2","rule_id":"r2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f2",)})()
+    proposal2 = RuleProposal(proposal_id="p2", finding_id="f2", rule_id="r2", target="e8c", hypothesis="cycle-2", evidence_refs=("f2",), expected_effect="cycle-2", regression_risk="low", required_test="e8c-cycle-2")
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
     gen2 = generate_from_cumulative_reflection(instance.engine, cumulative2)
     assert gen2.candidates[0].proposed_state.elements["p2"]["memory_evidence_refs"] == (mem1.memory_id,)
@@ -204,13 +203,10 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     db = tmp_path / "e9.sqlite"
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
-    proposal1 = type("P", (), {"proposal_id":"p-e9-1","finding_id":"f-e9-1","rule_id":"r-e9-1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f-e9-1",)})()
+    conn = connect(db)
+    ensure_reflection_schema(conn)
+    proposal1 = RuleProposal(proposal_id="p-e9-1", finding_id="f-e9-1", rule_id="r-e9-1", target="e9", hypothesis="cycle-1", evidence_refs=("f-e9-1",), expected_effect="cycle-1", regression_risk="low", required_test="e9-cycle-1")
     cumulative1 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal1,)), history=None, recurring_unresolved=(), evolution_evidence=())
-    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
-    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
-    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
-    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
-    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
     sandbox1, evaluation1 = evaluate_candidate_in_sandbox(engine, candidate1, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable-1"})
@@ -225,12 +221,8 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     assert restored and restored[0].memory_id == memory1.memory_id
     reflection = reflect_with_history(engine, conn, instance_id="e9-instance")
     assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
-    proposal2 = type("P", (), {"proposal_id":"p-e9-2","finding_id":"f-e9-2","rule_id":"r-e9-2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f-e9-2",)})()
+    proposal2 = RuleProposal(proposal_id="p-e9-2", finding_id="f-e9-2", rule_id="r-e9-2", target="e9", hypothesis="cycle-2", evidence_refs=("f-e9-2",), expected_effect="cycle-2", regression_risk="low", required_test="e9-cycle-2")
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=reflection.history, recurring_unresolved=(), evolution_evidence=reflection.evolution_evidence)
-    report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
-    report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
-    report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
-    report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
     report2_id = save_reflection_report(conn, cumulative2.current, created_at="2026-10-01T00:00:02Z")
     candidate2 = generate_from_cumulative_reflection(engine, cumulative2).candidates[0]
     refs = candidate2.proposed_state.elements[proposal2.proposal_id]["memory_evidence_refs"]
