@@ -83,7 +83,7 @@ class AuthorizedRuleRegistry(RuleRegistry):
         return _issue_binding(rule.rule_id, rule.rule_version, evaluator)
 
 
-def default_rule_registry() -> RuleRegistry:
+def default_rule_registry() -> AuthorizedRuleRegistry:
     from gnosis.core.verification import default_test
     registry = AuthorizedRuleRegistry()
     registry.register(
