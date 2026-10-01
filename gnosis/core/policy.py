@@ -69,6 +69,8 @@ class ImmutableExecutableManifest:
             raise ValueError("candidate and parent state digests are required")
         if not self.rule_id or self.rule_version < 1 or not self.implementation_identity:
             raise ValueError("complete executable manifest identity is required")
+        if not isinstance(self.implementation_identity, str):
+            raise TypeError("implementation_identity must be a string")
 
     def canonical_payload(self) -> dict[str, object]:
         return {
