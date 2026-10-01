@@ -311,6 +311,7 @@ def require_persisted_execution_receipt(
     conn: object,
     receipt: ExecutionReceipt,
     request: ExecutionCommitRequest,
+    registry: object | None = None,
 ) -> None:
     """Verify a recovered receipt against the persisted manifest identity."""
     require_execution_receipt(receipt, request)
@@ -331,6 +332,10 @@ def require_persisted_execution_receipt(
     )
     if str(row[0]) != expected.manifest_digest:
         raise PermissionError("persisted executable manifest identity mismatch")
+    if registry is not None:
+        binding = registry.resolve(expected.rule_id, expected.rule_version)
+        if binding.implementation_identity != expected.implementation_identity:
+            raise PermissionError("current authorized executable identity does not match persisted manifest")
 
 
 def require_execution_receipt(receipt: ExecutionReceipt | None, request: ExecutionCommitRequest) -> None:
