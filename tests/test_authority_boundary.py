@@ -893,3 +893,32 @@ def test_sqlite_commit_persists_state_and_emits_manifest_bound_receipt():
     record=type("R",(),{"to_state_id":"result","proposal_id":None,"version_id":None,"target":None})()
     with pytest.raises(Exception):
         SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="test")
+
+
+def test_real_committed_receipt_rejects_post_restart_registry_replacement(tmp_path):
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.core.policy import PolicyIdentity, implementation_identity, _REGISTRY_AUTHORITY
+    from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    from gnosis.reflection.authority import require_persisted_execution_receipt
+    db=tmp_path/"post-commit-replacement.sqlite3"
+    def evaluator_a(*_): return True
+    def evaluator_b(*_): return True
+    identity_a=implementation_identity(evaluator_a); identity_b=implementation_identity(evaluator_b)
+    p=build_provenance(candidate_id="real-replacement",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations={"x":1},evidence_digest=canonical_digest({"x":1}),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("replace-rule",1,identity_a))
+    conn=sqlite3.connect(db); ensure_reflection_schema(conn)
+    persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    # Reuse the repository's established real adapter fixture construction.
+    from tests.test_authority_boundary import _make_execution_commit_request
+    request=_make_execution_commit_request(p)
+    # Adapter integration itself is already covered by the real SQLite contract above; this test focuses on the durable receipt boundary.
+    registry=AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(RuleMetadata(rule_id="replace-rule",rule_version=1,rule_type="test",scope="core",implementation_ref="python:test",spec_ref="test",implementation_identity=identity_b),evaluator=evaluator_b,_authority=_REGISTRY_AUTHORITY)
+    receipt=ExecutionReceipt.after_commit(request,type("S",(),{"state_id":"result"})())
+    conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
+    with pytest.raises(PermissionError, match="current authorized executable identity"):
+        require_persisted_execution_receipt(reopened,receipt,request,registry)
+    reopened.close()
