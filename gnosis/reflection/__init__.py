@@ -16,7 +16,7 @@ from .counterexample import CounterexampleEngine, CounterexampleResult
 from .governance import GovernanceDecision, evaluate_governance
 from .history import HistoricalFinding, ReflectionHistorySummary, summarize_reflection_history, unresolved_findings
 from .invariant_delta import InvariantDelta, analyze_invariant_delta
-from .rules import RuleMetadata, RuleRegistry
+from .rules import AuthorizedRuleRegistry, RuleMetadata, RuleRegistry
 from .runtime import reflect
 from .gate import ReflectionGateResult, run_reflection_gate
 from .shadow import ShadowCase, ShadowEvaluation, evaluate_shadow
@@ -34,6 +34,7 @@ __all__ = [
     "ReflectionObservation",
     "ReflectionReport",
     "RuleMetadata",
+    "AuthorizedRuleRegistry",
     "RuleProposal",
     "RuleRegistry",
     "ShadowCase",

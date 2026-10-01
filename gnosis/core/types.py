@@ -9,6 +9,8 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
+from .policy import EvaluationEvidence
+
 
 def deep_freeze(value: Any) -> Any:
     if isinstance(value, Mapping):
@@ -136,6 +138,7 @@ class TransitionRecord:
     accepted: bool
     reason: str
     test_rule_id: str = "test-rule:unspecified"
+    evaluation_evidence: EvaluationEvidence | None = None
 
     def __post_init__(self) -> None:
         if self.accepted is not self.test_result.passed:
@@ -144,6 +147,18 @@ class TransitionRecord:
             )
         if not self.reason.strip():
             raise ValueError("TransitionRecord.reason must not be empty")
+        if self.evaluation_evidence is not None:
+            if self.evaluation_evidence.candidate_id != self.candidate_id:
+                raise ValueError("evaluation evidence candidate_id must match transition candidate_id")
+            if self.evaluation_evidence.parent_state_id != self.from_state_id:
+                raise ValueError("evaluation evidence parent_state_id must match transition from_state_id")
+            if self.evaluation_evidence.passed is not self.test_result.passed:
+                raise ValueError("evaluation evidence passed must match transition test result")
+
+    @property
+    def policy_identity(self):
+        """Return the exact executable policy identity carried by this transition."""
+        return None if self.evaluation_evidence is None else self.evaluation_evidence.policy
 
     @property
     def transition_id(self) -> str:
@@ -155,6 +170,11 @@ class TransitionRecord:
             "accepted": self.accepted,
             "reasons": self.test_result.reasons,
             "test_rule_id": self.test_rule_id,
+            "policy_identity": None if self.evaluation_evidence is None else {
+                "rule_id": self.evaluation_evidence.policy.rule_id,
+                "rule_version": self.evaluation_evidence.policy.rule_version,
+                "implementation_identity": self.evaluation_evidence.policy.implementation_identity,
+            },
         })
 
 
