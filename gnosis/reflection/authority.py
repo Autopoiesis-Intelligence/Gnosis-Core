@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from gnosis.core.policy import PolicyIdentity, ImmutableExecutableManifest
+
 from .governance import GovernanceDecision
 from gnosis.evolution.provenance import canonical_digest
 from gnosis.storage import load_state
@@ -63,6 +65,7 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    policy_identity: PolicyIdentity | None = None
 
     @property
     def can_execute(self) -> bool:
@@ -116,6 +119,7 @@ class ExecutionIntentSnapshot:
     evolution_identity: str
     candidate_binding_digest: str
     proposed_state_content_id: str
+    evaluated_policy: PolicyIdentity | None = None
 
     @classmethod
     def from_provenance(cls, provenance: object) -> "ExecutionIntentSnapshot":
@@ -127,6 +131,7 @@ class ExecutionIntentSnapshot:
             evolution_identity=str(provenance.evolution_identity),
             candidate_binding_digest=str(provenance.candidate_binding_digest),
             proposed_state_content_id=str(provenance.proposed_state_content_id),
+            evaluated_policy=getattr(provenance, "evaluated_policy", None),
         )
 
     def matches_provenance(self, provenance: object) -> bool:
@@ -245,6 +250,7 @@ class ExecutionReceipt:
     parent_state_digest: str
     resulting_state_digest: str
     candidate_binding_digest: str
+    manifest_digest: str = ""
 
     @property
     def receipt_id(self) -> str:
@@ -256,6 +262,7 @@ class ExecutionReceipt:
             "parent_state_digest": self.parent_state_digest,
             "resulting_state_digest": self.resulting_state_digest,
             "candidate_binding_digest": self.candidate_binding_digest,
+            "manifest_digest": self.manifest_digest,
         })
 
     @classmethod
@@ -267,6 +274,10 @@ class ExecutionReceipt:
         p = request.provenance
         if str(p.proposed_state_digest) != resulting_state_digest:
             raise PermissionError("resulting state does not match authorized evolution")
+        policy = getattr(p, "evaluated_policy", None)
+        if policy is None:
+            raise PermissionError("execution provenance has no executable policy identity")
+        manifest = ImmutableExecutableManifest(candidate_binding_digest=str(p.candidate_binding_digest), parent_state_digest=str(p.parent_state_digest), rule_id=str(policy.rule_id), rule_version=int(policy.rule_version), implementation_identity=str(policy.implementation_identity))
         return cls(
             execution_id=str(p.execution_id),
             provenance_id=str(p.provenance_id),
@@ -274,12 +285,19 @@ class ExecutionReceipt:
             parent_state_digest=str(p.parent_state_digest),
             resulting_state_digest=str(resulting_state_digest),
             candidate_binding_digest=str(p.candidate_binding_digest),
+            manifest_digest=manifest.manifest_digest,
         )
 
     def matches_request(self, request: ExecutionCommitRequest) -> bool:
         p = request.provenance
+        policy = getattr(p, "evaluated_policy", None)
+        if policy is None:
+            return False
+        expected_manifest = ImmutableExecutableManifest(candidate_binding_digest=str(p.candidate_binding_digest), parent_state_digest=str(p.parent_state_digest), rule_id=str(policy.rule_id), rule_version=int(policy.rule_version), implementation_identity=str(policy.implementation_identity)).manifest_digest
         return (
-            self.execution_id == str(p.execution_id)
+            bool(self.manifest_digest)
+            and self.manifest_digest == expected_manifest
+            and self.execution_id == str(p.execution_id)
             and self.provenance_id == str(p.provenance_id)
             and self.evolution_identity == str(p.evolution_identity)
             and self.parent_state_digest == str(p.parent_state_digest)
@@ -287,6 +305,37 @@ class ExecutionReceipt:
             and self.candidate_binding_digest == str(p.candidate_binding_digest)
             and request.authorization.evolution_identity == self.evolution_identity
         )
+
+
+def require_persisted_execution_receipt(
+    conn: object,
+    receipt: ExecutionReceipt,
+    request: ExecutionCommitRequest,
+    registry: object | None = None,
+) -> None:
+    """Verify a recovered receipt against the persisted manifest identity."""
+    require_execution_receipt(receipt, request)
+    row = conn.execute(
+        "SELECT manifest_digest, canonical_payload, provenance_id FROM executable_manifests WHERE manifest_digest=?",
+        (receipt.manifest_digest,),
+    ).fetchone()
+    if row is None:
+        raise PermissionError("execution receipt manifest is not persisted")
+    if str(row[2]) != str(request.provenance.provenance_id):
+        raise PermissionError("execution receipt manifest provenance mismatch")
+    expected = ImmutableExecutableManifest(
+        candidate_binding_digest=str(request.provenance.candidate_binding_digest),
+        parent_state_digest=str(request.provenance.parent_state_digest),
+        rule_id=str(request.provenance.evaluated_policy.rule_id),
+        rule_version=int(request.provenance.evaluated_policy.rule_version),
+        implementation_identity=str(request.provenance.evaluated_policy.implementation_identity),
+    )
+    if str(row[0]) != expected.manifest_digest:
+        raise PermissionError("persisted executable manifest identity mismatch")
+    if registry is not None:
+        binding = registry.resolve(expected.rule_id, expected.rule_version)
+        if binding.implementation_identity != expected.implementation_identity:
+            raise PermissionError("current authorized executable identity does not match persisted manifest")
 
 
 def require_execution_receipt(receipt: ExecutionReceipt | None, request: ExecutionCommitRequest) -> None:
@@ -299,3 +348,17 @@ def require_execution_receipt(receipt: ExecutionReceipt | None, request: Executi
 class ExecutionCommitResult:
     receipt: ExecutionReceipt
     resulting_state_id: str
+
+
+def commit_authorized_replay(
+    request: ExecutionCommitRequest,
+    resulting_state: object,
+) -> ExecutionCommitResult:
+    """Cross the mutation boundary only after explicit authorization and emit bound evidence."""
+    require_execution_commit(request)
+    receipt = ExecutionReceipt.after_commit(request, resulting_state)
+    require_execution_receipt(receipt, request)
+    return ExecutionCommitResult(
+        receipt=receipt,
+        resulting_state_id=str(getattr(resulting_state, "state_id", canonical_digest(resulting_state))),
+    )

@@ -6,13 +6,15 @@ from dataclasses import dataclass
 from typing import Sequence
 
 from .types import Candidate, State, TestResult
-from .verification import TestFn, default_test, evaluate
+from .verification import TestFn, default_test, evaluate, evaluate_binding
+from .policy import EvaluationEvidence, ExecutablePolicyBinding
 
 
 @dataclass(frozen=True)
 class SelectionResult:
     selected: Candidate | None
     evaluated: tuple[tuple[Candidate, TestResult], ...]
+    evaluation_evidence: tuple[EvaluationEvidence, ...] = ()
 
     @property
     def rejected(self) -> tuple[Candidate, ...]:
@@ -41,3 +43,18 @@ def select(
 
     chosen = min(passing, key=lambda c: c.candidate_id)
     return SelectionResult(selected=chosen, evaluated=evaluated)
+
+
+def select_binding(
+    current: State,
+    candidates: Sequence[Candidate],
+    binding: ExecutablePolicyBinding,
+) -> SelectionResult:
+    if not candidates:
+        return SelectionResult(selected=None, evaluated=(), evaluation_evidence=())
+    pairs = tuple((c, evaluate_binding(current, c, binding)) for c in candidates)
+    evaluated = tuple((c, result) for c, (result, _evidence) in pairs)
+    evidence = tuple(evidence for _c, (_result, evidence) in pairs)
+    passing = [c for c, r in evaluated if r.passed]
+    chosen = min(passing, key=lambda c: c.candidate_id) if passing else None
+    return SelectionResult(selected=chosen, evaluated=evaluated, evaluation_evidence=evidence)
