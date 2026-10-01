@@ -306,7 +306,17 @@ class SQLiteExecutionCommitAdapter:
 
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str, failure_at: str|None = None) -> ExecutionCommitResult:
         from gnosis.storage.database import transaction
-        from gnosis.reflection.trusted_execution_gate import require_trusted_execution
+        from gnosis.reflection.trusted_execution_gate import require_trusted_execution, AuthorizationValidity
+        # Non-mutating preflight: reject malformed/unauthorized requests before
+        # opening a transaction. Authorization consumption remains transactional.
+        if not isinstance(request.authorization_validity, AuthorizationValidity):
+            raise PermissionError("authorization validity is required")
+        request.authorization_validity.require_valid(
+            expected_policy_version=request.authorization_validity.policy_version,
+            expected_evidence_digest=request.authorization_validity.validity_evidence_digest,
+        )
+        require_execution_commit(request)
+        require_execution_candidate_binding(request, candidate, record)
         with transaction(conn):
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
