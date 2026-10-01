@@ -102,3 +102,18 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     final_reflection = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
     assert {m.memory_id for m in final_reflection.evolution_evidence} == {mem1.memory_id, mem2.memory_id}
     close(conn)
+
+
+def test_memory_aware_endogenous_generation_is_deterministically_replayable():
+    state = State(elements={"a": 1})
+    engine = Engine(state=state, budget=Budget(total=3))
+    proposal = type("P", (), {"proposal_id":"p-replay","finding_id":"f-replay","rule_id":"r-replay","current_version":1,"proposed_version":2,"hypothesis":"replayable","evidence_refs":("f-replay",)})()
+    report = ReflectionReport(proposals=(proposal,))
+    evidence = EvolutionEvidence(memory_id="m-replay", candidate_id="c-prev", transition_id="t-prev", state_id="s-prev", outcome="accepted")
+    cumulative = CumulativeReflectionReport(current=report, history=None, recurring_unresolved=(), evolution_evidence=(evidence,))
+    first = generate_from_cumulative_reflection(engine, cumulative)
+    second = generate_from_cumulative_reflection(engine, cumulative)
+    assert len(first.candidates) == len(second.candidates) == 1
+    assert first.candidates[0].candidate_id == second.candidates[0].candidate_id
+    assert first.candidates[0].proposed_state.state_id == second.candidates[0].proposed_state.state_id
+    assert first.candidates[0].proposed_state.content_id == second.candidates[0].proposed_state.content_id
