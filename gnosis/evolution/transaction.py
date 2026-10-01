@@ -8,7 +8,8 @@ from typing import Any
 
 from .audit import EvolutionAuditRecord, make_audit_record
 from .provenance import EvidenceProvenance, canonical_digest
-from gnosis.core.policy import ImmutableExecutableManifest
+from gnosis.core.policy import ImmutableExecutableManifest, ExecutablePolicyBinding
+from gnosis.reflection.rules import AuthorizedRuleRegistry
 
 
 
@@ -198,3 +199,15 @@ def load_executable_manifest(conn: sqlite3.Connection, manifest_digest: str) -> 
     if json.dumps(manifest.canonical_payload(), sort_keys=True, separators=(",", ":")) != row[1]:
         raise RuntimeError("executable manifest canonical payload mismatch")
     return manifest
+
+
+def resolve_recovered_executable_manifest(
+    conn: sqlite3.Connection,
+    manifest_digest: str,
+    registry: AuthorizedRuleRegistry,
+) -> ExecutablePolicyBinding:
+    manifest = load_executable_manifest(conn, manifest_digest)
+    binding = registry.resolve(manifest.rule_id, manifest.rule_version)
+    if binding.implementation_identity != manifest.implementation_identity:
+        raise PermissionError("recovered manifest identity does not match authorized registry binding")
+    return binding
