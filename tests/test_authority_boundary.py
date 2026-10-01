@@ -718,3 +718,38 @@ def test_replay_rejects_current_registry_replacement():
     registry._register_authorized(RuleMetadata(rule_id="receipt-rule",rule_version=1,rule_type="test",scope="core",implementation_ref="python:test",spec_ref="test",implementation_identity=identity_b),evaluator=evaluator_b,_authority=_REGISTRY_AUTHORITY)
     with pytest.raises(PermissionError, match="current authorized executable identity"):
         require_persisted_execution_receipt(conn,receipt,request,registry)
+
+
+def test_unified_restart_replay_accepts_authorized_manifest_and_receipt(tmp_path):
+    db=tmp_path/"unified.sqlite3"; receipt_file=tmp_path/"receipt.json"; producer=tmp_path/"p.py"; consumer=tmp_path/"c.py"
+    producer.write_text("""
+import json,sqlite3,sys
+from gnosis.reflection.persistence import ensure_reflection_schema
+from gnosis.evolution.provenance import build_provenance,canonical_digest
+from gnosis.evolution.transaction import persist_evolution_transaction
+from gnosis.core.policy import PolicyIdentity,implementation_identity
+from gnosis.reflection.authority import ExecutionAuthorization,ExecutionCommitRequest,ExecutionIntentSnapshot,ExecutionReceipt
+
+def evaluator(*_): return True
+identity=implementation_identity(evaluator); obs={'x':1}
+p=build_provenance(candidate_id='unified-replay',parent_state_id='parent',parent_state_digest='parent',proposed_state_digest='result',observations=obs,evidence_digest=canonical_digest(obs),evaluation_status='PASS',shadow_status='UNCHANGED',invariant_status='PRESERVED',governance_decision='ALLOW',candidate_binding_digest='binding',evaluated_policy=PolicyIdentity('unified-rule',1,identity))
+conn=sqlite3.connect(sys.argv[1]);ensure_reflection_schema(conn);persist_evolution_transaction(conn,p,event_type='PROVENANCE',payload={'status':'RECORDED'})
+rq=ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id,True,p.evolution_identity),ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p)
+r=ExecutionReceipt.after_commit(rq,type('S',(),{'state_id':'result'})())
+json.dump(r.__dict__,open(sys.argv[2],'w'));conn.close()
+""")
+    consumer.write_text("""
+import json,sqlite3,sys
+from gnosis.reflection.persistence import ensure_reflection_schema
+from gnosis.evolution.provenance import build_provenance,canonical_digest
+from gnosis.core.policy import PolicyIdentity,implementation_identity
+from gnosis.reflection.rules import AuthorizedRuleRegistry,RuleMetadata
+from gnosis.reflection.authority import ExecutionAuthorization,ExecutionCommitRequest,ExecutionIntentSnapshot,ExecutionReceipt,require_persisted_execution_receipt
+
+def evaluator(*_): return True
+identity=implementation_identity(evaluator);obs={'x':1}
+p=build_provenance(candidate_id='unified-replay',parent_state_id='parent',parent_state_digest='parent',proposed_state_digest='result',observations=obs,evidence_digest=canonical_digest(obs),evaluation_status='PASS',shadow_status='UNCHANGED',invariant_status='PRESERVED',governance_decision='ALLOW',candidate_binding_digest='binding',evaluated_policy=PolicyIdentity('unified-rule',1,identity))
+conn=sqlite3.connect(sys.argv[1]);ensure_reflection_schema(conn);rq=ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id,True,p.evolution_identity),ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p)
+r=ExecutionReceipt(**json.load(open(sys.argv[2])));reg=AuthorizedRuleRegistry(_authority=__import__('gnosis.core.policy',fromlist=['_REGISTRY_AUTHORITY'])._REGISTRY_AUTHORITY);reg._register_authorized(RuleMetadata(rule_id='unified-rule',rule_version=1,rule_type='test',scope='core',implementation_ref='python:test',spec_ref='test',implementation_identity=identity),evaluator=evaluator,_authority=__import__('gnosis.core.policy',fromlist=['_REGISTRY_AUTHORITY'])._REGISTRY_AUTHORITY);require_persisted_execution_receipt(conn,r,rq,reg)
+""")
+    subprocess.run([sys.executable,str(producer),str(db),str(receipt_file)],check=True);subprocess.run([sys.executable,str(consumer),str(db),str(receipt_file)],check=True)
