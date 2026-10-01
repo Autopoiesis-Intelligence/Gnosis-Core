@@ -40,6 +40,9 @@ class Engine:
 
     STEP_COST: int = 1
 
+    def _effective_test_rule_id(self) -> str:
+        return self.policy_binding.policy.rule_id if self.policy_binding is not None else self.test_rule_id
+
     def _charge_step(self) -> None:
         if self.budget.exhausted():
             raise StopCondition(StopReason.BUDGET_EXHAUSTED, "no budget remaining before step")
@@ -64,7 +67,7 @@ class Engine:
             test_result=result,
             accepted=result.passed,
             reason="committed" if result.passed else "rejected: " + "; ".join(result.reasons),
-            test_rule_id=self.test_rule_id,
+            test_rule_id=self._effective_test_rule_id(),
             evaluation_evidence=evidence,
         )
         self.history.append(record)
