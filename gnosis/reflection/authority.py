@@ -304,7 +304,7 @@ class ExecutionCommitResult:
 class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
-    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str, failure_at: str|None = None) -> ExecutionCommitResult:
         from gnosis.storage.database import transaction
         from gnosis.reflection.trusted_execution_gate import require_trusted_execution
         with transaction(conn):
@@ -313,7 +313,7 @@ class SQLiteExecutionCommitAdapter:
             if str(request.provenance.evolution_identity) != request.evolution_identity:
                 raise PermissionError("execution commit identity mismatch")
             from gnosis.storage.repositories import _persist_transition_in_transaction
-            _persist_transition_in_transaction(conn, instance, candidate, record, actor=actor, failure_at=getattr(request, "failure_injection", None))
+            _persist_transition_in_transaction(conn, instance, candidate, record, actor=actor, failure_at=failure_at)
             resulting = load_state(conn, record.to_state_id)
             if resulting.state_id != str(request.provenance.proposed_state_digest):
                 raise PermissionError("persisted resulting state does not match authorized evolution")
