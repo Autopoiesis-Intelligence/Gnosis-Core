@@ -30,7 +30,9 @@ def policy_v2(_state: State, _candidate: Candidate) -> bool:
 
 def test_engine_evidence_comes_from_actual_callable():
     state = State()
-    binding = bind_policy("R", 1, policy_v1)
+    registry = RuleRegistry()
+    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    binding = registry.resolve("R", 1)
     engine = Engine(state=state, policy_binding=binding)
     record = engine.step(candidate(state))
 
@@ -41,7 +43,9 @@ def test_engine_evidence_comes_from_actual_callable():
 
 
 def test_binding_rejects_mismatched_implementation_identity():
-    good = bind_policy("R", 1, policy_v1)
+    registry = RuleRegistry()
+    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    good = registry.resolve("R", 1)
     forged = PolicyIdentity(
         rule_id="R",
         rule_version=2,
@@ -106,17 +110,20 @@ def test_registry_without_executable_binding_fails_closed():
 def test_transition_identity_changes_with_policy_identity():
     state = State()
     c = candidate(state)
-    r1 = Engine(state=state, policy_binding=bind_policy("R", 1, policy_v1)).step(c)
+    reg1 = RuleRegistry(); reg1.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    r1 = Engine(state=state, policy_binding=reg1.resolve("R", 1)).step(c)
     state2 = State()
     c2 = candidate(state2)
-    r2 = Engine(state=state2, policy_binding=bind_policy("R", 2, policy_v2)).step(c2)
+    reg2 = RuleRegistry(); reg2.register(RuleMetadata("R", 2, "test", "core", "artifact:r-v2", "spec:R:v2"), evaluator=policy_v2)
+    r2 = Engine(state=state2, policy_binding=reg2.resolve("R", 2)).step(c2)
 
     assert r1.transition_id != r2.transition_id
 
 
 def test_protected_invariant_rejection_marks_policy_not_invoked():
     state = State()
-    binding = bind_policy("R", 1, policy_v1)
+    registry = RuleRegistry(); registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    binding = registry.resolve("R", 1)
     engine = Engine(state=state, policy_binding=binding)
     bad = Candidate(
         parent_state_id=state.state_id,
