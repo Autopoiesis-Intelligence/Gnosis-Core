@@ -200,7 +200,9 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
-    from gnosis.storage import connect, append_evolution_memory, load_evolution_memory
+    from gnosis.storage import connect, append_evolution_memory, load_evolution_memory, save_instance
+    from gnosis.storage.repositories import _persist_transition
+    from gnosis.instances.instance import Instance
     from gnosis.reflection.persistence import ensure_reflection_schema, save_reflection_report
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.reflection.analyzer import RuleProposal
@@ -274,9 +276,13 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     provenance1 = build_endogenous_provenance(
         candidate1, sandbox1, evaluation1, governance1, parent_state_digest=state.content_id
     )
+    instance = Instance("e9-full", "test-owner", engine)
+    save_instance(conn, instance)
     tx1 = persist_evolution_transaction(
         conn, provenance1, event_type="PROVENANCE", payload={"cycle": 1}
     )
+    transition1 = engine.step(candidate1)
+    _persist_transition(conn, instance, candidate1, transition1, actor="e9-test")
     rows1 = conn.execute(
         "SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,"
         "proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest "
@@ -317,8 +323,8 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         conn,
         instance_id="e9-full",
         candidate_id=candidate1.candidate_id,
-        transition_id=tx1.audit_record.record_digest,
-        state_id=candidate1.parent_state_id,
+        transition_id=transition1.transition_id,
+        state_id=transition1.to_state_id,
         proposal_id=proposal1.proposal_id,
         outcome="accepted",
         evidence=(provenance1.provenance_id, provenance1.evidence_digest),
@@ -328,6 +334,8 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
 
     # The second candidate must be generated from persisted Memory #1 after a real restart.
     conn = connect(db)
+    instance = __import__("gnosis.storage", fromlist=["load_instance"]).load_instance(conn, "e9-full")
+    engine = instance.engine
     restored1 = load_evolution_memory(conn, "e9-full")
     assert [item.memory_id for item in restored1] == [memory1.memory_id]
     reflection = reflect_with_history(engine, conn, instance_id="e9-full")
@@ -355,11 +363,13 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     )
     governance2 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
     provenance2 = build_endogenous_provenance(
-        candidate2, sandbox2, evaluation2, governance2, parent_state_digest=state.content_id
+        candidate2, sandbox2, evaluation2, governance2, parent_state_digest=engine.state.content_id
     )
     tx2 = persist_evolution_transaction(
         conn, provenance2, event_type="PROVENANCE", payload={"cycle": 2}
     )
+    transition2 = engine.step(candidate2)
+    _persist_transition(conn, instance, candidate2, transition2, actor="e9-test")
     rows2 = conn.execute(
         "SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,"
         "proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest "
@@ -396,8 +406,8 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         conn,
         instance_id="e9-full",
         candidate_id=candidate2.candidate_id,
-        transition_id=tx2.audit_record.record_digest,
-        state_id=candidate2.parent_state_id,
+        transition_id=transition2.transition_id,
+        state_id=transition2.to_state_id,
         proposal_id=proposal2.proposal_id,
         outcome="accepted",
         evidence=(provenance2.provenance_id, provenance2.evidence_digest, memory1.memory_id),
