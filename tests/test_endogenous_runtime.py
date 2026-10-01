@@ -138,3 +138,24 @@ def test_memory_aware_candidate_uses_canonical_sandbox_without_core_mutation():
     assert result.execution.evidence_digest
     assert evaluation.status == "PASS"
     assert engine.state == before
+
+
+def test_endogenous_evaluation_review_binds_to_canonical_provenance_without_authority():
+    from gnosis.reflection.endogenous_runtime import build_endogenous_provenance, evaluate_candidate_in_sandbox
+    from gnosis.reflection.governance import GovernanceDecision
+    state = State(elements={"a": 1})
+    engine = Engine(state=state, budget=Budget(total=3))
+    proposal = type("P", (), {"proposal_id":"p-prov","finding_id":"f-prov","rule_id":"r-prov","current_version":1,"proposed_version":2,"hypothesis":"provenance","evidence_refs":("f-prov",)})()
+    cumulative = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal,)), history=None, recurring_unresolved=(), evolution_evidence=())
+    candidate = generate_from_cumulative_reflection(engine, cumulative).candidates[0]
+    sandbox, evaluation = evaluate_candidate_in_sandbox(
+        engine, candidate, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable"}
+    )
+    governance = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
+    provenance = build_endogenous_provenance(candidate, sandbox, evaluation, governance, parent_state_digest=state.content_id)
+    assert provenance.evaluation_status == "PASS"
+    assert provenance.governance_decision == "REVIEW"
+    assert provenance.candidate_binding_digest == candidate.binding_digest(state.content_id)
+    assert governance.can_activate is False
+    assert governance.can_rollback is False
+    assert engine.state == state
