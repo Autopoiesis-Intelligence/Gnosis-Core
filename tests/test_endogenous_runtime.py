@@ -243,7 +243,9 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.evolution.transaction import persist_evolution_transaction
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
-    from gnosis.storage import connect, append_evolution_memory, load_evolution_memory
+    from gnosis.storage import connect, append_evolution_memory, load_evolution_memory, save_instance, load_instance
+    from gnosis.storage.repositories import _persist_transition
+    from gnosis.instances.instance import Instance
     from gnosis.reflection.persistence import ensure_reflection_schema, save_reflection_report
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.reflection.analyzer import RuleProposal
@@ -334,7 +336,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
 
     # The second candidate must be generated from persisted Memory #1 after a real restart.
     conn = connect(db)
-    instance = __import__("gnosis.storage", fromlist=["load_instance"]).load_instance(conn, "e9-full")
+    instance = load_instance(conn, "e9-full")
     engine = instance.engine
     restored1 = load_evolution_memory(conn, "e9-full")
     assert [item.memory_id for item in restored1] == [memory1.memory_id]
@@ -419,7 +421,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     conn = connect(db)
     restored2 = load_evolution_memory(conn, "e9-full")
     assert [item.memory_id for item in restored2] == [memory1.memory_id, memory2.memory_id]
-    assert restored2[-1].transition_id == tx2.audit_record.record_digest
+    assert restored2[-1].transition_id == transition2.transition_id
     assert restored2[-1].memory_id != restored2[0].memory_id
     assert memory1.memory_id in restored2[-1].evidence
     reflection2 = reflect_with_history(engine, conn, instance_id="e9-full")
