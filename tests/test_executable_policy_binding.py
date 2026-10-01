@@ -116,16 +116,17 @@ def test_transition_identity_changes_with_policy_identity():
 
 def test_protected_invariant_rejection_marks_policy_not_invoked():
     state = State()
-    # Parent mismatch is rejected by Engine before evaluation.
     binding = bind_policy("R", 1, policy_v1)
     engine = Engine(state=state, policy_binding=binding)
     bad = Candidate(
-        parent_state_id="wrong-parent",
-        proposed_state=state.with_elements({"x": 1}),
+        parent_state_id=state.state_id,
+        proposed_state=state,
         origin="policy-binding-test",
     )
-    with pytest.raises(Exception):
-        engine.step(bad)
+    record = engine.step(bad)
+    assert record.accepted is False
+    assert record.evaluation_evidence is not None
+    assert record.evaluation_evidence.invoked is False
 
 
 def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
