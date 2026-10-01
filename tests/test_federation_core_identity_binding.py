@@ -13,7 +13,7 @@ def proposal():
 
 
 def request(evolution="e"):
-    return ExecutionCommitRequest(authorization=object(),intent_snapshot=object(),request_provenance="p",evolution_identity=evolution,provenance=object())
+    return ExecutionCommitRequest(authorization=object(),intent_snapshot=object(),request_provenance="p",evolution_identity=evolution,provenance=object(),authorization_validity=AuthorizationValidity("auth","policy","evidence"))
 
 
 def test_mutation_identity_cannot_be_rewritten_after_approval():
