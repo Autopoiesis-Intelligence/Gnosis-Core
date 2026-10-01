@@ -13,7 +13,9 @@ from gnosis.storage import (
     append_audit,
     connect,
     load_instance,
-recover_instance,
+    recover_instance,
+    recovery_evidence_digest,
+    load_candidate,
     save_candidate,
     save_instance,
     verify_audit_chain,
@@ -227,7 +229,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == 3
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -251,7 +253,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
