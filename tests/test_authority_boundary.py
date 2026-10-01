@@ -367,7 +367,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
-        AuthorizationValidity(provenance_a.provenance_id, "policy-1", "evidence-1"),
+        AuthorizationValidity(provenance_a.provenance_id, "policy-1", provenance_a.evidence_digest),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -481,7 +481,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, provenance_a.provenance_id
         ),
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
