@@ -2,6 +2,7 @@ import pytest
 from gnosis.self_learning.bridge import CoreMutationProposal, approve_core_mutation, create_core_mutation_proposal
 from gnosis.self_learning.integration import IntegrationRecord
 from gnosis.self_learning.execution import execute_approved_core_proposal
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.authority import (
     ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot,
 )
@@ -24,7 +25,7 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
         evolution_identity="e", candidate_binding_digest="sha256:c",
         proposed_state_content_id="sha256:content",
     )
-    request=ExecutionCommitRequest(auth,snapshot,"p","e",object())
+    request=ExecutionCommitRequest(auth,snapshot,"p","e",object(),AuthorizationValidity("auth","policy","evidence"))
     with pytest.raises(PermissionError):
         execute_approved_core_proposal(
             proposal,request,conn=object(),instance=object(),

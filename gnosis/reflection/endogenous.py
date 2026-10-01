@@ -7,6 +7,7 @@ bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from collections.abc import Mapping
 from typing import Sequence
 from gnosis.core.evolution import Engine
 from gnosis.core.types import Candidate, Relation, State
@@ -98,7 +99,7 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
     if candidate.origin != "reflection:endogenous":
         return False
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
+    if not isinstance(node, Mapping):
         return False
     if node.get("kind") != "rule_proposal":
         return False
@@ -127,12 +128,14 @@ def commit_endogenous_candidates(
     """Commit endogenous candidates only after exact proposal provenance validation."""
     proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
     for candidate in candidates:
-        proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
-            None,
+        proposal_ids = tuple(
+            relation.target for relation in candidate.proposed_state.relations
+            if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"
         )
-        proposal = proposals.get(proposal_id)
-        if proposal is None or not candidate_binds_proposal(candidate, proposal):
+        matching_ids = tuple(proposal_id for proposal_id in proposal_ids if proposal_id in proposals)
+        if len(matching_ids) != 1:
+            raise ValueError("endogenous candidate is not uniquely bound to the supplied reflection proposal")
+        proposal = proposals[matching_ids[0]]
+        if not candidate_binds_proposal(candidate, proposal):
             raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
     return engine.step_select(candidates)

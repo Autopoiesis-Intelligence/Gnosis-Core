@@ -7,11 +7,14 @@ def _event(conn, authorization_id):
 
 
 def test_real_commit_rolls_back_after_persistence_failure(real_commit_fixture):
-    conn, instance, candidate, record, request = real_commit_fixture
-    request.failure_injection = "after_audit"
+    conn = real_commit_fixture.conn
+    instance = real_commit_fixture.instance
+    candidate = real_commit_fixture.candidate
+    record = real_commit_fixture.record
+    request = real_commit_fixture.request
     before_head = instance.engine.state.state_id
     with pytest.raises(RuntimeError, match="after_audit"):
-        real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner")
+        real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner", failure_at="after_audit")
     assert _event(conn, request.authorization.approval_id) is None
     assert conn.execute("SELECT 1 FROM transitions WHERE transition_id=?", (record.transition_id,)).fetchone() is None
     assert conn.execute("SELECT 1 FROM candidates WHERE candidate_id=?", (record.candidate_id,)).fetchone() is None
@@ -19,7 +22,10 @@ def test_real_commit_rolls_back_after_persistence_failure(real_commit_fixture):
 
 
 def test_real_commit_failure_injection_is_not_silent(real_commit_fixture):
-    conn, instance, candidate, record, request = real_commit_fixture
-    request.failure_injection = "after_transition"
+    conn = real_commit_fixture.conn
+    instance = real_commit_fixture.instance
+    candidate = real_commit_fixture.candidate
+    record = real_commit_fixture.record
+    request = real_commit_fixture.request
     with pytest.raises(RuntimeError, match="after_transition"):
-        real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner")
+        real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner", failure_at="after_transition")

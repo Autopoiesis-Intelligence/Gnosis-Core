@@ -161,7 +161,7 @@ def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
     assert "b1" in recovered_b1.engine.state.elements
     assert "b1" not in recovered_a2.engine.state.elements
     assert "a2" not in recovered_b1.engine.state.elements
-    assert verify_durable_graph(conn)[0] == 5
+    assert verify_durable_graph(conn)[0] == 7
 
 
 def _transition(instance, key):
@@ -197,6 +197,7 @@ def test_a31_fork_creation_failure_rolls_back_child(monkeypatch):
     with pytest.raises(RuntimeError, match="injected fork audit failure"):
         save_instance(conn, child)
     assert conn.execute("SELECT 1 FROM instances WHERE instance_id=?", (child.instance_id,)).fetchone() is None
+    monkeypatch.undo()
     assert _authorized_recover(conn, parent.instance_id).instance_id == parent.instance_id
 
 
@@ -238,7 +239,7 @@ def test_a35_multiple_instances_interleaved_commits_keep_independent_heads():
     assert "second-final" not in recovered_first.engine.state.elements
     assert recovered_second.engine.state.elements["second-final"] == 1
     assert "first-final" not in recovered_second.engine.state.elements
-    assert verify_durable_graph(conn)[0] == 6
+    assert verify_durable_graph(conn)[0] == 8
 
 
 def test_a36_concurrent_same_head_allows_one_accepted_transition(tmp_path):
@@ -396,7 +397,7 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
         "SELECT 1 FROM states WHERE state_id=?",
         (proposed.state_id,),
     ).fetchone() is not None
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_durable_graph_rejects_budget_snapshot_exceeding_total():

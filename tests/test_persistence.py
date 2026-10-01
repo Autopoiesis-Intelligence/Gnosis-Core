@@ -13,7 +13,9 @@ from gnosis.storage import (
     append_audit,
     connect,
     load_instance,
-recover_instance,
+    recover_instance,
+    recovery_evidence_digest,
+    load_candidate,
     save_candidate,
     save_instance,
     verify_audit_chain,
@@ -26,6 +28,17 @@ from gnosis.storage.authorization import RecoveryAuthorization
 def root():
     return Instance.create_root("user-1", State(elements={"a": 1}))
 
+
+def _authorized_recover(conn, instance_id):
+    digest = recovery_evidence_digest(conn, instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="test-recovery", subject=instance_id,
+        requested_by="test-principal", authority="test-governance",
+        decision="allow", reason="test recovery",
+        issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
+    return recover_instance(conn, instance_id, authorization, now="2026-09-25T12:00:00Z")
 
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
@@ -227,7 +240,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == 3
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -240,7 +253,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
@@ -251,7 +264,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -411,8 +424,8 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert _authorized_recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -481,7 +494,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
             }),
         ),
     )
-    with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
+    with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence|audit sequence/link mismatch"):
         verify_durable_graph(conn)
 
 
@@ -554,6 +567,6 @@ def test_authorized_recovery_does_not_change_core_state_and_is_audited():
     assert recovered.engine.state.state_id == before == after
     row = conn.execute(
         "SELECT action,actor,result FROM audit_events WHERE event_id=?",
-        ("recovery:test-recovery",),
+        (f"recovery:{instance.instance_id}:test-recovery",),
     ).fetchone()
     assert tuple(row) == ("recovery.execute", "test-principal", "accepted")

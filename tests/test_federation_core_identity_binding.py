@@ -2,6 +2,7 @@ import pytest
 from gnosis.self_learning.bridge import CoreMutationProposal, approve_core_mutation
 from gnosis.self_learning.execution import bind_core_proposal
 from gnosis.reflection.authority import ExecutionCommitRequest
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 
 
 def proposal():
@@ -13,7 +14,7 @@ def proposal():
 
 
 def request(evolution="e"):
-    return ExecutionCommitRequest(authorization=object(),intent_snapshot=object(),request_provenance="p",evolution_identity=evolution,provenance=object())
+    return ExecutionCommitRequest(authorization=object(),intent_snapshot=object(),request_provenance="p",evolution_identity=evolution,provenance=object(),authorization_validity=AuthorizationValidity("auth","policy","evidence"))
 
 
 def test_mutation_identity_cannot_be_rewritten_after_approval():

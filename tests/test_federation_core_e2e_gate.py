@@ -3,6 +3,7 @@ import pytest
 
 from gnosis.evolution.federation_admission import admit_federation_evidence, build_core_provenance
 from gnosis.reflection.authority import ExecutionIntentSnapshot, ExecutionCommitRequest, ExecutionAuthorization, require_execution_commit
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from registry.core_handoff import create_handoff
 
 
@@ -20,7 +21,7 @@ def test_federation_reaches_core_provenance_but_not_commit_authority():
     snapshot=ExecutionIntentSnapshot.from_provenance(p)
     assert snapshot.evolution_identity == p.evolution_identity
     auth=ExecutionAuthorization(request_provenance=p.provenance_id,evolution_identity=p.evolution_identity,owner_approved=False)
-    request=ExecutionCommitRequest(auth,snapshot,p.provenance_id,p.evolution_identity,p)
+    request=ExecutionCommitRequest(auth,snapshot,p.provenance_id,p.evolution_identity,p,AuthorizationValidity("", "policy-1", "ev-1"))
     with pytest.raises(PermissionError):
         require_execution_commit(request)
 

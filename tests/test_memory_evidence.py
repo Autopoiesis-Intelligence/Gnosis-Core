@@ -16,7 +16,7 @@ def test_memory_projection_is_bounded():
 
 
 def test_cumulative_reflection_reads_instance_scoped_evolution_memory():
-    from gnosis.core import State
+    from gnosis.core import Candidate, State
     from gnosis.instances.instance import Instance
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.storage import append_evolution_memory, connect, save_instance
@@ -28,10 +28,11 @@ def test_cumulative_reflection_reads_instance_scoped_evolution_memory():
 
 def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
     from pathlib import Path
-    from gnosis.core import State
+    from gnosis.core import Candidate, State
     from gnosis.instances.instance import Instance
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.storage import append_evolution_memory, close, connect, load_evolution_memory, save_instance
+    from gnosis.storage.repositories import _persist_transition
 
     db = Path("/tmp/gnozis-e8b-restart.sqlite")
     if db.exists():
@@ -39,8 +40,10 @@ def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
     conn = connect(db)
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
-    candidate = instance.engine.generate_candidates()[0]
-    record = instance.engine.step_select((candidate,))
+    proposed = instance.engine.state.with_elements({"b": 2})
+    candidate = Candidate(instance.engine.state.state_id, proposed, "restart-proof")
+    record = instance.engine.step(candidate)
+    _persist_transition(conn, instance, candidate, record, actor="restart-proof")
     memory = append_evolution_memory(
         conn,
         instance_id=instance.instance_id,
