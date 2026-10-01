@@ -11,13 +11,13 @@ def make_request(provenance, validity):
 
 
 def test_validity_is_immutable(provenance):
-    v=AuthorizationValidity("auth-t","policy-1","ev-1")
+    v=AuthorizationValidity("auth-t","policy-1",provenance.evidence_digest)
     with pytest.raises(FrozenInstanceError):
         v.authorization_id="forged"
 
 
 def test_tampered_policy_is_rejected_before_consumption(sqlite_conn, provenance):
-    v=AuthorizationValidity("auth-t","policy-forged","ev-1")
+    v=AuthorizationValidity("auth-t","policy-forged",provenance.evidence_digest)
     req=make_request(provenance,v)
     with pytest.raises(PermissionError):
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
