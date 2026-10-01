@@ -996,3 +996,26 @@ def test_durable_transition_records_parent_and_resulting_state_across_restart(tm
     row=reopened.execute("SELECT from_state_id,to_state_id,accepted FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()
     assert row == ("parent","result",1)
     reopened.close()
+
+
+def test_accepted_transition_replay_is_idempotent_after_restart(tmp_path):
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    def evaluator(*_): return True
+    identity=implementation_identity(evaluator)
+    p=_make_provenance("idempotent-replay",identity)
+    db=tmp_path/"idempotent.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="idempotent")
+    first_count=conn.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
+    conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
+    second=adapter.commit(reopened,instance,candidate,record,request,actor="idempotent")
+    second_count=reopened.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
+    head=reopened.execute("SELECT current_state_id FROM instances WHERE instance_id=?",(instance.instance_id,)).fetchone()[0]
+    assert second.receipt == first.receipt
+    assert first_count == second_count == 1
+    assert head == "result"
+    reopened.close()
