@@ -223,5 +223,37 @@ def test_evolution_transaction_persists_and_recovers_executable_manifest():
         implementation_identity=provenance.evaluated_policy.implementation_identity,
     )
     assert manifest == expected
-    assert manifest.manifest_digest == result.provenance_id.replace("provenance:", "sha256:", 1) if False else manifest.manifest_digest
+    assert manifest.manifest_digest == conn.execute("SELECT manifest_digest FROM executable_manifests").fetchone()[0]
     assert conn.execute("SELECT provenance_id FROM executable_manifests").fetchone()[0] == provenance.provenance_id
+
+
+def test_manifest_replay_is_idempotent():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    provenance = _provenance()
+    first = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+    second = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+    assert second == first
+    assert conn.execute("SELECT count(*) FROM executable_manifests").fetchone()[0] == 1
+
+
+def test_manifest_tampering_fails_closed_on_replay():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    provenance = _provenance()
+    persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+    conn.execute("UPDATE executable_manifests SET canonical_payload=?", ('{"tampered":true}',))
+    with pytest.raises(RuntimeError, match="conflicting executable manifest"):
+        persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+
+
+def test_manifest_tampering_fails_closed_on_recovery():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    provenance = _provenance()
+    persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+    digest = conn.execute("SELECT manifest_digest FROM executable_manifests").fetchone()[0]
+    conn.execute("UPDATE executable_manifests SET canonical_payload=?", ('{"tampered":true}',))
+    from gnosis.evolution.transaction import load_executable_manifest
+    with pytest.raises((KeyError, RuntimeError)):
+        load_executable_manifest(conn, digest)
