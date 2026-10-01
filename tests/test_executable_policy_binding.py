@@ -145,9 +145,7 @@ def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
     registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     instance = Instance.create_root("u", state)
-    instance.engine.policy_binding = binding
-    instance.engine.test_fn = binding.evaluator
-    instance.engine.test_rule_id = binding.policy.rule_id
+    instance.engine = Engine(state=state, budget=instance.engine.budget, policy_binding=binding)
     save_instance(sqlite_conn, instance)
 
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
@@ -169,9 +167,7 @@ def test_custom_policy_recovery_fails_closed_without_registry(sqlite_conn):
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
     registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
-    instance.engine.policy_binding = binding
-    instance.engine.test_fn = binding.evaluator
-    instance.engine.test_rule_id = binding.policy.rule_id
+    instance.engine = Engine(state=instance.engine.state, budget=instance.engine.budget, policy_binding=binding)
     save_instance(sqlite_conn, instance)
 
     with pytest.raises(Exception, match="policy registry"):
