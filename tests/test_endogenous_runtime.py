@@ -159,3 +159,29 @@ def test_endogenous_evaluation_review_binds_to_canonical_provenance_without_auth
     assert governance.can_activate is False
     assert governance.can_rollback is False
     assert engine.state == state
+
+
+def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
+    from gnosis.reflection.endogenous_runtime import build_endogenous_provenance, evaluate_candidate_in_sandbox
+    from gnosis.reflection.governance import GovernanceDecision
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.evolution.chain_verifier import verify_persisted_chain
+    from gnosis.evolution.replay import replay_complete
+    from gnosis.storage import connect, ensure_reflection_schema
+    state = State(elements={"a": 1})
+    engine = Engine(state=state, budget=Budget(total=3))
+    proposal = type("P", (), {"proposal_id":"p-d5","finding_id":"f-d5","rule_id":"r-d5","current_version":1,"proposed_version":2,"hypothesis":"durable","evidence_refs":("f-d5",)})()
+    cumulative = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal,)), history=None, recurring_unresolved=(), evolution_evidence=())
+    candidate = generate_from_cumulative_reflection(engine, cumulative).candidates[0]
+    sandbox, evaluation = evaluate_candidate_in_sandbox(engine, candidate, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable"})
+    governance = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
+    provenance = build_endogenous_provenance(candidate, sandbox, evaluation, governance, parent_state_digest=state.content_id)
+    db = tmp_path / "e8d5.sqlite"
+    conn = connect(db); ensure_reflection_schema(conn)
+    tx = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status":"RECORDED"})
+    rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
+    result = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
+    assert result.valid, result.reasons
+    replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
+    assert replay.valid, replay.reasons
+    conn.close()
