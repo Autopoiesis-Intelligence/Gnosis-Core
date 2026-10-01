@@ -43,7 +43,7 @@ def test_engine_evidence_comes_from_actual_callable():
 
 
 def test_binding_rejects_mismatched_implementation_identity():
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     good = registry.resolve("R", 1)
     forged = PolicyIdentity(
@@ -57,7 +57,7 @@ def test_binding_rejects_mismatched_implementation_identity():
 
 
 def test_registry_resolves_exact_registered_callable():
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(
         RuleMetadata(
             rule_id="R",
@@ -92,7 +92,7 @@ def test_registry_resolves_exact_registered_callable():
 
 
 def test_registry_without_executable_binding_fails_closed():
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(
         RuleMetadata(
             rule_id="R",
@@ -122,7 +122,7 @@ def test_transition_identity_changes_with_policy_identity():
 
 def test_protected_invariant_rejection_marks_policy_not_invoked():
     state = State()
-    registry = RuleRegistry(); registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    registry = AuthorizedRuleRegistry(); registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     engine = Engine(state=state, policy_binding=binding)
     bad = Candidate(
@@ -141,7 +141,7 @@ def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
     from gnosis.storage import save_instance, load_instance
 
     state = State()
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     instance = Instance.create_root("u", state)
@@ -150,7 +150,7 @@ def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
     instance.engine.test_rule_id = binding.policy.rule_id
     save_instance(sqlite_conn, instance)
 
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(
         RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
         evaluator=policy_v1,
@@ -166,7 +166,7 @@ def test_custom_policy_recovery_fails_closed_without_registry(sqlite_conn):
     from gnosis.storage import save_instance, load_instance
 
     instance = Instance.create_root("u", State())
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     instance.engine.policy_binding = binding
@@ -198,7 +198,7 @@ def test_legacy_raw_callable_cannot_enter_durable_instance_chain(sqlite_conn):
 def test_caller_cannot_forge_binding_authority():
     from gnosis.core import ExecutablePolicyBinding
 
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(
         RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
         evaluator=policy_v1,
@@ -216,7 +216,7 @@ def test_caller_cannot_forge_binding_authority():
 def test_registry_issued_binding_accepts_exact_identity():
     from gnosis.core import implementation_identity
 
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(
         RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
         evaluator=policy_v1,
