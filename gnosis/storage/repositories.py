@@ -8,7 +8,7 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from typing import Any
 
-from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord, EvaluationEvidence, PolicyIdentity, default_policy_binding
+from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord, EvaluationEvidence, PolicyIdentity
 from gnosis.instances.instance import Instance, InstanceStatus
 from .database import GENESIS_HASH, transaction
 from .authorization import RecoveryAuthorization, validate_recovery_authorization
@@ -131,18 +131,15 @@ def load_instance(conn: sqlite3.Connection,instance_id: str, policy_registry: ob
     if row[9] is None or row[10] is None or row[11] is None:
         raise StorageCorruptionError("legacy instance has no executable policy identity")
     persisted=PolicyIdentity(str(row[9]),int(row[10]),str(row[11]))
-    default=default_policy_binding()
-    if persisted == default.policy:
-        binding=default
-    elif policy_registry is not None:
-        try:
-            binding=policy_registry.resolve(persisted.rule_id,persisted.rule_version)
-        except Exception as exc:
-            raise StorageCorruptionError("persisted executable policy cannot be resolved") from exc
-        if binding.policy != persisted:
-            raise StorageCorruptionError("resolved executable policy identity mismatch")
-    else:
-        raise StorageCorruptionError("policy registry is required for non-default recovery")
+    if policy_registry is None:
+        from gnosis.reflection.rules import default_rule_registry
+        policy_registry = default_rule_registry()
+    try:
+        binding=policy_registry.resolve(persisted.rule_id,persisted.rule_version)
+    except Exception as exc:
+        raise StorageCorruptionError("persisted executable policy cannot be resolved") from exc
+    if binding.policy != persisted:
+        raise StorageCorruptionError("resolved executable policy identity mismatch")
     return Instance(row[0],row[1],Engine(load_state(conn,row[3]),budget=budget,policy_binding=binding),row[4],row[5],InstanceStatus(row[6]),row[12])
 def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
     """Return the digest of the verified durable evidence bound to recovery."""
