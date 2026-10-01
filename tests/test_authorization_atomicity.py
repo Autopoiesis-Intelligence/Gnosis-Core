@@ -28,13 +28,21 @@ def test_trusted_execution_consumption_rolls_back_with_outer_transaction(sqlite_
         request_provenance="p1",
         evolution_identity="e1",
     )
-    validity = AuthorizationValidity("auth-gate-atomic", "policy-1", "ev-1")
+    from tests.test_authority_boundary import _snapshot_provenance
+    provenance = _snapshot_provenance()
+    auth = ExecutionAuthorization(
+        approval_id="auth-gate-atomic",
+        owner_approved=True,
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+    )
+    validity = AuthorizationValidity("auth-gate-atomic", "policy-1", provenance.evidence_digest)
     request = ExecutionCommitRequest(
         authorization=auth,
-        intent_snapshot=ExecutionIntentSnapshot("s1", "d1", "c1", "p1", "e1", "ev-1", "policy-1"),
-        request_provenance="p1",
-        evolution_identity="e1",
-        provenance=None,
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        provenance=provenance,
         authorization_validity=validity,
     )
     with pytest.raises(RuntimeError):
