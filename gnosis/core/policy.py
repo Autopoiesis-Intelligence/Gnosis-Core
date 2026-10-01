@@ -110,7 +110,15 @@ def default_policy_binding() -> ExecutablePolicyBinding:
     return _issue_binding("test-rule:default", 1, default_test, _authority=_REGISTRY_AUTHORITY)
 
 
-def _issue_binding(rule_id: str, rule_version: int, evaluator: PolicyCallable) -> ExecutablePolicyBinding:
+def _issue_binding(
+    rule_id: str,
+    rule_version: int,
+    evaluator: PolicyCallable,
+    *,
+    _authority: object | None = None,
+) -> ExecutablePolicyBinding:
+    if _authority is not _REGISTRY_AUTHORITY:
+        raise PermissionError("executable policy issuance requires Core registry authority")
     return ExecutablePolicyBinding(
         policy=PolicyIdentity(rule_id, rule_version, implementation_identity(evaluator)),
         evaluator=evaluator,
