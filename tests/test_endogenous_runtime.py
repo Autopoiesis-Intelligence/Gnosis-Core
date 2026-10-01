@@ -1,3 +1,4 @@
+# E9.2 checkpoint: canonical reflection persistence import.
 from dataclasses import replace
 
 from gnosis.core import Budget, Engine, State
