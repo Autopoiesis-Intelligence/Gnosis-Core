@@ -129,7 +129,7 @@ def test_execution_receipt_is_created_after_commit_and_matches_request():
     provenance = _snapshot_provenance()
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
+    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance, AuthorizationValidity(auth.approval_id or auth.request_provenance, "policy-1", "evidence-1"))
     resulting_state = {"state": "new"}
     receipt = ExecutionReceipt.after_commit(request, resulting_state)
     assert receipt.resulting_state_digest == canonical_digest(resulting_state)
@@ -141,7 +141,7 @@ def test_execution_receipt_requires_result_state():
     provenance = _snapshot_provenance()
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
+    request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance, AuthorizationValidity(auth.approval_id or auth.request_provenance, "policy-1", "evidence-1"))
     with pytest.raises((PermissionError, ValueError), match="resulting state"):
         ExecutionReceipt.after_commit(request, None)
 
@@ -153,7 +153,7 @@ def test_execution_receipt_rejects_cross_evolution():
     request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
     receipt = ExecutionReceipt.after_commit(request, {"state": "new"})
     changed = type(provenance)(**{**provenance.__dict__, "candidate_binding_digest": "tampered"})
-    changed_request = ExecutionCommitRequest(auth, ExecutionIntentSnapshot.from_provenance(changed), provenance.provenance_id, provenance.evolution_identity, changed)
+    changed_request = ExecutionCommitRequest(auth, ExecutionIntentSnapshot.from_provenance(changed), provenance.provenance_id, provenance.evolution_identity, changed, AuthorizationValidity(auth.approval_id or auth.request_provenance, "policy-1", "evidence-1"))
     with pytest.raises(PermissionError, match="does not match committed evolution"):
         require_execution_receipt(receipt, changed_request)
 
@@ -226,7 +226,7 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
         SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, ExecutionCommitRequest(
             ExecutionAuthorization("bad", False, "bad"),
             ExecutionIntentSnapshot("", "", "", "", "", "", ""),
-            "bad", "bad", object()), actor="user-1")
+            "bad", "bad", object(), AuthorizationValidity("bad", "policy-1", "evidence-1")), actor="user-1")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == initial_state_id
     conn.close()
 
