@@ -698,3 +698,23 @@ def test_replay_requires_current_authorized_registry_binding(tmp_path):
     binding = registry.resolve("receipt-rule",1)
     assert binding.implementation_identity == receipt.manifest_digest.split(":")[-1] if False else identity
     require_persisted_execution_receipt(conn, receipt, request)
+
+
+def test_replay_rejects_current_registry_replacement():
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.core.policy import PolicyIdentity, implementation_identity, _REGISTRY_AUTHORITY
+    from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+    def evaluator_a(*_args): return True
+    def evaluator_b(*_args): return True
+    identity_a, identity_b = implementation_identity(evaluator_a), implementation_identity(evaluator_b)
+    p = build_provenance(candidate_id="registry-replacement-replay", parent_state_id="parent", parent_state_digest="parent", proposed_state_digest="result", observations={"x": 1}, evidence_digest=canonical_digest({"x": 1}), evaluation_status="PASS", shadow_status="UNCHANGED", invariant_status="PRESERVED", governance_decision="ALLOW", candidate_binding_digest="binding", evaluated_policy=PolicyIdentity("receipt-rule", 1, identity_a))
+    conn=sqlite3.connect(":memory:"); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    request=ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id,True,p.evolution_identity),ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p)
+    receipt=ExecutionReceipt.after_commit(request,type("S",(),{"state_id":"result"})())
+    registry=AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(RuleMetadata(rule_id="receipt-rule",rule_version=1,rule_type="test",scope="core",implementation_ref="python:test",spec_ref="test",implementation_identity=identity_b),evaluator=evaluator_b,_authority=_REGISTRY_AUTHORITY)
+    with pytest.raises(PermissionError, match="current authorized executable identity"):
+        require_persisted_execution_receipt(conn,receipt,request,registry)
