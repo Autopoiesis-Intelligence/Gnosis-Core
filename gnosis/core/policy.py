@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 
 PolicyCallable = Callable[["State", "Candidate"], bool]
 
+class _PolicyAuthorityToken:
+    __slots__ = ()
+
+_AUTHORITY = _PolicyAuthorityToken()
+
 
 def implementation_identity(evaluator: PolicyCallable) -> str:
     """Return a deterministic identity for a registered Python evaluator."""
@@ -63,8 +68,11 @@ class ExecutablePolicyBinding:
     """One immutable policy identity paired with its runtime evaluator."""
     policy: PolicyIdentity
     evaluator: PolicyCallable
+    _authority: object = _AUTHORITY
 
     def __post_init__(self) -> None:
+        if self._authority is not _AUTHORITY:
+            raise PermissionError("executable policy binding requires trusted authority")
         if implementation_identity(self.evaluator) != self.policy.implementation_identity:
             raise ValueError("evaluator does not match policy implementation identity")
 
@@ -96,8 +104,13 @@ def default_policy_binding() -> ExecutablePolicyBinding:
     return bind_policy("test-rule:default", 1, default_test)
 
 
-def bind_policy(rule_id: str, rule_version: int, evaluator: PolicyCallable) -> ExecutablePolicyBinding:
+def _issue_binding(rule_id: str, rule_version: int, evaluator: PolicyCallable) -> ExecutablePolicyBinding:
     return ExecutablePolicyBinding(
         policy=PolicyIdentity(rule_id, rule_version, implementation_identity(evaluator)),
         evaluator=evaluator,
     )
+
+
+def bind_policy(rule_id: str, rule_version: int, evaluator: PolicyCallable) -> ExecutablePolicyBinding:
+    """Compatibility helper for tests/legacy code; not registry-authorized."""
+    raise PermissionError("use RuleRegistry.resolve() for trusted executable policy binding")
