@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Mapping
 
-from gnosis.core.policy import ExecutablePolicyBinding, bind_policy, PolicyCallable
+from gnosis.core.policy import ExecutablePolicyBinding, PolicyCallable, _issue_binding
 
 
 @dataclass(frozen=True)
@@ -66,7 +66,7 @@ class RuleRegistry:
         evaluator = self._evaluators.get((rule_id, rule_version))
         if evaluator is None:
             raise PermissionError(f"rule has no executable binding: {rule_id}:v{rule_version}")
-        return bind_policy(rule.rule_id, rule.rule_version, evaluator)
+        return _issue_binding(rule.rule_id, rule.rule_version, evaluator)
 
 
 def default_rule_registry() -> RuleRegistry:
