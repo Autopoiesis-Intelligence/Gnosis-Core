@@ -567,6 +567,6 @@ def test_authorized_recovery_does_not_change_core_state_and_is_audited():
     assert recovered.engine.state.state_id == before == after
     row = conn.execute(
         "SELECT action,actor,result FROM audit_events WHERE event_id=?",
-        ("recovery:test-recovery",),
+        (f"recovery:{instance.instance_id}:test-recovery",),
     ).fetchone()
     assert tuple(row) == ("recovery.execute", "test-principal", "accepted")
