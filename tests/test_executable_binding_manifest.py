@@ -1,5 +1,9 @@
-from gnosis.core.policy import PolicyIdentity, executable_binding_manifest_digest
+from gnosis.core.policy import (
+    PolicyIdentity,
+    executable_binding_manifest_digest,
+)
 from gnosis.core.types import Candidate, State
+from gnosis.reflection.rules import default_rule_registry
 
 
 def _candidate() -> Candidate:
@@ -71,3 +75,15 @@ def test_manifest_digest_does_not_change_legacy_candidate_binding_digest():
         policy=_policy(),
     )
     assert candidate.binding_digest(candidate.parent_state_id) == before
+
+
+def test_manifest_digest_accepts_identity_from_authorized_registry_binding():
+    candidate = _candidate()
+    binding = default_rule_registry().resolve("test-rule:default", 1)
+    digest = executable_binding_manifest_digest(
+        candidate=candidate,
+        parent_state_digest=candidate.parent_state_id,
+        policy=binding.policy,
+    )
+    assert binding.policy.implementation_identity
+    assert digest.startswith("sha256:")
