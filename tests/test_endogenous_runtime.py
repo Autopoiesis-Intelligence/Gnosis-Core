@@ -112,7 +112,7 @@ def test_memory_aware_endogenous_generation_is_deterministically_replayable():
     engine = Engine(state=state, budget=Budget(total=3))
     proposal = type("P", (), {"proposal_id":"p-replay","finding_id":"f-replay","rule_id":"r-replay","current_version":1,"proposed_version":2,"hypothesis":"replayable","evidence_refs":("f-replay",)})()
     report = ReflectionReport(proposals=(proposal,))
-    evidence = EvolutionEvidence(memory_id="m-replay", candidate_id="c-prev", transition_id="t-prev", state_id="s-prev", outcome="accepted")
+    evidence = EvolutionEvidence(memory_id="m-replay", candidate_id="c-prev", transition_id="t-prev", outcome="accepted", evidence=())
     cumulative = CumulativeReflectionReport(current=report, history=None, recurring_unresolved=(), evolution_evidence=(evidence,))
     first = generate_from_cumulative_reflection(engine, cumulative)
     second = generate_from_cumulative_reflection(engine, cumulative)
