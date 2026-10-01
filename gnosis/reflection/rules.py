@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Mapping
 
+from gnosis.core.policy import ExecutablePolicyBinding, bind_policy, PolicyCallable
+
 
 @dataclass(frozen=True)
 class RuleMetadata:
@@ -27,14 +29,17 @@ class RuleRegistry:
 
     def __init__(self, rules: Mapping[tuple[str, int], RuleMetadata] | None = None):
         self._rules = dict(rules or {})
+        self._evaluators: dict[tuple[str, int], PolicyCallable] = {}
 
-    def register(self, rule: RuleMetadata) -> RuleMetadata:
+    def register(self, rule: RuleMetadata, evaluator: PolicyCallable | None = None) -> RuleMetadata:
         key = (rule.rule_id, rule.rule_version)
         if key in self._rules:
             raise ValueError(f"rule version already registered: {rule.rule_id}:v{rule.rule_version}")
         if rule.rule_version < 1:
             raise ValueError("rule_version must be >= 1")
         self._rules[key] = rule
+        if evaluator is not None:
+            self._evaluators[key] = evaluator
         return rule
 
     def get(self, rule_id: str, rule_version: int) -> RuleMetadata:
@@ -54,3 +59,14 @@ class RuleRegistry:
 
     def snapshot(self) -> tuple[RuleMetadata, ...]:
         return tuple(self._rules[key] for key in sorted(self._rules))
+
+    def resolve(self, rule_id: str, rule_version: int) -> ExecutablePolicyBinding:
+        """Resolve an exact registered version to the callable registered with it."""
+        rule = self.get(rule_id, rule_version)
+        evaluator = self._evaluators.get((rule_id, rule_version))
+        if evaluator is None:
+            raise PermissionError(f"rule has no executable binding: {rule_id}:v{rule_version}")
+        binding = bind_policy(rule.rule_id, rule.rule_version, evaluator)
+        if binding.policy.implementation_identity != bind_policy(rule.rule_id, rule.rule_version, evaluator).policy.implementation_identity:
+            raise PermissionError("registered executable identity mismatch")
+        return binding
