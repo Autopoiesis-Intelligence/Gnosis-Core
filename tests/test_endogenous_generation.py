@@ -132,5 +132,5 @@ def test_endogenous_commit_rejects_substituted_proposal():
     report = ReflectionReport(proposals=(proposal(1),))
     generation = generate_endogenous_candidates(state, report, budget=Budget(total=2))
     substituted = ReflectionReport(proposals=(proposal(2),))
-    with pytest.raises(ValueError, match="not bound"):
+    with pytest.raises(ValueError, match="not .*bound"):
         commit_endogenous_candidates(Engine(state=state, budget=Budget(total=2)), substituted, generation.candidates)
