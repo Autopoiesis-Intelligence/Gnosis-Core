@@ -949,3 +949,26 @@ def test_real_commit_restart_and_replaced_registry_form_one_fail_closed_e2e(tmp_
     with pytest.raises(PermissionError, match="current authorized executable identity"):
         require_persisted_execution_receipt(reopened,receipt,request,registry)
     reopened.close()
+
+
+def test_real_commit_resulting_state_survives_restart_and_matches_receipt(tmp_path):
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    from gnosis.storage.repositories import load_state
+    def evaluator(*_): return True
+    identity=implementation_identity(evaluator); obs={"x":1}
+    p=build_provenance(candidate_id="state-recovery",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("state-rule",1,identity))
+    db=tmp_path/"state-recovery.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    from tests.test_authority_boundary import _make_execution_commit_request, _make_execution_instance_candidate_record
+    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    committed=SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="state-recovery")
+    expected=committed.receipt.resulting_state_digest; conn.close()
+    reopened=sqlite3.connect(db)
+    state=load_state(reopened,"result")
+    assert state is not None
+    assert str(getattr(state,"state_id",state.get("state_id",None) if isinstance(state,dict) else state)) == expected
+    reopened.close()
