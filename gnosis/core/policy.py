@@ -114,6 +114,7 @@ def _issue_binding(rule_id: str, rule_version: int, evaluator: PolicyCallable) -
     return ExecutablePolicyBinding(
         policy=PolicyIdentity(rule_id, rule_version, implementation_identity(evaluator)),
         evaluator=evaluator,
+        _authority=_AUTHORITY,
     )
 
 
