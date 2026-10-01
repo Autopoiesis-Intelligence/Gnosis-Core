@@ -9,6 +9,8 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
+from .policy import EvaluationEvidence
+
 
 def deep_freeze(value: Any) -> Any:
     if isinstance(value, Mapping):
@@ -136,6 +138,7 @@ class TransitionRecord:
     accepted: bool
     reason: str
     test_rule_id: str = "test-rule:unspecified"
+    evaluation_evidence: EvaluationEvidence | None = None
 
     def __post_init__(self) -> None:
         if self.accepted is not self.test_result.passed:
@@ -155,6 +158,11 @@ class TransitionRecord:
             "accepted": self.accepted,
             "reasons": self.test_result.reasons,
             "test_rule_id": self.test_rule_id,
+            "policy_identity": None if self.evaluation_evidence is None else {
+                "rule_id": self.evaluation_evidence.policy.rule_id,
+                "rule_version": self.evaluation_evidence.policy.rule_version,
+                "implementation_identity": self.evaluation_evidence.policy.implementation_identity,
+            },
         })
 
 
