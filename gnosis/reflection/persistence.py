@@ -663,7 +663,7 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
             values = dict(zip(("provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluated_policy","evaluation_status","shadow_status","invariant_status","governance_decision","status"), candidate_row))
             expected = provenance_id_for(execution_id=values["execution_id"], candidate_id=values["candidate_id"], parent_state_id=values["parent_state_id"], parent_state_digest=values["parent_state_digest"], proposed_state_digest=values["proposed_state_digest"], evidence_digest=values["evidence_digest"], evaluation_status=values["evaluation_status"], shadow_status=values["shadow_status"], invariant_status=values["invariant_status"], governance_decision=values["governance_decision"], status=values["status"], proposed_state_content_id=values["proposed_state_content_id"], candidate_binding_digest=values["candidate_binding_digest"],
                 evaluated_policy=_policy_from_json(values["evaluated_policy"]))
-            if expected == provenance_id:
+            if expected != provenance_id:
                 raise RuntimeError("stored provenance identity mismatch")
         raise KeyError(provenance_id)
     keys = (
@@ -685,13 +685,13 @@ def list_evolution_provenance(
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,"
+            "SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluated_policy,"
             "evaluation_status,shadow_status,invariant_status,governance_decision,status "
             "FROM evolution_provenance WHERE candidate_id=? ORDER BY rowid",
             (candidate_id,),
         ).fetchall()
     keys = (
-        "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest",
+        "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluated_policy",
         "evaluation_status","shadow_status","invariant_status","governance_decision","status",
     )
     return tuple(dict(zip(keys, row)) for row in rows)
