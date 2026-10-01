@@ -251,7 +251,8 @@ def _persist_transition_in_transaction(conn: sqlite3.Connection,instance: Instan
         if failure_at==point: raise RuntimeError(f"injected failure at {point}")
     if candidate.parent_state_id!=record.from_state_id: raise ValueError("candidate parent does not match transition source")
     tid=transition_id(record); inject("before_begin")
-    inject("after_begin"); db=load_instance(conn,instance.instance_id)
+    inject("after_begin"); db_head=conn.execute("SELECT current_state_id FROM instances WHERE instance_id=?",(instance.instance_id,)).fetchone()
+    if db_head is None: raise StorageCorruptionError("instance not found during transition persistence")
     existing_transition = conn.execute("SELECT instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked FROM transitions WHERE transition_id=?",(tid,)).fetchone()
     if existing_transition is not None:
         p=record.evaluation_evidence.policy if record.evaluation_evidence is not None else None
@@ -260,9 +261,9 @@ def _persist_transition_in_transaction(conn: sqlite3.Connection,instance: Instan
         persisted_candidate=load_candidate(conn,record.candidate_id)
         if (persisted_candidate.parent_state_id!=candidate.parent_state_id or persisted_candidate.proposed_state.state_id!=candidate.proposed_state.state_id or persisted_candidate.origin!=candidate.origin or persisted_candidate.seed!=candidate.seed or persisted_candidate.proposed_state.content_id!=candidate.proposed_state.content_id): raise StorageCorruptionError("conflicting candidate replay")
         expected_head=record.to_state_id if record.accepted else record.from_state_id
-        if db.engine.state.state_id!=expected_head: raise ValueError("replayed transition has inconsistent canonical head")
+        if str(db_head[0])!=expected_head: raise ValueError("replayed transition has inconsistent canonical head")
         return
-    if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
+    if str(db_head[0])!=record.from_state_id: raise ValueError("stale instance head")
     save_candidate(conn,candidate); inject("after_candidate")
     p=record.evaluation_evidence.policy if record.evaluation_evidence is not None else None
     conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,None if p is None else p.rule_id,None if p is None else p.rule_version,None if p is None else p.implementation_identity,None if record.evaluation_evidence is None else int(record.evaluation_evidence.invoked),utc_now())); inject("after_transition")
