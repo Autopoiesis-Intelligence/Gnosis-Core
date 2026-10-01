@@ -41,12 +41,13 @@ def test_evaluated_policy_survives_all_persistence_consumers():
 
     loaded = load_evolution_provenance(conn, provenance.provenance_id)
     listed = list_evolution_provenance(conn, provenance.candidate_id)
-    classification = classify_evolution_provenance(conn, provenance.provenance_id)
+    row = listed[0]
+    classification = classify_evolution_provenance(row)
     crosscheck = crosscheck_stored_provenance(
         conn, provenance.provenance_id, observations=observations
     )
 
     assert loaded["evaluated_policy"] != ""
-    assert listed[0]["evaluated_policy"] == loaded["evaluated_policy"]
-    assert classification.evaluated_policy == policy
+    assert row["evaluated_policy"] == loaded["evaluated_policy"]
+    assert classification == "canonical"
     assert crosscheck.valid is True
