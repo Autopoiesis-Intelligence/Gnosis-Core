@@ -87,6 +87,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     restored = load_evolution_memory(conn, instance.instance_id)
     assert [m.memory_id for m in restored] == [mem1.memory_id]
     history = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
+    report2_id = save_reflection_report(conn, reflection.current, created_at="2026-10-01T00:00:02Z")
     proposal2 = type("P", (), {"proposal_id":"p2","finding_id":"f2","rule_id":"r2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f2",)})()
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
     gen2 = generate_from_cumulative_reflection(instance.engine, cumulative2)
@@ -200,6 +201,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     proposal1 = type("P", (), {"proposal_id":"p-e9-1","finding_id":"f-e9-1","rule_id":"r-e9-1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f-e9-1",)})()
     cumulative1 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal1,)), history=None, recurring_unresolved=(), evolution_evidence=())
     report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
+    report1_id = save_reflection_report(conn, cumulative1.current, created_at="2026-10-01T00:00:01Z")
     candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
     sandbox1, evaluation1 = evaluate_candidate_in_sandbox(engine, candidate1, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable-1"})
     governance1 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
@@ -229,7 +231,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
     from gnosis.storage import connect, append_evolution_memory, load_evolution_memory
-    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.reflection.persistence import ensure_reflection_schema, save_reflection_report
     from gnosis.reflection.runtime import reflect_with_history
 
     db = tmp_path / "e9-cycle2.sqlite"
@@ -281,10 +283,17 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
             "candidate_id": provenance1.candidate_id,
             "execution_id": provenance1.execution_id,
             "provenance_id": provenance1.provenance_id,
+            "parent_state_id": provenance1.parent_state_id,
             "parent_state_digest": provenance1.parent_state_digest,
             "proposed_state_digest": provenance1.proposed_state_digest,
             "evidence_digest": provenance1.evidence_digest,
             "candidate_binding_digest": provenance1.candidate_binding_digest,
+            "evaluation_status": provenance1.evaluation_status,
+            "shadow_status": provenance1.shadow_status,
+            "invariant_status": provenance1.invariant_status,
+            "governance_decision": provenance1.governance_decision,
+            "status": provenance1.status,
+            "proposed_state_content_id": provenance1.proposed_state_content_id,
         },
         [dict(zip(columns, row)) for row in rows1],
         observations=sandbox1.execution.observations,
@@ -355,10 +364,17 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
             "candidate_id": provenance2.candidate_id,
             "execution_id": provenance2.execution_id,
             "provenance_id": provenance2.provenance_id,
+            "parent_state_id": provenance2.parent_state_id,
             "parent_state_digest": provenance2.parent_state_digest,
             "proposed_state_digest": provenance2.proposed_state_digest,
             "evidence_digest": provenance2.evidence_digest,
             "candidate_binding_digest": provenance2.candidate_binding_digest,
+            "evaluation_status": provenance2.evaluation_status,
+            "shadow_status": provenance2.shadow_status,
+            "invariant_status": provenance2.invariant_status,
+            "governance_decision": provenance2.governance_decision,
+            "status": provenance2.status,
+            "proposed_state_content_id": provenance2.proposed_state_content_id,
         },
         [dict(zip(columns, row)) for row in rows2],
         observations=sandbox2.execution.observations,
