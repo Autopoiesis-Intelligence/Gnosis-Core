@@ -348,3 +348,17 @@ def require_execution_receipt(receipt: ExecutionReceipt | None, request: Executi
 class ExecutionCommitResult:
     receipt: ExecutionReceipt
     resulting_state_id: str
+
+
+def commit_authorized_replay(
+    request: ExecutionCommitRequest,
+    resulting_state: object,
+) -> ExecutionCommitResult:
+    """Cross the mutation boundary only after explicit authorization and emit bound evidence."""
+    require_execution_commit(request)
+    receipt = ExecutionReceipt.after_commit(request, resulting_state)
+    require_execution_receipt(receipt, request)
+    return ExecutionCommitResult(
+        receipt=receipt,
+        resulting_state_id=str(getattr(resulting_state, "state_id", canonical_digest(resulting_state))),
+    )
