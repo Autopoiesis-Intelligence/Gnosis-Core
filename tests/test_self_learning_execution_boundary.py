@@ -2,6 +2,7 @@ import pytest
 from gnosis.self_learning.bridge import CoreMutationProposal, approve_core_mutation, create_core_mutation_proposal
 from gnosis.self_learning.integration import IntegrationRecord
 from gnosis.self_learning.execution import execute_approved_core_proposal
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.authority import (
     ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot,
 )
