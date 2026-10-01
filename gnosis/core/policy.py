@@ -55,6 +55,40 @@ class PolicyIdentity:
         return self.rule_id, self.rule_version
 
 
+@dataclass(frozen=True)
+class ImmutableExecutableManifest:
+    """Canonical, immutable identity artifact for one executable policy binding."""
+    candidate_binding_digest: str
+    parent_state_digest: str
+    rule_id: str
+    rule_version: int
+    implementation_identity: str
+
+    def __post_init__(self) -> None:
+        if not self.candidate_binding_digest or not self.parent_state_digest:
+            raise ValueError("candidate and parent state digests are required")
+        if not self.rule_id or self.rule_version < 1 or not self.implementation_identity:
+            raise ValueError("complete executable manifest identity is required")
+
+    def canonical_payload(self) -> dict[str, object]:
+        return {
+            "candidate_binding_digest": self.candidate_binding_digest,
+            "parent_state_digest": self.parent_state_digest,
+            "policy": {
+                "implementation_identity": self.implementation_identity,
+                "rule_id": self.rule_id,
+                "rule_version": self.rule_version,
+            },
+        }
+
+    @property
+    def manifest_digest(self) -> str:
+        blob = json.dumps(
+            self.canonical_payload(), sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+        return "sha256:" + hashlib.sha256(blob).hexdigest()
+
+
 def executable_binding_manifest_digest(
     *,
     candidate: "Candidate",
