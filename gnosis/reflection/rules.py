@@ -67,3 +67,20 @@ class RuleRegistry:
         if evaluator is None:
             raise PermissionError(f"rule has no executable binding: {rule_id}:v{rule_version}")
         return bind_policy(rule.rule_id, rule.rule_version, evaluator)
+
+
+def default_rule_registry() -> RuleRegistry:
+    from gnosis.core.verification import default_test
+    registry = RuleRegistry()
+    registry.register(
+        RuleMetadata(
+            rule_id="test-rule:default",
+            rule_version=1,
+            rule_type="core-invariant-test",
+            scope="core",
+            implementation_ref="python:test-rule:default",
+            spec_ref="core:default-test",
+        ),
+        evaluator=default_test,
+    )
+    return registry
