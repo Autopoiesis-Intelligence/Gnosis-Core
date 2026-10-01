@@ -226,7 +226,8 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.evolution.transaction import persist_evolution_transaction
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
-    from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory
+    from gnosis.storage import connect, append_evolution_memory, load_evolution_memory
+    from gnosis.reflection.persistence import ensure_reflection_schema
     from gnosis.reflection.runtime import reflect_with_history
 
     db = tmp_path / "e9-cycle2.sqlite"
