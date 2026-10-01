@@ -30,7 +30,7 @@ def test_trusted_execution_consumption_rolls_back_with_outer_transaction(sqlite_
     validity = AuthorizationValidity("auth-gate-atomic", "policy-1", "ev-1")
     request = ExecutionCommitRequest(
         authorization=auth,
-        snapshot=ExecutionIntentSnapshot("s1", "d1", "c1", "p1", "e1", "ev-1", "policy-1"),
+        intent_snapshot=ExecutionIntentSnapshot("s1", "d1", "c1", "p1", "e1", "ev-1", "policy-1"),
         request_provenance="p1",
         evolution_identity="e1",
         provenance=None,
