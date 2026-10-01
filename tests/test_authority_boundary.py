@@ -1019,3 +1019,25 @@ def test_accepted_transition_replay_is_idempotent_after_restart(tmp_path):
     assert first_count == second_count == 1
     assert head == "result"
     reopened.close()
+
+
+def test_conflicting_replay_of_same_transition_identity_fails_closed(tmp_path):
+    import sqlite3
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    def evaluator(*_): return True
+    identity=implementation_identity(evaluator)
+    p=_make_provenance("conflicting-replay",identity)
+    db=tmp_path/"conflict.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="conflict")
+    conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
+    conflicting=type(record)(**{**record.__dict__,"to_state_id":"conflicting-result"})
+    with pytest.raises(Exception):
+        adapter.commit(reopened,instance,candidate,conflicting,request,actor="conflict")
+    count=reopened.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
+    head=reopened.execute("SELECT current_state_id FROM instances WHERE instance_id=?",(instance.instance_id,)).fetchone()[0]
+    assert count == 1
+    assert head == first.resulting_state_id
+    reopened.close()
