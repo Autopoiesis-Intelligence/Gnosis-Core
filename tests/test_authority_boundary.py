@@ -788,3 +788,20 @@ except PermissionError: raise SystemExit(0)
 raise SystemExit(1)
 """)
     subprocess.run([sys.executable,str(producer),str(db),str(receipt_file)],check=True);subprocess.run([sys.executable,str(consumer),str(db),str(receipt_file)],check=True)
+
+
+def test_replay_acceptance_does_not_grant_commit_authority():
+    from gnosis.evolution.replay import replay_complete
+    from gnosis.evolution.sandbox import SandboxExecution
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    import inspect
+    def evaluator(*_): return True
+    identity=implementation_identity(evaluator); obs={"x":1}
+    p=build_provenance(candidate_id="replay-no-authority",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("replay-rule",1,identity))
+    execution=SandboxExecution(candidate_id="replay-no-authority",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",execution_id=p.execution_id)
+    audit=type("Audit",(),{"candidate_id":execution.candidate_id,"provenance_id":p.provenance_id,"parent_state_digest":"parent","proposed_state_digest":"result","evidence_digest":canonical_digest(obs),"execution_id":execution.execution_id})()
+    result=replay_complete(execution,p,audit,observations=obs)
+    assert result.reproducible
+    assert "require_execution_commit" not in inspect.getsource(replay_complete)
+    assert "execute" not in replay_complete.__doc__.lower() or "without" in replay_complete.__doc__.lower()
