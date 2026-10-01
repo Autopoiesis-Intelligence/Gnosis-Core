@@ -58,6 +58,12 @@ class RuleRegistry:
         return tuple(self._rules[key] for key in sorted(self._rules))
 
 
+class _RegistryAuthorityToken:
+    __slots__ = ()
+
+_REGISTRY_AUTHORITY = _RegistryAuthorityToken()
+
+
 class AuthorizedRuleRegistry(RuleRegistry):
     """Core-authorized registry that can issue executable policy bindings."""
 
@@ -65,7 +71,11 @@ class AuthorizedRuleRegistry(RuleRegistry):
         self,
         rules: Mapping[tuple[str, int], RuleMetadata] | None = None,
         evaluators: Mapping[tuple[str, int], PolicyCallable] | None = None,
+        *,
+        _authority: object | None = None,
     ):
+        if _authority is not _REGISTRY_AUTHORITY:
+            raise PermissionError("authorized registry requires Core authority")
         super().__init__(rules)
         self._evaluators = dict(evaluators or {})
 
@@ -85,7 +95,7 @@ class AuthorizedRuleRegistry(RuleRegistry):
 
 def default_rule_registry() -> AuthorizedRuleRegistry:
     from gnosis.core.verification import default_test
-    registry = AuthorizedRuleRegistry()
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
     registry.register(
         RuleMetadata(
             rule_id="test-rule:default",
