@@ -2,6 +2,7 @@ import pytest
 from gnosis.self_learning.lineage import KnowledgeVersion
 from gnosis.self_learning.promotion import propose_promotion, decide_promotion
 from gnosis.self_learning.integration import create_integration_record, mark_executed
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 
 def accepted():
     v=KnowledgeVersion("sha256:v","u","flow","common","sha256:k","GENESIS")
