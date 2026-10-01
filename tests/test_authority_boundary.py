@@ -1,4 +1,7 @@
 import pytest
+import json
+import subprocess
+import sys
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt, require_persisted_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
@@ -631,3 +634,46 @@ def test_persisted_receipt_rejects_cross_provenance_manifest():
     receipt_a = ExecutionReceipt.after_commit(ExecutionCommitRequest(ExecutionAuthorization(pa.provenance_id, True, pa.evolution_identity), ExecutionIntentSnapshot.from_provenance(pa), pa.provenance_id, pa.evolution_identity, pa), type("S", (), {"state_id": "result"})())
     with pytest.raises(PermissionError, match="provenance mismatch"):
         require_persisted_execution_receipt(conn, receipt_a, request_b)
+
+
+def test_persisted_receipt_replays_after_real_process_restart(tmp_path):
+    db = tmp_path / "receipt-restart.sqlite3"
+    receipt_file = tmp_path / "receipt.json"
+    producer = tmp_path / "produce_receipt.py"
+    consumer = tmp_path / "consume_receipt.py"
+    producer.write_text("""
+import json, sqlite3, sys
+from gnosis.reflection.persistence import ensure_reflection_schema
+from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.evolution.transaction import persist_evolution_transaction
+from gnosis.core.policy import PolicyIdentity, implementation_identity
+from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot, ExecutionReceipt
+
+def evaluator(*_args): return True
+identity=implementation_identity(evaluator)
+obs={'x':1}
+p=build_provenance(candidate_id='restart-receipt',parent_state_id='parent',parent_state_digest='parent',proposed_state_digest='result',observations=obs,evidence_digest=canonical_digest(obs),evaluation_status='PASS',shadow_status='UNCHANGED',invariant_status='PRESERVED',governance_decision='ALLOW',candidate_binding_digest='binding',evaluated_policy=PolicyIdentity('receipt-rule',1,identity))
+conn=sqlite3.connect(sys.argv[1]); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type='PROVENANCE',payload={'status':'RECORDED'})
+request=ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id,True,p.evolution_identity),ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p)
+r=ExecutionReceipt.after_commit(request,type('S',(),{'state_id':'result'})())
+with open(sys.argv[2],'w') as f: json.dump(r.__dict__,f)
+conn.close()
+""")
+    consumer.write_text("""
+import json, sqlite3, sys
+from gnosis.reflection.persistence import ensure_reflection_schema
+from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.core.policy import PolicyIdentity, implementation_identity
+from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot, ExecutionReceipt, require_persisted_execution_receipt
+
+def evaluator(*_args): return True
+identity=implementation_identity(evaluator)
+obs={'x':1}
+p=build_provenance(candidate_id='restart-receipt',parent_state_id='parent',parent_state_digest='parent',proposed_state_digest='result',observations=obs,evidence_digest=canonical_digest(obs),evaluation_status='PASS',shadow_status='UNCHANGED',invariant_status='PRESERVED',governance_decision='ALLOW',candidate_binding_digest='binding',evaluated_policy=PolicyIdentity('receipt-rule',1,identity))
+conn=sqlite3.connect(sys.argv[1]); ensure_reflection_schema(conn)
+request=ExecutionCommitRequest(ExecutionAuthorization(p.provenance_id,True,p.evolution_identity),ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p)
+with open(sys.argv[2]) as f: r=ExecutionReceipt(**json.load(f))
+require_persisted_execution_receipt(conn,r,request)
+""")
+    subprocess.run([sys.executable, str(producer), str(db), str(receipt_file)], check=True)
+    subprocess.run([sys.executable, str(consumer), str(db), str(receipt_file)], check=True)
