@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import inspect
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -74,7 +74,7 @@ class ExecutablePolicyBinding:
     """One immutable policy identity paired with its runtime evaluator."""
     policy: PolicyIdentity
     evaluator: PolicyCallable
-    _authority: object = _AUTHORITY
+    _authority: object = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         if self._authority is not _AUTHORITY:
