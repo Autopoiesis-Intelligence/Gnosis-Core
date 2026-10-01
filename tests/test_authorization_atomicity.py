@@ -24,6 +24,7 @@ def test_validity_is_immutable_binding():
 def test_trusted_execution_consumption_rolls_back_with_outer_transaction(sqlite_conn):
     auth = ExecutionAuthorization(
         approval_id="auth-gate-atomic",
+        owner_approved=True,
         request_provenance="p1",
         evolution_identity="e1",
     )
