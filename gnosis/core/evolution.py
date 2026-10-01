@@ -8,7 +8,8 @@ from .budget import Budget, BudgetExhaustedError
 from .select import SelectionResult, select, select_binding
 from .types import Candidate, State, StopReason, TestResult, TransitionRecord
 from .verification import TestFn, default_test, evaluate, evaluate_binding
-from .policy import ExecutablePolicyBinding, default_policy_binding
+from .policy import ExecutablePolicyBinding
+from gnosis.reflection.rules import default_rule_registry
 
 GenerateFn = Callable[[State], Candidate]
 
@@ -40,7 +41,7 @@ class Engine:
             self.test_fn = self.policy_binding.evaluator
             self.test_rule_id = self.policy_binding.policy.rule_id
         elif self.test_fn is default_test:
-            self.policy_binding = default_policy_binding()
+            self.policy_binding = default_rule_registry().resolve(self.test_rule_id, 1)
             self.test_fn = self.policy_binding.evaluator
             self.test_rule_id = self.policy_binding.policy.rule_id
         self._binding_locked = True
