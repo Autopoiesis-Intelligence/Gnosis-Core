@@ -243,6 +243,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.storage import connect, append_evolution_memory, load_evolution_memory
     from gnosis.reflection.persistence import ensure_reflection_schema, save_reflection_report
     from gnosis.reflection.runtime import reflect_with_history
+    from gnosis.reflection.analyzer import RuleProposal
 
     db = tmp_path / "e9-cycle2.sqlite"
     state = State(elements={"a": 1})
