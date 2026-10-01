@@ -82,6 +82,7 @@ from .execution_contract import (
     require_execution_candidate_binding,
     require_execution_commit,
     require_execution_intent_snapshot,
+    require_execution_integration_context,
 )
 
 @dataclass(frozen=True)
