@@ -413,8 +413,8 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert _authorized_recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
