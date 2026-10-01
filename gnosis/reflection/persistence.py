@@ -742,6 +742,7 @@ def crosscheck_stored_provenance(
         status=row["status"],
         proposed_state_content_id=row["proposed_state_content_id"],
         candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        evaluated_policy=_policy_from_json(row.get("evaluated_policy", "")),
     )
     return crosscheck_provenance(
         provenance=provenance,
