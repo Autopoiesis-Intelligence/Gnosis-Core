@@ -156,3 +156,31 @@ def test_manifest_rejects_callable_as_implementation_identity():
             rule_version=1,
             implementation_identity=lambda *_: True,
         )
+
+
+def test_manifest_digest_changes_when_parent_digest_changes_directly():
+    manifest = ImmutableExecutableManifest(
+        candidate_binding_digest="sha256:candidate",
+        parent_state_digest="sha256:parent-a",
+        rule_id="test-rule",
+        rule_version=1,
+        implementation_identity="python-source-sha256:impl-a",
+    )
+    altered = ImmutableExecutableManifest(
+        candidate_binding_digest="sha256:candidate",
+        parent_state_digest="sha256:parent-b",
+        rule_id="test-rule",
+        rule_version=1,
+        implementation_identity="python-source-sha256:impl-a",
+    )
+    assert manifest.manifest_digest != altered.manifest_digest
+
+
+def test_manifest_digest_changes_when_rule_id_changes():
+    common = dict(
+        candidate_binding_digest="sha256:candidate",
+        parent_state_digest="sha256:parent",
+        rule_version=1,
+        implementation_identity="python-source-sha256:impl-a",
+    )
+    assert ImmutableExecutableManifest(rule_id="rule-a", **common).manifest_digest != ImmutableExecutableManifest(rule_id="rule-b", **common).manifest_digest
