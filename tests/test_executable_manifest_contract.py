@@ -1,4 +1,9 @@
+from dataclasses import FrozenInstanceError
+
+import pytest
+
 from gnosis.core.policy import (
+    ImmutableExecutableManifest,
     PolicyIdentity,
     executable_binding_manifest_digest,
 )
@@ -111,3 +116,43 @@ def test_manifest_digest_changes_when_parent_state_changes():
     )
 
     assert first != second
+
+
+def test_immutable_manifest_is_frozen_and_canonical():
+    parent, candidate = _candidate()
+    manifest = ImmutableExecutableManifest(
+        candidate_binding_digest=candidate.binding_digest(parent.content_id),
+        parent_state_digest=parent.content_id,
+        rule_id="test-rule",
+        rule_version=1,
+        implementation_identity="python-source-sha256:impl-a",
+    )
+
+    assert manifest.canonical_payload() == {
+        "candidate_binding_digest": candidate.binding_digest(parent.content_id),
+        "parent_state_digest": parent.content_id,
+        "policy": {
+            "implementation_identity": "python-source-sha256:impl-a",
+            "rule_id": "test-rule",
+            "rule_version": 1,
+        },
+    }
+    assert manifest.manifest_digest == executable_binding_manifest_digest(
+        candidate=candidate,
+        parent_state_digest=parent.content_id,
+        policy=PolicyIdentity("test-rule", 1, "python-source-sha256:impl-a"),
+    )
+    with pytest.raises(FrozenInstanceError):
+        manifest.rule_version = 2
+
+
+def test_manifest_rejects_callable_as_implementation_identity():
+    parent, candidate = _candidate()
+    with pytest.raises((TypeError, ValueError)):
+        ImmutableExecutableManifest(
+            candidate_binding_digest=candidate.binding_digest(parent.content_id),
+            parent_state_digest=parent.content_id,
+            rule_id="test-rule",
+            rule_version=1,
+            implementation_identity=lambda *_: True,
+        )
