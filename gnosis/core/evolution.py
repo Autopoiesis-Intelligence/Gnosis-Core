@@ -110,7 +110,7 @@ class Engine:
             accepted=True,
             reason=f"committed via select (out of {len(candidates)} candidates)",
             test_rule_id=self.test_rule_id,
-            evaluation_evidence=(result.evaluation_evidence[result.evaluated.index((selected, selected_result))] if result.evaluation_evidence else None),
+            evaluation_evidence=next((e for e in result.evaluation_evidence if e.candidate_id == selected.candidate_id), None),
         )
         self.history.append(record)
         self.state = selected.proposed_state
