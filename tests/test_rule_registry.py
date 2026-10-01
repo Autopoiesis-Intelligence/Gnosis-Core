@@ -1,10 +1,11 @@
 import pytest
 
 from gnosis.reflection.rules import RuleMetadata, RuleRegistry, AuthorizedRuleRegistry, default_rule_registry
+from gnosis.core import implementation_identity
 from gnosis.core.policy import _REGISTRY_AUTHORITY
 
 
-def _rule(version: int) -> RuleMetadata:
+def _rule(version: int, evaluator=None) -> RuleMetadata:
     return RuleMetadata(
         rule_id="test-rule:diagnostic-policy",
         rule_version=version,
@@ -13,6 +14,7 @@ def _rule(version: int) -> RuleMetadata:
         implementation_ref="gnosis.core.engine:Engine.test_fn",
         spec_ref="docs/CORE_REFLECTION_R1_TASK.md",
         invariant_refs=("transition-validity",),
+        implementation_identity="" if evaluator is None else implementation_identity(evaluator),
     )
 
 
@@ -53,7 +55,7 @@ def test_metadata_registry_cannot_issue_executable_binding():
 def test_authorized_registry_issues_exact_executable_binding():
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
     evaluator = lambda _state, _candidate: True
-    registry._register_authorized(_rule(1), evaluator=evaluator, _authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(_rule(1, evaluator), evaluator=evaluator, _authority=_REGISTRY_AUTHORITY)
     binding = registry.resolve("test-rule:diagnostic-policy", 1)
     assert binding.evaluator is evaluator
 
@@ -74,5 +76,6 @@ def test_default_rule_registry_is_core_authorized_and_resolves_default():
 
 def test_authorized_registry_rejects_public_mutation():
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    evaluator = lambda _state, _candidate: True
     with pytest.raises(PermissionError, match="Core authority"):
-        registry.register(_rule(1), evaluator=lambda _state, _candidate: True)
+        registry.register(_rule(1, evaluator), evaluator=evaluator)
