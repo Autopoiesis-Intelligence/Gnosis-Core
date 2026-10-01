@@ -74,7 +74,7 @@ def load_candidate(conn: sqlite3.Connection,candidate_id: str)->Candidate:
 def transition_id(record: TransitionRecord)->str:
     return record.transition_id
 def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)->list[TransitionRecord]:
-    query="SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions"
+    query="SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked FROM transitions"
     params: tuple[Any,...]=()
     if instance_id is not None: query += " WHERE instance_id=?"; params=(instance_id,)
     query += " ORDER BY created_at,transition_id"
