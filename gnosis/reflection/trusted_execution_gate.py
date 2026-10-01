@@ -24,9 +24,12 @@ def require_trusted_execution(
         raise PermissionError("authorization validity identity mismatch")
     if validity.policy_version == "":
         raise PermissionError("authorization policy is missing")
+    # The policy identifier is itself part of the authorization validity artifact;
+    # validity is accepted only against the canonical policy for this boundary.
+    expected_policy_version = "policy-1"
     validity.require_valid(
-        expected_policy_version=validity.policy_version,
-        expected_evidence_digest=validity.validity_evidence_digest,
+        expected_policy_version=expected_policy_version,
+        expected_evidence_digest=request.provenance.evidence_digest,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(
