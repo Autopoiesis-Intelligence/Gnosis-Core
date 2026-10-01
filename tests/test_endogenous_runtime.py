@@ -65,6 +65,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     from gnosis.reflection.analyzer import ReflectionReport
     from gnosis.reflection.endogenous import commit_endogenous_candidates
     from gnosis.reflection.runtime import reflect_with_history
+    from gnosis.reflection.analyzer import RuleProposal
     from gnosis.storage import append_evolution_memory, connect, close, load_evolution_memory, save_instance
     from gnosis.storage.repositories import _persist_transition
     from gnosis.instances.instance import Instance
@@ -249,15 +250,11 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     conn = connect(db)
     ensure_reflection_schema(conn)
 
-    proposal1 = type("P", (), {
-        "proposal_id":"p-e9-full-1",
-        "finding_id":"f-e9-full-1",
-        "rule_id":"r-e9-full-1",
-        "current_version":1,
-        "proposed_version":2,
-        "hypothesis":"cycle-1",
-        "evidence_refs":("f-e9-full-1",),
-    })()
+    proposal1 = RuleProposal(
+        proposal_id="p-e9-full-1", finding_id="f-e9-full-1", rule_id="r-e9-full-1",
+        target="e9-test", hypothesis="cycle-1", evidence_refs=("f-e9-full-1",),
+        expected_effect="cycle-1", regression_risk="low", required_test="e9-cycle-1",
+    )
     cumulative1 = CumulativeReflectionReport(
         current=ReflectionReport(proposals=(proposal1,)),
         history=None,
@@ -333,15 +330,11 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     reflection = reflect_with_history(engine, conn, instance_id="e9-full")
     assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
 
-    proposal2 = type("P", (), {
-        "proposal_id":"p-e9-full-2",
-        "finding_id":"f-e9-full-2",
-        "rule_id":"r-e9-full-2",
-        "current_version":1,
-        "proposed_version":2,
-        "hypothesis":"cycle-2",
-        "evidence_refs":("f-e9-full-2",),
-    })()
+    proposal2 = RuleProposal(
+        proposal_id="p-e9-full-2", finding_id="f-e9-full-2", rule_id="r-e9-full-2",
+        target="e9-test", hypothesis="cycle-2", evidence_refs=("f-e9-full-2",),
+        expected_effect="cycle-2", regression_risk="low", required_test="e9-cycle-2",
+    )
     cumulative2 = CumulativeReflectionReport(
         current=ReflectionReport(proposals=(proposal2,)),
         history=reflection.history,
