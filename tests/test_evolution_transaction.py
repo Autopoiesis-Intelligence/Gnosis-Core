@@ -1,8 +1,11 @@
 import sqlite3
+import subprocess
+import sys
+from pathlib import Path
 import pytest
 
 from gnosis.evolution.provenance import build_provenance, canonical_digest
-from gnosis.core.policy import PolicyIdentity
+from gnosis.core.policy import PolicyIdentity, implementation_identity
 from gnosis.core.policy import ImmutableExecutableManifest
 from gnosis.evolution.transaction import persist_evolution_transaction
 from gnosis.reflection.persistence import ensure_reflection_schema
@@ -322,3 +325,36 @@ def test_recovered_manifest_resolves_matching_authorized_binding():
     assert binding.rule_id == "positive-recovery"
     assert binding.rule_version == 1
     assert binding.implementation_identity == identity
+
+
+def test_manifest_survives_real_process_restart(tmp_path):
+    db = tmp_path / "restart.sqlite3"
+    producer = tmp_path / "producer.py"
+    consumer = tmp_path / "consumer.py"
+    producer.write_text("""
+import sqlite3
+from gnosis.reflection.persistence import ensure_reflection_schema
+from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.evolution.transaction import persist_evolution_transaction
+from gnosis.core.policy import PolicyIdentity, implementation_identity
+
+def evaluator(*_args): return True
+conn = sqlite3.connect(__import__('sys').argv[1])
+ensure_reflection_schema(conn)
+obs = {'metric': 13}
+p = build_provenance(candidate_id='restart-candidate', parent_state_id='restart-state', parent_state_digest='parent-digest', proposed_state_digest='proposed-digest', observations=obs, evidence_digest=canonical_digest(obs), evaluation_status='PASS', shadow_status='NO_BEHAVIORAL_CHANGE', invariant_status='PRESERVED', governance_decision='REVIEW', candidate_binding_digest='binding-digest', evaluated_policy=PolicyIdentity('restart-rule', 1, implementation_identity(evaluator)))
+persist_evolution_transaction(conn, p, event_type='PROVENANCE', payload={'status':'RECORDED'})
+conn.close()
+""")
+    consumer.write_text("""
+import sqlite3
+from gnosis.evolution.transaction import load_executable_manifest
+conn = sqlite3.connect(__import__('sys').argv[1])
+digest = conn.execute('SELECT manifest_digest FROM executable_manifests').fetchone()[0]
+m = load_executable_manifest(conn, digest)
+assert m.rule_id == 'restart-rule'
+assert m.rule_version == 1
+assert m.implementation_identity.startswith('python-source-sha256:')
+""")
+    subprocess.run([sys.executable, str(producer), str(db)], check=True)
+    subprocess.run([sys.executable, str(consumer), str(db)], check=True)
