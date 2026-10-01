@@ -88,10 +88,14 @@ class AuthorizedRuleRegistry(RuleRegistry):
     ) -> RuleMetadata:
         if _authority is not _REGISTRY_AUTHORITY:
             raise PermissionError("executable registry mutation requires Core authority")
-        registered = super().register(rule)
         if evaluator is not None:
+            expected_identity = implementation_identity(evaluator)
             if not rule.implementation_identity:
                 raise ValueError("trusted executable rule requires implementation_identity")
+            if rule.implementation_identity != expected_identity:
+                raise PermissionError("registered implementation identity does not match evaluator")
+        registered = super().register(rule)
+        if evaluator is not None:
             self._evaluators[(rule.rule_id, rule.rule_version)] = evaluator
         return registered
 
