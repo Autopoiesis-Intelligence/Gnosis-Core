@@ -223,3 +223,16 @@ def test_registry_issued_binding_accepts_exact_identity():
     )
     binding = registry.resolve("R", 1)
     assert binding.policy.implementation_identity == implementation_identity(binding.evaluator)
+
+
+def test_step_select_evidence_is_bound_to_selected_candidate():
+    state = State()
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    engine = Engine(state=state, policy_binding=registry.resolve("R", 1))
+    first = Candidate(state.state_id, state.with_elements({"x": 1}), "first")
+    second = Candidate(state.state_id, state.with_elements({"x": 2}), "second")
+    record = engine.step_select([second, first])
+    assert record.candidate_id == first.candidate_id
+    assert record.evaluation_evidence is not None
+    assert record.evaluation_evidence.candidate_id == first.candidate_id
