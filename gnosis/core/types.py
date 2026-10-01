@@ -156,6 +156,11 @@ class TransitionRecord:
                 raise ValueError("evaluation evidence passed must match transition test result")
 
     @property
+    def policy_identity(self):
+        """Return the exact executable policy identity carried by this transition."""
+        return None if self.evaluation_evidence is None else self.evaluation_evidence.policy
+
+    @property
     def transition_id(self) -> str:
         """Stable content-derived identity for this historical transition."""
         return _stable_hash({
