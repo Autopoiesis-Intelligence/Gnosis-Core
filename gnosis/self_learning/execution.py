@@ -69,7 +69,8 @@ def serialize_plan(plan: ExecutionPlan) -> str:
 # E7.57 bridge-to-Core adapter
 from dataclasses import dataclass as _dataclass
 from gnosis.self_learning.bridge import CoreMutationProposal
-from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionCommitResult, SQLiteExecutionCommitAdapter
+from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionCommitResult
+from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 
 @_dataclass(frozen=True)
 class BoundCoreExecution:
