@@ -21,12 +21,12 @@ def test_manifest_digest_is_deterministic_for_same_execution_contract():
 
     first = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=policy,
     )
     second = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=policy,
     )
 
@@ -38,12 +38,12 @@ def test_manifest_digest_changes_when_policy_implementation_changes():
     parent, candidate = _candidate()
     first = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=PolicyIdentity("test-rule", 1, "python-source-sha256:impl-a"),
     )
     second = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=PolicyIdentity("test-rule", 1, "python-source-sha256:impl-b"),
     )
 
@@ -54,12 +54,12 @@ def test_manifest_digest_changes_when_rule_version_changes():
     parent, candidate = _candidate()
     first = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=PolicyIdentity("test-rule", 1, "python-source-sha256:impl-a"),
     )
     second = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=PolicyIdentity("test-rule", 2, "python-source-sha256:impl-a"),
     )
 
@@ -71,7 +71,7 @@ def test_manifest_digest_changes_when_candidate_binding_changes():
     policy = PolicyIdentity("test-rule", 1, "python-source-sha256:impl-a")
     first = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=policy,
     )
     altered = Candidate(
@@ -82,7 +82,7 @@ def test_manifest_digest_changes_when_candidate_binding_changes():
     )
     second = executable_binding_manifest_digest(
         candidate=altered,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=policy,
     )
 
@@ -94,7 +94,7 @@ def test_manifest_digest_changes_when_parent_state_changes():
     policy = PolicyIdentity("test-rule", 1, "python-source-sha256:impl-a")
     first = executable_binding_manifest_digest(
         candidate=candidate,
-        parent_state_digest=parent.state_id,
+        parent_state_digest=parent.content_id,
         policy=policy,
     )
     other_parent = State(elements={"x": 9})
@@ -106,7 +106,7 @@ def test_manifest_digest_changes_when_parent_state_changes():
     )
     second = executable_binding_manifest_digest(
         candidate=other_candidate,
-        parent_state_digest=other_parent.state_id,
+        parent_state_digest=other_parent.content_id,
         policy=policy,
     )
 
