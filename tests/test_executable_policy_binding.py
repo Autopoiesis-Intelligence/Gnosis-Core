@@ -172,3 +172,8 @@ def test_custom_policy_recovery_fails_closed_without_registry(sqlite_conn):
 
     with pytest.raises(Exception, match="policy registry"):
         load_instance(sqlite_conn, instance.instance_id)
+
+
+def test_caller_cannot_issue_trusted_binding():
+    with pytest.raises(PermissionError, match="RuleRegistry"):
+        bind_policy("forged", 1, policy_v1)
