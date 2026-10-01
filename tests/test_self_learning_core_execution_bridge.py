@@ -4,6 +4,7 @@ from gnosis.self_learning.integration import IntegrationRecord
 
 from gnosis.self_learning.execution import bind_core_proposal
 from gnosis.reflection.authority import ExecutionCommitRequest
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 
 def valid_proposal():
     record=IntegrationRecord("sha256:i","sha256:p","sha256:v","common-self-learning","merge")
