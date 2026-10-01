@@ -31,7 +31,7 @@ def policy_v2(_state: State, _candidate: Candidate) -> bool:
 def test_engine_evidence_comes_from_actual_callable():
     state = State()
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     engine = Engine(state=state, policy_binding=binding)
     record = engine.step(candidate(state))
@@ -44,7 +44,7 @@ def test_engine_evidence_comes_from_actual_callable():
 
 def test_binding_rejects_mismatched_implementation_identity():
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     good = registry.resolve("R", 1)
     forged = PolicyIdentity(
         rule_id="R",
@@ -58,7 +58,7 @@ def test_binding_rejects_mismatched_implementation_identity():
 
 def test_registry_resolves_exact_registered_callable():
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(
+    registry._register_authorized(
         RuleMetadata(
             rule_id="R",
             rule_version=1,
@@ -69,7 +69,7 @@ def test_registry_resolves_exact_registered_callable():
         ),
         evaluator=policy_v1,
     )
-    registry.register(
+    registry._register_authorized(
         RuleMetadata(
             rule_id="R",
             rule_version=2,
@@ -93,7 +93,7 @@ def test_registry_resolves_exact_registered_callable():
 
 def test_registry_without_executable_binding_fails_closed():
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(
+    registry._register_authorized(
         RuleMetadata(
             rule_id="R",
             rule_version=1,
@@ -110,11 +110,11 @@ def test_registry_without_executable_binding_fails_closed():
 def test_transition_identity_changes_with_policy_identity():
     state = State()
     c = candidate(state)
-    reg1 = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); reg1.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    reg1 = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); reg1._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     r1 = Engine(state=state, policy_binding=reg1.resolve("R", 1)).step(c)
     state2 = State()
     c2 = candidate(state2)
-    reg2 = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); reg2.register(RuleMetadata("R", 2, "test", "core", "artifact:r-v2", "spec:R:v2"), evaluator=policy_v2)
+    reg2 = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); reg2._register_authorized(RuleMetadata("R", 2, "test", "core", "artifact:r-v2", "spec:R:v2"), evaluator=policy_v2)
     r2 = Engine(state=state2, policy_binding=reg2.resolve("R", 2)).step(c2)
 
     assert r1.transition_id != r2.transition_id
@@ -122,7 +122,7 @@ def test_transition_identity_changes_with_policy_identity():
 
 def test_protected_invariant_rejection_marks_policy_not_invoked():
     state = State()
-    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     engine = Engine(state=state, policy_binding=binding)
     bad = Candidate(
@@ -142,7 +142,7 @@ def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
 
     state = State()
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     instance = Instance.create_root("u", state)
     instance.engine.policy_binding = binding
@@ -151,7 +151,7 @@ def test_sqlite_round_trip_preserves_policy_identity(sqlite_conn):
     save_instance(sqlite_conn, instance)
 
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(
+    registry._register_authorized(
         RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
         evaluator=policy_v1,
     )
@@ -167,7 +167,7 @@ def test_custom_policy_recovery_fails_closed_without_registry(sqlite_conn):
 
     instance = Instance.create_root("u", State())
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     instance.engine.policy_binding = binding
     instance.engine.test_fn = binding.evaluator
@@ -199,7 +199,7 @@ def test_caller_cannot_forge_binding_authority():
     from gnosis.core import ExecutablePolicyBinding
 
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(
+    registry._register_authorized(
         RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
         evaluator=policy_v1,
     )
@@ -217,7 +217,7 @@ def test_registry_issued_binding_accepts_exact_identity():
     from gnosis.core import implementation_identity
 
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry.register(
+    registry._register_authorized(
         RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
         evaluator=policy_v1,
     )
