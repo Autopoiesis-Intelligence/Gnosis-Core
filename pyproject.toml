@@ -19,3 +19,4 @@ include = ["gnosis*", "diagnostic_corpus*", "registry*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
