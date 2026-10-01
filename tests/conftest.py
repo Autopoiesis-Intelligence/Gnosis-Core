@@ -81,3 +81,23 @@ def real_commit_fixture():
         conn=conn, instance=instance, candidate=candidate, record=record,
         request=request, adapter=SQLiteExecutionCommitAdapter(),
     )
+
+
+@pytest.fixture
+def provenance():
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    observations = {"fixture": "provenance"}
+    return build_provenance(
+        candidate_id="candidate-fixture",
+        parent_state_id="parent-fixture",
+        parent_state_digest="parent-fixture",
+        proposed_state_digest="proposed-fixture",
+        proposed_state_content_id="content-fixture",
+        candidate_binding_digest="binding-fixture",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="PASS",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
