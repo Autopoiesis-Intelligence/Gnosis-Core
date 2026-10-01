@@ -9,7 +9,7 @@ from gnosis.core import (
     State,
     bind_policy,
 )
-from gnosis.reflection.rules import RuleMetadata, RuleRegistry
+from gnosis.reflection.rules import RuleMetadata, AuthorizedRuleRegistry
 
 
 def candidate(state: State) -> Candidate:
@@ -30,7 +30,7 @@ def policy_v2(_state: State, _candidate: Candidate) -> bool:
 
 def test_engine_evidence_comes_from_actual_callable():
     state = State()
-    registry = RuleRegistry()
+    registry = AuthorizedRuleRegistry()
     registry.register(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     engine = Engine(state=state, policy_binding=binding)
