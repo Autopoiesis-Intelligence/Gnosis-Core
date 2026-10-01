@@ -15,6 +15,12 @@ if TYPE_CHECKING:
 
 PolicyCallable = Callable[["State", "Candidate"], bool]
 
+class _RegistryAuthorityToken:
+    __slots__ = ()
+
+_REGISTRY_AUTHORITY = _RegistryAuthorityToken()
+
+
 class _PolicyAuthorityToken:
     __slots__ = ()
 
