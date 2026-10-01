@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import json
 from dataclasses import dataclass, field
 from typing import Callable, TYPE_CHECKING
 
@@ -52,6 +53,34 @@ class PolicyIdentity:
     @property
     def key(self) -> tuple[str, int]:
         return self.rule_id, self.rule_version
+
+
+def executable_binding_manifest_digest(
+    *,
+    candidate: "Candidate",
+    parent_state_digest: str,
+    policy: PolicyIdentity,
+) -> str:
+    """Derive one canonical digest for a candidate bound to one executable policy.
+
+    The existing candidate binding remains the candidate/state identity. This
+    digest adds the authoritative policy identity without changing the legacy
+    candidate_binding_digest contract.
+    """
+    if not parent_state_digest:
+        raise ValueError("parent state digest is required")
+    if not isinstance(policy, PolicyIdentity):
+        raise TypeError("policy must be a PolicyIdentity")
+    payload = {
+        "candidate_binding_digest": candidate.binding_digest(parent_state_digest),
+        "policy": {
+            "rule_id": policy.rule_id,
+            "rule_version": policy.rule_version,
+            "implementation_identity": policy.implementation_identity,
+        },
+    }
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return "sha256:" + hashlib.sha256(blob).hexdigest()
 
 
 @dataclass(frozen=True)
