@@ -268,3 +268,16 @@ def test_executable_policy_binding_fields_are_immutable():
         binding.policy = binding.policy
     with pytest.raises(Exception):
         binding.evaluator = policy_v2
+
+
+def test_engine_rejects_policy_binding_replacement_after_initialization():
+    state = State()
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(
+        RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
+        evaluator=policy_v1,
+        _authority=_REGISTRY_AUTHORITY,
+    )
+    engine = Engine(state=state, policy_binding=registry.resolve("R", 1))
+    with pytest.raises(AttributeError, match="policy_binding is immutable"):
+        engine.policy_binding = registry.resolve("R", 1)
