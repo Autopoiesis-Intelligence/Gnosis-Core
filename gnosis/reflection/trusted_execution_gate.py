@@ -1,9 +1,14 @@
 """Composable pre-commit gate; does not own Core mutation or persistence."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from gnosis.reflection.authorization_consumption import consume_authorization_in_transaction
 from gnosis.reflection.authorization_validity import AuthorizationValidity
-from gnosis.reflection.authority import ExecutionCommitRequest, require_execution_commit
+from gnosis.reflection.authority import require_execution_commit
+
+if TYPE_CHECKING:
+    from gnosis.reflection.authority import ExecutionCommitRequest
 
 
 def require_trusted_execution(
