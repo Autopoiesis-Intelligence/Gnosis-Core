@@ -1,0 +1,49 @@
+name: Policy Binding Smoke
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and smoke
+        run: |
+          set +e
+          {
+            echo "=== COMPILEALL ==="
+            python -m compileall -q gnosis
+            echo "compile_rc=$?"
+            echo "=== IMPORT ==="
+            python - <<'PY'
+            from gnosis.core import Candidate, Engine, State, bind_policy
+            from gnosis.reflection.rules import RuleMetadata, RuleRegistry
+
+            def policy(state, candidate):
+                return True
+
+            state = State()
+            candidate = Candidate(state.state_id, state.with_elements({"x": 1}), "smoke")
+            binding = bind_policy("smoke-rule", 1, policy)
+            record = Engine(state=state, policy_binding=binding).step(candidate)
+            assert record.evaluation_evidence is not None
+            assert record.evaluation_evidence.policy == binding.policy
+            registry = RuleRegistry()
+            registry.register(RuleMetadata("smoke-rule", 1, "test", "core", "artifact:smoke", "spec:smoke"), evaluator=policy)
+            assert registry.resolve("smoke-rule", 1).policy == binding.policy
+            print("SMOKE_OK")
+            PY
+            echo "smoke_rc=$?"
+          } > policy-binding-smoke.log 2>&1
+          cat policy-binding-smoke.log
+          exit 0
+      - name: Upload smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: policy-binding-smoke
+          path: policy-binding-smoke.log
