@@ -826,3 +826,19 @@ def test_valid_replay_without_execution_authorization_cannot_commit():
     request.provenance=p
     with pytest.raises(PermissionError):
         require_execution_commit(request)
+
+
+def test_authorized_replay_can_cross_explicit_commit_boundary():
+    from gnosis.evolution.replay import replay_complete
+    from gnosis.evolution.sandbox import SandboxExecution
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    def evaluator(*_): return True
+    identity=implementation_identity(evaluator); obs={"x":1}
+    p=build_provenance(candidate_id="replay-authorized-commit",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("replay-rule",1,identity))
+    execution=SandboxExecution(candidate_id=p.candidate_id,parent_state_id=p.parent_state_id,parent_state_digest=p.parent_state_digest,proposed_state_digest=p.proposed_state_digest,observations=obs,evidence_digest=p.evidence_digest,evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",execution_id=p.execution_id)
+    audit=type("Audit",(),{"candidate_id":p.candidate_id,"provenance_id":p.provenance_id,"parent_state_digest":"parent","proposed_state_digest":"result","evidence_digest":p.evidence_digest,"execution_id":p.execution_id})()
+    assert replay_complete(execution,p,audit,observations=obs).reproducible
+    auth=ExecutionAuthorization(p.provenance_id,True,p.evolution_identity)
+    request=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p)
+    require_execution_commit(request)
