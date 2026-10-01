@@ -91,6 +91,11 @@ class ExecutablePolicyBinding:
         )
 
 
+def default_policy_binding() -> ExecutablePolicyBinding:
+    from .verification import default_test
+    return bind_policy("test-rule:default", 1, default_test)
+
+
 def bind_policy(rule_id: str, rule_version: int, evaluator: PolicyCallable) -> ExecutablePolicyBinding:
     return ExecutablePolicyBinding(
         policy=PolicyIdentity(rule_id, rule_version, implementation_identity(evaluator)),
