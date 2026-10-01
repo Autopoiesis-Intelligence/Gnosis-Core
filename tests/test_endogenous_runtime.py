@@ -6,7 +6,7 @@ from gnosis.reflection.endogenous_runtime import generate_from_cumulative_reflec
 from gnosis.reflection.runtime import CumulativeReflectionReport
 from gnosis.reflection.memory_evidence import EvolutionEvidence
 
-
+# E9.2 canonical contract checkpoint: EvolutionEvidence has no state_id.
 def test_cumulative_evolution_memory_is_bound_into_next_candidate():
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
