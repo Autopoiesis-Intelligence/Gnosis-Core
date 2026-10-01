@@ -864,3 +864,22 @@ def test_authorized_replay_commit_emits_bound_receipt():
     assert result.receipt.resulting_state_digest=="result"
     assert result.receipt.manifest_digest
     assert result.receipt.matches_request(request)
+
+
+def test_sqlite_commit_persists_state_and_emits_manifest_bound_receipt():
+    import sqlite3
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.storage.repositories import ensure_schema
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.core.policy import PolicyIdentity, implementation_identity
+    def evaluator(*_): return True
+    identity=implementation_identity(evaluator); obs={"x":1}
+    p=build_provenance(candidate_id="adapter-real-commit",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("adapter-rule",1,identity))
+    conn=sqlite3.connect(":memory:"); ensure_schema(conn); ensure_reflection_schema(conn)
+    auth=ExecutionAuthorization(p.provenance_id,True,p.evolution_identity)
+    request=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p)
+    instance=type("I",(),{})(); candidate=type("C",(),{"candidate_id":p.candidate_id,"parent_state_id":"parent","parent_state_digest":"parent","binding_digest":lambda self:p.candidate_binding_digest})()
+    record=type("R",(),{"to_state_id":"result","proposal_id":None,"version_id":None,"target":None})()
+    with pytest.raises(Exception):
+        SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="test")
