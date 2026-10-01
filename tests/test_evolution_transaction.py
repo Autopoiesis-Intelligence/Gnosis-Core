@@ -284,3 +284,41 @@ def test_recovered_manifest_resolves_only_through_authorized_registry():
         resolve_recovered_executable_manifest(
             conn, conn.execute("SELECT manifest_digest FROM executable_manifests").fetchone()[0], registry
         )
+
+
+def test_recovered_manifest_resolves_matching_authorized_binding():
+    def evaluator(*_args):
+        return True
+
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    identity = implementation_identity(evaluator)
+    provenance = build_provenance(
+        candidate_id="candidate:positive-recovery",
+        parent_state_id="state:positive-recovery",
+        parent_state_digest="parent-digest",
+        proposed_state_digest="proposed-digest",
+        observations={"metric": 13},
+        evidence_digest=canonical_digest({"metric": 13}),
+        evaluation_status="PASS",
+        shadow_status="NO_BEHAVIORAL_CHANGE",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+        candidate_binding_digest="binding-digest",
+        evaluated_policy=PolicyIdentity("positive-recovery", 1, identity),
+    )
+    persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(
+        RuleMetadata(
+            rule_id="positive-recovery", rule_version=1, rule_type="test", scope="core",
+            implementation_ref="python:test", spec_ref="test", implementation_identity=identity,
+        ),
+        evaluator=evaluator,
+        _authority=_REGISTRY_AUTHORITY,
+    )
+    digest = conn.execute("SELECT manifest_digest FROM executable_manifests").fetchone()[0]
+    binding = resolve_recovered_executable_manifest(conn, digest, registry)
+    assert binding.rule_id == "positive-recovery"
+    assert binding.rule_version == 1
+    assert binding.implementation_identity == identity
