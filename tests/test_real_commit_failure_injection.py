@@ -12,7 +12,6 @@ def test_real_commit_rolls_back_after_persistence_failure(real_commit_fixture):
     candidate = real_commit_fixture.candidate
     record = real_commit_fixture.record
     request = real_commit_fixture.request
-    request.failure_injection = "after_audit"
     before_head = instance.engine.state.state_id
     with pytest.raises(RuntimeError, match="after_audit"):
         real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner", failure_at="after_audit")
@@ -28,6 +27,5 @@ def test_real_commit_failure_injection_is_not_silent(real_commit_fixture):
     candidate = real_commit_fixture.candidate
     record = real_commit_fixture.record
     request = real_commit_fixture.request
-    request.failure_injection = "after_transition"
     with pytest.raises(RuntimeError, match="after_transition"):
         real_commit_fixture.adapter.commit(conn, instance, candidate, record, request, actor="trusted-owner", failure_at="after_commit")
