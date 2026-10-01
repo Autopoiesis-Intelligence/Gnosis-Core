@@ -257,3 +257,30 @@ def test_manifest_tampering_fails_closed_on_recovery():
     from gnosis.evolution.transaction import load_executable_manifest
     with pytest.raises((KeyError, RuntimeError)):
         load_executable_manifest(conn, digest)
+
+
+def test_recovered_manifest_resolves_only_through_authorized_registry():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    provenance = _provenance()
+    persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+    from gnosis.evolution.transaction import load_executable_manifest, resolve_recovered_executable_manifest
+    from gnosis.core.policy import _REGISTRY_AUTHORITY, implementation_identity
+    from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    evaluator = provenance.evaluated_policy
+    registry._register_authorized(
+        RuleMetadata(
+            rule_id=evaluator.rule_id,
+            rule_version=evaluator.rule_version,
+            rule_type="test", scope="core",
+            implementation_ref="python:test", spec_ref="test",
+            implementation_identity=evaluator.implementation_identity,
+        ),
+        evaluator=lambda *_: True,
+        _authority=_REGISTRY_AUTHORITY,
+    )
+    with pytest.raises(PermissionError, match="does not match evaluator"):
+        resolve_recovered_executable_manifest(
+            conn, conn.execute("SELECT manifest_digest FROM executable_manifests").fetchone()[0], registry
+        )
