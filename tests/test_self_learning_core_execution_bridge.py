@@ -12,7 +12,8 @@ def valid_proposal():
 def req():
     return ExecutionCommitRequest(
         authorization=object(), intent_snapshot=object(),
-        request_provenance="p", evolution_identity="e", provenance=object()
+        request_provenance="p", evolution_identity="e", provenance=object(),
+        authorization_validity=AuthorizationValidity("auth","policy","evidence")
     )
 
 def test_approved_proposal_can_bind_to_execution():
