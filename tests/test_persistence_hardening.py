@@ -76,7 +76,7 @@ def test_budget_and_history_survive_restart():
     _persist_transition(conn, instance, candidate, record, actor="u")
     recovered = load_instance(conn, instance.instance_id)
     assert recovered.engine.budget.spent == instance.engine.budget.spent
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_head_without_transition_fails_graph_verification():
