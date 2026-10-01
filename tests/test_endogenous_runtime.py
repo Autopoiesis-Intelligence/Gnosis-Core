@@ -91,10 +91,11 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     restored = load_evolution_memory(conn, instance.instance_id)
     assert [m.memory_id for m in restored] == [mem1.memory_id]
     reflection = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
-    report2_id = save_reflection_report(conn, reflection.current, created_at="2026-10-01T00:00:02Z")
     history = reflection
     proposal2 = RuleProposal(proposal_id="p2", finding_id="f2", rule_id="r2", target="e8c", hypothesis="cycle-2", evidence_refs=("f2",), expected_effect="cycle-2", regression_risk="low", required_test="e8c-cycle-2")
-    cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
+    report2 = ReflectionReport(proposals=(proposal2,))
+    report2_id = save_reflection_report(conn, report2, created_at="2026-10-01T00:00:02Z")
+    cumulative2 = CumulativeReflectionReport(current=report2, history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
     gen2 = generate_from_cumulative_reflection(instance.engine, cumulative2)
     assert gen2.candidates[0].proposed_state.elements["p2"]["memory_evidence_refs"] == (mem1.memory_id,)
     assert candidate_binds_proposal(gen2.candidates[0], proposal2), (gen2.candidates[0].origin, gen2.candidates[0].proposed_state.elements.get(proposal2.proposal_id), tuple((r.source, r.target, r.relation_type) for r in gen2.candidates[0].proposed_state.relations))
