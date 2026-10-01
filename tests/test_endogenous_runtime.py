@@ -59,3 +59,46 @@ def test_cumulative_adapter_is_read_only():
 
     assert generation.candidates == ()
     assert engine.state == before
+
+
+def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path):
+    from gnosis.reflection.analyzer import ReflectionReport
+    from gnosis.reflection.endogenous import commit_endogenous_candidates
+    from gnosis.reflection.runtime import reflect_with_history
+    from gnosis.storage import append_evolution_memory, connect, close, load_evolution_memory, save_instance
+    from gnosis.storage.repositories import _persist_transition
+    from gnosis.instances.instance import Instance
+
+    db = tmp_path / "e8c-two-cycles.sqlite"
+    conn = connect(db)
+    instance = Instance.create_root("e8c", State(elements={"a": 1}))
+    save_instance(conn, instance)
+
+    proposal1 = type("P", (), {"proposal_id":"p1","finding_id":"f1","rule_id":"r1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f1",)})()
+    report1 = ReflectionReport(proposals=(proposal1,))
+    cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
+    gen1 = generate_from_cumulative_reflection(instance.engine, cumulative1)
+    rec1 = commit_endogenous_candidates(instance.engine, report1, gen1.candidates)
+    _persist_transition(conn, instance, gen1.candidates[0], rec1, actor="e8c")
+    mem1 = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=rec1.candidate_id, transition_id=rec1.transition_id, state_id=rec1.to_state_id, proposal_id=proposal1.proposal_id, outcome="accepted", evidence=("cycle-1",))
+    close(conn)
+
+    conn = connect(db)
+    restored = load_evolution_memory(conn, instance.instance_id)
+    assert [m.memory_id for m in restored] == [mem1.memory_id]
+    history = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
+    proposal2 = type("P", (), {"proposal_id":"p2","finding_id":"f2","rule_id":"r2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f2",)})()
+    cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
+    gen2 = generate_from_cumulative_reflection(instance.engine, cumulative2)
+    assert gen2.candidates[0].proposed_state.elements["p2"]["memory_evidence_refs"] == (mem1.memory_id,)
+    rec2 = commit_endogenous_candidates(instance.engine, cumulative2.current, gen2.candidates)
+    _persist_transition(conn, instance, gen2.candidates[0], rec2, actor="e8c")
+    mem2 = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=rec2.candidate_id, transition_id=rec2.transition_id, state_id=rec2.to_state_id, proposal_id=proposal2.proposal_id, outcome="accepted", evidence=("cycle-2",))
+    close(conn)
+
+    conn = connect(db)
+    final_memory = load_evolution_memory(conn, instance.instance_id)
+    assert [m.memory_id for m in final_memory] == [mem1.memory_id, mem2.memory_id]
+    final_reflection = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
+    assert {m.memory_id for m in final_reflection.evolution_evidence} == {mem1.memory_id, mem2.memory_id}
+    close(conn)
