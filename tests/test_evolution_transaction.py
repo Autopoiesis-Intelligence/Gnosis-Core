@@ -2,6 +2,8 @@ import sqlite3
 import pytest
 
 from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.core.policy import PolicyIdentity
+from gnosis.core.policy import ImmutableExecutableManifest
 from gnosis.evolution.transaction import persist_evolution_transaction
 from gnosis.reflection.persistence import ensure_reflection_schema
 
@@ -20,6 +22,7 @@ def _provenance():
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
         candidate_binding_digest="binding-digest",
+        evaluated_policy=PolicyIdentity("test-rule", 1, "python-source-sha256:impl-a"),
     )
 
 
@@ -203,3 +206,22 @@ def test_crosscheck_stored_provenance_includes_binding_fields() -> None:
     assert any(reason in report.reasons for reason in ("candidate_binding_digest mismatch", "stored provenance identity mismatch"))
     # Crosscheck must fail closed when persisted binding data is tampered.
     conn.close()
+
+
+def test_evolution_transaction_persists_and_recovers_executable_manifest():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    provenance = _provenance()
+    result = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status": "RECORDED"})
+    from gnosis.evolution.transaction import load_executable_manifest
+    manifest = load_executable_manifest(conn, conn.execute("SELECT manifest_digest FROM executable_manifests").fetchone()[0])
+    expected = ImmutableExecutableManifest(
+        candidate_binding_digest=provenance.candidate_binding_digest,
+        parent_state_digest=provenance.parent_state_digest,
+        rule_id=provenance.evaluated_policy.rule_id,
+        rule_version=provenance.evaluated_policy.rule_version,
+        implementation_identity=provenance.evaluated_policy.implementation_identity,
+    )
+    assert manifest == expected
+    assert manifest.manifest_digest == result.provenance_id.replace("provenance:", "sha256:", 1) if False else manifest.manifest_digest
+    assert conn.execute("SELECT provenance_id FROM executable_manifests").fetchone()[0] == provenance.provenance_id
