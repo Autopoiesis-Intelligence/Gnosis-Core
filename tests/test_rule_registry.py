@@ -43,3 +43,19 @@ def test_registry_is_descriptive_and_has_no_activation_api():
     registry.register(_rule(1))
     assert not hasattr(registry, "activate")
     assert registry.snapshot() == (_rule(1),)
+
+
+def test_metadata_registry_cannot_issue_executable_binding():
+    registry = RuleRegistry()
+    registry.register(_rule(1))
+    assert not hasattr(registry, "resolve")
+
+
+def test_authorized_registry_issues_exact_executable_binding():
+    from gnosis.reflection.rules import AuthorizedRuleRegistry
+
+    registry = AuthorizedRuleRegistry()
+    evaluator = lambda _state, _candidate: True
+    registry.register(_rule(1), evaluator=evaluator)
+    binding = registry.resolve("test-rule:diagnostic-policy", 1)
+    assert binding.evaluator is evaluator
