@@ -30,7 +30,15 @@ def root():
 
 
 def _authorized_recover(conn, instance_id):
-    return recover_instance(conn, instance_id, authorization=RecoveryAuthorization("test-recovery", "test-principal", instance_id))
+    digest = recovery_evidence_digest(conn, instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="test-recovery", subject=instance_id,
+        requested_by="test-principal", authority="test-governance",
+        decision="allow", reason="test recovery",
+        issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
+    return recover_instance(conn, instance_id, authorization, now="2026-09-25T12:00:00Z")
 
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
