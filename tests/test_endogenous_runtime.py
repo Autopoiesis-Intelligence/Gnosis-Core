@@ -24,8 +24,8 @@ def test_cumulative_evolution_memory_is_bound_into_next_candidate():
         memory_id="memory-1",
         candidate_id="candidate-1",
         transition_id="transition-1",
-        state_id="state-1",
         outcome="accepted",
+        evidence=(),
     )
     cumulative = CumulativeReflectionReport(
         current=report,
