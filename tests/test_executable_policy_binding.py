@@ -253,3 +253,18 @@ def test_trusted_transition_rule_id_cannot_be_spoofed_via_legacy_field():
     assert record.test_rule_id == "R"
     assert record.evaluation_evidence is not None
     assert record.evaluation_evidence.policy.rule_id == "R"
+
+
+def test_executable_policy_binding_fields_are_immutable():
+    state = State()
+    registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(
+        RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"),
+        evaluator=policy_v1,
+        _authority=_REGISTRY_AUTHORITY,
+    )
+    binding = registry.resolve("R", 1)
+    with pytest.raises(Exception):
+        binding.policy = binding.policy
+    with pytest.raises(Exception):
+        binding.evaluator = policy_v2
