@@ -32,7 +32,7 @@ def policy_v2(_state: State, _candidate: Candidate) -> bool:
 def test_engine_evidence_comes_from_actual_callable():
     state = State()
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
-    registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1"), evaluator=policy_v1)
+    registry._register_authorized(RuleMetadata("R", 1, "test", "core", "artifact:r-v1", "spec:R:v1", implementation_identity=implementation_identity(policy_v1)), evaluator=policy_v1)
     binding = registry.resolve("R", 1)
     engine = Engine(state=state, policy_binding=binding)
     record = engine.step(candidate(state))
@@ -67,6 +67,7 @@ def test_registry_resolves_exact_registered_callable():
             scope="core",
             implementation_ref="artifact:r-v1",
             spec_ref="spec:R:v1",
+            implementation_identity=implementation_identity(policy_v1),
         ),
         evaluator=policy_v1,
     )
@@ -115,7 +116,7 @@ def test_transition_identity_changes_with_policy_identity():
     r1 = Engine(state=state, policy_binding=reg1.resolve("R", 1)).step(c)
     state2 = State()
     c2 = candidate(state2)
-    reg2 = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); reg2._register_authorized(RuleMetadata("R", 2, "test", "core", "artifact:r-v2", "spec:R:v2"), evaluator=policy_v2)
+    reg2 = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY); reg2._register_authorized(RuleMetadata("R", 2, "test", "core", "artifact:r-v2", "spec:R:v2", implementation_identity=implementation_identity(policy_v2)), evaluator=policy_v2)
     r2 = Engine(state=state2, policy_binding=reg2.resolve("R", 2)).step(c2)
 
     assert r1.transition_id != r2.transition_id
