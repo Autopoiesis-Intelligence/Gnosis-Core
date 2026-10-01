@@ -922,3 +922,30 @@ def test_real_committed_receipt_rejects_post_restart_registry_replacement(tmp_pa
     with pytest.raises(PermissionError, match="current authorized executable identity"):
         require_persisted_execution_receipt(reopened,receipt,request,registry)
     reopened.close()
+
+
+def test_real_commit_restart_and_replaced_registry_form_one_fail_closed_e2e(tmp_path):
+    from gnosis.reflection.persistence import ensure_reflection_schema
+    from gnosis.evolution.transaction import persist_evolution_transaction
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.core.policy import PolicyIdentity, implementation_identity, _REGISTRY_AUTHORITY
+    from gnosis.reflection.rules import AuthorizedRuleRegistry, RuleMetadata
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    from gnosis.reflection.authority import require_persisted_execution_receipt
+    import sqlite3
+    db=tmp_path/"real-e2e.sqlite3"
+    def evaluator_a(*_): return True
+    def evaluator_b(*_): return True
+    ia=implementation_identity(evaluator_a); ib=implementation_identity(evaluator_b)
+    p=build_provenance(candidate_id="real-e2e",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations={"x":1},evidence_digest=canonical_digest({"x":1}),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("real-e2e-rule",1,ia))
+    conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    from tests.test_authority_boundary import _make_execution_commit_request, _make_execution_instance_candidate_record
+    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    committed=SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="e2e")
+    receipt=committed.receipt; conn.close()
+    reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
+    registry=AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
+    registry._register_authorized(RuleMetadata(rule_id="real-e2e-rule",rule_version=1,rule_type="test",scope="core",implementation_ref="python:test",spec_ref="test",implementation_identity=ib),evaluator=evaluator_b,_authority=_REGISTRY_AUTHORITY)
+    with pytest.raises(PermissionError, match="current authorized executable identity"):
+        require_persisted_execution_receipt(reopened,receipt,request,registry)
+    reopened.close()
