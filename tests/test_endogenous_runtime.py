@@ -66,6 +66,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     from gnosis.reflection.endogenous import commit_endogenous_candidates
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.reflection.analyzer import RuleProposal
+    from gnosis.reflection.analyzer import RuleProposal
     from gnosis.storage import append_evolution_memory, connect, close, load_evolution_memory, save_instance
     from gnosis.storage.repositories import _persist_transition
     from gnosis.instances.instance import Instance
