@@ -4,6 +4,7 @@ from gnosis.core import Candidate, State
 from gnosis.instances.instance import Instance
 from gnosis.reflection.gate import run_reflection_gate
 from gnosis.storage import RecoveryAuthorization, connect, recovery_evidence_digest, save_instance
+from gnosis.reflection.persistence import ensure_reflection_schema
 from gnosis.storage.repositories import _persist_transition
 
 
@@ -45,7 +46,7 @@ def test_reflection_gate_fails_closed_without_canonical_history():
     conn = connect()
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
     save_instance(conn, instance)
-    result = run_reflection_gate(instance.engine, conn, instance.instance_id)
+    result = run_reflection_gate(instance.engine, conn, instance.instance_id, authorization=_recovery_authorization(conn, instance.instance_id), now="2026-10-01T00:00:00Z")
     assert not result.passed
     assert "canonical Core history is empty" in result.reasons
     conn.close()
@@ -81,7 +82,7 @@ def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
     )
     conn.execute("UPDATE evolution_audit SET evidence_digest='tampered'")
 
-    result = run_reflection_gate(instance.engine, conn, instance.instance_id)
+    result = run_reflection_gate(instance.engine, conn, instance.instance_id, authorization=_recovery_authorization(conn, instance.instance_id), now="2026-10-01T00:00:00Z")
     assert not result.passed
     assert "evolution provenance/audit recovery failed" in result.reasons
     conn.close()
