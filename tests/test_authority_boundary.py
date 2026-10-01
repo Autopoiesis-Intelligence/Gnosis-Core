@@ -962,7 +962,6 @@ def test_real_commit_restart_and_replaced_registry_form_one_fail_closed_e2e(tmp_
     def evaluator_b(*_): return True
     ia=implementation_identity(evaluator_a); ib=implementation_identity(evaluator_b)
     p=build_provenance(candidate_id="real-e2e",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations={"x":1},evidence_digest=canonical_digest({"x":1}),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("real-e2e-rule",1,ia))
-    conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     conn, instance, candidate, record, p = _make_real_commit_fixture("real-e2e-rule")
     ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     request=_make_execution_commit_request(p)
@@ -988,8 +987,6 @@ def test_real_commit_resulting_state_survives_restart_and_matches_receipt(tmp_pa
     identity=implementation_identity(evaluator); obs={"x":1}
     p=build_provenance(candidate_id="state-recovery",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("state-rule",1,identity))
     db=tmp_path/"state-recovery.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
-    from tests.test_authority_boundary import _make_execution_commit_request, _make_execution_instance_candidate_record
-    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
     committed=SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="state-recovery")
     expected=committed.receipt.resulting_state_digest; conn.close()
     reopened=sqlite3.connect(db)
@@ -1009,9 +1006,10 @@ def test_durable_transition_records_parent_and_resulting_state_across_restart(tm
     def evaluator(*_): return True
     identity=implementation_identity(evaluator); obs={"x":1}
     p=build_provenance(candidate_id="causal-transition",parent_state_id="parent",parent_state_digest="parent",proposed_state_digest="result",observations=obs,evidence_digest=canonical_digest(obs),evaluation_status="PASS",shadow_status="UNCHANGED",invariant_status="PRESERVED",governance_decision="ALLOW",candidate_binding_digest="binding",evaluated_policy=PolicyIdentity("causal-rule",1,identity))
-    db=tmp_path/"causal.sqlite3"; conn=sqlite3.connect(db); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
-    from tests.test_authority_boundary import _make_execution_commit_request, _make_execution_instance_candidate_record
-    request=_make_execution_commit_request(p); instance,candidate,record=_make_execution_instance_candidate_record(p)
+    db=tmp_path/"causal.sqlite3"
+    conn, instance, candidate, record, p = _make_real_commit_fixture("causal-transition")
+    ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
+    request=_make_execution_commit_request(p)
     committed=SQLiteExecutionCommitAdapter().commit(conn,instance,candidate,record,request,actor="causal")
     assert committed.receipt.parent_state_digest == "parent"
     assert committed.receipt.resulting_state_digest == "result"
@@ -1035,6 +1033,7 @@ def test_accepted_transition_replay_is_idempotent_after_restart(tmp_path):
     request=_make_execution_commit_request(p); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="idempotent")
     first_count=conn.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
+    db = conn.execute("PRAGMA database_list").fetchone()[2]
     conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
     second=adapter.commit(reopened,instance,candidate,record,request,actor="idempotent")
     second_count=reopened.execute("SELECT COUNT(*) FROM transitions WHERE candidate_id=?",(p.candidate_id,)).fetchone()[0]
@@ -1055,6 +1054,7 @@ def test_conflicting_replay_of_same_transition_identity_fails_closed(tmp_path):
     conn, instance, candidate, record, p = _make_real_commit_fixture("conflicting-replay")
     request=_make_execution_commit_request(p); ensure_reflection_schema(conn); persist_evolution_transaction(conn,p,event_type="PROVENANCE",payload={"status":"RECORDED"})
     adapter=SQLiteExecutionCommitAdapter(); first=adapter.commit(conn,instance,candidate,record,request,actor="conflict")
+    db = conn.execute("PRAGMA database_list").fetchone()[2]
     conn.close(); reopened=sqlite3.connect(db); ensure_reflection_schema(reopened)
     conflicting=type(record)(**{**record.__dict__,"to_state_id":"conflicting-result"})
     with pytest.raises(Exception):
