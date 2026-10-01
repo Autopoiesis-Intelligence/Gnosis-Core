@@ -1,6 +1,6 @@
 import pytest
 
-from gnosis.reflection.rules import RuleMetadata, RuleRegistry
+from gnosis.reflection.rules import RuleMetadata, RuleRegistry, AuthorizedRuleRegistry, default_rule_registry
 from gnosis.core.policy import _REGISTRY_AUTHORITY
 
 
@@ -20,11 +20,9 @@ def test_registry_enforces_unique_rule_versions_and_exposes_latest():
     registry = RuleRegistry()
     registry.register(_rule(1))
     registry.register(_rule(2))
-
     assert registry.versions("test-rule:diagnostic-policy") == (1, 2)
     assert registry.latest("test-rule:diagnostic-policy").rule_version == 2
     assert registry.get("test-rule:diagnostic-policy", 1).rule_version == 1
-
     with pytest.raises(ValueError):
         registry.register(_rule(2))
 
@@ -53,8 +51,6 @@ def test_metadata_registry_cannot_issue_executable_binding():
 
 
 def test_authorized_registry_issues_exact_executable_binding():
-    from gnosis.reflection.rules import AuthorizedRuleRegistry
-
     registry = AuthorizedRuleRegistry(_authority=_REGISTRY_AUTHORITY)
     evaluator = lambda _state, _candidate: True
     registry.register(_rule(1), evaluator=evaluator)
@@ -63,8 +59,6 @@ def test_authorized_registry_issues_exact_executable_binding():
 
 
 def test_authorized_registry_rejects_caller_construction_without_authority():
-    from gnosis.reflection.rules import AuthorizedRuleRegistry
-
     with pytest.raises(PermissionError, match="Core authority"):
         AuthorizedRuleRegistry()
     with pytest.raises(PermissionError, match="Core authority"):
@@ -72,8 +66,6 @@ def test_authorized_registry_rejects_caller_construction_without_authority():
 
 
 def test_default_rule_registry_is_core_authorized_and_resolves_default():
-    from gnosis.reflection.rules import default_rule_registry
-
     registry = default_rule_registry()
     binding = registry.resolve("test-rule:default", 1)
     assert binding.policy.rule_id == "test-rule:default"
