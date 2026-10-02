@@ -540,3 +540,23 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+
+def test_persistence_rejects_context_provenance_substitution():
+    from types import SimpleNamespace
+    request = SimpleNamespace(
+        evolution_identity="evo-1",
+        provenance=SimpleNamespace(provenance_id="prov-request"),
+    )
+    context = SimpleNamespace(
+        scope_lock_id="sha256:scope",
+        environment_attestation_id="sha256:env",
+        evolution_identity="evo-1",
+        provenance_id="prov-other",
+    )
+    adapter = SQLiteExecutionCommitAdapter()
+    with pytest.raises(PermissionError, match="provenance mismatch"):
+        adapter.commit(
+            connect(), object(), object(), object(), request,
+            actor="test", governed_context=context,
+        )
