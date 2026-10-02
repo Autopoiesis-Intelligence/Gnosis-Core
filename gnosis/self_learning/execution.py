@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass
 
 from .governance import GovernanceReview
 from .scope_lock import ScopeLock, validate_scope_lock
+from .environment_attestation import EnvironmentAttestation, validate_environment_attestation
 
 
 @dataclass(frozen=True)
@@ -106,6 +107,11 @@ def execute_approved_core_proposal(
     available_paths: tuple[str, ...],
     progress_before: object,
     progress_after: object,
+    environment_attestation: EnvironmentAttestation,
+    actual_python_version: str,
+    actual_platform: str,
+    actual_runtime_identity: str,
+    actual_dependency_digest: str,
 ) -> ExecutionCommitResult:
     # E7.114 is a pre-execution gate, not an authorization mechanism.
     validate_scope_lock(
@@ -114,6 +120,14 @@ def execute_approved_core_proposal(
         available_paths=available_paths,
         progress_before=progress_before,
         progress_after=progress_after,
+    )
+    validate_environment_attestation(
+        environment_attestation,
+        expected_scope_lock_id=scope_lock.scope_lock_id,
+        actual_python_version=actual_python_version,
+        actual_platform=actual_platform,
+        actual_runtime_identity=actual_runtime_identity,
+        actual_dependency_digest=actual_dependency_digest,
     )
     bind_core_proposal(proposal, request)
     return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
