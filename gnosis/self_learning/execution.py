@@ -177,8 +177,9 @@ def execute_approved_core_proposal(
         actual_platform=actual_platform,
         actual_runtime_identity=actual_runtime_identity,
         actual_dependency_digest=actual_dependency_digest,
+        bound_execution=bound_execution,
+        request=request,
     )
-    bind_core_proposal(proposal, request)
     return SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate, record, request,
         actor=actor, governed_context=governed_context,
