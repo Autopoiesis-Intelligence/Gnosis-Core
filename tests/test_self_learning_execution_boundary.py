@@ -13,7 +13,11 @@ from gnosis.self_learning.ledger import create_event
 from gnosis.self_learning.lineage import record_version
 from gnosis.self_learning.lifecycle import verify_lifecycle
 from gnosis.self_learning.promotion import decide_promotion, propose_promotion
-from gnosis.self_learning.execution import execute_approved_core_proposal
+from gnosis.self_learning.execution import (
+    BoundCoreExecution,
+    create_governed_execution_context,
+    execute_approved_core_proposal,
+)
 from gnosis.self_learning.scope_lock import create_scope_lock
 from gnosis.reflection.authority import (
     ExecutionAuthorization,
@@ -301,3 +305,73 @@ def test_environment_attestation_is_required_before_commit():
         assert snapshot_database(conn) == before
     finally:
         conn.close()
+
+
+
+def test_governed_context_binds_execution_identity_and_provenance():
+    from types import SimpleNamespace
+
+    scope_lock = create_scope_lock(
+        batch_id="BATCH-CONTEXT",
+        repository="Autopoiesis-Intelligence/Gnosis-Core",
+        ref="refs/heads/main", target_commit_sha="abc123",
+        selected_contract_ids=("E7.114", "E7.115"),
+        selected_criterion_ids=("C1",),
+        implementation_paths=("gnosis/self_learning/environment_attestation.py",),
+        test_runtime_paths=("tests/test_self_learning_execution_boundary.py",),
+        commands=("pytest tests/test_self_learning_execution_boundary.py",),
+        expected_outcomes=("context identity remains bound",),
+        evidence_destinations=("artifacts/e7.115/",),
+        environment_prerequisites=("python>=3.11",),
+        stop_conditions=("identity substitution",),
+        evidence_policy_revision="E7.108-r1",
+        verification_matrix_revision="E7.103-r1",
+        progress_calculation_policy_revision="progress-r1",
+    )
+    attestation = environment_attestation_for(scope_lock)
+    provenance = SimpleNamespace(provenance_id="prov-1")
+    request = SimpleNamespace(evolution_identity="evo-1", provenance=provenance)
+    bound = BoundCoreExecution("proposal-1", "evo-1", "sha256:binding")
+    context = create_governed_execution_context(
+        scope_lock, attestation,
+        actual_commit_sha="abc123",
+        available_paths=("gnosis/self_learning/environment_attestation.py",),
+        progress_before={"E7.115": 0}, progress_after={"E7.115": 0},
+        actual_python_version="3.11.14", actual_platform="Linux-6.x-x86_64",
+        actual_runtime_identity="runner:proof-01", actual_dependency_digest="sha256:deps",
+        bound_execution=bound, request=request,
+    )
+    assert context.scope_lock_id == scope_lock.scope_lock_id
+    assert context.environment_attestation_id == attestation.attestation_id
+    assert context.evolution_identity == "evo-1"
+    assert context.provenance_id == "prov-1"
+    assert context.proposal_binding_digest == "sha256:binding"
+
+
+def test_governed_context_rejects_evolution_identity_substitution():
+    from types import SimpleNamespace
+
+    scope_lock = create_scope_lock(
+        batch_id="BATCH-CONTEXT-2", repository="Autopoiesis-Intelligence/Gnosis-Core",
+        ref="refs/heads/main", target_commit_sha="abc123",
+        selected_contract_ids=("E7.115",), selected_criterion_ids=("C1",),
+        implementation_paths=("gnosis/self_learning/environment_attestation.py",),
+        test_runtime_paths=("tests/test_self_learning_execution_boundary.py",),
+        commands=("pytest tests/test_self_learning_execution_boundary.py",),
+        expected_outcomes=("identity mismatch rejected",),
+        evidence_destinations=("artifacts/e7.115/",), environment_prerequisites=("python>=3.11",),
+        stop_conditions=("identity mismatch",), evidence_policy_revision="E7.108-r1",
+        verification_matrix_revision="E7.103-r1", progress_calculation_policy_revision="progress-r1",
+    )
+    attestation = environment_attestation_for(scope_lock)
+    request = SimpleNamespace(evolution_identity="evo-request", provenance=SimpleNamespace(provenance_id="prov-2"))
+    bound = BoundCoreExecution("proposal-2", "evo-bound", "sha256:binding-2")
+    with pytest.raises(PermissionError, match="evolution identity mismatch"):
+        create_governed_execution_context(
+            scope_lock, attestation, actual_commit_sha="abc123",
+            available_paths=("gnosis/self_learning/environment_attestation.py",),
+            progress_before={"E7.115": 0}, progress_after={"E7.115": 0},
+            actual_python_version="3.11.14", actual_platform="Linux-6.x-x86_64",
+            actual_runtime_identity="runner:proof-01", actual_dependency_digest="sha256:deps",
+            bound_execution=bound, request=request,
+        )
