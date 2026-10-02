@@ -16,6 +16,29 @@ def valid_proposal():
         create_core_mutation_proposal(cycle.integration), approver="test"
     )
 
+
+
+def snapshot_database(conn):
+    tables = [
+        row[0]
+        for row in conn.execute(
+            "SELECT name FROM sqlite_master "
+            "WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+        ).fetchall()
+    ]
+    snapshot = {}
+    for table in tables:
+        columns = [
+            row[1]
+            for row in conn.execute(f"PRAGMA table_info(\"{table}\")").fetchall()
+        ]
+        quoted = ", ".join(f'\"{column}\"' for column in columns)
+        rows = conn.execute(
+            f"SELECT {quoted} FROM \"{table}\" ORDER BY rowid"
+        ).fetchall()
+        snapshot[table] = [tuple(row) for row in rows]
+    return snapshot
+
 def test_execution_adapter_fails_closed_without_owner_authorization():
     proposal=valid_proposal()
     auth=ExecutionAuthorization(
