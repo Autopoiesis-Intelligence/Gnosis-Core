@@ -1,14 +1,29 @@
 import pytest
 
-from gnosis.reflection.authority import (
-    ExecutionCommitRequest,
-    ExecutionIntentSnapshot,
-    OwnerApproval,
-)
+from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionIntentSnapshot, OwnerApproval
 from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.trusted_issuer import TrustedIssuerInput, TrustedOwnerIssuer
-from tests.test_authority_boundary import _snapshot_provenance
+
+
+def _build_provenance(candidate, parent_state_id, proposed):
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+
+    observations = {"result": "ok"}
+    return build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=proposed.state_id,
+        observations=observations,
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=candidate.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
 
 
 def test_trusted_owner_issuer_to_sqlite_commit_and_receipt():
@@ -24,8 +39,8 @@ def test_trusted_owner_issuer_to_sqlite_commit_and_receipt():
         proposed = instance.engine.state.with_elements({"b": 2})
         candidate = Candidate(parent_state_id, proposed, "e5-20")
         record = instance.engine.step(candidate)
+        provenance = _build_provenance(candidate, parent_state_id, proposed)
 
-        provenance = _snapshot_provenance()
         approval = OwnerApproval(
             approval_id="approval-e5-20-e2e",
             request_provenance=provenance.provenance_id,
@@ -80,7 +95,7 @@ def test_trusted_owner_issuer_to_sqlite_rejects_cross_evolution():
         proposed = instance.engine.state.with_elements({"b": 2})
         candidate = Candidate(parent_state_id, proposed, "e5-20-cross")
         record = instance.engine.step(candidate)
-        provenance = _snapshot_provenance()
+        provenance = _build_provenance(candidate, parent_state_id, proposed)
         approval = OwnerApproval(
             approval_id="approval-e5-20-cross",
             request_provenance=provenance.provenance_id,
