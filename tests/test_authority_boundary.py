@@ -205,8 +205,8 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = _make_execution_commit_request(provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
-    assert result.resulting_state_id == proposed.state_id
+    with pytest.raises(PermissionError, match="governed execution context is required"):
+        SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1", governed_context=None)
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
 
