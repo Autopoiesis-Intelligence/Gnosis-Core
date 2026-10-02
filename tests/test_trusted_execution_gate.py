@@ -5,7 +5,7 @@ from gnosis.reflection.authorization_validity import AuthorizationValidity
 
 
 def test_gate_rejects_revoked_before_consumption(sqlite_conn, provenance):
-    auth=ExecutionAuthorization(request_provenance=provenance.provenance_id,owner_approved=True,evolution_identity=provenance.evolution_identity,approval_id="auth-1")
+    auth=ExecutionAuthorization(request_provenance=provenance.provenance_id,owner_approved=True,evolution_identity=provenance.evolution_identity,approval_id="auth-1",policy_version="policy-1",evidence_digest="ev-1")
     validity=AuthorizationValidity("auth-1","policy-1","ev-1",revoked=True)
     req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
     with pytest.raises(PermissionError,match="revoked"):
@@ -18,3 +18,31 @@ def test_gate_rejects_identity_mismatch_before_consumption(sqlite_conn, provenan
     req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
     with pytest.raises(PermissionError,match="identity"):
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
+
+
+@pytest.mark.parametrize(
+    ("policy_version", "evidence_digest"),
+    [("policy-2", "ev-1"), ("policy-1", "ev-2")],
+)
+def test_gate_rejects_policy_or_evidence_substitution_before_consumption(
+    sqlite_conn, provenance, policy_version, evidence_digest
+):
+    auth = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+        approval_id="auth-1",
+        policy_version="policy-1",
+        evidence_digest="ev-1",
+    )
+    validity = AuthorizationValidity("auth-1", policy_version, evidence_digest)
+    req = ExecutionCommitRequest(
+        auth,
+        ExecutionIntentSnapshot.from_provenance(provenance),
+        provenance.provenance_id,
+        provenance.evolution_identity,
+        provenance,
+        validity,
+    )
+    with pytest.raises(PermissionError, match="authorization (policy|validity evidence) mismatch"):
+        require_trusted_execution(req, conn=sqlite_conn, actor="trusted-owner")
