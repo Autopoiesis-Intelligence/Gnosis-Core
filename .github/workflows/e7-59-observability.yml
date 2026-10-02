@@ -1,0 +1,42 @@
+name: E7.59 CI Observability Probe
+
+on:
+  pull_request:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark runner start
+        run: |
+          printf 'RUNNER_STARTED\n' > ci-probe.txt
+      - name: Mark checkout start
+        run: echo 'CHECKOUT_START' >> ci-probe.txt
+      - uses: actions/checkout@v4
+      - name: Mark checkout reached
+        run: echo 'CHECKOUT_REACHED' >> ci-probe.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Mark python reached
+        run: echo 'PYTHON_SETUP_REACHED' >> ci-probe.txt
+      - name: Mark install start
+        run: echo 'INSTALL_START' >> ci-probe.txt
+      - name: Install package + dev deps
+        run: pip install -e ".[dev]"
+      - name: Mark install reached
+        run: echo 'INSTALL_REACHED' >> ci-probe.txt
+      - name: Mark pytest start
+        run: echo 'PYTEST_START' >> ci-probe.txt
+      - name: Run provenance probe
+        run: pytest -q tests/test_e7_59_authority_provenance_negative.py
+      - name: Mark pytest reached
+        if: ${{ always() }}
+        run: echo 'PYTEST_REACHED' >> ci-probe.txt
+      - name: Upload stage diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: e7-59-ci-probe
+          path: ci-probe.txt
+          if-no-files-found: warn
