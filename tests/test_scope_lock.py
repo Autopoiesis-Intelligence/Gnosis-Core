@@ -97,6 +97,7 @@ def test_invalidation_is_preserved_and_blocks_execution():
     lock = make_lock()
     invalidated = invalidate_scope_lock(lock, reason="environment drift")
     assert invalidated.status == "INVALIDATED"
+    assert invalidated.invalidation_reason == "environment drift"
     with pytest.raises(ValueError, match="not executable"):
         validate_scope_lock(
             invalidated,
