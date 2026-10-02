@@ -98,6 +98,9 @@ class GovernedExecutionContext:
     """Capability evidence created only after all pre-execution gates pass."""
     scope_lock_id: str
     environment_attestation_id: str
+    evolution_identity: str
+    provenance_id: str
+    proposal_binding_digest: str
 
 
 def create_governed_execution_context(
@@ -112,6 +115,8 @@ def create_governed_execution_context(
     actual_platform: str,
     actual_runtime_identity: str,
     actual_dependency_digest: str,
+    bound_execution: BoundCoreExecution,
+    request: ExecutionCommitRequest,
 ) -> GovernedExecutionContext:
     validate_scope_lock(
         scope_lock,
@@ -128,9 +133,14 @@ def create_governed_execution_context(
         actual_runtime_identity=actual_runtime_identity,
         actual_dependency_digest=actual_dependency_digest,
     )
+    if bound_execution.evolution_identity != request.evolution_identity:
+        raise PermissionError("governed context evolution identity mismatch")
     return GovernedExecutionContext(
         scope_lock_id=scope_lock.scope_lock_id,
         environment_attestation_id=environment_attestation.attestation_id,
+        evolution_identity=bound_execution.evolution_identity,
+        provenance_id=str(request.provenance.provenance_id),
+        proposal_binding_digest=bound_execution.binding_digest,
     )
 
 
@@ -155,6 +165,7 @@ def execute_approved_core_proposal(
     actual_dependency_digest: str,
 ) -> ExecutionCommitResult:
     # E7.114/E7.115 are pre-execution gates, not authorization mechanisms.
+    bound_execution = bind_core_proposal(proposal, request)
     governed_context = create_governed_execution_context(
         scope_lock,
         environment_attestation,
