@@ -1,6 +1,14 @@
 name: E7.113 Bounded Proof Execution
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "contract/first-governed-task-20261002"
+    paths:
+      - "gnosis/self_learning/e7_113_execute_bounded_proof.py"
+      - "gnosis/self_learning/execution.py"
+      - "gnosis/reflection/execution_adapter.py"
+      - "tests/**"
 jobs:
   bounded-proof:
     runs-on: ubuntu-latest
