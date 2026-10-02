@@ -560,3 +560,29 @@ def test_persistence_rejects_context_provenance_substitution():
             connect(), object(), object(), object(), request,
             actor="test", governed_context=context,
         )
+
+
+def test_persistence_rejects_context_proposal_binding_substitution():
+    from types import SimpleNamespace
+    request = SimpleNamespace(
+        evolution_identity="evo-1",
+        provenance=SimpleNamespace(provenance_id="prov-1"),
+    )
+    context = SimpleNamespace(
+        scope_lock_id="sha256:scope",
+        environment_attestation_id="sha256:env",
+        evolution_identity="evo-1",
+        provenance_id="prov-1",
+        proposal_binding_digest="sha256:forged",
+    )
+    record = SimpleNamespace(
+        integration_id="sha256:integration",
+        version_id="sha256:version",
+        target="common-self-learning",
+        action="controlled-core-learning-integration",
+    )
+    with pytest.raises(PermissionError, match="proposal binding mismatch"):
+        SQLiteExecutionCommitAdapter().commit(
+            connect(), object(), object(), record, request,
+            actor="test", governed_context=context,
+        )
