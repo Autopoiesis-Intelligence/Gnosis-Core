@@ -72,25 +72,84 @@ from gnosis.self_learning.bridge import CoreMutationProposal
 from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionCommitResult
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 
+
 @_dataclass(frozen=True)
 class BoundCoreExecution:
     proposal_id: str
     evolution_identity: str
     binding_digest: str
 
-def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest) -> BoundCoreExecution:
+
+def _canonical_binding(proposal: CoreMutationProposal, evolution_identity: str) -> str:
+    canonical = {
+        "mutation_id": proposal.mutation_id,
+        "integration_id": proposal.integration_id,
+        "version_id": proposal.version_id,
+        "evolution_identity": evolution_identity,
+    }
+    return "sha256:" + hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def bind_core_proposal(
+    proposal: CoreMutationProposal,
+    request: ExecutionCommitRequest,
+) -> BoundCoreExecution:
     if proposal.status != "APPROVED":
         raise PermissionError("Core mutation proposal is not approved")
-    canonical_proposal={"integration_id":proposal.integration_id,"version_id":proposal.version_id,"target":proposal.target,"action":proposal.action}
-    expected="sha256:"+hashlib.sha256(json.dumps(canonical_proposal,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+
+    canonical_proposal = {
+        "integration_id": proposal.integration_id,
+        "version_id": proposal.version_id,
+        "target": proposal.target,
+        "action": proposal.action,
+    }
+    expected = "sha256:" + hashlib.sha256(
+        json.dumps(canonical_proposal, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
     if proposal.mutation_id != expected:
         raise ValueError("proposal identity does not match immutable bridge fields")
+
     if not request.evolution_identity:
         raise ValueError("execution evolution identity is required")
-    canonical={"mutation_id":proposal.mutation_id,"integration_id":proposal.integration_id,"version_id":proposal.version_id,"evolution_identity":request.evolution_identity}
-    binding="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
-    return BoundCoreExecution(proposal.mutation_id,request.evolution_identity,binding)
 
-def execute_approved_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest, conn: object, instance: object, candidate: object, record: object, *, actor: str) -> ExecutionCommitResult:
-    bind_core_proposal(proposal, request)
-    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
+    return BoundCoreExecution(
+        proposal.mutation_id,
+        request.evolution_identity,
+        _canonical_binding(proposal, request.evolution_identity),
+    )
+
+
+def require_bound_core_execution(
+    proposal: CoreMutationProposal,
+    request: ExecutionCommitRequest,
+    bound: BoundCoreExecution,
+) -> None:
+    """Fail closed unless the exact proposal/request pair produced this binding."""
+    if not isinstance(bound, BoundCoreExecution):
+        raise PermissionError("bound Core execution is required")
+    if bound.proposal_id != proposal.mutation_id:
+        raise PermissionError("bound Core execution proposal mismatch")
+    if bound.evolution_identity != request.evolution_identity:
+        raise PermissionError("bound Core execution evolution mismatch")
+    expected = _canonical_binding(proposal, request.evolution_identity)
+    if bound.binding_digest != expected:
+        raise PermissionError("bound Core execution digest mismatch")
+
+
+def execute_approved_core_proposal(
+    proposal: CoreMutationProposal,
+    request: ExecutionCommitRequest,
+    conn: object,
+    instance: object,
+    candidate: object,
+    record: object,
+    *,
+    actor: str,
+) -> ExecutionCommitResult:
+    bound = bind_core_proposal(proposal, request)
+    require_bound_core_execution(proposal, request, bound)
+    return SQLiteExecutionCommitAdapter().commit(
+        conn, instance, candidate, record, request, actor=actor
+    )
