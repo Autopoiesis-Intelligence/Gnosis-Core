@@ -64,3 +64,31 @@ def test_environment_attestation_rejects_dependency_substitution():
             actual_runtime_identity="runner:proof-01",
             actual_dependency_digest="sha256:other",
         )
+
+
+def test_environment_attestation_rejects_mutable_status():
+    attestation = make_attestation()
+    object.__setattr__(attestation, "status", "REVOKED")
+    with pytest.raises(ValueError, match="not valid"):
+        validate_environment_attestation(
+            attestation,
+            expected_scope_lock_id="sha256:scope",
+            actual_python_version="3.11.14",
+            actual_platform="Linux-6.x-x86_64",
+            actual_runtime_identity="runner:proof-01",
+            actual_dependency_digest="sha256:deps",
+        )
+
+
+def test_environment_attestation_id_changes_when_environment_changes():
+    first = make_attestation()
+    second = create_environment_attestation(
+        scope_lock_id="sha256:scope",
+        observed_at="2026-10-02T03:00:00+02:00",
+        python_version="3.12.0",
+        platform="Linux-6.x-x86_64",
+        runtime_identity="runner:proof-01",
+        dependency_digest="sha256:deps",
+        environment_facts=("git-clean", "network-disabled"),
+    )
+    assert first.attestation_id != second.attestation_id
