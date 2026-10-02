@@ -231,3 +231,32 @@ def test_scope_lock_rejects_tampered_runtime_commit_before_execution():
         assert after == before
     finally:
         conn.close()
+
+
+def test_environment_attestation_is_required_before_commit():
+    from gnosis.self_learning.environment_attestation import create_environment_attestation
+
+    attestation = create_environment_attestation(
+        scope_lock_id=scope_lock.scope_lock_id,
+        observed_at="2026-10-02T03:00:00+02:00",
+        python_version="3.11.14",
+        platform="Linux-6.x-x86_64",
+        runtime_identity="runner:proof-01",
+        dependency_digest="sha256:deps",
+        environment_facts=("git-clean",),
+    )
+    before = snapshot_database(conn)
+    with pytest.raises(ValueError, match="runtime identity"):
+        execute_approved_core_proposal(
+            proposal, request, conn=conn, instance=object(),
+            candidate=object(), record=object(), actor="test",
+            scope_lock=scope_lock, actual_commit_sha="abc123",
+            available_paths=("gnosis/self_learning/scope_lock.py",),
+            progress_before={"E7.114": 0}, progress_after={"E7.114": 0},
+            environment_attestation=attestation,
+            actual_python_version="3.11.14",
+            actual_platform="Linux-6.x-x86_64",
+            actual_runtime_identity="runner:tampered",
+            actual_dependency_digest="sha256:deps",
+        )
+    assert snapshot_database(conn) == before
