@@ -123,7 +123,26 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
         auth, snapshot, "p", "e", object(), validity
     )
 
-    scope_lock = create_scope_lock(\n        batch_id="BATCH-001",\n        repository="Autopoiesis-Intelligence/Gnosis-Core",\n        ref="refs/heads/main",\n        target_commit_sha="abc123",\n        selected_contract_ids=("E7.114",),\n        selected_criterion_ids=("C1",),\n        implementation_paths=("gnosis/self_learning/scope_lock.py",),\n        test_runtime_paths=("tests/test_self_learning_execution_boundary.py",),\n        commands=("pytest tests/test_self_learning_execution_boundary.py",),\n        expected_outcomes=("authorization rejects",),\n        evidence_destinations=("artifacts/e7.114/",),\n        environment_prerequisites=("python>=3.11",),\n        stop_conditions=("wrong commit",),\n        evidence_policy_revision="E7.108-r1",\n        verification_matrix_revision="E7.103-r1",\n        progress_calculation_policy_revision="progress-r1",\n    )\n\n    conn = connect()
+    scope_lock = create_scope_lock(
+        batch_id="BATCH-001",
+        repository="Autopoiesis-Intelligence/Gnosis-Core",
+        ref="refs/heads/main",
+        target_commit_sha="abc123",
+        selected_contract_ids=("E7.114",),
+        selected_criterion_ids=("C1",),
+        implementation_paths=("gnosis/self_learning/scope_lock.py",),
+        test_runtime_paths=("tests/test_self_learning_execution_boundary.py",),
+        commands=("pytest tests/test_self_learning_execution_boundary.py",),
+        expected_outcomes=("authorization rejects",),
+        evidence_destinations=("artifacts/e7.114/",),
+        environment_prerequisites=("python>=3.11",),
+        stop_conditions=("wrong commit",),
+        evidence_policy_revision="E7.108-r1",
+        verification_matrix_revision="E7.103-r1",
+        progress_calculation_policy_revision="progress-r1",
+    )
+
+    conn = connect()
     try:
         before = snapshot_database(conn)
         with pytest.raises(PermissionError):
@@ -135,6 +154,11 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
                 candidate=object(),
                 record=object(),
                 actor="test",
+                scope_lock=scope_lock,
+                actual_commit_sha="abc123",
+                available_paths=("gnosis/self_learning/scope_lock.py", "tests/test_self_learning_execution_boundary.py"),
+                progress_before={"E7.114": 0},
+                progress_after={"E7.114": 0},
             )
         after = snapshot_database(conn)
         assert after == before
