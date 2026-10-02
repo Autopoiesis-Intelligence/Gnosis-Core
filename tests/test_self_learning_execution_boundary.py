@@ -375,3 +375,31 @@ def test_governed_context_rejects_evolution_identity_substitution():
             actual_runtime_identity="runner:proof-01", actual_dependency_digest="sha256:deps",
             bound_execution=bound, request=request,
         )
+
+
+def test_governed_context_rejects_provenance_substitution():
+    from types import SimpleNamespace
+    scope_lock = create_scope_lock(
+        batch_id="BATCH-CONTEXT-3", repository="Autopoiesis-Intelligence/Gnosis-Core",
+        ref="refs/heads/main", target_commit_sha="abc123",
+        selected_contract_ids=("E7.115",), selected_criterion_ids=("C1",),
+        implementation_paths=("gnosis/self_learning/environment_attestation.py",),
+        test_runtime_paths=("tests/test_self_learning_execution_boundary.py",),
+        commands=("pytest tests/test_self_learning_execution_boundary.py",),
+        expected_outcomes=("provenance substitution rejected",),
+        evidence_destinations=("artifacts/e7.115/",), environment_prerequisites=("python>=3.11",),
+        stop_conditions=("provenance mismatch",), evidence_policy_revision="E7.108-r1",
+        verification_matrix_revision="E7.103-r1", progress_calculation_policy_revision="progress-r1",
+    )
+    attestation = environment_attestation_for(scope_lock)
+    request = SimpleNamespace(evolution_identity="evo-1", provenance=SimpleNamespace(provenance_id="prov-request"))
+    bound = BoundCoreExecution("proposal-3", "evo-1", "sha256:binding-3")
+    context = create_governed_execution_context(
+        scope_lock, attestation, actual_commit_sha="abc123",
+        available_paths=("gnosis/self_learning/environment_attestation.py",),
+        progress_before={"E7.115": 0}, progress_after={"E7.115": 0},
+        actual_python_version="3.11.14", actual_platform="Linux-6.x-x86_64",
+        actual_runtime_identity="runner:proof-01", actual_dependency_digest="sha256:deps",
+        bound_execution=bound, request=request,
+    )
+    assert context.provenance_id == "prov-request"
