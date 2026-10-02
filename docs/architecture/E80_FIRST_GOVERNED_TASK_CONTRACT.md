@@ -8,21 +8,59 @@ Define the smallest real end-to-end task that can demonstrate a governed learnin
 
 User input → Candidate → Test → Select → Verify → Governance → Commit → Evidence → Replay → Audit.
 
-## Scope
+## First task
 
-The task MUST operate inside an explicitly declared, isolated mutation scope. The first task MUST NOT modify production code, authorization rules, or trust-boundary enforcement.
+The first task SHALL be a deterministic transformation of one isolated learning record.
+
+Initial fixture:
+
+- record_id: `E80-FIRST-TASK-001`
+- version: 1
+- value: A
+
+Requested transformation:
+
+- value A → B
+- increment version by exactly 1
+
+The expected final state is therefore:
+
+- record_id: `E80-FIRST-TASK-001`
+- version: 2
+- value: B
+
+The task is intentionally small so that every transition and every persisted artifact can be independently inspected.
+
+## Mutation scope
+
+The mutation scope is limited to the isolated first-task learning record and its dedicated evidence artifacts.
+
+The first task MUST NOT modify:
+
+- production source code;
+- authorization rules;
+- governance policy;
+- workflow definitions;
+- trust-boundary enforcement;
+- unrelated repository state.
+
+Any attempt to mutate outside this scope MUST fail closed and MUST NOT produce the governed commit.
+
+## Required stages
+
+User input → Candidate → Test → Select → Verify → Governance → Commit → Evidence → Replay → Audit.
 
 ## Required identities
 
 The execution record MUST bind, at minimum:
 
-- input identity
-- initial state identity and digest
-- candidate identity
-- selected result identity
-- authorization/scope identity
-- commit identity
-- evidence/provenance identity
+- input identity;
+- initial state identity and digest;
+- candidate identity;
+- selected result identity;
+- authorization/scope identity;
+- commit identity;
+- evidence/provenance identity.
 
 ## Success criteria
 
@@ -45,10 +83,6 @@ The task MUST be rejected when:
 
 A rejected execution MUST NOT produce the governed commit.
 
-## First-task constraint
-
-The first task should be intentionally small and deterministic enough that a human can independently inspect the complete evidence chain.
-
 ## Evidence levels
 
 DESIGN → IMPLEMENTED → REACHABLE → RUNTIME → PERSISTED → AUDITED → CI_PROVEN.
@@ -57,4 +91,4 @@ The E8.0 contract is not considered closed until the complete task reaches RUNTI
 
 ## Status
 
-CONTRACT DEFINED / IMPLEMENTATION NOT STARTED.
+CONTRACT DEFINED / FIRST TASK SPECIFIED / IMPLEMENTATION NOT STARTED.
