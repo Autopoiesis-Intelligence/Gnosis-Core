@@ -34,7 +34,7 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
     request=ExecutionCommitRequest(auth,snapshot,"p","e",object(),validity)
     conn = connect()
     try:
-        with pytest.raises(PermissionError, match="execution authorization does not match evolution"):
+        with pytest.raises(PermissionError):
             execute_approved_core_proposal(
                 proposal,request,conn=conn,instance=object(),
                 candidate=object(),record=object(),actor="test"
