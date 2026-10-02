@@ -249,7 +249,7 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
         SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, ExecutionCommitRequest(
             ExecutionAuthorization("bad", False, "bad"),
             ExecutionIntentSnapshot("", "", "", "", "", "", ""),
-            "bad", "bad", object()), actor="user-1", governed_context=_context_for(request, record))
+            "bad", "bad", object()), actor="user-1")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == initial_state_id
     conn.close()
 
