@@ -33,6 +33,7 @@ class ScopeLock:
     progress_calculation_policy_revision: str
     status: str = "LOCKED"
     revision: int = 1
+    invalidation_reason: str | None = None
 
     def as_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -82,10 +83,7 @@ def create_scope_lock(
             raise ValueError(f"{name} must not be empty")
     canonical = json.dumps(values, sort_keys=True, separators=(",", ":"))
     scope_lock_id = "sha256:" + hashlib.sha256(canonical.encode()).hexdigest()
-    return ScopeLock(
-        scope_lock_id=scope_lock_id,
-        **values,
-    )
+    return ScopeLock(scope_lock_id=scope_lock_id, **values)
 
 
 def validate_scope_lock(
@@ -112,7 +110,13 @@ def validate_scope_lock(
 def invalidate_scope_lock(lock: ScopeLock, *, reason: str) -> ScopeLock:
     if not reason:
         raise ValueError("invalidation reason is required")
-    return ScopeLock(**{**lock.as_dict(), "status": "INVALIDATED"})
+    return ScopeLock(
+        **{
+            **lock.as_dict(),
+            "status": "INVALIDATED",
+            "invalidation_reason": reason,
+        }
+    )
 
 
 def serialize_scope_lock(lock: ScopeLock) -> str:
