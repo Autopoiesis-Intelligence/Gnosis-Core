@@ -19,6 +19,10 @@ class SQLiteExecutionCommitAdapter:
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str, governed_context: object) -> ExecutionCommitResult:
         if governed_context is None or not getattr(governed_context, "scope_lock_id", "") or not getattr(governed_context, "environment_attestation_id", ""):
             raise PermissionError("governed execution context is required before persistence")
+        if governed_context.evolution_identity != request.evolution_identity:
+            raise PermissionError("governed context evolution identity mismatch")
+        if governed_context.provenance_id != str(request.provenance.provenance_id):
+            raise PermissionError("governed context provenance mismatch")
         with transaction(conn):
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
