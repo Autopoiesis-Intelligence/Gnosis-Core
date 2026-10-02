@@ -6,6 +6,7 @@ from gnosis.reflection.authority import (
     ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot,
 )
 from gnosis.reflection.authorization_validity import AuthorizationValidity
+from gnosis.storage.database import connect
 
 def valid_proposal():
     cycle = build_verified_cycle(
@@ -31,8 +32,12 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
     )
     validity=AuthorizationValidity("auth-1","policy-1","ev-1")
     request=ExecutionCommitRequest(auth,snapshot,"p","e",object(),validity)
-    with pytest.raises(PermissionError, match="owner approval"):
-        execute_approved_core_proposal(
-            proposal,request,conn=object(),instance=object(),
-            candidate=object(),record=object(),actor="test"
-        )
+    conn = connect()
+    try:
+        with pytest.raises(PermissionError, match="execution authorization does not match evolution"):
+            execute_approved_core_proposal(
+                proposal,request,conn=conn,instance=object(),
+                candidate=object(),record=object(),actor="test"
+            )
+    finally:
+        conn.close()
