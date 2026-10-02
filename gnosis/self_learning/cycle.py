@@ -9,8 +9,8 @@ from .ledger import EvidenceEvent, create_event
 from .lifecycle import verify_lifecycle
 from .knowledge import propose_knowledge_update, apply_knowledge_update
 from .lineage import record_version
-from .promotion import PromotionProposal, propose_promotion, decide_promotion
-from .integration import IntegrationRecord, create_integration_record
+from .promotion import propose_promotion, decide_promotion
+from .integration import create_integration_record
 
 @dataclass(frozen=True)
 class CycleResult:
@@ -19,8 +19,6 @@ class CycleResult:
     version_id: str
     promotion_status: str
     integration_id: str
-    promotion: PromotionProposal
-    integration: IntegrationRecord
 
 def build_verified_cycle(subject_id: str, *, knowledge: object, reason: str) -> CycleResult:
     events: list[EvidenceEvent] = []
@@ -50,7 +48,4 @@ def build_verified_cycle(subject_id: str, *, knowledge: object, reason: str) -> 
     )
     accepted = decide_promotion(promotion, decision="ACCEPTED", reviewer="cycle-governance")
     integration = create_integration_record(accepted, action="controlled-core-learning-integration")
-    return CycleResult(
-        True, True, version.version_id, accepted.status, integration.integration_id,
-        accepted, integration,
-    )
+    return CycleResult(True, True, version.version_id, accepted.status, integration.integration_id)
