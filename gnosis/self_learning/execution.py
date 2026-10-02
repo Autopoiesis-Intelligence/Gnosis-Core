@@ -113,12 +113,16 @@ def create_governed_execution_context(
     actual_runtime_identity: str,
     actual_dependency_digest: str,
 ) -> GovernedExecutionContext:
-    governed_context = create_governed_execution_context(
-        scope_lock, environment_attestation,
+    validate_scope_lock(
+        scope_lock,
         actual_commit_sha=actual_commit_sha,
         available_paths=available_paths,
         progress_before=progress_before,
         progress_after=progress_after,
+    )
+    validate_environment_attestation(
+        environment_attestation,
+        expected_scope_lock_id=scope_lock.scope_lock_id,
         actual_python_version=actual_python_version,
         actual_platform=actual_platform,
         actual_runtime_identity=actual_runtime_identity,
@@ -150,21 +154,21 @@ def execute_approved_core_proposal(
     actual_runtime_identity: str,
     actual_dependency_digest: str,
 ) -> ExecutionCommitResult:
-    # E7.114 is a pre-execution gate, not an authorization mechanism.
-    validate_scope_lock(
+    # E7.114/E7.115 are pre-execution gates, not authorization mechanisms.
+    governed_context = create_governed_execution_context(
         scope_lock,
+        environment_attestation,
         actual_commit_sha=actual_commit_sha,
         available_paths=available_paths,
         progress_before=progress_before,
         progress_after=progress_after,
-    )
-    validate_environment_attestation(
-        environment_attestation,
-        expected_scope_lock_id=scope_lock.scope_lock_id,
         actual_python_version=actual_python_version,
         actual_platform=actual_platform,
         actual_runtime_identity=actual_runtime_identity,
         actual_dependency_digest=actual_dependency_digest,
     )
     bind_core_proposal(proposal, request)
-    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor, governed_context=governed_context)
+    return SQLiteExecutionCommitAdapter().commit(
+        conn, instance, candidate, record, request,
+        actor=actor, governed_context=governed_context,
+    )
