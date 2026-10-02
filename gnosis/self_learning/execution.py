@@ -9,6 +9,7 @@ import json
 from dataclasses import asdict, dataclass
 
 from .governance import GovernanceReview
+from .scope_lock import ScopeLock, validate_scope_lock
 
 
 @dataclass(frozen=True)
@@ -91,6 +92,4 @@ def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitR
     binding="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     return BoundCoreExecution(proposal.mutation_id,request.evolution_identity,binding)
 
-def execute_approved_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest, conn: object, instance: object, candidate: object, record: object, *, actor: str) -> ExecutionCommitResult:
-    bind_core_proposal(proposal, request)
-    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
+def execute_approved_core_proposal(\n    proposal: CoreMutationProposal,\n    request: ExecutionCommitRequest,\n    conn: object,\n    instance: object,\n    candidate: object,\n    record: object,\n    *,\n    actor: str,\n    scope_lock: ScopeLock,\n    actual_commit_sha: str,\n    available_paths: tuple[str, ...],\n    progress_before: object,\n    progress_after: object,\n) -> ExecutionCommitResult:\n    # E7.114 is a pre-execution gate, not an authorization mechanism.\n    validate_scope_lock(\n        scope_lock,\n        actual_commit_sha=actual_commit_sha,\n        available_paths=available_paths,\n        progress_before=progress_before,\n        progress_after=progress_after,\n    )\n    bind_core_proposal(proposal, request)\n    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)\n
