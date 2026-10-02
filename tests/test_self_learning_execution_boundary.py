@@ -14,6 +14,7 @@ from gnosis.self_learning.lineage import record_version
 from gnosis.self_learning.lifecycle import verify_lifecycle
 from gnosis.self_learning.promotion import decide_promotion, propose_promotion
 from gnosis.self_learning.execution import execute_approved_core_proposal
+from gnosis.self_learning.scope_lock import create_scope_lock
 from gnosis.reflection.authority import (
     ExecutionAuthorization,
     ExecutionCommitRequest,
@@ -122,7 +123,7 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
         auth, snapshot, "p", "e", object(), validity
     )
 
-    conn = connect()
+    scope_lock = create_scope_lock(\n        batch_id="BATCH-001",\n        repository="Autopoiesis-Intelligence/Gnosis-Core",\n        ref="refs/heads/main",\n        target_commit_sha="abc123",\n        selected_contract_ids=("E7.114",),\n        selected_criterion_ids=("C1",),\n        implementation_paths=("gnosis/self_learning/scope_lock.py",),\n        test_runtime_paths=("tests/test_self_learning_execution_boundary.py",),\n        commands=("pytest tests/test_self_learning_execution_boundary.py",),\n        expected_outcomes=("authorization rejects",),\n        evidence_destinations=("artifacts/e7.114/",),\n        environment_prerequisites=("python>=3.11",),\n        stop_conditions=("wrong commit",),\n        evidence_policy_revision="E7.108-r1",\n        verification_matrix_revision="E7.103-r1",\n        progress_calculation_policy_revision="progress-r1",\n    )\n\n    conn = connect()
     try:
         before = snapshot_database(conn)
         with pytest.raises(PermissionError):
