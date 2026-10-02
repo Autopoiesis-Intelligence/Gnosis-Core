@@ -540,3 +540,59 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+
+def test_e759_authority_provenance_rejects_self_created_authorization_before_mutation():
+    """Diagnostic: structural authorization must not be sufficient to cross the execution boundary."""
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    initial_state_id = instance.engine.state.state_id
+
+    proposed = instance.engine.state.with_elements({"a": 2})
+    candidate = Candidate(initial_state_id, proposed, "authority-forgery")
+    record = instance.engine.step(candidate)
+
+    observations = {"result": "ok"}
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=initial_state_id,
+        parent_state_digest=initial_state_id,
+        proposed_state_digest=proposed.state_id,
+        observations=observations,
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=candidate.binding_digest(initial_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+
+    # Deliberately self-created: no trusted issuer is involved.
+    auth = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+        approval_id="self-created-approval",
+    )
+    request = ExecutionCommitRequest(
+        auth,
+        ExecutionIntentSnapshot.from_provenance(provenance),
+        provenance.provenance_id,
+        provenance.evolution_identity,
+        provenance,
+        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
+    )
+
+    with pytest.raises(PermissionError, match="authority|issuer|owner"):
+        SQLiteExecutionCommitAdapter().commit(
+            conn, instance, candidate, record, request, actor="user-1"
+        )
+
+    assert load_instance(conn, instance.instance_id).engine.state.state_id == initial_state_id
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    conn.close()
