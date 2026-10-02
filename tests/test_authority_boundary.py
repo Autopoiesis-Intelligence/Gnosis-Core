@@ -2,6 +2,29 @@ import pytest
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+from gnosis.self_learning.execution import GovernedExecutionContext
+
+def _context_for(request, record):
+    fields = {
+        "integration_id": str(getattr(record, "integration_id", "")),
+        "version_id": str(getattr(record, "version_id", "")),
+        "target": str(getattr(record, "target", "")),
+        "action": str(getattr(record, "action", "")),
+    }
+    mutation_id = "sha256:" + canonical_digest(fields)
+    binding = "sha256:" + canonical_digest({
+        "mutation_id": mutation_id,
+        "integration_id": fields["integration_id"],
+        "version_id": fields["version_id"],
+        "evolution_identity": request.evolution_identity,
+    })
+    return GovernedExecutionContext(
+        scope_lock_id="scope-test",
+        environment_attestation_id="env-test",
+        evolution_identity=request.evolution_identity,
+        provenance_id=str(request.provenance.provenance_id),
+        proposal_binding_digest=binding,
+    )
 from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.evolution.provenance import build_provenance, canonical_digest
@@ -226,7 +249,7 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
         SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, ExecutionCommitRequest(
             ExecutionAuthorization("bad", False, "bad"),
             ExecutionIntentSnapshot("", "", "", "", "", "", ""),
-            "bad", "bad", object()), actor="user-1")
+            "bad", "bad", object()), actor="user-1", governed_context=_context_for(request, record))
     assert load_instance(conn, instance.instance_id).engine.state.state_id == initial_state_id
     conn.close()
 
@@ -511,7 +534,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
         _make_execution_commit_request(provenance_b),
-        actor="user-1",
+        actor="user-1", governed_context=_context_for(request, record),
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
     assert advanced_head == candidate_b.proposed_state.state_id
