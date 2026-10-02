@@ -9,6 +9,8 @@ import json
 from dataclasses import asdict, dataclass
 
 from .governance import GovernanceReview
+from .scope_lock import ScopeLock, validate_scope_lock
+from .environment_attestation import EnvironmentAttestation, validate_environment_attestation
 
 
 @dataclass(frozen=True)
@@ -91,6 +93,94 @@ def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitR
     binding="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     return BoundCoreExecution(proposal.mutation_id,request.evolution_identity,binding)
 
-def execute_approved_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest, conn: object, instance: object, candidate: object, record: object, *, actor: str) -> ExecutionCommitResult:
-    bind_core_proposal(proposal, request)
-    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
+@dataclass(frozen=True)
+class GovernedExecutionContext:
+    """Capability evidence created only after all pre-execution gates pass."""
+    scope_lock_id: str
+    environment_attestation_id: str
+    evolution_identity: str
+    provenance_id: str
+    proposal_binding_digest: str
+
+
+def create_governed_execution_context(
+    scope_lock: ScopeLock,
+    environment_attestation: EnvironmentAttestation,
+    *,
+    actual_commit_sha: str,
+    available_paths: tuple[str, ...],
+    progress_before: object,
+    progress_after: object,
+    actual_python_version: str,
+    actual_platform: str,
+    actual_runtime_identity: str,
+    actual_dependency_digest: str,
+    bound_execution: BoundCoreExecution,
+    request: ExecutionCommitRequest,
+) -> GovernedExecutionContext:
+    validate_scope_lock(
+        scope_lock,
+        actual_commit_sha=actual_commit_sha,
+        available_paths=available_paths,
+        progress_before=progress_before,
+        progress_after=progress_after,
+    )
+    validate_environment_attestation(
+        environment_attestation,
+        expected_scope_lock_id=scope_lock.scope_lock_id,
+        actual_python_version=actual_python_version,
+        actual_platform=actual_platform,
+        actual_runtime_identity=actual_runtime_identity,
+        actual_dependency_digest=actual_dependency_digest,
+    )
+    if bound_execution.evolution_identity != request.evolution_identity:
+        raise PermissionError("governed context evolution identity mismatch")
+    return GovernedExecutionContext(
+        scope_lock_id=scope_lock.scope_lock_id,
+        environment_attestation_id=environment_attestation.attestation_id,
+        evolution_identity=bound_execution.evolution_identity,
+        provenance_id=str(request.provenance.provenance_id),
+        proposal_binding_digest=bound_execution.binding_digest,
+    )
+
+
+def execute_approved_core_proposal(
+    proposal: CoreMutationProposal,
+    request: ExecutionCommitRequest,
+    conn: object,
+    instance: object,
+    candidate: object,
+    record: object,
+    *,
+    actor: str,
+    scope_lock: ScopeLock,
+    actual_commit_sha: str,
+    available_paths: tuple[str, ...],
+    progress_before: object,
+    progress_after: object,
+    environment_attestation: EnvironmentAttestation,
+    actual_python_version: str,
+    actual_platform: str,
+    actual_runtime_identity: str,
+    actual_dependency_digest: str,
+) -> ExecutionCommitResult:
+    # E7.114/E7.115 are pre-execution gates, not authorization mechanisms.
+    bound_execution = bind_core_proposal(proposal, request)
+    governed_context = create_governed_execution_context(
+        scope_lock,
+        environment_attestation,
+        actual_commit_sha=actual_commit_sha,
+        available_paths=available_paths,
+        progress_before=progress_before,
+        progress_after=progress_after,
+        actual_python_version=actual_python_version,
+        actual_platform=actual_platform,
+        actual_runtime_identity=actual_runtime_identity,
+        actual_dependency_digest=actual_dependency_digest,
+        bound_execution=bound_execution,
+        request=request,
+    )
+    return SQLiteExecutionCommitAdapter().commit(
+        conn, instance, candidate, record, request,
+        actor=actor, governed_context=governed_context,
+    )

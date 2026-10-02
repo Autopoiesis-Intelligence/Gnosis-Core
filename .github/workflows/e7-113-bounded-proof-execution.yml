@@ -1,7 +1,6 @@
 name: E7.113 Bounded Proof Execution
 on:
-  workflow_dispatch:
-jobs:
+  workflow_dispatch:jobs:
   bounded-proof:
     runs-on: ubuntu-latest
     steps:

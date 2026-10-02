@@ -2,6 +2,29 @@ import pytest
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+from gnosis.self_learning.execution import GovernedExecutionContext
+
+def _context_for(request, record):
+    fields = {
+        "integration_id": str(getattr(record, "integration_id", "")),
+        "version_id": str(getattr(record, "version_id", "")),
+        "target": str(getattr(record, "target", "")),
+        "action": str(getattr(record, "action", "")),
+    }
+    mutation_id = "sha256:" + canonical_digest(fields)
+    binding = "sha256:" + canonical_digest({
+        "mutation_id": mutation_id,
+        "integration_id": fields["integration_id"],
+        "version_id": fields["version_id"],
+        "evolution_identity": request.evolution_identity,
+    })
+    return GovernedExecutionContext(
+        scope_lock_id="scope-test",
+        environment_attestation_id="env-test",
+        evolution_identity=request.evolution_identity,
+        provenance_id=str(request.provenance.provenance_id),
+        proposal_binding_digest=binding,
+    )
 from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.evolution.provenance import build_provenance, canonical_digest
@@ -205,8 +228,8 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = _make_execution_commit_request(provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
-    assert result.resulting_state_id == proposed.state_id
+    with pytest.raises(PermissionError, match="governed execution context is required"):
+        SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1", governed_context=None)
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
 
@@ -511,7 +534,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
         _make_execution_commit_request(provenance_b),
-        actor="user-1",
+        actor="user-1", governed_context=_context_for(request, record),
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
     assert advanced_head == candidate_b.proposed_state.state_id
@@ -540,3 +563,49 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+
+def test_persistence_rejects_context_provenance_substitution():
+    from types import SimpleNamespace
+    request = SimpleNamespace(
+        evolution_identity="evo-1",
+        provenance=SimpleNamespace(provenance_id="prov-request"),
+    )
+    context = SimpleNamespace(
+        scope_lock_id="sha256:scope",
+        environment_attestation_id="sha256:env",
+        evolution_identity="evo-1",
+        provenance_id="prov-other",
+    )
+    adapter = SQLiteExecutionCommitAdapter()
+    with pytest.raises(PermissionError, match="provenance mismatch"):
+        adapter.commit(
+            connect(), object(), object(), object(), request,
+            actor="test", governed_context=context,
+        )
+
+
+def test_persistence_rejects_context_proposal_binding_substitution():
+    from types import SimpleNamespace
+    request = SimpleNamespace(
+        evolution_identity="evo-1",
+        provenance=SimpleNamespace(provenance_id="prov-1"),
+    )
+    context = SimpleNamespace(
+        scope_lock_id="sha256:scope",
+        environment_attestation_id="sha256:env",
+        evolution_identity="evo-1",
+        provenance_id="prov-1",
+        proposal_binding_digest="sha256:forged",
+    )
+    record = SimpleNamespace(
+        integration_id="sha256:integration",
+        version_id="sha256:version",
+        target="common-self-learning",
+        action="controlled-core-learning-integration",
+    )
+    with pytest.raises(PermissionError, match="proposal binding mismatch"):
+        SQLiteExecutionCommitAdapter().commit(
+            connect(), object(), object(), record, request,
+            actor="test", governed_context=context,
+        )
