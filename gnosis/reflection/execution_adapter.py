@@ -16,7 +16,9 @@ from gnosis.reflection.authority import (
 class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
-    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str, governed_context: object) -> ExecutionCommitResult:
+        if governed_context is None or not getattr(governed_context, "scope_lock_id", "") or not getattr(governed_context, "environment_attestation_id", ""):
+            raise PermissionError("governed execution context is required before persistence")
         with transaction(conn):
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
