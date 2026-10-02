@@ -93,6 +93,43 @@ def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitR
     binding="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     return BoundCoreExecution(proposal.mutation_id,request.evolution_identity,binding)
 
+@dataclass(frozen=True)
+class GovernedExecutionContext:
+    """Capability evidence created only after all pre-execution gates pass."""
+    scope_lock_id: str
+    environment_attestation_id: str
+
+
+def create_governed_execution_context(
+    scope_lock: ScopeLock,
+    environment_attestation: EnvironmentAttestation,
+    *,
+    actual_commit_sha: str,
+    available_paths: tuple[str, ...],
+    progress_before: object,
+    progress_after: object,
+    actual_python_version: str,
+    actual_platform: str,
+    actual_runtime_identity: str,
+    actual_dependency_digest: str,
+) -> GovernedExecutionContext:
+    governed_context = create_governed_execution_context(
+        scope_lock, environment_attestation,
+        actual_commit_sha=actual_commit_sha,
+        available_paths=available_paths,
+        progress_before=progress_before,
+        progress_after=progress_after,
+        actual_python_version=actual_python_version,
+        actual_platform=actual_platform,
+        actual_runtime_identity=actual_runtime_identity,
+        actual_dependency_digest=actual_dependency_digest,
+    )
+    return GovernedExecutionContext(
+        scope_lock_id=scope_lock.scope_lock_id,
+        environment_attestation_id=environment_attestation.attestation_id,
+    )
+
+
 def execute_approved_core_proposal(
     proposal: CoreMutationProposal,
     request: ExecutionCommitRequest,
@@ -130,4 +167,4 @@ def execute_approved_core_proposal(
         actual_dependency_digest=actual_dependency_digest,
     )
     bind_core_proposal(proposal, request)
-    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
+    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor, governed_context=governed_context)
