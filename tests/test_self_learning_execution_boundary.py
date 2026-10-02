@@ -101,6 +101,19 @@ def snapshot_database(conn):
     return snapshot
 
 
+
+def environment_attestation_for(scope_lock):
+    from gnosis.self_learning.environment_attestation import create_environment_attestation
+    return create_environment_attestation(
+        scope_lock_id=scope_lock.scope_lock_id,
+        observed_at="2026-10-02T03:00:00+02:00",
+        python_version="3.11.14",
+        platform="Linux-6.x-x86_64",
+        runtime_identity="runner:proof-01",
+        dependency_digest="sha256:deps",
+        environment_facts=("git-clean",),
+    )
+
 def test_execution_adapter_fails_closed_without_owner_authorization():
     proposal = canonical_proposal()
     auth = ExecutionAuthorization(
@@ -159,6 +172,11 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
                 available_paths=("gnosis/self_learning/scope_lock.py", "tests/test_self_learning_execution_boundary.py"),
                 progress_before={"E7.114": 0},
                 progress_after={"E7.114": 0},
+                environment_attestation=environment_attestation_for(scope_lock),
+                actual_python_version="3.11.14",
+                actual_platform="Linux-6.x-x86_64",
+                actual_runtime_identity="runner:proof-01",
+                actual_dependency_digest="sha256:deps",
             )
         after = snapshot_database(conn)
         assert after == before
@@ -226,6 +244,11 @@ def test_scope_lock_rejects_tampered_runtime_commit_before_execution():
                 ),
                 progress_before={"E7.114": 0},
                 progress_after={"E7.114": 0},
+                environment_attestation=environment_attestation_for(scope_lock),
+                actual_python_version="3.11.14",
+                actual_platform="Linux-6.x-x86_64",
+                actual_runtime_identity="runner:proof-01",
+                actual_dependency_digest="sha256:deps",
             )
         after = snapshot_database(conn)
         assert after == before
@@ -234,29 +257,47 @@ def test_scope_lock_rejects_tampered_runtime_commit_before_execution():
 
 
 def test_environment_attestation_is_required_before_commit():
-    from gnosis.self_learning.environment_attestation import create_environment_attestation
-
-    attestation = create_environment_attestation(
-        scope_lock_id=scope_lock.scope_lock_id,
-        observed_at="2026-10-02T03:00:00+02:00",
-        python_version="3.11.14",
-        platform="Linux-6.x-x86_64",
-        runtime_identity="runner:proof-01",
-        dependency_digest="sha256:deps",
-        environment_facts=("git-clean",),
+    proposal = canonical_proposal()
+    auth = ExecutionAuthorization(request_provenance="p", owner_approved=True, evolution_identity="e", approval_id="auth-3")
+    snapshot = ExecutionIntentSnapshot(
+        provenance_id="p", execution_id="x3", parent_state_id="parent",
+        parent_state_digest="sha256:p", evolution_identity="e",
+        candidate_binding_digest="sha256:c", proposed_state_content_id="sha256:content",
     )
-    before = snapshot_database(conn)
-    with pytest.raises(ValueError, match="runtime identity"):
-        execute_approved_core_proposal(
-            proposal, request, conn=conn, instance=object(),
-            candidate=object(), record=object(), actor="test",
-            scope_lock=scope_lock, actual_commit_sha="abc123",
-            available_paths=("gnosis/self_learning/scope_lock.py",),
-            progress_before={"E7.114": 0}, progress_after={"E7.114": 0},
-            environment_attestation=attestation,
-            actual_python_version="3.11.14",
-            actual_platform="Linux-6.x-x86_64",
-            actual_runtime_identity="runner:tampered",
-            actual_dependency_digest="sha256:deps",
-        )
-    assert snapshot_database(conn) == before
+    validity = AuthorizationValidity("auth-3", "policy-1", "ev-3")
+    request = ExecutionCommitRequest(auth, snapshot, "p", "e", object(), validity)
+    scope_lock = create_scope_lock(
+        batch_id="BATCH-003", repository="Autopoiesis-Intelligence/Gnosis-Core",
+        ref="refs/heads/main", target_commit_sha="abc123",
+        selected_contract_ids=("E7.115",), selected_criterion_ids=("C1",),
+        implementation_paths=("gnosis/self_learning/environment_attestation.py",),
+        test_runtime_paths=("tests/test_self_learning_execution_boundary.py",),
+        commands=("pytest tests/test_self_learning_execution_boundary.py",),
+        expected_outcomes=("runtime identity substitution is rejected",),
+        evidence_destinations=("artifacts/e7.115/",),
+        environment_prerequisites=("python>=3.11",),
+        stop_conditions=("wrong runtime identity",),
+        evidence_policy_revision="E7.108-r1",
+        verification_matrix_revision="E7.103-r1",
+        progress_calculation_policy_revision="progress-r1",
+    )
+    attestation = environment_attestation_for(scope_lock)
+    conn = connect()
+    try:
+        before = snapshot_database(conn)
+        with pytest.raises(ValueError, match="runtime identity"):
+            execute_approved_core_proposal(
+                proposal, request, conn=conn, instance=object(),
+                candidate=object(), record=object(), actor="test",
+                scope_lock=scope_lock, actual_commit_sha="abc123",
+                available_paths=("gnosis/self_learning/environment_attestation.py",),
+                progress_before={"E7.115": 0}, progress_after={"E7.115": 0},
+                environment_attestation=attestation,
+                actual_python_version="3.11.14",
+                actual_platform="Linux-6.x-x86_64",
+                actual_runtime_identity="runner:tampered",
+                actual_dependency_digest="sha256:deps",
+            )
+        assert snapshot_database(conn) == before
+    finally:
+        conn.close()
