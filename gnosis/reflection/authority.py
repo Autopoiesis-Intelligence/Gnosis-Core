@@ -49,9 +49,19 @@ class OwnerApproval:
     evolution_identity: str
 
 
-@dataclass(frozen=True)
-_ISSUER_ATTESTATION_TOKEN = object()\n\n\n@dataclass(frozen=True)\nclass IssuerAttestation:\n    """Attestation whose issuer provenance is bound to a private module token."""\n    issuer_identity: str\n    authority_root: str\n    scope: str\n    policy_version: str\n    evidence_digest: str\n    capability: object\n    _issuer_token: object
+_ISSUER_ATTESTATION_TOKEN = object()
 
+
+@dataclass(frozen=True)
+class IssuerAttestation:
+    """Attestation whose issuer provenance is bound to a private module token."""
+    issuer_identity: str
+    authority_root: str
+    scope: str
+    policy_version: str
+    evidence_digest: str
+    capability: object
+    _issuer_token: object
 
 @dataclass(frozen=True)
 class ExecutionAuthorization:
