@@ -53,3 +53,25 @@ def test_trusted_owner_issuer_rejects_policy_substitution():
             request_provenance="p",
             evolution_identity="e",
         )
+
+
+def test_forged_issuer_attestation_is_rejected():
+    from gnosis.reflection.authority import IssuerAttestation
+    auth = ExecutionAuthorization(
+        request_provenance="p",
+        owner_approved=True,
+        evolution_identity="e",
+        approval_id="approval-1",
+        policy_version="policy-1",
+        issuer_attestation=IssuerAttestation(
+            issuer_identity="root-1:core-evolution",
+            authority_root="root-1",
+            scope="core-evolution",
+            policy_version="policy-1",
+            evidence_digest="evidence-1",
+            capability=object(),
+            _issuer_token=object(),
+        ),
+    )
+    with pytest.raises(PermissionError, match="provenance is invalid"):
+        require_execution_authorization(auth, request_provenance="p", evolution_identity="e")
