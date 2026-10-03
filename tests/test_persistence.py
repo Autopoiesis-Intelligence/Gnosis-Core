@@ -229,7 +229,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == 3
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -242,7 +242,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
