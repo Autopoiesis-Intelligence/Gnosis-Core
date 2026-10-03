@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from gnosis.reflection.authority import ExecutionAuthorization, IssuerAttestation, OwnerApproval
+from gnosis.reflection.authority import ExecutionAuthorization, IssuerAttestation, OwnerApproval, _ISSUER_ATTESTATION_TOKEN
 
 
 @dataclass(frozen=True)
@@ -58,6 +58,7 @@ class TrustedOwnerIssuer:
             policy_version=self.policy_version,
             evidence_digest=request.evidence_digest,
             capability=capability,
+            _issuer_token=_ISSUER_ATTESTATION_TOKEN,
         )
         return ExecutionAuthorization(
             request_provenance=request_provenance,
