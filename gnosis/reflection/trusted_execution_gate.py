@@ -29,8 +29,10 @@ def require_trusted_execution(
         raise PermissionError("authorization validity identity mismatch")
     if validity.policy_version == "":
         raise PermissionError("authorization policy is missing")
+    if validity.policy_version != request.authorization.policy_version:
+        raise PermissionError("authorization policy does not match trusted authorization")
     validity.require_valid(
-        expected_policy_version=validity.policy_version,
+        expected_policy_version=request.authorization.policy_version,
         expected_evidence_digest=validity.validity_evidence_digest,
     )
     require_execution_commit(request)
