@@ -17,6 +17,9 @@ class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+        # Preflight request-bound authority before entering the transaction.
+        # Fail-closed behavior must not depend on conn being a usable database.
+        require_execution_commit(request)
         with transaction(conn):
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
