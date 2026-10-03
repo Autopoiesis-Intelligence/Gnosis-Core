@@ -21,7 +21,7 @@ from gnosis.storage import (
     verify_audit_chain,
     verify_durable_graph,
 )
-from gnosis.storage.repositories import _audit_hash, _persist_transition
+from gnosis.storage.repositories import _audit_hash, _persist_transition, canonical_json
 from gnosis.storage.authorization import RecoveryAuthorization
 
 
