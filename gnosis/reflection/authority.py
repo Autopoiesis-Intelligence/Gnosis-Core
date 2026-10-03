@@ -26,26 +26,19 @@ class AuthorityRequest:
 
     @property
     def authorized(self) -> bool:
-        """The request itself never grants authority."""
         return False
 
     @property
     def can_activate(self) -> bool:
-        """No activation capability crosses this boundary."""
         return False
 
     @property
     def can_rollback(self) -> bool:
-        """No rollback capability crosses this boundary."""
         return False
 
 
 def request_authorization(decision: GovernanceDecision) -> AuthorityRequest:
-    """Translate a governance classification into an explicit approval request."""
-    return AuthorityRequest(
-        decision=decision.decision,
-        rationale=decision.rationale,
-    )
+    return AuthorityRequest(decision=decision.decision, rationale=decision.rationale)
 
 
 @dataclass(frozen=True)
@@ -58,11 +51,12 @@ class OwnerApproval:
 
 @dataclass(frozen=True)
 class ExecutionAuthorization:
-    """Authorization bound to one exact evolution provenance."""
+    """Authorization bound to exact policy and evolution provenance."""
     request_provenance: str
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    policy_version: str = ""
 
     @property
     def can_execute(self) -> bool:
@@ -70,8 +64,8 @@ class ExecutionAuthorization:
             self.owner_approved
             and bool(self.request_provenance)
             and bool(self.evolution_identity)
+            and bool(self.policy_version)
         )
-
 
 
 def issue_execution_authorization(
@@ -80,7 +74,6 @@ def issue_execution_authorization(
     request_provenance: str,
     evolution_identity: str,
 ) -> ExecutionAuthorization:
-    """Refuse boolean-only approval; real owner issuer remains an explicit boundary."""
     if (
         approval is None
         or not approval.approval_id
@@ -90,13 +83,13 @@ def issue_execution_authorization(
         raise PermissionError("owner approval does not match evolution")
     raise NotImplementedError("trusted owner-authority issuer is not implemented")
 
+
 def require_execution_authorization(
     auth: ExecutionAuthorization | None,
     *,
     request_provenance: str,
     evolution_identity: str,
 ) -> None:
-    """Fail closed unless authorization exactly matches the requested evolution."""
     if (
         auth is None
         or not auth.can_execute
@@ -104,6 +97,8 @@ def require_execution_authorization(
         or auth.evolution_identity != evolution_identity
     ):
         raise PermissionError("execution authorization does not match evolution")
+    if not auth.policy_version:
+        raise PermissionError("execution authorization policy is missing")
 
 
 @dataclass(frozen=True)
@@ -133,11 +128,7 @@ class ExecutionIntentSnapshot:
         return self == type(self).from_provenance(provenance)
 
 
-def require_execution_intent_snapshot(
-    snapshot: ExecutionIntentSnapshot | None,
-    provenance: object,
-) -> None:
-    """Fail closed unless the immutable snapshot exactly matches current provenance."""
+def require_execution_intent_snapshot(snapshot: ExecutionIntentSnapshot | None, provenance: object) -> None:
     if snapshot is None or not snapshot.matches_provenance(provenance):
         raise PermissionError("execution intent snapshot does not match evolution")
 
@@ -154,7 +145,6 @@ class ExecutionCommitRequest:
 
 
 def _canonical_evolution_identity(provenance: object) -> str:
-    """Recompute the identity instead of trusting a caller-supplied property."""
     return "evolution:" + canonical_digest({
         "candidate_id": str(provenance.candidate_id),
         "execution_id": str(provenance.execution_id),
@@ -173,7 +163,6 @@ def _canonical_evolution_identity(provenance: object) -> str:
 
 
 def require_execution_commit(request: ExecutionCommitRequest) -> None:
-    """Fail closed unless authorization, identity and freshness all agree."""
     require_execution_authorization(
         request.authorization,
         request_provenance=request.request_provenance,
@@ -187,7 +176,6 @@ def require_execution_commit(request: ExecutionCommitRequest) -> None:
 
 
 def require_execution_integration_context(request: ExecutionCommitRequest, record: object) -> None:
-    """Fail closed unless the authorized execution matches the integration context."""
     p = request.provenance
     for field in ("proposal_id", "version_id", "target"):
         request_value = getattr(p, field, None)
@@ -198,28 +186,20 @@ def require_execution_integration_context(request: ExecutionCommitRequest, recor
             raise PermissionError(f"execution integration context mismatch: {field}")
 
 
-def require_execution_candidate_binding(
-    request: ExecutionCommitRequest,
-    candidate: object,
-    record: object,
-) -> None:
-    """Bind the actually committed candidate and transition to the authorized provenance."""
+def require_execution_candidate_binding(request: ExecutionCommitRequest, candidate: object, record: object) -> None:
     p = request.provenance
     candidate_id = str(getattr(candidate, "candidate_id", ""))
     if candidate_id != str(p.candidate_id):
         raise PermissionError("execution candidate does not match authorized provenance")
-
     parent_state_id = str(getattr(candidate, "parent_state_id", ""))
     if parent_state_id != str(p.parent_state_id):
         raise PermissionError("execution candidate parent does not match authorized provenance")
-
     parent_state_digest = str(p.parent_state_digest)
     binding_digest_fn = getattr(candidate, "binding_digest", None)
     if not callable(binding_digest_fn):
         raise PermissionError("execution candidate has no binding digest")
     if str(binding_digest_fn(parent_state_digest)) != str(p.candidate_binding_digest):
         raise PermissionError("execution candidate binding does not match authorized provenance")
-
     proposed_state = getattr(candidate, "proposed_state", None)
     if proposed_state is None:
         raise PermissionError("execution candidate has no proposed state")
@@ -227,7 +207,6 @@ def require_execution_candidate_binding(
         raise PermissionError("execution candidate result does not match authorized evolution")
     if str(getattr(proposed_state, "content_id", "")) != str(p.proposed_state_content_id):
         raise PermissionError("execution candidate content does not match authorized evolution")
-
     if str(getattr(record, "candidate_id", "")) != candidate_id:
         raise PermissionError("transition record candidate does not match execution candidate")
     if str(getattr(record, "from_state_id", "")) != parent_state_id:
@@ -238,7 +217,6 @@ def require_execution_candidate_binding(
 
 @dataclass(frozen=True)
 class ExecutionReceipt:
-    """Immutable evidence produced only after a caller supplies a committed result digest."""
     execution_id: str
     provenance_id: str
     evolution_identity: str
@@ -248,7 +226,6 @@ class ExecutionReceipt:
 
     @property
     def receipt_id(self) -> str:
-        """Canonical identity of this immutable execution evidence."""
         return "sha256:" + canonical_digest({
             "execution_id": self.execution_id,
             "provenance_id": self.provenance_id,
@@ -290,7 +267,6 @@ class ExecutionReceipt:
 
 
 def require_execution_receipt(receipt: ExecutionReceipt | None, request: ExecutionCommitRequest) -> None:
-    """Fail closed unless a post-commit receipt is bound to the authorized evolution."""
     if receipt is None or not receipt.resulting_state_digest or not receipt.matches_request(request):
         raise PermissionError("execution receipt does not match committed evolution")
 

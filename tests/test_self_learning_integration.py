@@ -106,7 +106,7 @@ def _execution_fixture(proposal=None):
         evolution_identity="evolution:1", candidate_binding_digest="sha256:binding",
         proposed_state_digest="sha256:result", proposed_state_content_id="sha256:content",
     )
-    auth=ExecutionAuthorization("prov:1",True,"evolution:1","approval:1")
+    auth=ExecutionAuthorization("prov:1",True,"evolution:1","approval:1","policy-1")
     snapshot=ExecutionIntentSnapshot.from_provenance(p)
     request=ExecutionCommitRequest(auth,snapshot,"prov:1","evolution:1",p)
     receipt=ExecutionReceipt("exec:1","prov:1","evolution:1","sha256:parent","sha256:result","sha256:binding")

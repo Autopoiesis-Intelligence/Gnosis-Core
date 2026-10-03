@@ -309,4 +309,5 @@ def to_execution_authorization_for_test(
         owner_approved=True,
         evolution_identity=authorization.evolution_identity,
         approval_id=authorization.authorization_id,
+        policy_version=authorization.policy_version,
     )
