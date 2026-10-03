@@ -63,6 +63,7 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    policy_version: str = ""
 
     @property
     def can_execute(self) -> bool:
@@ -70,6 +71,7 @@ class ExecutionAuthorization:
             self.owner_approved
             and bool(self.request_provenance)
             and bool(self.evolution_identity)
+            and bool(self.policy_version)
         )
 
 
@@ -104,6 +106,8 @@ def require_execution_authorization(
         or auth.evolution_identity != evolution_identity
     ):
         raise PermissionError("execution authorization does not match evolution")
+    if not auth.policy_version:
+        raise PermissionError("execution authorization policy is missing")
 
 
 @dataclass(frozen=True)
