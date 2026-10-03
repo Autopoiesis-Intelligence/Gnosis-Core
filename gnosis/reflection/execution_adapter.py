@@ -9,6 +9,7 @@ from gnosis.reflection.authority import (
     ExecutionCommitRequest,
     ExecutionCommitResult,
     ExecutionReceipt,
+    require_execution_commit,
     require_execution_candidate_binding,
 )
 
