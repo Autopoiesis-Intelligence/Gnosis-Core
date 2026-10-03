@@ -512,7 +512,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     record_b = instance.engine.step(candidate_b)
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
-        _make_execution_commit_request(provenance_b),
+        _make_execution_commit_request(provenance_b, approval_id="approval-b", policy_version="policy-1"),
         actor="user-1",
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
