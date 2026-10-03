@@ -10,11 +10,12 @@ class EvolutionEvidence:
     transition_id: str
     outcome: str
     evidence: tuple[str, ...]
+    state_id: str | None = None
 
 
 def project_evolution_memory(records: tuple[EvolutionMemoryRecord, ...], *, limit: int = 100) -> tuple[EvolutionEvidence, ...]:
     """Expose verified memory as evidence only; never creates authority or candidates."""
     if limit < 1:
         raise ValueError("limit must be >= 1")
-    return tuple(EvolutionEvidence(r.memory_id, r.candidate_id, r.transition_id, r.outcome, r.evidence)
+    return tuple(EvolutionEvidence(r.memory_id, r.candidate_id, r.transition_id, r.outcome, r.evidence, state_id=r.state_id)
                  for r in records[:limit])
