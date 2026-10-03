@@ -44,4 +44,4 @@ def test_gate_consumes_only_issuer_attested_authorization(sqlite_conn, provenanc
         "SELECT action, resource, result FROM audit_events WHERE event_id=?",
         ("execution-authorization:auth-attested",),
     ).fetchone()
-    assert row == ("execution.authorization.consume", "auth-attested", "accepted")
+    assert tuple(row) == ("execution.authorization.consume", "auth-attested", "accepted")
