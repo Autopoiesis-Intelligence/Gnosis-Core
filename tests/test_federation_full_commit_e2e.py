@@ -12,7 +12,7 @@ def build_request():
     env=admit_federation_evidence(h,{"observation":"value"})
     p=build_core_provenance(env,parent_state_id="p1",parent_state_digest="pd",proposed_state_digest="qd",proposed_state_content_id="content",candidate_binding_digest="binding",evaluation_status="PASS",shadow_status="PASS",invariant_status="PASS",governance_decision="ALLOW")
     v=AuthorizationValidity("auth-e2e","policy-1","ev-1")
-    a=ExecutionAuthorization(request_provenance=p.provenance_id,owner_approved=True,evolution_identity=p.evolution_identity,approval_id=v.authorization_id)
+    a=ExecutionAuthorization(request_provenance=p.provenance_id,owner_approved=True,evolution_identity=p.evolution_identity,approval_id=v.authorization_id,policy_version=v.policy_version)
     req=ExecutionCommitRequest(a,ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p,v)
     return req,p
 
