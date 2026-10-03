@@ -168,7 +168,7 @@ def test_execution_receipt_rejects_unproven_result_content():
 
 
 def _make_execution_commit_request(provenance):
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1", "policy-1")
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
@@ -276,7 +276,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-1", "policy-1"
     )
     request = ExecutionCommitRequest(
         auth,
@@ -361,12 +361,13 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1", "policy-1"
         ),
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity("approval-1", "policy-1", provenance_a.evolution_identity),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -479,12 +480,13 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1", "policy-1"
         ),
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity("approval-1", "policy-1", provenance_a.evolution_identity),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
@@ -510,7 +512,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     record_b = instance.engine.step(candidate_b)
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
-        _make_execution_commit_request(provenance_b),
+        _make_execution_commit_request(provenance_b, approval_id="approval-b", policy_version="policy-1"),
         actor="user-1",
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
