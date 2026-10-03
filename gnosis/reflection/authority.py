@@ -50,14 +50,7 @@ class OwnerApproval:
 
 
 @dataclass(frozen=True)
-class IssuerAttestation:
-    """Opaque attestation that an authorization was issued by TrustedOwnerIssuer."""
-    issuer_identity: str
-    authority_root: str
-    scope: str
-    policy_version: str
-    evidence_digest: str
-    capability: object
+_ISSUER_ATTESTATION_TOKEN = object()\n\n\n@dataclass(frozen=True)\nclass IssuerAttestation:\n    """Attestation whose issuer provenance is bound to a private module token."""\n    issuer_identity: str\n    authority_root: str\n    scope: str\n    policy_version: str\n    evidence_digest: str\n    capability: object\n    _issuer_token: object
 
 
 @dataclass(frozen=True)
@@ -122,6 +115,8 @@ def require_execution_authorization(
         raise PermissionError("trusted issuer attestation evidence is missing")
     if attestation.capability is None:
         raise PermissionError("trusted issuer attestation capability is missing")
+    if attestation._issuer_token is not _ISSUER_ATTESTATION_TOKEN:
+        raise PermissionError("trusted issuer attestation provenance is invalid")
 
 
 @dataclass(frozen=True)
