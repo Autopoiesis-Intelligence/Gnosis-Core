@@ -50,6 +50,17 @@ class OwnerApproval:
 
 
 @dataclass(frozen=True)
+class IssuerAttestation:
+    """Opaque attestation that an authorization was issued by TrustedOwnerIssuer."""
+    issuer_identity: str
+    authority_root: str
+    scope: str
+    policy_version: str
+    evidence_digest: str
+    capability: object
+
+
+@dataclass(frozen=True)
 class ExecutionAuthorization:
     """Authorization bound to exact policy and evolution provenance."""
     request_provenance: str
@@ -57,6 +68,7 @@ class ExecutionAuthorization:
     evolution_identity: str = ""
     approval_id: str = ""
     policy_version: str = ""
+    issuer_attestation: IssuerAttestation | None = None
 
     @property
     def can_execute(self) -> bool:
@@ -99,6 +111,17 @@ def require_execution_authorization(
         raise PermissionError("execution authorization does not match evolution")
     if not auth.policy_version:
         raise PermissionError("execution authorization policy is missing")
+    attestation = auth.issuer_attestation
+    if attestation is None:
+        raise PermissionError("trusted issuer attestation is required")
+    if not attestation.issuer_identity or not attestation.authority_root or not attestation.scope:
+        raise PermissionError("trusted issuer attestation is incomplete")
+    if attestation.policy_version != auth.policy_version:
+        raise PermissionError("trusted issuer attestation policy mismatch")
+    if not attestation.evidence_digest:
+        raise PermissionError("trusted issuer attestation evidence is missing")
+    if attestation.capability is None:
+        raise PermissionError("trusted issuer attestation capability is missing")
 
 
 @dataclass(frozen=True)
