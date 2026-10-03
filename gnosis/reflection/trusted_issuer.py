@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from gnosis.reflection.authority import ExecutionAuthorization, OwnerApproval
+from gnosis.reflection.authority import ExecutionAuthorization, IssuerAttestation, OwnerApproval
 
 
 @dataclass(frozen=True)
@@ -19,6 +19,11 @@ class TrustedIssuerInput:
     scope: str
     policy_version: str
     evidence_digest: str
+
+
+@dataclass(frozen=True)
+class _IssuerCapability:
+    issuer_identity: str
 
 
 @dataclass(frozen=True)
@@ -45,10 +50,20 @@ class TrustedOwnerIssuer:
             raise PermissionError("owner approval does not match provenance")
         if approval.evolution_identity != evolution_identity:
             raise PermissionError("owner approval does not match evolution")
+        capability = _IssuerCapability(issuer_identity=f"{self.authority_root}:{self.scope}")
+        attestation = IssuerAttestation(
+            issuer_identity=capability.issuer_identity,
+            authority_root=self.authority_root,
+            scope=self.scope,
+            policy_version=self.policy_version,
+            evidence_digest=request.evidence_digest,
+            capability=capability,
+        )
         return ExecutionAuthorization(
             request_provenance=request_provenance,
             owner_approved=True,
             evolution_identity=evolution_identity,
             approval_id=approval.approval_id,
             policy_version=self.policy_version,
+            issuer_attestation=attestation,
         )
