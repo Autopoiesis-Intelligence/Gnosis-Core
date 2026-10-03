@@ -35,3 +35,5 @@ jobs:
         with:
           name: self-diagnostic-${{ matrix.python-version }}
           path: diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
+
+# E7.59 exact-SHA diagnostic trigger.
