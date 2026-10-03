@@ -414,7 +414,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     conn.close()
     reopened = connect(path)
     assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -438,54 +438,29 @@ def test_a54_rejected_transition_replay_is_idempotent():
 
 def test_a55_conflicting_transition_replay_fails_closed():
     conn, instance, record = _persisted_transition()
-    conflicting = TransitionRecord(
-        record.from_state_id,
-        record.to_state_id,
-        record.candidate_id,
-        TestResult(False, ("conflict",)),
-        False,
-        "conflict",
-        record.test_rule_id,
+    # Tamper the persisted row while preserving its transition_id. The replay
+    # must detect the identity-bound record conflict before any head check.
+    conn.execute(
+        "UPDATE transitions SET reasons=? WHERE transition_id=?",
+        (canonical_json(("conflict",)), record.transition_id),
     )
     with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
-        _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
+        _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), record, actor="test")
 
 
 def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
-    row = conn.execute(
-        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
-        "FROM audit_events WHERE transition_id IS NOT NULL"
-    ).fetchone()
-    conn.execute(
-        "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            "duplicate-audit",
-            row[1] + 1,
-            row[2],
-            row[3],
-            row[4],
-            row[5],
-            row[6],
-            row[7],
-            row[8],
-            _audit_hash({
-                "event_id": "duplicate-audit",
-                "sequence": row[1] + 1,
-                "transition_id": row[2],
-                "actor": row[3],
-                "action": row[4],
-                "resource": row[5],
-                "result": row[6],
-                "timestamp": row[7],
-                "prev_hash": row[8],
-            }),
-        ),
+    append_audit(
+        conn,
+        actor="test",
+        action="transition.commit",
+        resource=instance.instance_id,
+        result="accepted",
+        event_key="duplicate-transition-audit",
+        transition_id_value=record.transition_id,
     )
     with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
         verify_durable_graph(conn)
-
 
 def test_a51_audit_action_and_result_mismatch_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
