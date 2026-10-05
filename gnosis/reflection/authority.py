@@ -56,6 +56,7 @@ class OwnerApproval:
     approval_id: str
     request_provenance: str
     evolution_identity: str
+    policy_identity: PolicyIdentity
 
 
 @dataclass(frozen=True)
