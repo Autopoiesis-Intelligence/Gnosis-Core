@@ -314,3 +314,112 @@ def test_e527_consumed_reason_is_distinct_from_revoked():
         (auth.authorization_id,),
     ).fetchone()
     assert state == ("consumed", 1, 0)
+
+
+def test_e760_test_authority_lifecycle_reaches_real_sqlite_execution() -> None:
+    """Bridge persisted test authority into the existing trusted execution boundary."""
+    from gnosis.core import Candidate, State
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.reflection.authority import (
+        ExecutionCommitRequest,
+        ExecutionIntentSnapshot,
+    )
+    from gnosis.reflection.authorization_validity import AuthorizationValidity
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    from gnosis.reflection.test_issuer import (
+        issue_for_provenance_for_test,
+        to_execution_authorization_for_test,
+    )
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    initialize_test_authorization_store(conn)
+
+    instance = Instance.create_root("e760-test", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    parent_state_id = instance.engine.state.state_id
+    proposed = instance.engine.state.with_elements({"a": 2})
+    candidate = Candidate(parent_state_id, proposed, "e760-vertical")
+    record = instance.engine.step(candidate)
+
+    observations = {"candidate_id": candidate.candidate_id, "result": "ok"}
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=proposed.state_id,
+        observations=observations,
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=candidate.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+
+    issuer = TestAuthorizationIssuer(secret=b"e7.60-vertical-test-secret")
+    authorization = issue_for_provenance_for_test(
+        issuer,
+        provenance,
+        policy_version="policy:v1",
+        expires_at=100,
+    )
+    persist_test_authorization(conn, authorization)
+    consume_test_authorization(
+        conn,
+        issuer,
+        authorization,
+        now=50,
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        parent_state_digest=provenance.parent_state_digest,
+        policy_version="policy:v1",
+    )
+
+    execution_auth = to_execution_authorization_for_test(issuer, authorization)
+    snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
+    request = ExecutionCommitRequest(
+        authorization=execution_auth,
+        intent_snapshot=snapshot,
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        provenance=provenance,
+        authorization_validity=AuthorizationValidity(
+            authorization.authorization_id,
+            "policy:v1",
+            provenance.evidence_digest,
+        ),
+    )
+
+    result = SQLiteExecutionCommitAdapter().commit(
+        conn,
+        instance,
+        candidate,
+        record,
+        request,
+        actor="e760-test",
+    )
+
+    assert result.resulting_state_id == proposed.state_id
+    assert result.receipt.matches_request(request)
+    assert load_instance(conn, instance.instance_id).engine.state.state_id == proposed.state_id
+    lifecycle = conn.execute(
+        "SELECT consumed, lifecycle_state FROM test_authorizations WHERE authorization_id = ?",
+        (authorization.authorization_id,),
+    ).fetchone()
+    assert lifecycle == (1, "consumed")
+
+    with pytest.raises(PermissionError, match="already consumed"):
+        consume_test_authorization(
+            conn,
+            issuer,
+            authorization,
+            now=50,
+            request_provenance=provenance.provenance_id,
+            evolution_identity=provenance.evolution_identity,
+            parent_state_digest=provenance.parent_state_digest,
+            policy_version="policy:v1",
+        )
+    conn.close()
