@@ -18,7 +18,9 @@ class TrustedIssuerInput:
     authority_root: str
     scope: str
     policy_version: str
+    policy_identity: object | None = None
     evidence_digest: str
+    policy_identity: object | None = None
 
 
 @dataclass(frozen=True)
@@ -36,6 +38,8 @@ class TrustedOwnerIssuer:
             raise PermissionError("authorization scope mismatch")
         if request.policy_version != self.policy_version:
             raise PermissionError("authorization policy mismatch")
+        if request.policy_identity is None or self.policy_identity != request.policy_identity:
+            raise PermissionError("trusted issuer policy identity mismatch")
         if not request.evidence_digest:
             raise PermissionError("authorization evidence is missing")
         approval = request.approval
@@ -50,4 +54,5 @@ class TrustedOwnerIssuer:
             owner_approved=True,
             evolution_identity=evolution_identity,
             approval_id=approval.approval_id,
+            policy_identity=request.policy_identity,
         )
