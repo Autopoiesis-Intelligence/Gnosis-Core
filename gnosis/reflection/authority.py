@@ -14,6 +14,8 @@ from gnosis.evolution.provenance import canonical_digest
 from gnosis.storage import load_state
 from gnosis.storage.repositories import _persist_transition
 
+from .policy_identity import PolicyIdentity
+
 
 @dataclass(frozen=True)
 class AuthorityRequest:
@@ -54,6 +56,7 @@ class OwnerApproval:
     approval_id: str
     request_provenance: str
     evolution_identity: str
+    policy_identity: PolicyIdentity | None = None
 
 
 @dataclass(frozen=True)
@@ -63,6 +66,7 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    policy_identity: PolicyIdentity | None = None
 
     @property
     def can_execute(self) -> bool:
@@ -70,6 +74,8 @@ class ExecutionAuthorization:
             self.owner_approved
             and bool(self.request_provenance)
             and bool(self.evolution_identity)
+            and self.policy_identity is not None
+            and self.policy_identity.is_valid()
         )
 
 
@@ -86,8 +92,10 @@ def issue_execution_authorization(
         or not approval.approval_id
         or approval.request_provenance != request_provenance
         or approval.evolution_identity != evolution_identity
+        or approval.policy_identity is None
+        or not approval.policy_identity.is_valid()
     ):
-        raise PermissionError("owner approval does not match evolution")
+        raise PermissionError("owner approval does not match evolution or policy")
     raise NotImplementedError("trusted owner-authority issuer is not implemented")
 
 def require_execution_authorization(
@@ -102,8 +110,10 @@ def require_execution_authorization(
         or not auth.can_execute
         or auth.request_provenance != request_provenance
         or auth.evolution_identity != evolution_identity
+        or auth.policy_identity is None
+        or not auth.policy_identity.is_valid()
     ):
-        raise PermissionError("execution authorization does not match evolution")
+        raise PermissionError("execution authorization does not match evolution or policy")
 
 
 @dataclass(frozen=True)
