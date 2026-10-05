@@ -2,15 +2,17 @@ import pytest
 
 from gnosis.reflection.authority import OwnerApproval
 from gnosis.reflection.trusted_issuer import TrustedIssuerInput, TrustedOwnerIssuer
+from gnosis.core.policy import PolicyIdentity
 
 
 def req():
-    approval=OwnerApproval("a1","p1","e1")
-    return TrustedIssuerInput(approval,"root-1","evolution.commit","policy-1","evd")
+    policy=PolicyIdentity("test-rule",1,"impl-1")
+    approval=OwnerApproval("a1","p1","e1",policy)
+    return TrustedIssuerInput(approval,"root-1","evolution.commit","1","evd")
 
 
 def issuer():
-    return TrustedOwnerIssuer("root-1","evolution.commit","policy-1")
+    return TrustedOwnerIssuer("root-1","evolution.commit","1",PolicyIdentity("test-rule",1,"impl-1"))
 
 
 def test_exact_approval_is_issued():
@@ -18,7 +20,7 @@ def test_exact_approval_is_issued():
     assert auth.can_execute is True
     assert auth.approval_id == "a1"
 
-@pytest.mark.parametrize("field,value",[("authority_root","root-x"),("scope","other.scope"),("policy_version","policy-x")])
+@pytest.mark.parametrize("field,value",[("authority_root","root-x"),("scope","other.scope"),("policy_version","2")])
 def test_root_scope_policy_mismatch_fails_closed(field,value):
     base=req().__dict__.copy(); base[field]=value
     with pytest.raises(PermissionError):
