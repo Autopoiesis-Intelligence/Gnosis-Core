@@ -123,7 +123,7 @@ def test_execution_commit_gate_requires_all_boundaries():
 
 def test_execution_commit_gate_rejects_cross_bound_evolution():
     provenance = _snapshot_provenance()
-    auth = ExecutionAuthorization(request_provenance=provenance.provenance_id, evolution_identity="wrong", owner_approved=True)
+    auth = ExecutionAuthorization(request_provenance=provenance.provenance_id, evolution_identity="wrong", owner_approved=True, policy_identity=_policy_identity())
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, "wrong", provenance)
     with pytest.raises(PermissionError):
@@ -145,7 +145,7 @@ def test_execution_receipt_is_created_after_commit_and_matches_request():
 
 def test_execution_receipt_requires_result_state():
     provenance = _snapshot_provenance()
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, policy_identity=_policy_identity())
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
     with pytest.raises((PermissionError, ValueError), match="resulting state"):
@@ -154,7 +154,7 @@ def test_execution_receipt_requires_result_state():
 
 def test_execution_receipt_rejects_cross_evolution():
     provenance = _snapshot_provenance()
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, policy_identity=_policy_identity())
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
     receipt = ExecutionReceipt.after_commit(request, {"state": "new"})
@@ -166,7 +166,7 @@ def test_execution_receipt_rejects_cross_evolution():
 
 def test_execution_receipt_rejects_unproven_result_content():
     provenance = _snapshot_provenance()
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, policy_identity=_policy_identity())
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
     with pytest.raises(PermissionError, match="resulting state does not match"):
@@ -208,7 +208,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
         evaluation_status="PASS", shadow_status="UNCHANGED",
         invariant_status="PRESERVED", governance_decision="ALLOW",
     )
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, policy_identity=_policy_identity())
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = _make_execution_commit_request(provenance)
     result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
