@@ -1,5 +1,6 @@
 from .budget import Budget, BudgetExhaustedError, DEFAULT_BUDGET
 from .evolution import Engine, GenerateFn, StopCondition
+from .policy import EvaluationEvidence, ExecutablePolicyBinding, PolicyIdentity, bind_policy, default_policy_binding, implementation_identity
 from .invariants import (
     DEFAULT_INVARIANTS,
     InvariantResult,
@@ -20,7 +21,7 @@ from .types import (
     TransitionRecord,
     deep_freeze,
 )
-from .verification import TestFn, default_test, evaluate, verify
+from .verification import TestFn, default_test, evaluate, evaluate_binding, verify
 
 __all__ = [
     "Budget",
@@ -29,6 +30,12 @@ __all__ = [
     "Engine",
     "GenerateFn",
     "StopCondition",
+    "PolicyIdentity",
+    "EvaluationEvidence",
+    "ExecutablePolicyBinding",
+    "bind_policy",
+    "default_policy_binding",
+    "implementation_identity",
     "DEFAULT_INVARIANTS",
     "InvariantResult",
     "all_pass",
@@ -49,5 +56,6 @@ __all__ = [
     "TestFn",
     "default_test",
     "evaluate",
+    "evaluate_binding",
     "verify",
 ]
