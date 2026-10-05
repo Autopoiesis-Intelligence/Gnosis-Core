@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gnosis.reflection.authority import ExecutionAuthorization, OwnerApproval
+from gnosis.reflection.policy_identity import PolicyIdentity
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,10 @@ class TrustedOwnerIssuer:
             raise PermissionError("authorization policy mismatch")
         if not request.evidence_digest:
             raise PermissionError("authorization evidence is missing")
+        requested_policy = PolicyIdentity.from_material(
+            policy_version=request.policy_version,
+            execution_scope=request.scope,
+        )
         approval = request.approval
         if not approval.approval_id:
             raise PermissionError("approval identity is missing")
@@ -45,9 +50,14 @@ class TrustedOwnerIssuer:
             raise PermissionError("owner approval does not match provenance")
         if approval.evolution_identity != evolution_identity:
             raise PermissionError("owner approval does not match evolution")
+        if approval.policy_identity is None or not approval.policy_identity.is_valid():
+            raise PermissionError("owner approval policy identity is missing")
+        if approval.policy_identity != requested_policy:
+            raise PermissionError("owner approval does not match policy")
         return ExecutionAuthorization(
             request_provenance=request_provenance,
             owner_approved=True,
             evolution_identity=evolution_identity,
             approval_id=approval.approval_id,
+            policy_identity=approval.policy_identity,
         )
