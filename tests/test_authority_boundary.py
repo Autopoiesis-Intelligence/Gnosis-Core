@@ -3,8 +3,13 @@ from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitR
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.authorization_validity import AuthorizationValidity
+from gnosis.reflection.policy_identity import PolicyIdentity
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.evolution.provenance import build_provenance, canonical_digest
+
+
+def _policy_identity(scope="evolution.commit", version="policy-1"):
+    return PolicyIdentity.from_material(policy_version=version, execution_scope=scope)
 
 
 def test_authority_request_requires_owner_and_grants_no_capability() -> None:
@@ -28,19 +33,19 @@ def test_authority_request_requires_owner_and_grants_no_capability() -> None:
 def test_execution_authorization_fails_closed_without_explicit_owner_approval():
     with pytest.raises(PermissionError, match="does not match evolution"):
         require_execution_authorization(None, request_provenance="p", evolution_identity="e")
-    auth = ExecutionAuthorization(request_provenance="p", owner_approved=False)
+    auth = ExecutionAuthorization(request_provenance="p", owner_approved=False, policy_identity=_policy_identity())
     with pytest.raises(PermissionError, match="does not match evolution"):
         require_execution_authorization(auth, request_provenance="p", evolution_identity="e")
 
 
 def test_execution_authorization_requires_nonempty_provenance():
-    auth = ExecutionAuthorization(request_provenance="", evolution_identity="e", owner_approved=True)
+    auth = ExecutionAuthorization(request_provenance="", evolution_identity="e", owner_approved=True, policy_identity=_policy_identity())
     with pytest.raises(PermissionError, match="does not match evolution"):
         require_execution_authorization(auth, request_provenance="p", evolution_identity="e")
 
 
 def test_execution_authorization_must_match_exact_evolution():
-    auth = ExecutionAuthorization(request_provenance="p", evolution_identity="e", owner_approved=True)
+    auth = ExecutionAuthorization(request_provenance="p", evolution_identity="e", owner_approved=True, policy_identity=_policy_identity())
     require_execution_authorization(auth, request_provenance="p", evolution_identity="e")
     with pytest.raises(PermissionError, match="does not match evolution"):
         require_execution_authorization(auth, request_provenance="other", evolution_identity="e")
@@ -104,6 +109,7 @@ def test_execution_commit_gate_requires_all_boundaries():
         request_provenance=provenance.provenance_id,
         evolution_identity=provenance.evolution_identity,
         owner_approved=True,
+        policy_identity=_policy_identity(),
     )
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = ExecutionCommitRequest(
@@ -127,7 +133,7 @@ def test_execution_commit_gate_rejects_cross_bound_evolution():
 def test_execution_receipt_is_created_after_commit_and_matches_request():
     from gnosis.evolution.provenance import canonical_digest
     provenance = _snapshot_provenance()
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, policy_identity=_policy_identity())
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = ExecutionCommitRequest(auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance)
     resulting_state = {"state": "new"}
@@ -168,7 +174,7 @@ def test_execution_receipt_rejects_unproven_result_content():
 
 
 def _make_execution_commit_request(provenance):
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1", _policy_identity())
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
@@ -361,7 +367,8 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity,
+            policy_identity=_policy_identity(),
         ),
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
