@@ -27,10 +27,13 @@ def require_trusted_execution(
         raise PermissionError("authorization validity is required")
     if validity.authorization_id != request.authorization.approval_id:
         raise PermissionError("authorization validity identity mismatch")
-    if validity.policy_version == "":
-        raise PermissionError("authorization policy is missing")
+    policy_identity = request.authorization.policy_identity
+    if policy_identity is None or not policy_identity.is_valid():
+        raise PermissionError("execution authorization policy identity is missing")
+    if validity.policy_version != policy_identity.policy_version:
+        raise PermissionError("authorization validity policy mismatch")
     validity.require_valid(
-        expected_policy_version=validity.policy_version,
+        expected_policy_version=policy_identity.policy_version,
         expected_evidence_digest=validity.validity_evidence_digest,
     )
     require_execution_commit(request)
@@ -39,6 +42,6 @@ def require_trusted_execution(
         validity.authorization_id,
         request_provenance=request.request_provenance,
         evolution_identity=request.evolution_identity,
-        policy_version=validity.policy_version,
+        policy_version=policy_identity.policy_version,
         actor=actor,
     )
