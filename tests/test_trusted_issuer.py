@@ -1,11 +1,12 @@
 import pytest
 
 from gnosis.reflection.authority import OwnerApproval
+from gnosis.reflection.policy_identity import PolicyIdentity
 from gnosis.reflection.trusted_issuer import TrustedIssuerInput, TrustedOwnerIssuer
 
 
 def req():
-    approval=OwnerApproval("a1","p1","e1")
+    approval=OwnerApproval("a1","p1","e1",PolicyIdentity.from_material(policy_version="policy-1",execution_scope="evolution.commit"))
     return TrustedIssuerInput(approval,"root-1","evolution.commit","policy-1","evd")
 
 
