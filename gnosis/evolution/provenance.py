@@ -6,6 +6,8 @@ import json
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from gnosis.core.policy import PolicyIdentity
+
 
 def canonical_digest(value: Any) -> str:
     """Return a stable SHA-256 digest for JSON-compatible evidence."""
@@ -15,7 +17,7 @@ def canonical_digest(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: str, parent_state_digest: str, proposed_state_digest: str, evidence_digest: str, evaluation_status: str, shadow_status: str, invariant_status: str, governance_decision: str, status: str = "RECORDED", proposed_state_content_id: str = "", candidate_binding_digest: str = "") -> str:
+def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: str, parent_state_digest: str, proposed_state_digest: str, evidence_digest: str, evaluation_status: str, shadow_status: str, invariant_status: str, governance_decision: str, status: str = "RECORDED", proposed_state_content_id: str = "", candidate_binding_digest: str = "", evaluated_policy: PolicyIdentity | None = None) -> str:
     return "provenance:" + canonical_digest({
         "execution_id": execution_id,
         "candidate_id": candidate_id,
@@ -24,6 +26,7 @@ def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: 
         "proposed_state_digest": proposed_state_digest,
         "proposed_state_content_id": proposed_state_content_id,
         "candidate_binding_digest": candidate_binding_digest,
+        "evaluated_policy": None if evaluated_policy is None else {"rule_id": evaluated_policy.rule_id, "rule_version": evaluated_policy.rule_version, "implementation_identity": evaluated_policy.implementation_identity},
         "evidence_digest": evidence_digest,
         "evaluation_status": evaluation_status,
         "shadow_status": shadow_status,
@@ -47,6 +50,7 @@ class EvidenceProvenance:
     status: str = "RECORDED"
     proposed_state_content_id: str = ""
     candidate_binding_digest: str = ""
+    evaluated_policy: PolicyIdentity | None = None
 
     @property
     def evolution_identity(self) -> str:
@@ -59,6 +63,7 @@ class EvidenceProvenance:
             "proposed_state_digest": self.proposed_state_digest,
             "proposed_state_content_id": self.proposed_state_content_id,
             "candidate_binding_digest": self.candidate_binding_digest,
+            "evaluated_policy": None if self.evaluated_policy is None else {"rule_id": self.evaluated_policy.rule_id, "rule_version": self.evaluated_policy.rule_version, "implementation_identity": self.evaluated_policy.implementation_identity},
             "evidence_digest": self.evidence_digest,
             "evaluation_status": self.evaluation_status,
             "shadow_status": self.shadow_status,
@@ -83,6 +88,7 @@ class EvidenceProvenance:
             status=self.status,
             proposed_state_content_id=self.proposed_state_content_id,
             candidate_binding_digest=self.candidate_binding_digest,
+            evaluated_policy=self.evaluated_policy,
         )
 
 
@@ -114,6 +120,7 @@ def build_provenance(
     shadow_status: str,
     invariant_status: str,
     governance_decision: str,
+    evaluated_policy: PolicyIdentity | None = None,
 ) -> EvidenceProvenance:
     if not parent_state_digest or not proposed_state_digest:
         raise ValueError("state digests are required")
@@ -129,6 +136,7 @@ def build_provenance(
         evidence_digest=evidence_digest,
         proposed_state_content_id=proposed_state_content_id,
         candidate_binding_digest=candidate_binding_digest,
+        evaluated_policy=evaluated_policy,
         evaluation_status=evaluation_status,
         shadow_status=shadow_status,
         invariant_status=invariant_status,
@@ -158,6 +166,7 @@ def crosscheck_provenance(
     governance_decision: str,
     proposed_state_content_id: str = "",
     candidate_binding_digest: str = "",
+    evaluated_policy: PolicyIdentity | None = None,
 ) -> ProvenanceCrossCheck:
     """Verify every identity-bearing link before provenance can be trusted."""
     reasons: list[str] = []
@@ -173,6 +182,8 @@ def crosscheck_provenance(
         reasons.append("proposed_state_content_id mismatch")
     if provenance.candidate_binding_digest != candidate_binding_digest:
         reasons.append("candidate_binding_digest mismatch")
+    if provenance.evaluated_policy != evaluated_policy:
+        reasons.append("evaluated_policy mismatch")
     if provenance.evidence_digest != evidence_digest:
         reasons.append("evidence_digest mismatch")
     if provenance.execution_id != execution_id_value:
@@ -204,6 +215,7 @@ def crosscheck_provenance(
         status=provenance.status,
         proposed_state_content_id=proposed_state_content_id,
         candidate_binding_digest=candidate_binding_digest,
+        evaluated_policy=evaluated_policy,
     )
     if provenance.provenance_id != expected_provenance.provenance_id:
         reasons.append("provenance identity mismatch")

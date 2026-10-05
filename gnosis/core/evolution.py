@@ -5,9 +5,10 @@ from dataclasses import dataclass, field
 from typing import Callable, Sequence
 
 from .budget import Budget, BudgetExhaustedError
-from .select import SelectionResult, select
+from .select import SelectionResult, select, select_binding
 from .types import Candidate, State, StopReason, TestResult, TransitionRecord
-from .verification import TestFn, default_test, evaluate
+from .verification import TestFn, default_test, evaluate, evaluate_binding
+from .policy import ExecutablePolicyBinding, default_policy_binding
 
 GenerateFn = Callable[[State], Candidate]
 
@@ -26,8 +27,28 @@ class Engine:
     test_fn: TestFn = default_test
     history: list[TransitionRecord] = field(default_factory=list)
     test_rule_id: str = "test-rule:default"
+    policy_binding: ExecutablePolicyBinding | None = None
+    _binding_locked: bool = field(default=False, init=False, repr=False)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if name == "policy_binding" and getattr(self, "_binding_locked", False):
+            raise AttributeError("policy_binding is immutable after Engine initialization")
+        object.__setattr__(self, name, value)
+
+    def __post_init__(self) -> None:
+        if self.policy_binding is not None:
+            self.test_fn = self.policy_binding.evaluator
+            self.test_rule_id = self.policy_binding.policy.rule_id
+        elif self.test_fn is default_test:
+            self.policy_binding = default_policy_binding()
+            self.test_fn = self.policy_binding.evaluator
+            self.test_rule_id = self.policy_binding.policy.rule_id
+        self._binding_locked = True
 
     STEP_COST: int = 1
+
+    def _effective_test_rule_id(self) -> str:
+        return self.policy_binding.policy.rule_id if self.policy_binding is not None else self.test_rule_id
 
     def _charge_step(self) -> None:
         if self.budget.exhausted():
@@ -41,7 +62,11 @@ class Engine:
         self._charge_step()
         if candidate.parent_state_id != self.state.state_id:
             raise StopCondition(StopReason.INVALID_STATE, f"candidate parent {candidate.parent_state_id} does not match current state {self.state.state_id}")
-        result = evaluate(self.state, candidate, self.test_fn)
+        if self.policy_binding is None:
+            result = evaluate(self.state, candidate, self.test_fn)
+            evidence = None
+        else:
+            result, evidence = evaluate_binding(self.state, candidate, self.policy_binding)
         record = TransitionRecord(
             from_state_id=self.state.state_id,
             to_state_id=candidate.proposed_state.state_id,
@@ -49,7 +74,8 @@ class Engine:
             test_result=result,
             accepted=result.passed,
             reason="committed" if result.passed else "rejected: " + "; ".join(result.reasons),
-            test_rule_id=self.test_rule_id,
+            test_rule_id=self._effective_test_rule_id(),
+            evaluation_evidence=evidence,
         )
         self.history.append(record)
         if result.passed:
@@ -58,7 +84,10 @@ class Engine:
 
     def step_select(self, candidates: Sequence[Candidate]) -> TransitionRecord:
         self._charge_step()
-        result: SelectionResult = select(self.state, candidates, self.test_fn)
+        if self.policy_binding is None:
+            result: SelectionResult = select(self.state, candidates, self.test_fn)
+        else:
+            result = select_binding(self.state, candidates, self.policy_binding)
         if result.selected is None:
             reasons: tuple[str, ...]
             if not result.evaluated:
@@ -74,7 +103,8 @@ class Engine:
                 test_result=failed_result,
                 accepted=False,
                 reason=f"no candidate passed Test/Select: {detail}",
-                test_rule_id=self.test_rule_id,
+                test_rule_id=self._effective_test_rule_id(),
+                evaluation_evidence=None,
             )
             self.history.append(record)
             return record
@@ -89,7 +119,8 @@ class Engine:
             test_result=selected_result,
             accepted=True,
             reason=f"committed via select (out of {len(candidates)} candidates)",
-            test_rule_id=self.test_rule_id,
+            test_rule_id=self._effective_test_rule_id(),
+            evaluation_evidence=next((e for e in result.evaluation_evidence if e.candidate_id == selected.candidate_id), None),
         )
         self.history.append(record)
         self.state = selected.proposed_state
