@@ -2,6 +2,7 @@ import pytest
 from gnosis.self_learning.lineage import KnowledgeVersion
 from gnosis.self_learning.promotion import propose_promotion, decide_promotion
 from gnosis.self_learning.integration import create_integration_record, mark_executed
+from gnosis.reflection.policy_identity import PolicyIdentity
 
 def accepted():
     v=KnowledgeVersion("sha256:v","u","flow","common","sha256:k","GENESIS")
@@ -106,7 +107,7 @@ def _execution_fixture(proposal=None):
         evolution_identity="evolution:1", candidate_binding_digest="sha256:binding",
         proposed_state_digest="sha256:result", proposed_state_content_id="sha256:content",
     )
-    auth=ExecutionAuthorization("prov:1",True,"evolution:1","approval:1")
+    auth=ExecutionAuthorization("prov:1",True,"evolution:1","approval:1", PolicyIdentity.from_material(policy_version="policy-1", execution_scope="evolution.commit"))
     snapshot=ExecutionIntentSnapshot.from_provenance(p)
     request=ExecutionCommitRequest(auth,snapshot,"prov:1","evolution:1",p)
     receipt=ExecutionReceipt("exec:1","prov:1","evolution:1","sha256:parent","sha256:result","sha256:binding")
