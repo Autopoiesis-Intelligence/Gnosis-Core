@@ -19,3 +19,30 @@ def test_gate_rejects_identity_mismatch_before_consumption(sqlite_conn, provenan
     req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
     with pytest.raises(PermissionError,match="identity"):
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
+
+
+def test_gate_rejects_missing_policy_identity_before_consumption(sqlite_conn, provenance):
+    auth=ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+        approval_id="auth-missing-policy",
+    )
+    validity=AuthorizationValidity("auth-missing-policy","policy-1","ev-1")
+    req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
+    with pytest.raises(PermissionError,match="policy identity"):
+        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
+
+
+def test_gate_rejects_policy_mismatch_before_consumption(sqlite_conn, provenance):
+    auth=ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+        approval_id="auth-policy-mismatch",
+        policy_identity=PolicyIdentity.from_material(policy_version="policy-1",execution_scope="evolution.commit"),
+    )
+    validity=AuthorizationValidity("auth-policy-mismatch","policy-2","ev-1")
+    req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
+    with pytest.raises(PermissionError,match="policy mismatch"):
+        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
