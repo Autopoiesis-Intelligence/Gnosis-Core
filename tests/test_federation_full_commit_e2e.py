@@ -4,6 +4,7 @@ from gnosis.evolution.federation_admission import admit_federation_evidence, bui
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot
 from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.trusted_execution_gate import require_trusted_execution
+from gnosis.reflection.policy_identity import PolicyIdentity
 from registry.core_handoff import create_handoff
 
 
@@ -12,7 +13,7 @@ def build_request():
     env=admit_federation_evidence(h,{"observation":"value"})
     p=build_core_provenance(env,parent_state_id="p1",parent_state_digest="pd",proposed_state_digest="qd",proposed_state_content_id="content",candidate_binding_digest="binding",evaluation_status="PASS",shadow_status="PASS",invariant_status="PASS",governance_decision="ALLOW")
     v=AuthorizationValidity("auth-e2e","policy-1","ev-1")
-    a=ExecutionAuthorization(request_provenance=p.provenance_id,owner_approved=True,evolution_identity=p.evolution_identity,approval_id=v.authorization_id)
+    a=ExecutionAuthorization(request_provenance=p.provenance_id,owner_approved=True,evolution_identity=p.evolution_identity,approval_id=v.authorization_id,policy_identity=PolicyIdentity.from_material(policy_version="policy-1", execution_scope="evolution.commit"))
     req=ExecutionCommitRequest(a,ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p,v)
     return req,p
 
