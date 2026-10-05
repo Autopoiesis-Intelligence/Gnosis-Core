@@ -304,9 +304,14 @@ def to_execution_authorization_for_test(
     if not issuer.verify(authorization):
         raise PermissionError("invalid test authorization")
     from .authority import ExecutionAuthorization
+    from .policy_identity import PolicyIdentity
     return ExecutionAuthorization(
         request_provenance=authorization.request_provenance,
         owner_approved=True,
         evolution_identity=authorization.evolution_identity,
         approval_id=authorization.authorization_id,
+        policy_identity=PolicyIdentity.from_material(
+            policy_version=authorization.policy_version,
+            execution_scope="|".join(authorization.scope),
+        ),
     )
