@@ -24,6 +24,7 @@ from typing import Callable
 
 from .invariants import DEFAULT_INVARIANTS, all_pass, run_invariants
 from .types import Candidate, State, TestResult
+from .policy import EvaluationEvidence, ExecutablePolicyBinding
 
 TestFn = Callable[[State, Candidate], bool]
 
@@ -81,3 +82,25 @@ def evaluate(
             "protected invariants satisfied; custom Test predicate passed",
         ),
     )
+
+
+def evaluate_binding(
+    current: State,
+    candidate: Candidate,
+    binding: ExecutablePolicyBinding,
+) -> tuple[TestResult, EvaluationEvidence]:
+    """Evaluate through one authoritative policy binding.
+
+    Protected Core invariants remain mandatory. If they fail, the registered
+    evaluator is not invoked and evidence explicitly records that fact.
+    """
+    invariant_result = _default_test_result(current, candidate)
+    if not invariant_result.passed:
+        return invariant_result, EvaluationEvidence(
+            policy=binding.policy,
+            passed=False,
+            invoked=False,
+            candidate_id=candidate.candidate_id,
+            parent_state_id=current.state_id,
+        )
+    return binding.evaluate(current, candidate)

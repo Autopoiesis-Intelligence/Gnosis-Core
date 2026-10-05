@@ -18,3 +18,29 @@ def test_gate_rejects_identity_mismatch_before_consumption(sqlite_conn, provenan
     req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
     with pytest.raises(PermissionError,match="identity"):
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
+
+
+def test_gate_rejects_forged_policy_version_against_evaluated_identity(sqlite_conn, provenance):
+    from dataclasses import replace
+    from gnosis.core import PolicyIdentity
+
+    policy = PolicyIdentity("R", 2, "impl-2")
+    provenance = replace(provenance, evaluated_policy=policy)
+    auth = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+        approval_id="auth-2",
+        policy_identity=policy,
+    )
+    validity = AuthorizationValidity("auth-2", "3", "ev-2", policy_identity=policy)
+    req = ExecutionCommitRequest(
+        auth,
+        ExecutionIntentSnapshot.from_provenance(provenance),
+        provenance.provenance_id,
+        provenance.evolution_identity,
+        provenance,
+        validity,
+    )
+    with pytest.raises(PermissionError, match="policy version mismatch"):
+        require_trusted_execution(req, conn=sqlite_conn, actor="trusted-owner")
