@@ -409,7 +409,7 @@ def test_e760_test_authority_lifecycle_reaches_real_sqlite_execution() -> None:
         "SELECT consumed, lifecycle_state FROM test_authorizations WHERE authorization_id = ?",
         (authorization.authorization_id,),
     ).fetchone()
-    assert lifecycle == (1, "consumed")
+    assert tuple(lifecycle) == (1, "consumed")
 
     with pytest.raises(PermissionError, match="already consumed"):
         consume_test_authorization(
