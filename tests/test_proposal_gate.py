@@ -10,4 +10,10 @@ def test_no_authority(): assert not creates_execution_authority(decision=make())
 def test_invalid_decision():
     with pytest.raises(ValueError): make("APPROVE")
 def test_deterministic(): assert make()==make()
-\n\ndef test_stale_proposal_does_not_activate():\n    assert not may_activate(proposal_status="PROPOSED", decision=make(), proposal_id="proposal:1", proposal_digest="sha256:p", current_state_digest="sha256:new", proposal_state_digest="sha256:base")\n\ndef test_missing_state_binding_does_not_activate():\n    assert not may_activate(proposal_status="PROPOSED", decision=make(), proposal_id="proposal:1", proposal_digest="sha256:p")\n
+
+
+def test_stale_proposal_does_not_activate():
+    assert not may_activate(proposal_status="PROPOSED", decision=make(), proposal_id="proposal:1", proposal_digest="sha256:p", current_state_digest="sha256:new", proposal_state_digest="sha256:base")
+
+def test_missing_state_binding_does_not_activate():
+    assert not may_activate(proposal_status="PROPOSED", decision=make(), proposal_id="proposal:1", proposal_digest="sha256:p")
