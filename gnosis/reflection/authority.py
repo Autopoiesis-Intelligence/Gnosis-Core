@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from gnosis.core.policy import PolicyIdentity
+
 from .governance import GovernanceDecision
 from gnosis.evolution.provenance import canonical_digest
 from gnosis.storage import load_state
@@ -54,6 +56,7 @@ class OwnerApproval:
     approval_id: str
     request_provenance: str
     evolution_identity: str
+    policy_identity: PolicyIdentity
 
 
 @dataclass(frozen=True)
@@ -63,6 +66,7 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    policy_identity: PolicyIdentity | None = None
 
     @property
     def can_execute(self) -> bool:
@@ -116,6 +120,7 @@ class ExecutionIntentSnapshot:
     evolution_identity: str
     candidate_binding_digest: str
     proposed_state_content_id: str
+    evaluated_policy: PolicyIdentity | None = None
 
     @classmethod
     def from_provenance(cls, provenance: object) -> "ExecutionIntentSnapshot":
@@ -127,6 +132,7 @@ class ExecutionIntentSnapshot:
             evolution_identity=str(provenance.evolution_identity),
             candidate_binding_digest=str(provenance.candidate_binding_digest),
             proposed_state_content_id=str(provenance.proposed_state_content_id),
+            evaluated_policy=getattr(provenance, "evaluated_policy", None),
         )
 
     def matches_provenance(self, provenance: object) -> bool:

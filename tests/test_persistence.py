@@ -191,6 +191,35 @@ def _persisted_transition():
     return conn, instance, record
 
 
+def test_policy_identity_tamper_is_detected_as_durable_corruption():
+    conn, instance, record = _persisted_transition()
+    digest = recovery_evidence_digest(conn, instance.instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="policy-tamper-auth",
+        subject=instance.instance_id,
+        requested_by="principal",
+        authority="governance/recovery",
+        decision="allow",
+        reason="test",
+        issued_at="2026-09-25T00:00:00Z",
+        expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
+    transition_id = record.transition_id
+    conn.execute("DROP TRIGGER audit_events_no_update")
+    conn.execute(
+        "UPDATE transitions SET policy_implementation_identity=? WHERE transition_id=?",
+        ("tampered-implementation", transition_id),
+    )
+    with pytest.raises(StorageCorruptionError, match="transition identity mismatch"):
+        recover_instance(
+            conn,
+            instance.instance_id,
+            authorization,
+            now="2026-09-25T12:00:00Z",
+        )
+
+
 def test_a42_missing_audit_evidence_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
     conn.execute("DROP TRIGGER audit_events_no_delete")

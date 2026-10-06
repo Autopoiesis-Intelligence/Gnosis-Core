@@ -8,7 +8,7 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from typing import Any
 
-from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord
+from gnosis.core import Candidate, Relation, State, TestResult, TransitionRecord, EvaluationEvidence, PolicyIdentity, default_policy_binding
 from gnosis.instances.instance import Instance, InstanceStatus
 from .database import GENESIS_HASH, transaction
 from .authorization import RecoveryAuthorization, validate_recovery_authorization
@@ -74,7 +74,7 @@ def load_candidate(conn: sqlite3.Connection,candidate_id: str)->Candidate:
 def transition_id(record: TransitionRecord)->str:
     return record.transition_id
 def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)->list[TransitionRecord]:
-    query="SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions"
+    query="SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked FROM transitions"
     params: tuple[Any,...]=()
     if instance_id is not None: query += " WHERE instance_id=?"; params=(instance_id,)
     query += " ORDER BY created_at,transition_id"
@@ -85,7 +85,10 @@ def load_transition_records(conn: sqlite3.Connection,instance_id: str|None=None)
         if not isinstance(reasons, tuple) or not all(isinstance(reason, str) for reason in reasons):
             raise StorageCorruptionError("invalid transition reasons")
         result=TestResult(passed=bool(row[4]),reasons=reasons)
-        record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=row[1],test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6])
+        evidence = None
+        if row[7] is not None and row[8] is not None and row[9] is not None:
+            evidence = EvaluationEvidence(PolicyIdentity(str(row[7]), int(row[8]), str(row[9])), bool(row[4]), bool(row[10]), str(row[1]), str(row[2]))
+        record=TransitionRecord(from_state_id=row[2],to_state_id=row[3],candidate_id=row[1],test_result=result,accepted=bool(row[4]),reason=("committed" if row[4] else "rejected: "+"; ".join(reasons)),test_rule_id=row[6],evaluation_evidence=evidence)
         if record.transition_id != row[0]:
             raise StorageCorruptionError("transition identity mismatch")
         candidate = load_candidate(conn, row[1])
@@ -112,17 +115,40 @@ def verify_audit_chain(conn: sqlite3.Connection)->tuple[int,str]:
 
 def save_instance(conn: sqlite3.Connection,instance: Instance,*,actor: str|None=None)->None:
     with transaction(conn):
-        save_state(conn,instance.engine.state); b=instance.engine.budget; conn.execute("INSERT INTO instances(instance_id,parent_instance_id,owner_id,root_state_id,current_state_id,generation,status,budget_total,budget_spent,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)",(instance.instance_id,instance.parent_instance_id,instance.owner_id,instance.engine.state.state_id,instance.engine.state.state_id,instance.generation,instance.status.value,b.total,b.spent,instance.created_at)); append_audit(conn,actor=actor or instance.owner_id,action="instance.create",resource=instance.instance_id,result="accepted",event_key=f"instance:{instance.instance_id}:create")
-def load_instance(conn: sqlite3.Connection,instance_id: str)->Instance:
-    row=conn.execute("SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,created_at FROM instances WHERE instance_id=?",(instance_id,)).fetchone()
+        save_state(conn,instance.engine.state)
+        b=instance.engine.budget
+        binding=instance.engine.policy_binding
+        if binding is None:
+            raise StorageCorruptionError("instance has no executable policy binding")
+        p=binding.policy
+        conn.execute("INSERT INTO instances(instance_id,parent_instance_id,owner_id,root_state_id,current_state_id,generation,status,budget_total,budget_spent,policy_rule_id,policy_rule_version,policy_implementation_identity,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",(instance.instance_id,instance.parent_instance_id,instance.owner_id,instance.engine.state.state_id,instance.engine.state.state_id,instance.generation,instance.status.value,b.total,b.spent,p.rule_id,p.rule_version,p.implementation_identity,instance.created_at))
+        append_audit(conn,actor=actor or instance.owner_id,action="instance.create",resource=instance.instance_id,result="accepted",event_key=f"instance:{instance.instance_id}:create")
+def load_instance(conn: sqlite3.Connection,instance_id: str, policy_registry: object | None = None)->Instance:
+    row=conn.execute("SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,policy_rule_id,policy_rule_version,policy_implementation_identity,created_at FROM instances WHERE instance_id=?",(instance_id,)).fetchone()
     if row is None: raise StorageCorruptionError(f"instance not found: {instance_id}")
     from gnosis.core import Budget,Engine
-    budget=Budget(total=row[7],spent=row[8]); return Instance(row[0],row[1],Engine(load_state(conn,row[3]),budget=budget),row[4],row[5],InstanceStatus(row[6]),row[9])
+    budget=Budget(total=row[7],spent=row[8])
+    if row[9] is None or row[10] is None or row[11] is None:
+        raise StorageCorruptionError("legacy instance has no executable policy identity")
+    persisted=PolicyIdentity(str(row[9]),int(row[10]),str(row[11]))
+    default=default_policy_binding()
+    if persisted == default.policy:
+        binding=default
+    elif policy_registry is not None:
+        try:
+            binding=policy_registry.resolve(persisted.rule_id,persisted.rule_version)
+        except Exception as exc:
+            raise StorageCorruptionError("persisted executable policy cannot be resolved") from exc
+        if binding.policy != persisted:
+            raise StorageCorruptionError("resolved executable policy identity mismatch")
+    else:
+        raise StorageCorruptionError("policy registry is required for non-default recovery")
+    return Instance(row[0],row[1],Engine(load_state(conn,row[3]),budget=budget,policy_binding=binding),row[4],row[5],InstanceStatus(row[6]),row[12])
 def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
     """Return the digest of the verified durable evidence bound to recovery."""
     verify_durable_graph(conn)
     instance = conn.execute(
-        "SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,created_at "
+        "SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,policy_rule_id,policy_rule_version,policy_implementation_identity,created_at "
         "FROM instances WHERE instance_id=?",
         (instance_id,),
     ).fetchone()
@@ -131,7 +157,7 @@ def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
     transitions = [
         tuple(row)
         for row in conn.execute(
-            "SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at "
+            "SELECT transition_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked,created_at "
             "FROM transitions WHERE instance_id=? ORDER BY created_at,transition_id",
             (instance_id,),
         )
@@ -158,6 +184,7 @@ def recover_instance(
     authorization: RecoveryAuthorization,
     *,
     now: str,
+    policy_registry: object | None = None,
 ) -> Instance:
     evidence_digest = recovery_evidence_digest(conn, instance_id)
     validate_recovery_authorization(
@@ -166,7 +193,7 @@ def recover_instance(
         evidence_digest=evidence_digest,
         now=now,
     )
-    instance = load_instance(conn, instance_id)
+    instance = load_instance(conn, instance_id, policy_registry=policy_registry)
     append_audit(
         conn,
         actor=authorization.requested_by,
@@ -224,19 +251,22 @@ def _persist_transition_in_transaction(conn: sqlite3.Connection,instance: Instan
         if failure_at==point: raise RuntimeError(f"injected failure at {point}")
     if candidate.parent_state_id!=record.from_state_id: raise ValueError("candidate parent does not match transition source")
     tid=transition_id(record); inject("before_begin")
-    inject("after_begin"); db=load_instance(conn,instance.instance_id)
-    existing_transition = conn.execute("SELECT instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id FROM transitions WHERE transition_id=?",(tid,)).fetchone()
+    inject("after_begin"); db_head=conn.execute("SELECT current_state_id FROM instances WHERE instance_id=?",(instance.instance_id,)).fetchone()
+    if db_head is None: raise StorageCorruptionError("instance not found during transition persistence")
+    existing_transition = conn.execute("SELECT instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked FROM transitions WHERE transition_id=?",(tid,)).fetchone()
     if existing_transition is not None:
-        expected=(instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id)
+        p=record.evaluation_evidence.policy if record.evaluation_evidence is not None else None
+        expected=(instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,None if p is None else p.rule_id,None if p is None else p.rule_version,None if p is None else p.implementation_identity,None if record.evaluation_evidence is None else int(record.evaluation_evidence.invoked))
         if tuple(existing_transition)!=expected: raise StorageCorruptionError("conflicting transition replay")
         persisted_candidate=load_candidate(conn,record.candidate_id)
         if (persisted_candidate.parent_state_id!=candidate.parent_state_id or persisted_candidate.proposed_state.state_id!=candidate.proposed_state.state_id or persisted_candidate.origin!=candidate.origin or persisted_candidate.seed!=candidate.seed or persisted_candidate.proposed_state.content_id!=candidate.proposed_state.content_id): raise StorageCorruptionError("conflicting candidate replay")
         expected_head=record.to_state_id if record.accepted else record.from_state_id
-        if db.engine.state.state_id!=expected_head: raise ValueError("replayed transition has inconsistent canonical head")
+        if str(db_head[0])!=expected_head: raise ValueError("replayed transition has inconsistent canonical head")
         return
-    if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
+    if str(db_head[0])!=record.from_state_id: raise ValueError("stale instance head")
     save_candidate(conn,candidate); inject("after_candidate")
-    conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
+    p=record.evaluation_evidence.policy if record.evaluation_evidence is not None else None
+    conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,policy_rule_id,policy_rule_version,policy_implementation_identity,policy_invoked,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,None if p is None else p.rule_id,None if p is None else p.rule_version,None if p is None else p.implementation_identity,None if record.evaluation_evidence is None else int(record.evaluation_evidence.invoked),utc_now())); inject("after_transition")
     append_audit(conn,actor=actor,action="transition.commit" if record.accepted else "transition.reject",resource=instance.instance_id,result="accepted" if record.accepted else "rejected",event_key=f"transition:{tid}",transition_id_value=tid); inject("after_audit")
     if record.accepted: conn.execute("UPDATE instances SET current_state_id=?,budget_total=?,budget_spent=? WHERE instance_id=?",(record.to_state_id,instance.engine.budget.total,instance.engine.budget.spent,instance.instance_id)); inject("after_head")
     inject("before_commit")
