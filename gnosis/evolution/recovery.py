@@ -9,6 +9,7 @@ from ..core.types import State
 
 from .chain_verifier import verify_persisted_chain
 from .provenance import canonical_digest, EvidenceProvenance
+from ..core.policy import PolicyIdentity
 from ..reflection.persistence import classify_evolution_provenance, list_evolution_audit, list_evolution_provenance
 
 
@@ -79,6 +80,7 @@ def recover_evolution_audit(
                 governance_decision=provenance_row["governance_decision"],
                 proposed_state_content_id=provenance_row.get("proposed_state_content_id", ""),
                 candidate_binding_digest=provenance_row.get("candidate_binding_digest", ""),
+                evaluated_policy=(None if provenance_row.get("policy_rule_id") is None or provenance_row.get("policy_rule_version") is None or provenance_row.get("policy_implementation_identity") is None else PolicyIdentity(str(provenance_row["policy_rule_id"]), int(provenance_row["policy_rule_version"]), str(provenance_row["policy_implementation_identity"]))),
             )
             identity_valid = recovered_provenance.evolution_identity == persisted_identity
         except (KeyError, TypeError, ValueError):
