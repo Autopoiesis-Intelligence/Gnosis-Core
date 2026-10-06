@@ -148,7 +148,7 @@ def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
     """Return the digest of the verified durable evidence bound to recovery."""
     verify_durable_graph(conn)
     instance = conn.execute(
-        "SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,created_at "
+        "SELECT instance_id,owner_id,root_state_id,current_state_id,parent_instance_id,generation,status,budget_total,budget_spent,policy_rule_id,policy_rule_version,policy_implementation_identity,created_at "
         "FROM instances WHERE instance_id=?",
         (instance_id,),
     ).fetchone()

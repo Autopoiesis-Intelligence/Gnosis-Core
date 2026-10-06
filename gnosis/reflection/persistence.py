@@ -568,6 +568,7 @@ def classify_evolution_provenance(row: dict[str, Any]) -> str:
             status=row.get("status", "RECORDED"),
             proposed_state_content_id=row.get("proposed_state_content_id", ""),
             candidate_binding_digest=row.get("candidate_binding_digest", ""),
+            evaluated_policy=(None if row.get("policy_rule_id") is None or row.get("policy_rule_version") is None or row.get("policy_implementation_identity") is None else __import__("gnosis.core.policy", fromlist=["PolicyIdentity"]).PolicyIdentity(str(row["policy_rule_id"]), int(row["policy_rule_version"]), str(row["policy_implementation_identity"]))),
         )
     except (KeyError, TypeError, ValueError):
         return "malformed"
@@ -640,14 +641,14 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
     ensure_reflection_schema(conn)
     row = conn.execute(
         """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,
-                  evaluation_status,shadow_status,invariant_status,governance_decision,status
+                  policy_rule_id,policy_rule_version,policy_implementation_identity,evaluation_status,shadow_status,invariant_status,governance_decision,status
            FROM evolution_provenance WHERE provenance_id=?""",
         (provenance_id,),
     ).fetchone()
     if row is None:
         rows = conn.execute("SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,policy_rule_id,policy_rule_version,policy_implementation_identity,evaluation_status,shadow_status,invariant_status,governance_decision,status FROM evolution_provenance").fetchall()
         for candidate_row in rows:
-            values = dict(zip(("provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluation_status","shadow_status","invariant_status","governance_decision","status"), candidate_row))
+            values = dict(zip(("provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","policy_rule_id","policy_rule_version","policy_implementation_identity","evaluation_status","shadow_status","invariant_status","governance_decision","status"), candidate_row))
             expected = provenance_id_for(execution_id=values["execution_id"], candidate_id=values["candidate_id"], parent_state_id=values["parent_state_id"], parent_state_digest=values["parent_state_digest"], proposed_state_digest=values["proposed_state_digest"], evidence_digest=values["evidence_digest"], evaluation_status=values["evaluation_status"], shadow_status=values["shadow_status"], invariant_status=values["invariant_status"], governance_decision=values["governance_decision"], status=values["status"], proposed_state_content_id=values["proposed_state_content_id"], candidate_binding_digest=values["candidate_binding_digest"], evaluated_policy=(None if values["policy_rule_id"] is None or values["policy_rule_version"] is None or values["policy_implementation_identity"] is None else __import__("gnosis.core.policy", fromlist=["PolicyIdentity"]).PolicyIdentity(str(values["policy_rule_id"]), int(values["policy_rule_version"]), str(values["policy_implementation_identity"]))))
             if expected != candidate_row[0]:
                 continue
@@ -656,7 +657,7 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
         raise KeyError(provenance_id)
     keys = (
         "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest",
-        "evaluation_status","shadow_status","invariant_status","governance_decision","status",
+        "policy_rule_id","policy_rule_version","policy_implementation_identity","evaluation_status","shadow_status","invariant_status","governance_decision","status",
     )
     return dict(zip(keys, row))
 
@@ -711,6 +712,7 @@ def crosscheck_stored_provenance(
         status=row["status"],
         proposed_state_content_id=row["proposed_state_content_id"],
         candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        evaluated_policy=(None if row.get("policy_rule_id") is None or row.get("policy_rule_version") is None or row.get("policy_implementation_identity") is None else __import__("gnosis.core.policy", fromlist=["PolicyIdentity"]).PolicyIdentity(str(row["policy_rule_id"]), int(row["policy_rule_version"]), str(row["policy_implementation_identity"]))),
     )
     if recomputed != provenance_id:
         return ProvenanceCrossCheck(valid=False, reasons=("stored provenance identity mismatch",))
