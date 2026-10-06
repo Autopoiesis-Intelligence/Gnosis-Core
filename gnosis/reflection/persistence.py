@@ -13,6 +13,7 @@ from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
 from gnosis.evolution.provenance import EvidenceProvenance, ProvenanceCrossCheck, crosscheck_provenance, provenance_id_for
+from gnosis.core.policy import PolicyIdentity
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
 
@@ -568,7 +569,7 @@ def classify_evolution_provenance(row: dict[str, Any]) -> str:
             status=row.get("status", "RECORDED"),
             proposed_state_content_id=row.get("proposed_state_content_id", ""),
             candidate_binding_digest=row.get("candidate_binding_digest", ""),
-            evaluated_policy=(None if row.get("policy_rule_id") is None or row.get("policy_rule_version") is None or row.get("policy_implementation_identity") is None else __import__("gnosis.core.policy", fromlist=["PolicyIdentity"]).PolicyIdentity(str(row["policy_rule_id"]), int(row["policy_rule_version"]), str(row["policy_implementation_identity"]))),
+            evaluated_policy=(None if row.get("policy_rule_id") is None or row.get("policy_rule_version") is None or row.get("policy_implementation_identity") is None else PolicyIdentity(str(row["policy_rule_id"]), int(row["policy_rule_version"]), str(row["policy_implementation_identity"]))),
         )
     except (KeyError, TypeError, ValueError):
         return "malformed"
@@ -669,7 +670,7 @@ def list_evolution_provenance(
     if candidate_id is None:
         rows = conn.execute(
             "SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,"
-            "evaluation_status,shadow_status,invariant_status,governance_decision,status "
+            "policy_rule_id,policy_rule_version,policy_implementation_identity,evaluation_status,shadow_status,invariant_status,governance_decision,status "
             "FROM evolution_provenance ORDER BY rowid"
         ).fetchall()
     else:
