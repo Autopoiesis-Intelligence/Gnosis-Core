@@ -10,6 +10,7 @@ from typing import Any, Mapping, Sequence
 
 from .audit import EvolutionAuditRecord, crosscheck_provenance_audit, verify_audit_chain
 from .provenance import EvidenceProvenance, crosscheck_provenance
+from gnosis.core.policy import PolicyIdentity
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ def _provenance_from_mapping(row: Mapping[str, Any]) -> EvidenceProvenance:
         status=row.get("status", "RECORDED"),
         proposed_state_content_id=row.get("proposed_state_content_id", ""),
         candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        evaluated_policy=(None if row.get("policy_rule_id") is None or row.get("policy_rule_version") is None or row.get("policy_implementation_identity") is None else PolicyIdentity(str(row["policy_rule_id"]), int(row["policy_rule_version"]), str(row["policy_implementation_identity"]))),
     )
 
 
@@ -77,6 +79,7 @@ def verify_persisted_chain(
         governance_decision=provenance.governance_decision,
         proposed_state_content_id=provenance.proposed_state_content_id,
         candidate_binding_digest=provenance.candidate_binding_digest,
+        evaluated_policy=provenance.evaluated_policy,
     )
     reasons.extend(provenance_check.reasons)
 
