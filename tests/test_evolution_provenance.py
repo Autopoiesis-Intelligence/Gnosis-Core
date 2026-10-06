@@ -1,5 +1,6 @@
 import pytest
 from gnosis.evolution.provenance import build_provenance, verify_evidence_digest
+from gnosis.core.policy import PolicyIdentity
 
 
 def test_provenance_accepts_matching_evidence_digest():
@@ -18,6 +19,7 @@ def test_provenance_accepts_matching_evidence_digest():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     assert result.status == "RECORDED"
     assert result.provenance_id.startswith("provenance:")
@@ -68,6 +70,7 @@ def test_provenance_persists_and_reloads_without_activation():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     conn = sqlite3.connect(":memory:")
     ensure_reflection_schema(conn)
@@ -97,6 +100,7 @@ def test_crosscheck_accepts_intact_provenance():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     result = crosscheck_provenance(
         provenance=provenance,
@@ -111,6 +115,7 @@ def test_crosscheck_accepts_intact_provenance():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     assert result.valid
     assert result.reasons == ()
@@ -131,6 +136,7 @@ def test_crosscheck_rejects_chain_mismatch():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     result = crosscheck_provenance(
         provenance=provenance,
@@ -145,6 +151,7 @@ def test_crosscheck_rejects_chain_mismatch():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     assert not result.valid
     assert any("candidate_id mismatch" in reason for reason in result.reasons)
@@ -171,6 +178,7 @@ def test_stored_provenance_crosscheck_detects_tampering():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     conn = sqlite3.connect(":memory:")
     ensure_reflection_schema(conn)
@@ -243,6 +251,7 @@ def test_crosscheck_rejects_state_digest_mismatch():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     result = crosscheck_provenance(
         provenance=provenance,
@@ -257,6 +266,7 @@ def test_crosscheck_rejects_state_digest_mismatch():
         shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     assert not result.valid
     assert "parent_state_digest mismatch" in result.reasons
@@ -367,6 +377,7 @@ def test_load_evolution_provenance_rejects_stored_identity_tamper():
         shadow_status="UNCHANGED",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     pid = save_evolution_provenance(conn, p)
     conn.execute(
@@ -477,6 +488,7 @@ def test_provenance_lifecycle_status_does_not_change_identity() -> None:
         shadow_status="UNCHANGED",
         invariant_status="PRESERVED",
         governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     from dataclasses import replace
     consumed = replace(base, status="CONSUMED")
