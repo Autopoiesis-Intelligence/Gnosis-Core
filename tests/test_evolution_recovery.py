@@ -1,6 +1,7 @@
 import sqlite3
 
 from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.core.policy import PolicyIdentity
 from gnosis.core.types import State
 from gnosis.evolution.recovery import recover_evolution_audit
 from gnosis.reflection.persistence import (
@@ -19,6 +20,7 @@ def _persist(conn):
         observations=observations, proposed_state_content_id=state.content_id, evidence_digest=canonical_digest(observations),
         evaluation_status="PASS", shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED", governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     pid = save_evolution_provenance(conn, p)
     append_evolution_audit(
@@ -118,6 +120,7 @@ def test_recovery_rejects_tampered_proposed_state_content_identity():
         observations=observations, evidence_digest=canonical_digest(observations),
         evaluation_status="PASS", shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED", governance_decision="REVIEW",
+        evaluated_policy=PolicyIdentity("test:policy", 1, "impl:test"),
     )
     pid = save_evolution_provenance(conn, p)
     append_evolution_audit(
