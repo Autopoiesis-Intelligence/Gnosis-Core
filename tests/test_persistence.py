@@ -191,7 +191,7 @@ def _persisted_transition():
     return conn, instance, record
 
 
-def test_policy_identity_tamper_invalidates_recovery_authorization():
+def test_policy_identity_tamper_is_detected_as_durable_corruption():
     conn, instance, record = _persisted_transition()
     digest = recovery_evidence_digest(conn, instance.instance_id)
     authorization = RecoveryAuthorization(
@@ -211,8 +211,7 @@ def test_policy_identity_tamper_invalidates_recovery_authorization():
         "UPDATE transitions SET policy_implementation_identity=? WHERE transition_id=?",
         ("tampered-implementation", transition_id),
     )
-    assert recovery_evidence_digest(conn, instance.instance_id) != digest
-    with pytest.raises(Exception, match="evidence mismatch"):
+    with pytest.raises(StorageCorruptionError, match="transition identity mismatch"):
         recover_instance(
             conn,
             instance.instance_id,
@@ -551,6 +550,56 @@ def test_recovery_requires_authorization():
             None,
             now="2026-09-25T12:00:00Z",
         )
+
+
+def test_recovery_digest_changes_when_persisted_policy_identity_changes():
+    conn = connect()
+    instance = root()
+    save_instance(conn, instance)
+    before = recovery_evidence_digest(conn, instance.instance_id)
+    row = conn.execute(
+        "SELECT policy_rule_id, policy_rule_version, policy_implementation_identity FROM instances WHERE instance_id=?",
+        (instance.instance_id,),
+    ).fetchone()
+    conn.execute(
+        "UPDATE instances SET policy_rule_id=?, policy_rule_version=?, policy_implementation_identity=? WHERE instance_id=?",
+        ("substituted-policy", row[1], row[2], instance.instance_id),
+    )
+    after = recovery_evidence_digest(conn, instance.instance_id)
+    assert after != before
+
+
+def test_recovery_authorization_for_policy_a_cannot_recover_policy_b():
+    conn = connect()
+    instance = root()
+    save_instance(conn, instance)
+    digest_a = recovery_evidence_digest(conn, instance.instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="policy-a-recovery",
+        subject=instance.instance_id,
+        requested_by="test-principal",
+        authority="test-governance",
+        decision="allow",
+        reason="test policy binding",
+        issued_at="2026-09-25T00:00:00Z",
+        expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest_a,
+    )
+    row = conn.execute(
+        "SELECT policy_rule_id, policy_rule_version, policy_implementation_identity FROM instances WHERE instance_id=?",
+        (instance.instance_id,),
+    ).fetchone()
+    conn.execute(
+        "UPDATE instances SET policy_rule_id=?, policy_rule_version=?, policy_implementation_identity=? WHERE instance_id=?",
+        (row[0] + ":substituted", row[1], row[2]),
+        (instance.instance_id,),
+    )
+    with pytest.raises(Exception, match="evidence mismatch"):
+        recover_instance(conn, instance.instance_id, authorization, now="2026-09-25T12:00:00Z")
+    assert conn.execute(
+        "SELECT COUNT(*) FROM audit_events WHERE event_id=?",
+        ("recovery:policy-a-recovery",),
+    ).fetchone()[0] == 0
 
 
 def test_recovery_authorization_is_bound_to_verified_evidence():

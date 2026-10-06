@@ -32,6 +32,7 @@ def require_trusted_execution(
     validity.require_valid(
         expected_policy_version=validity.policy_version,
         expected_evidence_digest=validity.validity_evidence_digest,
+        expected_policy_identity=getattr(request.provenance, "evaluated_policy", None),
     )
     evaluated_policy = getattr(request.provenance, "evaluated_policy", None)
     if evaluated_policy is None:

@@ -56,6 +56,7 @@ class OwnerApproval:
     approval_id: str
     request_provenance: str
     evolution_identity: str
+    policy_identity: PolicyIdentity
 
 
 @dataclass(frozen=True)
@@ -168,6 +169,11 @@ def _canonical_evolution_identity(provenance: object) -> str:
         "proposed_state_digest": str(provenance.proposed_state_digest),
         "proposed_state_content_id": str(provenance.proposed_state_content_id),
         "candidate_binding_digest": str(provenance.candidate_binding_digest),
+        "evaluated_policy": None if getattr(provenance, "evaluated_policy", None) is None else {
+            "rule_id": str(provenance.evaluated_policy.rule_id),
+            "rule_version": int(provenance.evaluated_policy.rule_version),
+            "implementation_identity": str(provenance.evaluated_policy.implementation_identity),
+        },
         "evidence_digest": str(provenance.evidence_digest),
         "evaluation_status": str(provenance.evaluation_status),
         "shadow_status": str(provenance.shadow_status),
