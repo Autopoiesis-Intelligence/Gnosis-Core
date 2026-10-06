@@ -103,7 +103,10 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             status TEXT NOT NULL,
             evolution_identity TEXT NOT NULL DEFAULT '',
             proposed_state_content_id TEXT NOT NULL DEFAULT '',
-            candidate_binding_digest TEXT NOT NULL DEFAULT ''
+            candidate_binding_digest TEXT NOT NULL DEFAULT '',
+            policy_rule_id TEXT,
+            policy_rule_version INTEGER,
+            policy_implementation_identity TEXT
         );
         CREATE INDEX IF NOT EXISTS idx_evolution_provenance_candidate
             ON evolution_provenance(candidate_id);
@@ -161,6 +164,11 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE evolution_provenance ADD COLUMN candidate_binding_digest TEXT NOT NULL DEFAULT ''")
     except sqlite3.OperationalError:
         pass
+    for column, definition in (("policy_rule_id", "TEXT"),("policy_rule_version", "INTEGER"),("policy_implementation_identity", "TEXT")):
+        try:
+            conn.execute(f"ALTER TABLE evolution_provenance ADD COLUMN {column} {definition}")
+        except sqlite3.OperationalError:
+            pass
 
 
 def save_reflection_report(
@@ -578,8 +586,8 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
     existing = conn.execute(
         """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,
                   proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,
-                  candidate_binding_digest,evaluation_status,shadow_status,invariant_status,
-                  governance_decision,status
+                  candidate_binding_digest,policy_rule_id,policy_rule_version,policy_implementation_identity,
+                  evaluation_status,shadow_status,invariant_status,governance_decision,status
            FROM evolution_provenance WHERE provenance_id=?""",
         (provenance_id,),
     ).fetchone()
@@ -587,6 +595,9 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
         provenance_id, provenance.execution_id, provenance.candidate_id, provenance.parent_state_id,
         provenance.parent_state_digest, provenance.proposed_state_digest, provenance.evidence_digest,
         evolution_identity, provenance.proposed_state_content_id, provenance.candidate_binding_digest,
+        None if provenance.evaluated_policy is None else provenance.evaluated_policy.rule_id,
+        None if provenance.evaluated_policy is None else provenance.evaluated_policy.rule_version,
+        None if provenance.evaluated_policy is None else provenance.evaluated_policy.implementation_identity,
         provenance.evaluation_status, provenance.shadow_status, provenance.invariant_status,
         provenance.governance_decision, provenance.status,
     )
@@ -598,8 +609,9 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
     conn.execute(
         """INSERT INTO evolution_provenance
         (provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,
-         evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+         evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest,
+         policy_rule_id,policy_rule_version,policy_implementation_identity)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             provenance_id,
             provenance.execution_id,
@@ -616,6 +628,9 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
             evolution_identity,
             provenance.proposed_state_content_id,
             provenance.candidate_binding_digest,
+            None if provenance.evaluated_policy is None else provenance.evaluated_policy.rule_id,
+            None if provenance.evaluated_policy is None else provenance.evaluated_policy.rule_version,
+            None if provenance.evaluated_policy is None else provenance.evaluated_policy.implementation_identity,
         ),
     )
     return provenance_id
@@ -630,12 +645,14 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
         (provenance_id,),
     ).fetchone()
     if row is None:
-        rows = conn.execute("SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluation_status,shadow_status,invariant_status,governance_decision,status FROM evolution_provenance").fetchall()
+        rows = conn.execute("SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,policy_rule_id,policy_rule_version,policy_implementation_identity,evaluation_status,shadow_status,invariant_status,governance_decision,status FROM evolution_provenance").fetchall()
         for candidate_row in rows:
             values = dict(zip(("provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluation_status","shadow_status","invariant_status","governance_decision","status"), candidate_row))
-            expected = provenance_id_for(execution_id=values["execution_id"], candidate_id=values["candidate_id"], parent_state_id=values["parent_state_id"], parent_state_digest=values["parent_state_digest"], proposed_state_digest=values["proposed_state_digest"], evidence_digest=values["evidence_digest"], evaluation_status=values["evaluation_status"], shadow_status=values["shadow_status"], invariant_status=values["invariant_status"], governance_decision=values["governance_decision"], status=values["status"], proposed_state_content_id=values["proposed_state_content_id"], candidate_binding_digest=values["candidate_binding_digest"])
+            expected = provenance_id_for(execution_id=values["execution_id"], candidate_id=values["candidate_id"], parent_state_id=values["parent_state_id"], parent_state_digest=values["parent_state_digest"], proposed_state_digest=values["proposed_state_digest"], evidence_digest=values["evidence_digest"], evaluation_status=values["evaluation_status"], shadow_status=values["shadow_status"], invariant_status=values["invariant_status"], governance_decision=values["governance_decision"], status=values["status"], proposed_state_content_id=values["proposed_state_content_id"], candidate_binding_digest=values["candidate_binding_digest"], evaluated_policy=(None if values["policy_rule_id"] is None or values["policy_rule_version"] is None or values["policy_implementation_identity"] is None else __import__("gnosis.core.policy", fromlist=["PolicyIdentity"]).PolicyIdentity(str(values["policy_rule_id"]), int(values["policy_rule_version"]), str(values["policy_implementation_identity"]))))
+            if expected != candidate_row[0]:
+                continue
             if expected == provenance_id:
-                raise RuntimeError("stored provenance identity mismatch")
+                return values
         raise KeyError(provenance_id)
     keys = (
         "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest",
@@ -712,6 +729,7 @@ def crosscheck_stored_provenance(
         status=row["status"],
         proposed_state_content_id=row["proposed_state_content_id"],
         candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        evaluated_policy=(None if row.get("policy_rule_id") is None or row.get("policy_rule_version") is None or row.get("policy_implementation_identity") is None else __import__("gnosis.core.policy", fromlist=["PolicyIdentity"]).PolicyIdentity(str(row["policy_rule_id"]), int(row["policy_rule_version"]), str(row["policy_implementation_identity"]))),
     )
     return crosscheck_provenance(
         provenance=provenance,
@@ -728,6 +746,7 @@ def crosscheck_stored_provenance(
         governance_decision=row["governance_decision"],
         proposed_state_content_id=row["proposed_state_content_id"],
         candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        evaluated_policy=provenance.evaluated_policy,
     )
 
 

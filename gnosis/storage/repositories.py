@@ -172,6 +172,11 @@ def recovery_evidence_digest(conn: sqlite3.Connection, instance_id: str) -> str:
     ]
     evidence = {
         "instance": tuple(instance),
+        "instance_policy": {
+            "rule_id": instance[9],
+            "rule_version": instance[10],
+            "implementation_identity": instance[11],
+        },
         "transitions": transitions,
         "audit": audits,
     }
