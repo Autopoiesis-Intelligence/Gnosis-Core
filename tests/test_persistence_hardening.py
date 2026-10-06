@@ -1,3 +1,4 @@
+from gnosis.storage.authorization import AuthorizationError
 from gnosis.storage.repositories import _persist_transition
 
 def _authorized_recover(conn, instance_id):
@@ -112,6 +113,31 @@ def test_recover_instance_runs_graph_validation():
     save_instance(conn, instance)
     assert _authorized_recover(conn, instance.instance_id).instance_id == instance.instance_id
 
+
+def test_recovery_authorization_binds_instance_policy_identity():
+    conn = connect()
+    instance = Instance.create_root("u", State(elements={"a": 1}))
+    save_instance(conn, instance)
+
+    digest = recovery_evidence_digest(conn, instance.instance_id)
+    authorization = RecoveryAuthorization(
+        authorization_id="test-policy-binding", subject=instance.instance_id,
+        requested_by="test-principal", authority="test-governance",
+        decision="allow", reason="test recovery",
+        issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
+        evidence_digest=digest,
+    )
+
+    conn.execute(
+        "UPDATE instances SET policy_implementation_identity=? WHERE instance_id=?",
+        ("tampered-policy", instance.instance_id),
+    )
+
+    assert recovery_evidence_digest(conn, instance.instance_id) != digest
+    with pytest.raises(AuthorizationError, match="evidence mismatch"):
+        recover_instance(
+            conn, instance.instance_id, authorization, now="2026-09-25T12:00:00Z"
+        )
 
 def test_after_commit_failure_leaves_committed_transition_durable():
     conn = connect()
