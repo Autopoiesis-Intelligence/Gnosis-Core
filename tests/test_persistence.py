@@ -563,8 +563,7 @@ def test_recovery_digest_changes_when_persisted_policy_identity_changes():
     ).fetchone()
     conn.execute(
         "UPDATE instances SET policy_rule_id=?, policy_rule_version=?, policy_implementation_identity=? WHERE instance_id=?",
-        (row[0] + ":substituted", row[1], row[2]),
-        (instance.instance_id,),
+        ("substituted-policy", row[1], row[2], instance.instance_id),
     )
     after = recovery_evidence_digest(conn, instance.instance_id)
     assert after != before
