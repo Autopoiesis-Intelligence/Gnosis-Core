@@ -3,9 +3,11 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from gnosis.reflection.owner_authorization import OwnerAuthorizationV1
 from gnosis.reflection.owner_authorization_verifier import (
     verify_owner_authorization,
+    verify_owner_authorization_for_issuer,
     verify_owner_authorization_scope,
 )
 from gnosis.reflection.owner_trust import OwnerTrustAnchor
+from gnosis.reflection.trusted_issuer import TrustedOwnerIssuer
 
 
 def make_authorization(private_key: Ed25519PrivateKey, **overrides: object) -> OwnerAuthorizationV1:
@@ -117,4 +119,36 @@ def test_scope_tampering_invalidates_signature() -> None:
 
     assert not verify_owner_authorization_scope(
         tampered, expected_scope="candidate-commit", trust_anchor=anchor
+    )
+
+
+def test_issuer_scope_is_the_expected_scope() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key)
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+    issuer = TrustedOwnerIssuer(
+        authority_root="root-1",
+        scope="candidate-commit",
+        policy_version="policy-1",
+    )
+
+    assert verify_owner_authorization_for_issuer(
+        authorization, issuer=issuer, trust_anchor=anchor
+    )
+
+
+def test_issuer_scope_mismatch_is_rejected() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key)
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+    issuer = TrustedOwnerIssuer(
+        authority_root="root-1",
+        scope="different-scope",
+        policy_version="policy-1",
+    )
+
+    assert not verify_owner_authorization_for_issuer(
+        authorization, issuer=issuer, trust_anchor=anchor
     )
