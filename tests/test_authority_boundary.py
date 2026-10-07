@@ -1,5 +1,5 @@
 import pytest
-from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
+from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, build_execution_commit_request, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.authorization_validity import AuthorizationValidity
@@ -259,6 +259,24 @@ def test_owner_approval_issuer_fails_closed_until_trusted_issuer_exists():
     )
     assert authorization.approval_id == approval.approval_id
     assert authorization.evolution_identity == approval.evolution_identity
+
+
+def test_build_execution_commit_request_binds_external_owner_approval():
+    provenance = _snapshot_provenance()
+    approval = _signed_owner_approval(provenance=provenance.provenance_id, evolution=provenance.evolution_identity)
+    request = build_execution_commit_request(approval, provenance)
+    assert request.authorization.approval_id == approval.approval_id
+    assert request.authorization.evolution_identity == provenance.evolution_identity
+    assert request.request_provenance == provenance.provenance_id
+    assert request.authorization_validity.authorization_id == approval.approval_id
+    require_execution_commit(request)
+
+
+def test_build_execution_commit_request_rejects_cross_bound_owner_approval():
+    provenance = _snapshot_provenance()
+    approval = _signed_owner_approval(provenance="other-provenance", evolution="other-evolution")
+    with pytest.raises(PermissionError, match="owner approval"):
+        build_execution_commit_request(approval, provenance)
 
 
 def test_owner_approval_cannot_cross_bind_evolution():
