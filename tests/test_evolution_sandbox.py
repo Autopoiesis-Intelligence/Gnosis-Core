@@ -37,6 +37,8 @@ def test_sandbox_produces_digest_linked_evidence():
         predicate="observations_present",
     )
     assert evaluation.status == "PASS"
+    assert evaluation.evaluator_identity.implementation_ref == "gnosis.evolution.evaluator:evaluate_observation"
+    assert evaluation.evaluator_identity.implementation_version == "1"
 
 
 def test_sandbox_fails_closed_on_observer_error():
