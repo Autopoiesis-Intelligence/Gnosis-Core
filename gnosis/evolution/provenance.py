@@ -47,6 +47,8 @@ class EvidenceProvenance:
     status: str = "RECORDED"
     proposed_state_content_id: str = ""
     candidate_binding_digest: str = ""
+    evaluator_identity_ref: str = ""
+    evaluator_identity_version: str = ""
 
     @property
     def evolution_identity(self) -> str:
@@ -59,6 +61,8 @@ class EvidenceProvenance:
             "proposed_state_digest": self.proposed_state_digest,
             "proposed_state_content_id": self.proposed_state_content_id,
             "candidate_binding_digest": self.candidate_binding_digest,
+            "evaluator_identity_ref": self.evaluator_identity_ref,
+            "evaluator_identity_version": self.evaluator_identity_version,
             "evidence_digest": self.evidence_digest,
             "evaluation_status": self.evaluation_status,
             "shadow_status": self.shadow_status,
@@ -129,6 +133,8 @@ def build_provenance(
         evidence_digest=evidence_digest,
         proposed_state_content_id=proposed_state_content_id,
         candidate_binding_digest=candidate_binding_digest,
+        evaluator_identity_ref=evaluator_identity_ref,
+        evaluator_identity_version=evaluator_identity_version,
         evaluation_status=evaluation_status,
         shadow_status=shadow_status,
         invariant_status=invariant_status,
@@ -158,6 +164,8 @@ def crosscheck_provenance(
     governance_decision: str,
     proposed_state_content_id: str = "",
     candidate_binding_digest: str = "",
+    evaluator_identity_ref: str = "",
+    evaluator_identity_version: str = "",
 ) -> ProvenanceCrossCheck:
     """Verify every identity-bearing link before provenance can be trusted."""
     reasons: list[str] = []
@@ -175,6 +183,10 @@ def crosscheck_provenance(
         reasons.append("candidate_binding_digest mismatch")
     if provenance.evidence_digest != evidence_digest:
         reasons.append("evidence_digest mismatch")
+    if provenance.evaluator_identity_ref != evaluator_identity_ref:
+        reasons.append("evaluator_identity_ref mismatch")
+    if provenance.evaluator_identity_version != evaluator_identity_version:
+        reasons.append("evaluator_identity_version mismatch")
     if provenance.execution_id != execution_id_value:
         reasons.append("execution_id mismatch")
     if provenance.evaluation_status != evaluation_status:
@@ -204,6 +216,8 @@ def crosscheck_provenance(
         status=provenance.status,
         proposed_state_content_id=proposed_state_content_id,
         candidate_binding_digest=candidate_binding_digest,
+        evaluator_identity_ref=evaluator_identity_ref,
+        evaluator_identity_version=evaluator_identity_version,
     )
     if provenance.provenance_id != expected_provenance.provenance_id:
         reasons.append("provenance identity mismatch")
