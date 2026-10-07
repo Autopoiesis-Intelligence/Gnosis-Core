@@ -254,8 +254,11 @@ def test_owner_approval_issuer_fails_closed_until_trusted_issuer_exists():
     with pytest.raises(PermissionError, match="owner approval"):
         issue_execution_authorization(None, request_provenance="p", evolution_identity="e")
     approval = _signed_owner_approval()
-    with pytest.raises(NotImplementedError, match="trusted owner-authority issuer"):
-        issue_execution_authorization(approval, request_provenance="p", evolution_identity="e")
+    authorization = issue_execution_authorization(
+        approval, request_provenance="p", evolution_identity="e"
+    )
+    assert authorization.approval_id == approval.approval_id
+    assert authorization.evolution_identity == approval.evolution_identity
 
 
 def test_owner_approval_cannot_cross_bind_evolution():
