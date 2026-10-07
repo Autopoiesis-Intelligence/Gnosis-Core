@@ -31,4 +31,4 @@ jobs:
 
       - name: Run E5.20 issuer tests
         run: |
-          pytest -q tests/test_e520_test_issuer.py
+          pytest -q tests/test_e520_test_issuer.py tests/test_authority_crypto.py
