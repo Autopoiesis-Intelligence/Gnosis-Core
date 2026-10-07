@@ -482,3 +482,37 @@ def test_provenance_lifecycle_status_does_not_change_identity() -> None:
     consumed = replace(base, status="CONSUMED")
     assert consumed.provenance_id == base.provenance_id
     assert consumed.evolution_identity == base.evolution_identity
+
+
+def test_evolution_identity_changes_with_evaluator_identity():
+    observations = {"result": "ok"}
+    digest = canonical_digest(observations)
+    base = build_provenance(
+        candidate_id="candidate:evaluator",
+        parent_state_id="state:parent",
+        parent_state_digest="sha256:parent",
+        proposed_state_digest="sha256:proposed",
+        observations=observations,
+        evidence_digest=digest,
+        evaluation_status="PASS",
+        shadow_status="PASS",
+        invariant_status="PASS",
+        governance_decision="ALLOW",
+        evaluator_identity_ref="evaluator:a",
+        evaluator_identity_version="1",
+    )
+    changed = build_provenance(
+        candidate_id="candidate:evaluator",
+        parent_state_id="state:parent",
+        parent_state_digest="sha256:parent",
+        proposed_state_digest="sha256:proposed",
+        observations=observations,
+        evidence_digest=digest,
+        evaluation_status="PASS",
+        shadow_status="PASS",
+        invariant_status="PASS",
+        governance_decision="ALLOW",
+        evaluator_identity_ref="evaluator:b",
+        evaluator_identity_version="1",
+    )
+    assert base.evolution_identity != changed.evolution_identity
