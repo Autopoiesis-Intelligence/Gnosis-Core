@@ -376,6 +376,8 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_id=provenance_a.provenance_id,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
         candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        evaluator_identity_ref=getattr(provenance_a, "evaluator_identity_ref", "evaluator:default"),
+        evaluator_identity_version=getattr(provenance_a, "evaluator_identity_version", "1"),
         evolution_identity=provenance_a.evolution_identity,
     )
     request = ExecutionCommitRequest(
