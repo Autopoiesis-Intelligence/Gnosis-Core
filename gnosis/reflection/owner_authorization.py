@@ -17,6 +17,8 @@ class OwnerAuthorizationV1:
     authorization_id: str
     request_provenance: str
     evolution_identity: str
+    policy_version: str
+    policy_binding_digest: str
     signature: bytes
 
     def canonical_signed_bytes(self) -> bytes:
@@ -26,6 +28,8 @@ class OwnerAuthorizationV1:
             "evolution_identity": self.evolution_identity,
             "key_id": self.key_id,
             "owner_id": self.owner_id,
+            "policy_binding_digest": self.policy_binding_digest,
+            "policy_version": self.policy_version,
             "request_provenance": self.request_provenance,
             "scope": self.scope,
         }
