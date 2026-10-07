@@ -135,6 +135,51 @@ def issue_execution_authorization(
         evolution_identity=evolution_identity,
     )
 
+def build_execution_commit_request(
+    approval: OwnerApproval | None,
+    provenance: object,
+) -> ExecutionCommitRequest:
+    """Build one execution request from external owner approval and exact provenance.
+
+    This function creates no authority. The OwnerApproval must already have been
+    verified at the external owner-authority boundary; this builder only binds it
+    to the canonical evolution identity and produces the immutable request material
+    consumed by the trusted execution gate.
+    """
+    request_provenance = str(getattr(provenance, "provenance_id", ""))
+    if not request_provenance:
+        raise PermissionError("execution provenance identity is missing")
+    canonical_identity = _canonical_evolution_identity(provenance)
+    declared_identity = str(getattr(provenance, "evolution_identity", ""))
+    if canonical_identity != declared_identity:
+        raise PermissionError("execution provenance identity is not canonical")
+
+    authorization = issue_execution_authorization(
+        approval,
+        request_provenance=request_provenance,
+        evolution_identity=canonical_identity,
+    )
+    from .authorization_validity import AuthorizationValidity
+
+    validity = AuthorizationValidity(
+        authorization_id=authorization.approval_id,
+        policy_version=str(approval.policy_version),
+        validity_evidence_digest=str(approval.evidence_digest),
+    )
+    validity.require_valid(
+        expected_policy_version=str(approval.policy_version),
+        expected_evidence_digest=str(approval.evidence_digest),
+    )
+    return ExecutionCommitRequest(
+        authorization=authorization,
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
+        request_provenance=request_provenance,
+        evolution_identity=canonical_identity,
+        provenance=provenance,
+        authorization_validity=validity,
+    )
+
+
 def require_execution_authorization(
     auth: ExecutionAuthorization | None,
     *,
