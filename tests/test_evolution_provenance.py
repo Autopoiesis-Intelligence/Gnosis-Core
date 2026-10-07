@@ -516,3 +516,29 @@ def test_evolution_identity_changes_with_evaluator_identity():
         evaluator_identity_version="1",
     )
     assert base.evolution_identity != changed.evolution_identity
+
+
+def test_evaluator_identity_survives_provenance_persistence(sqlite_conn):
+    from gnosis.reflection.persistence import ensure_reflection_schema, load_evolution_provenance, save_evolution_provenance
+    ensure_reflection_schema(sqlite_conn)
+    observations = {"result": "ok"}
+    digest = canonical_digest(observations)
+    provenance = build_provenance(
+        candidate_id="candidate:persistence-evaluator",
+        parent_state_id="state:parent",
+        parent_state_digest="sha256:parent",
+        proposed_state_digest="sha256:proposed",
+        observations=observations,
+        evidence_digest=digest,
+        evaluation_status="PASS",
+        shadow_status="PASS",
+        invariant_status="PASS",
+        governance_decision="ALLOW",
+        evaluator_identity_ref="evaluator:test",
+        evaluator_identity_version="1",
+    )
+    pid = save_evolution_provenance(sqlite_conn, provenance)
+    loaded = load_evolution_provenance(sqlite_conn, pid)
+    assert loaded["evaluator_identity_ref"] == "evaluator:test"
+    assert loaded["evaluator_identity_version"] == "1"
+    assert loaded["evolution_identity"] == provenance.evolution_identity
