@@ -54,3 +54,35 @@ def test_frozen_envelope_cannot_be_mutated() -> None:
         pass
     else:
         raise AssertionError("OwnerAuthorizationV1 must be immutable")
+
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+
+def test_valid_signature_verifies() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    unsigned = make_authorization()
+    signed = make_authorization(signature=private_key.sign(unsigned.canonical_signed_bytes()))
+    assert signed.verify_signature(public_key)
+
+
+def test_changed_signed_field_is_rejected() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    unsigned = make_authorization()
+    signed = make_authorization(signature=private_key.sign(unsigned.canonical_signed_bytes()), scope="changed")
+    assert not signed.verify_signature(public_key)
+
+
+def test_wrong_public_key_is_rejected() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    wrong_key = Ed25519PrivateKey.generate().public_key().public_bytes_raw()
+    unsigned = make_authorization()
+    signed = make_authorization(signature=private_key.sign(unsigned.canonical_signed_bytes()))
+    assert not signed.verify_signature(wrong_key)
+
+
+def test_malformed_signature_is_rejected() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    assert not make_authorization(signature=b"bad").verify_signature(public_key)
