@@ -34,7 +34,7 @@ def persist_evolution_transaction(
         else:
             conn.execute(f"SAVEPOINT {savepoint}")
         existing = conn.execute(
-            "SELECT provenance_id,execution_id,candidate_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest FROM evolution_provenance WHERE provenance_id=?",
+            "SELECT provenance_id,execution_id,candidate_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version FROM evolution_provenance WHERE provenance_id=?",
             (provenance.provenance_id,),
         ).fetchone()
         if existing is not None:
@@ -43,6 +43,8 @@ def persist_evolution_transaction(
                 provenance.parent_state_digest, provenance.proposed_state_digest, provenance.evidence_digest,
                 provenance.evolution_identity, provenance.proposed_state_content_id,
                 provenance.candidate_binding_digest,
+                provenance.evaluator_identity_ref,
+                provenance.evaluator_identity_version,
             )
             if existing != expected:
                 raise RuntimeError("conflicting replay for existing provenance")
@@ -81,8 +83,8 @@ def persist_evolution_transaction(
         conn.execute(
             """INSERT INTO evolution_provenance
             (provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,
-             evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+             evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 provenance.provenance_id, provenance.execution_id,
                 provenance.candidate_id, provenance.parent_state_id,
@@ -92,6 +94,8 @@ def persist_evolution_transaction(
                 provenance.governance_decision, provenance.status,
                 provenance.evolution_identity, provenance.proposed_state_content_id,
                 provenance.candidate_binding_digest,
+                provenance.evaluator_identity_ref,
+                provenance.evaluator_identity_version,
             ),
         )
         conn.execute(
@@ -106,7 +110,7 @@ def persist_evolution_transaction(
             ),
         )
         stored_provenance = conn.execute(
-            "SELECT provenance_id,execution_id,evolution_identity,proposed_state_content_id,candidate_binding_digest FROM evolution_provenance WHERE provenance_id=?",
+            "SELECT provenance_id,execution_id,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version FROM evolution_provenance WHERE provenance_id=?",
             (provenance.provenance_id,),
         ).fetchone()
         stored_audit = conn.execute(
@@ -115,7 +119,7 @@ def persist_evolution_transaction(
         ).fetchone()
         if stored_provenance is None or stored_audit is None:
             raise RuntimeError("atomic evolution persistence verification failed")
-        if stored_provenance[1:] != (provenance.execution_id, provenance.evolution_identity, provenance.proposed_state_content_id, provenance.candidate_binding_digest):
+        if stored_provenance[1:] != (provenance.execution_id, provenance.evolution_identity, provenance.proposed_state_content_id, provenance.candidate_binding_digest, provenance.evaluator_identity_ref, provenance.evaluator_identity_version):
             raise RuntimeError("atomic evolution provenance mismatch")
         if stored_audit[0] != provenance.provenance_id or stored_audit[1] != record.record_digest:
             raise RuntimeError("atomic evolution persistence link mismatch")
