@@ -46,4 +46,4 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
       - name: Run isolated Ed25519 tests
-        run: pytest -q tests/test_authority_crypto.py
+        run: pytest -q tests/test_authority_crypto.py tests/test_authorization_canonical.py
