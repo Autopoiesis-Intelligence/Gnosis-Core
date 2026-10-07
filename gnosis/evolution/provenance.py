@@ -118,6 +118,8 @@ def build_provenance(
     shadow_status: str,
     invariant_status: str,
     governance_decision: str,
+    evaluator_identity_ref: str = "",
+    evaluator_identity_version: str = "",
 ) -> EvidenceProvenance:
     if not parent_state_digest or not proposed_state_digest:
         raise ValueError("state digests are required")
