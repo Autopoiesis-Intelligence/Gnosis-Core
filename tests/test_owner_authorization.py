@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from gnosis.reflection.owner_authorization import (
@@ -59,6 +61,25 @@ def test_wrong_authorization_id_is_rejected() -> None:
         **{**authorization.__dict__, "authorization_id": "sha256:wrong"},
     )
     assert not tampered.verify_signature(private_key.public_key().public_bytes_raw())
+
+
+def test_validity_window_is_enforced() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    authorization = make_authorization(private_key)
+    assert authorization.is_valid_at(datetime(2026, 10, 7, 12, tzinfo=timezone.utc))
+    assert not authorization.is_valid_at(datetime(2026, 10, 8, tzinfo=timezone.utc))
+    assert not authorization.is_valid_at(datetime(2026, 10, 6, 23, tzinfo=timezone.utc))
+
+
+def test_naive_validity_check_fails_closed() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    authorization = make_authorization(private_key)
+    try:
+        authorization.is_valid_at(datetime(2026, 10, 7, 12))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("naive datetime must be rejected")
 
 
 def test_domain_is_part_of_signed_payload() -> None:
