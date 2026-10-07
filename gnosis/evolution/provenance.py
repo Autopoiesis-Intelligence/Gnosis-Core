@@ -15,7 +15,7 @@ def canonical_digest(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: str, parent_state_digest: str, proposed_state_digest: str, evidence_digest: str, evaluation_status: str, shadow_status: str, invariant_status: str, governance_decision: str, status: str = "RECORDED", proposed_state_content_id: str = "", candidate_binding_digest: str = "") -> str:
+def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: str, parent_state_digest: str, proposed_state_digest: str, evidence_digest: str, evaluation_status: str, shadow_status: str, invariant_status: str, governance_decision: str, status: str = "RECORDED", proposed_state_content_id: str = "", candidate_binding_digest: str = "", evaluator_identity_ref: str = "", evaluator_identity_version: str = "") -> str:
     return "provenance:" + canonical_digest({
         "execution_id": execution_id,
         "candidate_id": candidate_id,
@@ -24,6 +24,8 @@ def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: 
         "proposed_state_digest": proposed_state_digest,
         "proposed_state_content_id": proposed_state_content_id,
         "candidate_binding_digest": candidate_binding_digest,
+        "evaluator_identity_ref": evaluator_identity_ref,
+        "evaluator_identity_version": evaluator_identity_version,
         "evidence_digest": evidence_digest,
         "evaluation_status": evaluation_status,
         "shadow_status": shadow_status,
@@ -87,6 +89,8 @@ class EvidenceProvenance:
             status=self.status,
             proposed_state_content_id=self.proposed_state_content_id,
             candidate_binding_digest=self.candidate_binding_digest,
+            evaluator_identity_ref=self.evaluator_identity_ref,
+            evaluator_identity_version=self.evaluator_identity_version,
         )
 
 
