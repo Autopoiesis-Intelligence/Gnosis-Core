@@ -19,6 +19,7 @@ def _persist(conn):
         observations=observations, proposed_state_content_id=state.content_id, evidence_digest=canonical_digest(observations),
         evaluation_status="PASS", shadow_status="NO_BEHAVIORAL_CHANGE",
         invariant_status="PRESERVED", governance_decision="REVIEW",
+        evaluator_identity_ref="evaluator:A", evaluator_identity_version="1",
     )
     pid = save_evolution_provenance(conn, p)
     append_evolution_audit(
@@ -96,6 +97,21 @@ def test_recovery_rejects_tampered_canonical_evolution_identity():
     assert not report.replay_valid
     assert "recovery evolution identity mismatch" in report.reasons
 
+
+
+def test_recovery_rejects_evaluator_identity_swap():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    pid, observations, state = _persist(conn)
+    conn.execute(
+        "UPDATE evolution_provenance SET evaluator_identity_ref='evaluator:B' WHERE provenance_id=?",
+        (pid,),
+    )
+    report = recover_evolution_audit(
+        conn, provenance_id=pid, observations=observations, proposed_state=state, authorization_valid=True
+    )
+    assert report.replay_valid is False
+    assert "evolution identity mismatch" in report.reasons or "provenance identity mismatch" in report.reasons
 
 def test_recovery_rejects_legacy_provenance_without_identity():
     conn = sqlite3.connect(":memory:")
