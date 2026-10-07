@@ -40,6 +40,18 @@ def canonical_owner_authorization(payload: dict[str, object]) -> bytes:
     return b"GNOZIS-OWNER-AUTHORIZATION-V1\x00" + hashlib.sha256(encoded).digest()
 
 
+def sign_owner_authorization(private_key_bytes: bytes, authorization: dict[str, object]) -> bytes:
+    return sign(private_key_bytes, canonical_owner_authorization(authorization))
+
+
+def verify_owner_authorization(
+    public_key_bytes: bytes,
+    authorization: dict[str, object],
+    signature: bytes,
+) -> bool:
+    return verify(public_key_bytes, canonical_owner_authorization(authorization), signature)
+
+
 def verify(public_key_bytes: bytes, payload: bytes, signature: bytes) -> bool:
     if not isinstance(payload, bytes):
         raise TypeError("payload must be bytes")
