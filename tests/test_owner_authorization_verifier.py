@@ -4,6 +4,7 @@ from gnosis.reflection.owner_authorization import OwnerAuthorizationV1
 from gnosis.reflection.owner_authorization_verifier import (
     verify_owner_authorization,
     verify_owner_authorization_for_issuer,
+    verify_owner_authorization_request,
     verify_owner_authorization_scope,
 )
 from gnosis.reflection.owner_trust import OwnerTrustAnchor
@@ -98,6 +99,44 @@ def test_independent_expected_scope_is_required() -> None:
     )
     assert not verify_owner_authorization_scope(
         authorization, expected_scope="", trust_anchor=anchor
+    )
+
+
+def test_request_provenance_binding_is_required() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key)
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+
+    assert verify_owner_authorization_request(
+        authorization, expected_request_provenance="prov-1", trust_anchor=anchor
+    )
+    assert not verify_owner_authorization_request(
+        authorization, expected_request_provenance="prov-2", trust_anchor=anchor
+    )
+    assert not verify_owner_authorization_request(
+        authorization, expected_request_provenance="", trust_anchor=anchor
+    )
+
+
+def test_request_provenance_tampering_invalidates_signature() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key, request_provenance="prov-1")
+    tampered = OwnerAuthorizationV1(
+        owner_id=authorization.owner_id,
+        key_id=authorization.key_id,
+        audience=authorization.audience,
+        scope=authorization.scope,
+        authorization_id=authorization.authorization_id,
+        request_provenance="prov-2",
+        evolution_identity=authorization.evolution_identity,
+        signature=authorization.signature,
+    )
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+
+    assert not verify_owner_authorization_request(
+        tampered, expected_request_provenance="prov-1", trust_anchor=anchor
     )
 
 
