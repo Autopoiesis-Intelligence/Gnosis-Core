@@ -5,6 +5,7 @@ from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.reflection.crypto import generate_keypair, sign_owner_authorization
 
 
 def test_authority_request_requires_owner_and_grants_no_capability() -> None:
