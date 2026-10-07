@@ -1,6 +1,9 @@
 name: owner-authorization-v1-gate
 
 on:
+  push:
+    branches:
+      - "e8-64-32-owner-authorization-v1"
   pull_request:
     paths:
       - "gnosis/reflection/owner_authorization.py"
