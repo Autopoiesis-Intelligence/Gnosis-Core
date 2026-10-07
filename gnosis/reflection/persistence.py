@@ -570,6 +570,8 @@ def classify_evolution_provenance(row: dict[str, Any]) -> str:
             status=row.get("status", "RECORDED"),
             proposed_state_content_id=row.get("proposed_state_content_id", ""),
             candidate_binding_digest=row.get("candidate_binding_digest", ""),
+            evaluator_identity_ref=row.get("evaluator_identity_ref", ""),
+            evaluator_identity_version=row.get("evaluator_identity_version", ""),
         )
     except (KeyError, TypeError, ValueError):
         return "malformed"
