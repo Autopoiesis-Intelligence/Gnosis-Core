@@ -116,7 +116,24 @@ def issue_execution_authorization(
         or approval.evolution_identity != evolution_identity
     ):
         raise PermissionError("owner approval does not match evolution")
-    raise NotImplementedError("trusted owner-authority issuer is not implemented")
+    from .trusted_issuer import TrustedOwnerIssuer, TrustedIssuerInput
+
+    issuer = TrustedOwnerIssuer(
+        authority_root=approval.authority_root,
+        scope=approval.scope,
+        policy_version=approval.policy_version,
+    )
+    return issuer.issue(
+        TrustedIssuerInput(
+            approval=approval,
+            authority_root=approval.authority_root,
+            scope=approval.scope,
+            policy_version=approval.policy_version,
+            evidence_digest=approval.evidence_digest,
+        ),
+        request_provenance=request_provenance,
+        evolution_identity=evolution_identity,
+    )
 
 def require_execution_authorization(
     auth: ExecutionAuthorization | None,
