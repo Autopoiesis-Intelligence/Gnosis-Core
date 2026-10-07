@@ -232,10 +232,27 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
     conn.close()
 
 
+def _signed_owner_approval(provenance="p", evolution="e"):
+    private_key, public_key = generate_keypair()
+    authorization = {
+        "authority_root": "owner-root",
+        "scope": "bounded",
+        "policy_version": "policy-1",
+        "evidence_digest": "evidence-1",
+        "request_provenance": provenance,
+        "evolution_identity": evolution,
+        "approval_id": "approval-1",
+    }
+    return OwnerApproval.from_signed_authorization(
+        authorization,
+        signature=sign_owner_authorization(private_key, authorization),
+        owner_public_key=public_key,
+    )
+
 def test_owner_approval_issuer_fails_closed_until_trusted_issuer_exists():
     with pytest.raises(PermissionError, match="owner approval"):
         issue_execution_authorization(None, request_provenance="p", evolution_identity="e")
-    approval = OwnerApproval("approval-1", "p", "e")
+    approval = _signed_owner_approval()
     with pytest.raises(NotImplementedError, match="trusted owner-authority issuer"):
         issue_execution_authorization(approval, request_provenance="p", evolution_identity="e")
 
