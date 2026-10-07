@@ -4,6 +4,7 @@ from gnosis.reflection.owner_authorization import OwnerAuthorizationV1
 from gnosis.reflection.owner_authorization_verifier import (
     verify_owner_authorization,
     verify_owner_authorization_evolution,
+    verify_owner_authorization_policy,
     verify_owner_authorization_for_issuer,
     verify_owner_authorization_request,
     verify_owner_authorization_scope,
@@ -21,6 +22,8 @@ def make_authorization(private_key: Ed25519PrivateKey, **overrides: object) -> O
         "authorization_id": "auth-1",
         "request_provenance": "prov-1",
         "evolution_identity": "evo-1",
+        "policy_version": "policy-1",
+        "policy_binding_digest": "policy-digest-1",
     }
     values.update(overrides)
     unsigned = OwnerAuthorizationV1(signature=b"", **values)
@@ -143,6 +146,68 @@ def test_evolution_identity_tampering_invalidates_signature() -> None:
     anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
     assert not verify_owner_authorization_evolution(
         tampered, expected_evolution_identity="evo-1", trust_anchor=anchor
+    )
+
+
+def test_policy_identity_binding_is_required() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key)
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+    assert verify_owner_authorization_policy(
+        authorization,
+        expected_policy_version="policy-1",
+        expected_policy_binding_digest="policy-digest-1",
+        trust_anchor=anchor,
+    )
+    assert not verify_owner_authorization_policy(
+        authorization,
+        expected_policy_version="policy-2",
+        expected_policy_binding_digest="policy-digest-1",
+        trust_anchor=anchor,
+    )
+    assert not verify_owner_authorization_policy(
+        authorization,
+        expected_policy_version="policy-1",
+        expected_policy_binding_digest="policy-digest-2",
+        trust_anchor=anchor,
+    )
+    assert not verify_owner_authorization_policy(
+        authorization,
+        expected_policy_version="",
+        expected_policy_binding_digest="policy-digest-1",
+        trust_anchor=anchor,
+    )
+    assert not verify_owner_authorization_policy(
+        authorization,
+        expected_policy_version="policy-1",
+        expected_policy_binding_digest="",
+        trust_anchor=anchor,
+    )
+
+
+def test_policy_identity_tampering_invalidates_signature() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key)
+    tampered = OwnerAuthorizationV1(
+        owner_id=authorization.owner_id,
+        key_id=authorization.key_id,
+        audience=authorization.audience,
+        scope=authorization.scope,
+        authorization_id=authorization.authorization_id,
+        request_provenance=authorization.request_provenance,
+        evolution_identity=authorization.evolution_identity,
+        policy_version="policy-2",
+        policy_binding_digest=authorization.policy_binding_digest,
+        signature=authorization.signature,
+    )
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+    assert not verify_owner_authorization_policy(
+        tampered,
+        expected_policy_version="policy-1",
+        expected_policy_binding_digest="policy-digest-1",
+        trust_anchor=anchor,
     )
 
 
