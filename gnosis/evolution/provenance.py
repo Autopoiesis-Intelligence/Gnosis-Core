@@ -55,23 +55,28 @@ class EvidenceProvenance:
     @property
     def evolution_identity(self) -> str:
         """Canonical identity for the complete persisted evolution unit."""
-        return "evolution:" + canonical_digest({
-            "candidate_id": self.candidate_id,
-            "execution_id": self.execution_id,
-            "parent_state_id": self.parent_state_id,
-            "parent_state_digest": self.parent_state_digest,
-            "proposed_state_digest": self.proposed_state_digest,
-            "proposed_state_content_id": self.proposed_state_content_id,
-            "candidate_binding_digest": self.candidate_binding_digest,
-            "evaluator_identity_ref": self.evaluator_identity_ref,
-            "evaluator_identity_version": self.evaluator_identity_version,
-            "evidence_digest": self.evidence_digest,
-            "evaluation_status": self.evaluation_status,
-            "shadow_status": self.shadow_status,
-            "invariant_status": self.invariant_status,
-            "governance_decision": self.governance_decision,
-            "provenance_id": self.provenance_id,
-        })
+        return canonical_evolution_identity(self)
+
+def canonical_evolution_identity(provenance: object) -> str:
+    """Return the single canonical identity for an evolution provenance record."""
+    return "evolution:" + canonical_digest({
+        "candidate_id": str(provenance.candidate_id),
+        "execution_id": str(provenance.execution_id),
+        "parent_state_id": str(provenance.parent_state_id),
+        "parent_state_digest": str(provenance.parent_state_digest),
+        "proposed_state_digest": str(provenance.proposed_state_digest),
+        "proposed_state_content_id": str(provenance.proposed_state_content_id),
+        "candidate_binding_digest": str(provenance.candidate_binding_digest),
+        "evaluator_identity_ref": str(provenance.evaluator_identity_ref),
+        "evaluator_identity_version": str(provenance.evaluator_identity_version),
+        "evidence_digest": str(provenance.evidence_digest),
+        "evaluation_status": str(provenance.evaluation_status),
+        "shadow_status": str(provenance.shadow_status),
+        "invariant_status": str(provenance.invariant_status),
+        "governance_decision": str(provenance.governance_decision),
+        "provenance_id": str(provenance.provenance_id),
+    })
+
 
     @property
     def provenance_id(self) -> str:
