@@ -18,17 +18,32 @@ jobs:
         with:
           ref: d7299033c7cf1efd1184866a2e7c25dfe7f3a96f
           fetch-depth: 0
-
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install development dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-
       - name: Run E5.20 issuer tests
+        run: pytest -q tests/test_e520_test_issuer.py
+
+  e853-crypto:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout audit branch
+        uses: actions/checkout@v4
+        with:
+          ref: audit/e8-35-e520-d7299033
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install development dependencies
         run: |
-          pytest -q tests/test_e520_test_issuer.py tests/test_authority_crypto.py
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run isolated Ed25519 tests
+        run: pytest -q tests/test_authority_crypto.py
