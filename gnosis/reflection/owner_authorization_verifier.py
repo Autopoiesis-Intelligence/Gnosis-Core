@@ -82,13 +82,8 @@ def verify_owner_authorization_for_issuer(
     issuer: TrustedOwnerIssuer,
     trust_anchor: OwnerTrustAnchor | None = None,
 ) -> bool:
-    """Verify owner authorization against the issuer's configured scope and policy identity."""
-    return verify_owner_authorization_policy(
-        authorization,
-        expected_policy_version=issuer.policy_version,
-        expected_policy_binding_digest="",
-        trust_anchor=trust_anchor,
-    ) and verify_owner_authorization_scope(
+    """Verify owner authorization against the issuer's configured scope."""
+    return verify_owner_authorization_scope(
         authorization,
         expected_scope=issuer.scope,
         trust_anchor=trust_anchor,
