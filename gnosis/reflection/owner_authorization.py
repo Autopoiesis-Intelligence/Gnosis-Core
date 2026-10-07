@@ -1,13 +1,11 @@
-"""Canonical owner authorization envelope.
-
-This module defines the signed data boundary only. It does not grant
-execution authority and does not perform signature verification.
-"""
+"""Canonical owner authorization envelope."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+
+from gnosis.crypto import Ed25519SignatureVerifier
 
 
 @dataclass(frozen=True)
@@ -31,9 +29,11 @@ class OwnerAuthorizationV1:
             "request_provenance": self.request_provenance,
             "scope": self.scope,
         }
-        return json.dumps(
-            payload,
-            ensure_ascii=False,
-            separators=(",", ":"),
-            sort_keys=True,
-        ).encode("utf-8")
+        return json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8")
+
+    def verify_signature(self, public_key: bytes) -> bool:
+        return Ed25519SignatureVerifier().verify(
+            public_key=public_key,
+            message=self.canonical_signed_bytes(),
+            signature=self.signature,
+        )
