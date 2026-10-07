@@ -168,10 +168,10 @@ def test_execution_receipt_rejects_unproven_result_content():
         ExecutionReceipt.after_commit(request, {"state": "tampered"})
 
 
-def _make_execution_commit_request(provenance):
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
+def _make_execution_commit_request(provenance, authorization_id="approval-1"):
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, authorization_id)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    validity = AuthorizationValidity("approval-1", "policy-1", provenance.evidence_digest)
+    validity = AuthorizationValidity(authorization_id, "policy-1", provenance.evidence_digest)
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
         validity,
@@ -380,13 +380,13 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1"
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-forged"
         ),
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
-        AuthorizationValidity("approval-1", "policy-1", provenance_a.evidence_digest),
+        AuthorizationValidity("approval-forged", "policy-1", provenance_a.evidence_digest),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -531,7 +531,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     record_b = instance.engine.step(candidate_b)
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
-        _make_execution_commit_request(provenance_b),
+        _make_execution_commit_request(provenance_b, authorization_id="approval-advanced"),
         actor="user-1",
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
