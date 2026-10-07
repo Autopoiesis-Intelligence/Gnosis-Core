@@ -380,7 +380,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1"
         ),
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
