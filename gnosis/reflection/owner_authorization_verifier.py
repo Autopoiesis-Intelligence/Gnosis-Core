@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from gnosis.reflection.owner_authorization import OwnerAuthorizationV1
 from gnosis.reflection.owner_trust import OwnerTrustAnchor
+from gnosis.reflection.trusted_issuer import TrustedOwnerIssuer
 
 
 def verify_owner_authorization(
@@ -37,3 +38,17 @@ def verify_owner_authorization_scope(
     if authorization.scope != expected_scope:
         return False
     return verify_owner_authorization(authorization, trust_anchor=trust_anchor)
+
+
+def verify_owner_authorization_for_issuer(
+    authorization: OwnerAuthorizationV1,
+    *,
+    issuer: TrustedOwnerIssuer,
+    trust_anchor: OwnerTrustAnchor | None = None,
+) -> bool:
+    """Verify owner authorization against the issuer's configured scope only."""
+    return verify_owner_authorization_scope(
+        authorization,
+        expected_scope=issuer.scope,
+        trust_anchor=trust_anchor,
+    )
