@@ -3,6 +3,7 @@ from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitR
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.authorization_validity import AuthorizationValidity
+from gnosis.reflection.trusted_execution_gate import TrustedExecutionContext
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.evolution.provenance import build_provenance, canonical_digest
 from gnosis.reflection.crypto import generate_keypair, sign_owner_authorization
@@ -207,7 +208,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = _make_execution_commit_request(provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
+    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1", trusted_context=TrustedExecutionContext(policy_version="policy-1"))
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
