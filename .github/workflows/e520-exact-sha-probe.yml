@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - audit/e8-35-e520-d7299033
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
