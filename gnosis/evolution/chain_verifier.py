@@ -33,6 +33,8 @@ def _provenance_from_mapping(row: Mapping[str, Any]) -> EvidenceProvenance:
         status=row.get("status", "RECORDED"),
         proposed_state_content_id=row.get("proposed_state_content_id", ""),
         candidate_binding_digest=row.get("candidate_binding_digest", ""),
+        evaluator_identity_ref=row.get("evaluator_identity_ref", ""),
+        evaluator_identity_version=row.get("evaluator_identity_version", ""),
     )
 
 
@@ -77,6 +79,8 @@ def verify_persisted_chain(
         governance_decision=provenance.governance_decision,
         proposed_state_content_id=provenance.proposed_state_content_id,
         candidate_binding_digest=provenance.candidate_binding_digest,
+        evaluator_identity_ref=provenance.evaluator_identity_ref,
+        evaluator_identity_version=provenance.evaluator_identity_version,
     )
     reasons.extend(provenance_check.reasons)
 
