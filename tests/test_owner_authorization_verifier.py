@@ -1,7 +1,10 @@
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from gnosis.reflection.owner_authorization import OwnerAuthorizationV1
-from gnosis.reflection.owner_authorization_verifier import verify_owner_authorization
+from gnosis.reflection.owner_authorization_verifier import (
+    verify_owner_authorization,
+    verify_owner_authorization_scope,
+)
 from gnosis.reflection.owner_trust import OwnerTrustAnchor
 
 
@@ -77,3 +80,41 @@ def test_caller_supplied_public_key_is_not_an_argument() -> None:
         pass
     else:
         raise AssertionError("caller public-key substitution must not be supported")
+
+
+def test_independent_expected_scope_is_required() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key)
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+
+    assert verify_owner_authorization_scope(
+        authorization, expected_scope="candidate-commit", trust_anchor=anchor
+    )
+    assert not verify_owner_authorization_scope(
+        authorization, expected_scope="different-scope", trust_anchor=anchor
+    )
+    assert not verify_owner_authorization_scope(
+        authorization, expected_scope="", trust_anchor=anchor
+    )
+
+
+def test_scope_tampering_invalidates_signature() -> None:
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key().public_bytes_raw()
+    authorization = make_authorization(private_key, scope="candidate-commit")
+    tampered = OwnerAuthorizationV1(
+        owner_id=authorization.owner_id,
+        key_id=authorization.key_id,
+        audience=authorization.audience,
+        scope="different-scope",
+        authorization_id=authorization.authorization_id,
+        request_provenance=authorization.request_provenance,
+        evolution_identity=authorization.evolution_identity,
+        signature=authorization.signature,
+    )
+    anchor = OwnerTrustAnchor("owner-1", "key-1", public_key)
+
+    assert not verify_owner_authorization_scope(
+        tampered, expected_scope="candidate-commit", trust_anchor=anchor
+    )
