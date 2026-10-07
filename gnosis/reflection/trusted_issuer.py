@@ -7,6 +7,7 @@ private key.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from gnosis.reflection.authority import ExecutionAuthorization, OwnerApproval
 from gnosis.reflection.owner_authorization import OwnerAuthorizationV1
@@ -84,6 +85,9 @@ class TrustedOwnerIssuer:
             raise PermissionError("owner authorization evidence mismatch")
         if authorization.authorization_id != approval.approval_id:
             raise PermissionError("owner authorization does not match approval")
+
+        if not authorization.is_valid_at(datetime.now(timezone.utc)):
+            raise PermissionError("owner authorization is outside its validity window")
 
         if not authorization.verify_signature(self.public_key):
             raise PermissionError("owner authorization signature invalid")
