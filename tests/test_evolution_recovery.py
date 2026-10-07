@@ -101,7 +101,7 @@ def test_recovery_rejects_legacy_provenance_without_identity():
     conn = sqlite3.connect(":memory:")
     ensure_reflection_schema(conn)
     pid, observations, state = _persist(conn)
-    conn.execute("UPDATE evolution_provenance SET evolution_identity=''")
+    conn.execute("UPDATE evolution_provenance SET evolution_identity='', evaluator_identity_ref='', evaluator_identity_version=''")
     report = recover_evolution_audit(conn, provenance_id=pid, observations=observations, proposed_state=state, authorization_valid=True)
     assert not report.replay_valid
     assert "legacy provenance identity is unverified" in report.reasons
