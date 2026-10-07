@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .governance import GovernanceDecision
+from .crypto import verify_owner_authorization
 from gnosis.evolution.provenance import canonical_digest
 from gnosis.storage import load_state
 from gnosis.storage.repositories import _persist_transition
@@ -50,11 +51,38 @@ def request_authorization(decision: GovernanceDecision) -> AuthorityRequest:
 
 @dataclass(frozen=True)
 class OwnerApproval:
-    """Opaque approval evidence from an external owner-authority boundary."""
+    """Verified approval evidence from an external owner-authority boundary."""
     approval_id: str
     request_provenance: str
     evolution_identity: str
+    authority_root: str
+    scope: str
+    policy_version: str
+    evidence_digest: str
+    signature: bytes
+    owner_public_key: bytes
 
+    @classmethod
+    def from_signed_authorization(
+        cls,
+        authorization: dict[str, object],
+        *,
+        signature: bytes,
+        owner_public_key: bytes,
+    ) -> "OwnerApproval":
+        if not verify_owner_authorization(owner_public_key, authorization, signature):
+            raise PermissionError("owner authorization signature is invalid")
+        return cls(
+            approval_id=str(authorization["approval_id"]),
+            request_provenance=str(authorization["request_provenance"]),
+            evolution_identity=str(authorization["evolution_identity"]),
+            authority_root=str(authorization["authority_root"]),
+            scope=str(authorization["scope"]),
+            policy_version=str(authorization["policy_version"]),
+            evidence_digest=str(authorization["evidence_digest"]),
+            signature=signature,
+            owner_public_key=owner_public_key,
+        )
 
 @dataclass(frozen=True)
 class ExecutionAuthorization:
