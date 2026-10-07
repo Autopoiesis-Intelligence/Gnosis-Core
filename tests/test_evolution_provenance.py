@@ -485,6 +485,7 @@ def test_provenance_lifecycle_status_does_not_change_identity() -> None:
 
 
 def test_evolution_identity_changes_with_evaluator_identity():
+    from gnosis.evolution.provenance import canonical_digest
     observations = {"result": "ok"}
     digest = canonical_digest(observations)
     base = build_provenance(
@@ -519,6 +520,7 @@ def test_evolution_identity_changes_with_evaluator_identity():
 
 
 def test_evaluator_identity_survives_provenance_persistence(sqlite_conn):
+    from gnosis.evolution.provenance import canonical_digest
     from gnosis.reflection.persistence import ensure_reflection_schema, load_evolution_provenance, save_evolution_provenance
     ensure_reflection_schema(sqlite_conn)
     observations = {"result": "ok"}
