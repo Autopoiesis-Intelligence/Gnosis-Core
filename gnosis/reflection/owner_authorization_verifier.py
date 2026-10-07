@@ -54,6 +54,20 @@ def verify_owner_authorization_request(
     return verify_owner_authorization(authorization, trust_anchor=trust_anchor)
 
 
+def verify_owner_authorization_evolution(
+    authorization: OwnerAuthorizationV1,
+    *,
+    expected_evolution_identity: str,
+    trust_anchor: OwnerTrustAnchor | None = None,
+) -> bool:
+    """Verify owner authorization and bind it to the current evolution identity."""
+    if not expected_evolution_identity:
+        return False
+    if authorization.evolution_identity != expected_evolution_identity:
+        return False
+    return verify_owner_authorization(authorization, trust_anchor=trust_anchor)
+
+
 def verify_owner_authorization_for_issuer(
     authorization: OwnerAuthorizationV1,
     *,
