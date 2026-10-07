@@ -41,6 +41,14 @@ class TrustedOwnerIssuer:
         approval = request.approval
         if not approval.approval_id:
             raise PermissionError("approval identity is missing")
+        if approval.authority_root != self.authority_root:
+            raise PermissionError("owner approval root mismatch")
+        if approval.scope != self.scope:
+            raise PermissionError("owner approval scope mismatch")
+        if approval.policy_version != self.policy_version:
+            raise PermissionError("owner approval policy mismatch")
+        if approval.evidence_digest != request.evidence_digest:
+            raise PermissionError("owner approval evidence mismatch")
         if approval.request_provenance != request_provenance:
             raise PermissionError("owner approval does not match provenance")
         if approval.evolution_identity != evolution_identity:
