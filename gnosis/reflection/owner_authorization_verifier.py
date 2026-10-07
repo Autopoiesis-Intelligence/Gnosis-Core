@@ -40,6 +40,20 @@ def verify_owner_authorization_scope(
     return verify_owner_authorization(authorization, trust_anchor=trust_anchor)
 
 
+def verify_owner_authorization_request(
+    authorization: OwnerAuthorizationV1,
+    *,
+    expected_request_provenance: str,
+    trust_anchor: OwnerTrustAnchor | None = None,
+) -> bool:
+    """Verify owner authorization and bind it to the current request provenance."""
+    if not expected_request_provenance:
+        return False
+    if authorization.request_provenance != expected_request_provenance:
+        return False
+    return verify_owner_authorization(authorization, trust_anchor=trust_anchor)
+
+
 def verify_owner_authorization_for_issuer(
     authorization: OwnerAuthorizationV1,
     *,
