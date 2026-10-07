@@ -171,6 +171,7 @@ def test_execution_receipt_rejects_unproven_result_content():
 def _make_execution_commit_request(provenance):
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
+    validity = AuthorizationValidity("approval-1", "policy-1", provenance.evolution_identity)
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
         AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
