@@ -258,7 +258,7 @@ def test_owner_approval_issuer_fails_closed_until_trusted_issuer_exists():
 
 
 def test_owner_approval_cannot_cross_bind_evolution():
-    approval = OwnerApproval("approval-1", "p", "e")
+    approval = _signed_owner_approval()
     with pytest.raises(PermissionError, match="owner approval"):
         issue_execution_authorization(approval, request_provenance="p", evolution_identity="other")
 
