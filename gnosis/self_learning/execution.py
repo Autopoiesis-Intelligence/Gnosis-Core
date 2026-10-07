@@ -71,6 +71,7 @@ from dataclasses import dataclass as _dataclass
 from gnosis.self_learning.bridge import CoreMutationProposal
 from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionCommitResult
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+from gnosis.reflection.trusted_execution_gate import TrustedExecutionContext
 
 @_dataclass(frozen=True)
 class BoundCoreExecution:
@@ -91,6 +92,6 @@ def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitR
     binding="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     return BoundCoreExecution(proposal.mutation_id,request.evolution_identity,binding)
 
-def execute_approved_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest, conn: object, instance: object, candidate: object, record: object, *, actor: str) -> ExecutionCommitResult:
+def execute_approved_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest, conn: object, instance: object, candidate: object, record: object, *, actor: str, trusted_context: TrustedExecutionContext) -> ExecutionCommitResult:
     bind_core_proposal(proposal, request)
-    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
+    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor, trusted_context=trusted_context)
