@@ -6,7 +6,6 @@ store private keys, choose a trust root, or issue execution authorization.
 
 from __future__ import annotations
 
-import base64
 import json
 from dataclasses import dataclass
 from hashlib import sha256
@@ -17,29 +16,41 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 DOMAIN = "GNOZIS-OWNER-AUTHORIZATION-V1"
 
+_FIELDS = {
+    "issuer_id",
+    "key_version",
+    "authority_root",
+    "scope",
+    "policy_version",
+    "request_provenance",
+    "evolution_identity",
+    "parent_state_digest",
+    "evidence_digest",
+    "authorization_id",
+    "nonce",
+    "valid_from",
+    "valid_until",
+}
+
 
 def canonical_payload(fields: dict[str, str]) -> bytes:
     """Produce deterministic, domain-separated signed bytes."""
-    if set(fields) != {
-        "issuer_id",
-        "key_version",
-        "authority_root",
-        "scope",
-        "policy_version",
-        "request_provenance",
-        "evolution_identity",
-        "parent_state_digest",
-        "evidence_digest",
-        "authorization_id",
-        "nonce",
-        "valid_from",
-        "valid_until",
-    }:
+    if set(fields) != _FIELDS:
         raise ValueError("owner authorization field set is incomplete or contains unknown fields")
     if any(not isinstance(value, str) or not value for value in fields.values()):
         raise ValueError("owner authorization fields must be non-empty strings")
     document = {"domain": DOMAIN, "version": "1", **fields}
-    return json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return json.dumps(
+        document, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+
+
+def authorization_id_for(fields: dict[str, str]) -> str:
+    """Derive identity from all authorization fields except the identity itself."""
+    unsigned = {key: value for key, value in fields.items() if key != "authorization_id"}
+    return "sha256:" + sha256(
+        canonical_payload({**unsigned, "authorization_id": "identity-excluded"})
+    ).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -79,7 +90,21 @@ class OwnerAuthorizationV1:
 
     @property
     def computed_authorization_id(self) -> str:
-        return "sha256:" + sha256(self.canonical_payload).hexdigest()
+        return authorization_id_for({
+            "issuer_id": self.issuer_id,
+            "key_version": self.key_version,
+            "authority_root": self.authority_root,
+            "scope": self.scope,
+            "policy_version": self.policy_version,
+            "request_provenance": self.request_provenance,
+            "evolution_identity": self.evolution_identity,
+            "parent_state_digest": self.parent_state_digest,
+            "evidence_digest": self.evidence_digest,
+            "authorization_id": "",
+            "nonce": self.nonce,
+            "valid_from": self.valid_from,
+            "valid_until": self.valid_until,
+        })
 
     def verify_signature(self, public_key: bytes) -> bool:
         if not isinstance(public_key, bytes) or len(public_key) != 32:
@@ -88,8 +113,7 @@ class OwnerAuthorizationV1:
             return False
         try:
             Ed25519PublicKey.from_public_bytes(public_key).verify(
-                self.signature,
-                self.canonical_payload,
+                self.signature, self.canonical_payload
             )
         except (InvalidSignature, ValueError, TypeError):
             return False
