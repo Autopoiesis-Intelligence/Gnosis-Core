@@ -23,3 +23,17 @@ def verify_owner_authorization(
         return False
 
     return authorization.verify_signature(anchor.public_key)
+
+
+def verify_owner_authorization_scope(
+    authorization: OwnerAuthorizationV1,
+    *,
+    expected_scope: str,
+    trust_anchor: OwnerTrustAnchor | None = None,
+) -> bool:
+    """Verify owner authorization and bind it to an independent expected scope."""
+    if not expected_scope:
+        return False
+    if authorization.scope != expected_scope:
+        return False
+    return verify_owner_authorization(authorization, trust_anchor=trust_anchor)
