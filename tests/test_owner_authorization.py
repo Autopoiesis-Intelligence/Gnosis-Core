@@ -1,6 +1,10 @@
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from gnosis.reflection.owner_authorization import OwnerAuthorizationV1, canonical_payload
+from gnosis.reflection.owner_authorization import (
+    OwnerAuthorizationV1,
+    authorization_id_for,
+    canonical_payload,
+)
 
 
 FIELDS = {
@@ -21,9 +25,7 @@ FIELDS = {
 
 
 def make_authorization(private_key: Ed25519PrivateKey) -> OwnerAuthorizationV1:
-    unsigned_payload = canonical_payload({**FIELDS, "authorization_id": "placeholder"})
-    auth_id = "sha256:" + __import__("hashlib").sha256(unsigned_payload).hexdigest()
-    fields = {**FIELDS, "authorization_id": auth_id}
+    fields = {**FIELDS, "authorization_id": authorization_id_for(FIELDS)}
     payload = canonical_payload(fields)
     return OwnerAuthorizationV1(**fields, signature=private_key.sign(payload))
 
@@ -59,7 +61,7 @@ def test_wrong_authorization_id_is_rejected() -> None:
     assert not tampered.verify_signature(private_key.public_key().public_bytes_raw())
 
 
-def test_wrong_domain_payload_cannot_verify() -> None:
+def test_domain_is_part_of_signed_payload() -> None:
     private_key = Ed25519PrivateKey.generate()
     authorization = make_authorization(private_key)
-    assert authorization.canonical_payload.startswith(b'{"authority_root"') is False
+    assert b"GNOZIS-OWNER-AUTHORIZATION-V1" in authorization.canonical_payload
