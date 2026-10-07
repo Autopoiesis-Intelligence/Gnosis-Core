@@ -32,7 +32,7 @@ def require_trusted_execution(
     *,
     conn: object,
     actor: str,
-    trusted_context: TrustedExecutionContext,
+    trusted_context: TrustedExecutionContext | None = None,
 ) -> None:
     """Validate request-bound authorization, consume it once, then run canonical Core gate.
 
@@ -44,6 +44,8 @@ def require_trusted_execution(
         raise PermissionError("authorization validity is required")
     if validity.authorization_id != request.authorization.approval_id:
         raise PermissionError("authorization validity identity mismatch")
+    if trusted_context is None:
+        raise PermissionError("trusted execution context is required")
     trusted_context.require_valid(validity)
     validity.require_valid(
         expected_policy_version=trusted_context.policy_version,
