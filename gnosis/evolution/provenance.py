@@ -57,6 +57,26 @@ class EvidenceProvenance:
         """Canonical identity for the complete persisted evolution unit."""
         return canonical_evolution_identity(self)
 
+    @property
+    def provenance_id(self) -> str:
+        return provenance_id_for(
+            execution_id=self.execution_id,
+            candidate_id=self.candidate_id,
+            parent_state_id=self.parent_state_id,
+            parent_state_digest=self.parent_state_digest,
+            proposed_state_digest=self.proposed_state_digest,
+            evidence_digest=self.evidence_digest,
+            evaluation_status=self.evaluation_status,
+            shadow_status=self.shadow_status,
+            invariant_status=self.invariant_status,
+            governance_decision=self.governance_decision,
+            status=self.status,
+            proposed_state_content_id=self.proposed_state_content_id,
+            candidate_binding_digest=self.candidate_binding_digest,
+            evaluator_identity_ref=self.evaluator_identity_ref,
+            evaluator_identity_version=self.evaluator_identity_version,
+        )
+
 def canonical_evolution_identity(provenance: object) -> str:
     """Return the single canonical identity for an evolution provenance record."""
     return "evolution:" + canonical_digest({
@@ -78,25 +98,6 @@ def canonical_evolution_identity(provenance: object) -> str:
     })
 
 
-    @property
-    def provenance_id(self) -> str:
-        return provenance_id_for(
-            execution_id=self.execution_id,
-            candidate_id=self.candidate_id,
-            parent_state_id=self.parent_state_id,
-            parent_state_digest=self.parent_state_digest,
-            proposed_state_digest=self.proposed_state_digest,
-            evidence_digest=self.evidence_digest,
-            evaluation_status=self.evaluation_status,
-            shadow_status=self.shadow_status,
-            invariant_status=self.invariant_status,
-            governance_decision=self.governance_decision,
-            status=self.status,
-            proposed_state_content_id=self.proposed_state_content_id,
-            candidate_binding_digest=self.candidate_binding_digest,
-            evaluator_identity_ref=self.evaluator_identity_ref,
-            evaluator_identity_version=self.evaluator_identity_version,
-        )
 
 
 def execution_id(candidate_id: str, parent_state_id: str, evidence_digest: str, parent_state_digest: str = "", proposed_state_digest: str = "") -> str:
