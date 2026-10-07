@@ -79,6 +79,8 @@ def recover_evolution_audit(
                 governance_decision=provenance_row["governance_decision"],
                 proposed_state_content_id=provenance_row.get("proposed_state_content_id", ""),
                 candidate_binding_digest=provenance_row.get("candidate_binding_digest", ""),
+                evaluator_identity_ref=provenance_row.get("evaluator_identity_ref", ""),
+                evaluator_identity_version=provenance_row.get("evaluator_identity_version", ""),
             )
             identity_valid = recovered_provenance.evolution_identity == persisted_identity
         except (KeyError, TypeError, ValueError):
