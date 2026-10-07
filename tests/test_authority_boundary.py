@@ -1,10 +1,12 @@
 import pytest
-from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
+from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, OwnerApproval, issue_execution_authorization, build_execution_commit_request, ExecutionIntentSnapshot, ExecutionReceipt, request_authorization, require_execution_authorization, require_execution_intent_snapshot, require_execution_commit, require_execution_receipt
 from gnosis.reflection.governance import GovernanceDecision
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.authorization_validity import AuthorizationValidity
+from gnosis.reflection.trusted_execution_gate import TrustedExecutionContext
 from gnosis.core import Candidate, State, TestResult, TransitionRecord
 from gnosis.evolution.provenance import build_provenance, canonical_digest
+from gnosis.reflection.crypto import generate_keypair, sign_owner_authorization
 
 
 def test_authority_request_requires_owner_and_grants_no_capability() -> None:
@@ -167,12 +169,13 @@ def test_execution_receipt_rejects_unproven_result_content():
         ExecutionReceipt.after_commit(request, {"state": "tampered"})
 
 
-def _make_execution_commit_request(provenance):
-    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, "approval-1")
+def _make_execution_commit_request(provenance, authorization_id="approval-1"):
+    auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity, authorization_id)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
+    validity = AuthorizationValidity(authorization_id, "policy-1", provenance.evidence_digest)
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
-        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
+        validity,
     )
 
 
@@ -205,7 +208,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = _make_execution_commit_request(provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
+    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1", trusted_context=TrustedExecutionContext(policy_version="policy-1"))
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
@@ -226,21 +229,59 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
         SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, ExecutionCommitRequest(
             ExecutionAuthorization("bad", False, "bad"),
             ExecutionIntentSnapshot("", "", "", "", "", "", ""),
-            "bad", "bad", object()), actor="user-1")
+            "bad", "bad", object()), actor="user-1", trusted_context=TrustedExecutionContext(policy_version="policy-1"))
     assert load_instance(conn, instance.instance_id).engine.state.state_id == initial_state_id
     conn.close()
 
 
+def _signed_owner_approval(provenance="p", evolution="e"):
+    private_key, public_key = generate_keypair()
+    authorization = {
+        "authority_root": "owner-root",
+        "scope": "bounded",
+        "policy_version": "policy-1",
+        "evidence_digest": "evidence-1",
+        "request_provenance": provenance,
+        "evolution_identity": evolution,
+        "approval_id": "approval-1",
+    }
+    return OwnerApproval.from_signed_authorization(
+        authorization,
+        signature=sign_owner_authorization(private_key, authorization),
+        owner_public_key=public_key,
+    )
+
 def test_owner_approval_issuer_fails_closed_until_trusted_issuer_exists():
     with pytest.raises(PermissionError, match="owner approval"):
         issue_execution_authorization(None, request_provenance="p", evolution_identity="e")
-    approval = OwnerApproval("approval-1", "p", "e")
-    with pytest.raises(NotImplementedError, match="trusted owner-authority issuer"):
-        issue_execution_authorization(approval, request_provenance="p", evolution_identity="e")
+    approval = _signed_owner_approval()
+    authorization = issue_execution_authorization(
+        approval, request_provenance="p", evolution_identity="e"
+    )
+    assert authorization.approval_id == approval.approval_id
+    assert authorization.evolution_identity == approval.evolution_identity
+
+
+def test_build_execution_commit_request_binds_external_owner_approval():
+    provenance = _snapshot_provenance()
+    approval = _signed_owner_approval(provenance=provenance.provenance_id, evolution=provenance.evolution_identity)
+    request = build_execution_commit_request(approval, provenance)
+    assert request.authorization.approval_id == approval.approval_id
+    assert request.authorization.evolution_identity == provenance.evolution_identity
+    assert request.request_provenance == provenance.provenance_id
+    assert request.authorization_validity.authorization_id == approval.approval_id
+    require_execution_commit(request)
+
+
+def test_build_execution_commit_request_rejects_cross_bound_owner_approval():
+    provenance = _snapshot_provenance()
+    approval = _signed_owner_approval(provenance="other-provenance", evolution="other-evolution")
+    with pytest.raises(PermissionError, match="owner approval"):
+        build_execution_commit_request(approval, provenance)
 
 
 def test_owner_approval_cannot_cross_bind_evolution():
-    approval = OwnerApproval("approval-1", "p", "e")
+    approval = _signed_owner_approval()
     with pytest.raises(PermissionError, match="owner approval"):
         issue_execution_authorization(approval, request_provenance="p", evolution_identity="other")
 
@@ -276,7 +317,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-1"
     )
     request = ExecutionCommitRequest(
         auth,
@@ -357,16 +398,19 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_id=provenance_a.provenance_id,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
         candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        evaluator_identity_ref=getattr(provenance_a, "evaluator_identity_ref", "evaluator:default"),
+        evaluator_identity_version=getattr(provenance_a, "evaluator_identity_version", "1"),
         evolution_identity=provenance_a.evolution_identity,
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-forged"
         ),
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity("approval-forged", "policy-1", provenance_a.evidence_digest),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -479,12 +523,13 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1"
         ),
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity("approval-1", "policy-1", provenance_a.evidence_digest),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
@@ -510,7 +555,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     record_b = instance.engine.step(candidate_b)
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
-        _make_execution_commit_request(provenance_b),
+        _make_execution_commit_request(provenance_b, authorization_id="approval-advanced"),
         actor="user-1",
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id

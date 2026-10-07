@@ -2,10 +2,25 @@ import pytest
 
 from gnosis.reflection.authority import OwnerApproval
 from gnosis.reflection.trusted_issuer import TrustedIssuerInput, TrustedOwnerIssuer
+from gnosis.reflection.crypto import generate_keypair, sign_owner_authorization
 
 
 def req():
-    approval=OwnerApproval("a1","p1","e1")
+    private_key, public_key = generate_keypair()
+    authorization = {
+        "authority_root": "root-1",
+        "scope": "evolution.commit",
+        "policy_version": "policy-1",
+        "evidence_digest": "evd",
+        "request_provenance": "p1",
+        "evolution_identity": "e1",
+        "approval_id": "a1",
+    }
+    approval = OwnerApproval.from_signed_authorization(
+        authorization,
+        signature=sign_owner_authorization(private_key, authorization),
+        owner_public_key=public_key,
+    )
     return TrustedIssuerInput(approval,"root-1","evolution.commit","policy-1","evd")
 
 

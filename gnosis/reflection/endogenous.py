@@ -7,7 +7,7 @@ bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Mapping, Sequence
 from gnosis.core.evolution import Engine
 from gnosis.core.types import Candidate, Relation, State
 from gnosis.core.budget import Budget
@@ -98,7 +98,7 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
     if candidate.origin != "reflection:endogenous":
         return False
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
+    if not isinstance(node, Mapping):
         return False
     if node.get("kind") != "rule_proposal":
         return False
