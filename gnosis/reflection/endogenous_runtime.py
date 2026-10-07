@@ -105,4 +105,6 @@ def build_endogenous_provenance(
         shadow_status=governance.shadow_status,
         invariant_status=governance.invariant_status,
         governance_decision=governance.decision,
+        evaluator_identity_ref=evaluation.evaluator_identity.implementation_ref,
+        evaluator_identity_version=evaluation.evaluator_identity.implementation_version,
     )
