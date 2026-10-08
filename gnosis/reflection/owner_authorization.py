@@ -147,8 +147,6 @@ def verify_production_authorization(
     """
     if not authorization.authorization_id:
         raise PermissionError("authorization identity is missing")
-    if authorization.authorization_id != authorization.expected_authorization_id():
-        raise PermissionError("authorization identity mismatch")
     if not authorization.issuer_id or not authorization.key_version:
         raise PermissionError("issuer identity is missing")
     if not authorization.policy_version:
@@ -165,6 +163,8 @@ def verify_production_authorization(
         raise PermissionError("authorization scope is missing")
     if tuple(sorted(set(authorization.authority_scope))) != authorization.authority_scope:
         raise PermissionError("authorization scope is not canonical")
+    if authorization.authorization_id != authorization.expected_authorization_id():
+        raise PermissionError("authorization identity mismatch")
     if authorization.valid_from >= authorization.expires_at:
         raise PermissionError("authorization validity interval is invalid")
     if now < authorization.valid_from or now >= authorization.expires_at:
