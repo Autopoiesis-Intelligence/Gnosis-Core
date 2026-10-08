@@ -69,7 +69,7 @@ def test_tampered_payload_fails_signature_verification() -> None:
     authorization = make_authorization(signing_key)
     tampered = ProductionAuthorization(**{**authorization.__dict__, "policy_version": "policy-2"})
 
-    with pytest.raises(PermissionError, match="signature verification failed"):
+    with pytest.raises(PermissionError, match="authorization identity mismatch"):
         verify_production_authorization(tampered, Resolver(trusted), now=150)
 
 
