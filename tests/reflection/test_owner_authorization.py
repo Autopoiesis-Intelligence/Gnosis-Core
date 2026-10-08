@@ -38,7 +38,9 @@ def make_authorization(signing_key: SigningKey) -> ProductionAuthorization:
         nonce="nonce-1",
         signature="",
     )
-    authorization_id = unsigned.expected_authorization_id()\n    unsigned = ProductionAuthorization(**{**unsigned.__dict__, "authorization_id": authorization_id})\n    signature = signing_key.sign(unsigned.canonical_bytes()).signature
+    authorization_id = unsigned.expected_authorization_id()
+    unsigned = ProductionAuthorization(**{**unsigned.__dict__, "authorization_id": authorization_id})
+    signature = signing_key.sign(unsigned.canonical_bytes()).signature
     return ProductionAuthorization(
         **{**unsigned.__dict__, "signature": base64.b64encode(signature).decode("ascii")}
     )
