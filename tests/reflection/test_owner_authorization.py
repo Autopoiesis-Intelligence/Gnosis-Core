@@ -25,7 +25,7 @@ class Resolver:
 
 def make_authorization(signing_key: SigningKey) -> ProductionAuthorization:
     unsigned = ProductionAuthorization(
-        authorization_id="auth-1",
+        authorization_id="",
         issuer_id="owner-1",
         key_version="v1",
         authority_scope=("execute",),
@@ -38,7 +38,7 @@ def make_authorization(signing_key: SigningKey) -> ProductionAuthorization:
         nonce="nonce-1",
         signature="",
     )
-    signature = signing_key.sign(unsigned.canonical_bytes()).signature
+    authorization_id = unsigned.expected_authorization_id()\n    unsigned = ProductionAuthorization(**{**unsigned.__dict__, "authorization_id": authorization_id})\n    signature = signing_key.sign(unsigned.canonical_bytes()).signature
     return ProductionAuthorization(
         **{**unsigned.__dict__, "signature": base64.b64encode(signature).decode("ascii")}
     )
@@ -167,3 +167,23 @@ def test_nonce_is_required() -> None:
 
     with pytest.raises(PermissionError, match="authorization nonce is missing"):
         verify_production_authorization(authorization, Resolver(trusted), now=150)
+
+
+def test_authorization_id_tampering_fails_closed() -> None:
+    signing_key = SigningKey.generate()
+    trusted = TrustedIssuerKey("owner-1", "v1", signing_key.verify_key.encode())
+    authorization = make_authorization(signing_key)
+    tampered = ProductionAuthorization(**{**authorization.__dict__, "authorization_id": "auth:tampered"})
+
+    with pytest.raises(PermissionError, match="authorization identity mismatch"):
+        verify_production_authorization(tampered, Resolver(trusted), now=150)
+
+
+def test_scope_must_be_canonical() -> None:
+    signing_key = SigningKey.generate()
+    trusted = TrustedIssuerKey("owner-1", "v1", signing_key.verify_key.encode())
+    authorization = make_authorization(signing_key)
+    tampered = ProductionAuthorization(**{**authorization.__dict__, "authority_scope": ("execute", "execute")})
+
+    with pytest.raises(PermissionError, match="scope is not canonical"):
+        verify_production_authorization(tampered, Resolver(trusted), now=150)
