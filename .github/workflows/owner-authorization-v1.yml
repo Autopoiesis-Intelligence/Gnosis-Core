@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - "gnosis/reflection/owner_authorization.py"
-      - "tests/test_owner_authorization.py"
+      - "tests/test_owner_authorization.py tests/test_owner_authorization_persistence.py"
       - "pyproject.toml"
       - ".github/workflows/owner-authorization-v1.yml"
 
