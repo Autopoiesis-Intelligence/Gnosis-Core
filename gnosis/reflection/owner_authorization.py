@@ -2,14 +2,6 @@
 
 This module verifies externally issued owner authorization. It does not issue
 authority, store private keys, manage policy, or execute commits.
-
-E8.178 contract:
-- Ed25519 signatures
-- canonical deterministic JSON, serialization version 1
-- raw 32-byte public keys and raw 64-byte signatures, base64 encoded on wire
-- exact issuer_id + key_version lookup
-- fail-closed verification
-- exact execution-context binding when expected values are supplied
 """
 
 from __future__ import annotations
@@ -17,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import base64
 import binascii
+import hashlib
 import json
 from typing import Protocol
 
@@ -24,6 +17,7 @@ from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
 
+DOMAIN = "gnozis:owner-authorization:v1"
 ALGORITHM = "Ed25519"
 SERIALIZATION_VERSION = 1
 ACTIVE = "active"
@@ -55,7 +49,12 @@ class TrustedIssuerKey:
 
 
 class TrustedIssuerKeyResolver(Protocol):
-    """Resolve exactly the issuer/key version named by an authorization."""
+    """Resolve exactly the issuer/key version named by an authorization.
+
+    The resolver is a trust-boundary dependency. Supplying arbitrary caller
+    data here does not establish trust; production integration must provision
+    the resolver from an authorized root outside this pure verifier.
+    """
 
     def resolve(self, issuer_id: str, key_version: str) -> TrustedIssuerKey | None:
         ...
@@ -80,6 +79,7 @@ class ProductionAuthorization:
 
     def payload(self) -> dict[str, object]:
         return {
+            "domain": DOMAIN,
             "algorithm": ALGORITHM,
             "serialization_version": SERIALIZATION_VERSION,
             "authorization_id": self.authorization_id,
@@ -94,6 +94,15 @@ class ProductionAuthorization:
             "expires_at": self.expires_at,
             "nonce": self.nonce,
         }
+
+    def identity_payload(self) -> dict[str, object]:
+        payload = self.payload()
+        payload.pop("authorization_id")
+        return payload
+
+    def expected_authorization_id(self) -> str:
+        digest = hashlib.sha256(canonical_authorization_bytes(self.identity_payload())).hexdigest()
+        return "auth:" + digest[:32]
 
     def canonical_bytes(self) -> bytes:
         return canonical_authorization_bytes(self.payload())
@@ -138,6 +147,8 @@ def verify_production_authorization(
     """
     if not authorization.authorization_id:
         raise PermissionError("authorization identity is missing")
+    if authorization.authorization_id != authorization.expected_authorization_id():
+        raise PermissionError("authorization identity mismatch")
     if not authorization.issuer_id or not authorization.key_version:
         raise PermissionError("issuer identity is missing")
     if not authorization.policy_version:
@@ -150,6 +161,10 @@ def verify_production_authorization(
         raise PermissionError("request provenance is missing")
     if not authorization.nonce:
         raise PermissionError("authorization nonce is missing")
+    if not authorization.authority_scope:
+        raise PermissionError("authorization scope is missing")
+    if tuple(sorted(set(authorization.authority_scope))) != authorization.authority_scope:
+        raise PermissionError("authorization scope is not canonical")
     if authorization.valid_from >= authorization.expires_at:
         raise PermissionError("authorization validity interval is invalid")
     if now < authorization.valid_from or now >= authorization.expires_at:
