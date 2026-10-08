@@ -90,3 +90,47 @@ def test_tampered_persisted_record_fails_integrity_check():
     conn.execute("UPDATE owner_authorizations SET scope='tampered' WHERE authorization_id=?", (auth.authorization_id,))
     with pytest.raises(PermissionError, match="integrity"):
         consume_owner_authorization(conn, auth)
+
+
+def test_concurrent_consume_allows_exactly_one_winner(tmp_path):
+    import sqlite3
+    import threading
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    db = tmp_path / "concurrent.db"
+    key = Ed25519PrivateKey.generate()
+    auth = make_authorization(key)
+    conn = sqlite3.connect(db)
+    setup_db(conn)
+    persist_owner_authorization(conn, auth)
+    conn.commit()
+    conn.close()
+
+    barrier = threading.Barrier(2)
+    outcomes = []
+    lock = threading.Lock()
+
+    def worker():
+        local = sqlite3.connect(db, timeout=5.0)
+        try:
+            barrier.wait()
+            local.execute("BEGIN IMMEDIATE")
+            try:
+                consume_owner_authorization(local, auth)
+                local.commit()
+                outcome = "accepted"
+            except PermissionError:
+                local.rollback()
+                outcome = "rejected"
+            with lock:
+                outcomes.append(outcome)
+        finally:
+            local.close()
+
+    threads = [threading.Thread(target=worker) for _ in range(2)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert sorted(outcomes) == ["accepted", "rejected"]
