@@ -157,6 +157,11 @@ class TaskContextRepository:
     def update_context(
         self, context_id: str, expected_revision: int, patch: Mapping[str, Any]
     ) -> TaskContext:
+        if isinstance(expected_revision, bool) or not isinstance(expected_revision, int):
+            raise ValueError("expected_revision must be an integer")
+        if expected_revision < 0:
+            raise ValueError("expected_revision must be non-negative")
+
         current = self.get_context(context_id)
         if current.revision != expected_revision:
             raise ContextRevisionConflict(
