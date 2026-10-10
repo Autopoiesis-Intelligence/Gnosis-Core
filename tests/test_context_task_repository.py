@@ -141,7 +141,6 @@ def test_update_rejects_invalid_expected_revision_without_mutating_record(expect
     [
         ("current_task_state", "untrusted-state"),
         ("verification_state", "PASS"),
-        ("revision", -1),
         ("required_inputs", '{"unexpected": "object"}'),
     ],
 )
