@@ -10,6 +10,15 @@ from gnosis.storage.database import transaction
 from .handoff import ContextHandoff
 from .model import TaskContext
 
+TASK_STATES = frozenset({
+    "proposed", "active", "blocked", "awaiting_review",
+    "corrective", "verified", "accepted", "closed",
+})
+VERIFICATION_STATES = frozenset({
+    "reported", "implemented", "runtime_verified",
+    "independently_verified", "accepted", "rejected",
+})
+
 CONTEXT_SCHEMA = """
 CREATE TABLE IF NOT EXISTS task_contexts (
     context_id TEXT PRIMARY KEY,
@@ -35,20 +44,25 @@ CREATE TABLE IF NOT EXISTS task_contexts (
 );
 """
 
+
 class ContextRevisionConflict(RuntimeError):
     pass
+
 
 class ContextNotFound(KeyError):
     pass
 
+
 def _json(value: tuple[Any, ...]) -> str:
     return json.dumps(list(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
 
 def _decode(value: str) -> tuple[Any, ...]:
     decoded = json.loads(value)
     if not isinstance(decoded, list):
         raise ValueError("context collection must be a JSON list")
     return tuple(decoded)
+
 
 class TaskContextRepository:
     def __init__(self, conn: sqlite3.Connection):
@@ -77,15 +91,23 @@ class TaskContextRepository:
             raise ContextNotFound(context_id)
         return self._from_row(row)
 
-    def update_context(self, context_id: str, expected_revision: int, patch: Mapping[str, Any]) -> TaskContext:
+    def update_context(
+        self, context_id: str, expected_revision: int, patch: Mapping[str, Any]
+    ) -> TaskContext:
         current = self.get_context(context_id)
         if current.revision != expected_revision:
             raise ContextRevisionConflict(
                 f"stale revision: expected {expected_revision}, current {current.revision}"
             )
-        allowed = set(current.__dataclass_fields__) - {"context_id", "revision", "created_at"}
+
+        immutable = {
+            "context_id", "project_id", "task_id", "user_scope",
+            "organization_scope", "created_at", "revision",
+        }
+        allowed = set(current.__dataclass_fields__) - immutable
         if set(patch) - allowed:
             raise ValueError("patch contains immutable or unknown fields")
+
         updated = replace(current, **dict(patch), revision=current.revision + 1)
         self._validate(updated)
         p = self._params(updated)
@@ -97,8 +119,8 @@ class TaskContextRepository:
                 next_permitted_action=?,available_capabilities=?,allowed_data_sources=?,
                 allowed_output_destinations=?,updated_at=?,revision=?
                 WHERE context_id=? AND revision=?""",
-                (p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9],p[10],p[11],p[12],
-                 p[13],p[14],p[15],p[16],p[18],p[19],context_id,expected_revision),
+                (p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12],
+                 p[13], p[14], p[15], p[16], p[18], p[19], context_id, expected_revision),
             )
             if result.rowcount != 1:
                 raise ContextRevisionConflict("stale revision")
@@ -113,18 +135,22 @@ class TaskContextRepository:
             raise ValueError("context identity fields are required")
         if not context.user_scope:
             raise ValueError("user_scope is required")
+        if context.current_task_state not in TASK_STATES:
+            raise ValueError(f"invalid current_task_state: {context.current_task_state!r}")
+        if context.verification_state not in VERIFICATION_STATES:
+            raise ValueError(f"invalid verification_state: {context.verification_state!r}")
         if context.revision < 0:
             raise ValueError("revision must be non-negative")
 
     @staticmethod
     def _params(c: TaskContext) -> tuple[Any, ...]:
         return (
-            c.context_id,c.project_id,c.task_id,c.organization_scope,c.user_scope,c.objective,
-            c.current_task_state,_json(c.required_inputs),_json(c.context_references),
-            _json(c.evidence_references),c.implementation_state,c.verification_state,
-            _json(c.unresolved_findings),c.next_permitted_action,_json(c.available_capabilities),
-            _json(c.allowed_data_sources),_json(c.allowed_output_destinations),
-            c.created_at,c.updated_at,c.revision,
+            c.context_id, c.project_id, c.task_id, c.organization_scope, c.user_scope, c.objective,
+            c.current_task_state, _json(c.required_inputs), _json(c.context_references),
+            _json(c.evidence_references), c.implementation_state, c.verification_state,
+            _json(c.unresolved_findings), c.next_permitted_action, _json(c.available_capabilities),
+            _json(c.allowed_data_sources), _json(c.allowed_output_destinations),
+            c.created_at, c.updated_at, c.revision,
         )
 
     @staticmethod
