@@ -406,3 +406,25 @@ def test_update_refreshes_updated_at_when_caller_does_not_supply_it():
         assert repo.get_context("ctx-1").updated_at == updated.updated_at
     finally:
         conn.close()
+
+
+
+def test_mutating_reconstructed_handoff_does_not_change_persisted_context_and_remains_json_serializable():
+    from dataclasses import asdict
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    evidence = {"source": "research", "locator": "record-17"}
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context(evidence_references=(evidence,)))
+
+        handoff = repo.reconstruct_context("ctx-1")
+        handoff.evidence_references[0]["locator"] = "mutated-in-memory"
+        encoded = json.dumps(asdict(handoff), ensure_ascii=False, sort_keys=True)
+        assert "mutated-in-memory" in encoded
+
+        persisted = repo.get_context("ctx-1")
+        assert persisted.evidence_references == ({"source": "research", "locator": "record-17"},)
+    finally:
+        conn.close()
