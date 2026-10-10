@@ -250,3 +250,26 @@ def test_cli_can_recover_context_without_initializing_core_schema(tmp_path, monk
         assert tables == {"task_contexts"}
     finally:
         check.close()
+
+
+def test_cli_recovery_does_not_create_context_schema_in_an_empty_database(tmp_path, monkeypatch):
+    from gnosis.context import cli
+
+    path = tmp_path / "empty.db"
+    sqlite3.connect(path).close()
+    monkeypatch.setattr(
+        "sys.argv",
+        ["gnosis-context", "--context-db", str(path), "--context-id", "missing"],
+    )
+    with pytest.raises(SystemExit, match="does not contain task_contexts table"):
+        cli.main()
+
+    check = sqlite3.connect(path)
+    try:
+        tables = {
+            row[0]
+            for row in check.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        assert tables == set()
+    finally:
+        check.close()
