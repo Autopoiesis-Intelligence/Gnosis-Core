@@ -247,7 +247,7 @@ class TaskContextRepository:
 
     @staticmethod
     def _from_row(row: sqlite3.Row) -> TaskContext:
-        return TaskContext(
+        context = TaskContext(
             context_id=row["context_id"], project_id=row["project_id"], task_id=row["task_id"],
             user_scope=row["user_scope"], objective=row["objective"], current_task_state=row["current_task_state"],
             required_inputs=_decode(row["required_inputs"]), context_references=_decode(row["context_references"]),
@@ -258,3 +258,5 @@ class TaskContextRepository:
             organization_scope=row["organization_scope"], created_at=row["created_at"],
             updated_at=row["updated_at"], revision=row["revision"],
         )
+        TaskContextRepository._validate(context)
+        return context
