@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from datetime import datetime
 
 import pytest
 
@@ -391,3 +392,17 @@ def test_cli_recovery_does_not_create_a_missing_database_file(tmp_path, monkeypa
     with pytest.raises(SystemExit, match="does not exist"):
         cli.main()
     assert not path.exists()
+
+
+def test_update_refreshes_updated_at_when_caller_does_not_supply_it():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    original_timestamp = "2000-01-01T00:00:00+00:00"
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context(updated_at=original_timestamp))
+        updated = repo.update_context("ctx-1", 0, {"objective": "changed"})
+        assert datetime.fromisoformat(updated.updated_at) > datetime.fromisoformat(original_timestamp)
+        assert repo.get_context("ctx-1").updated_at == updated.updated_at
+    finally:
+        conn.close()
