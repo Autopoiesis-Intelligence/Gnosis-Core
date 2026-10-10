@@ -111,6 +111,31 @@ def test_revision_increments_and_stale_update_leaves_stored_bytes_unchanged():
         close(conn)
 
 
+@pytest.mark.parametrize("expected_revision", [True, False, 1.0, "1", -1])
+def test_update_rejects_invalid_expected_revision_without_mutating_record(expected_revision):
+    conn = connect()
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context())
+        repo.update_context("ctx-1", 0, {"objective": "revision one"})
+        before = tuple(conn.execute(
+            "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
+        ).fetchone())
+
+        with pytest.raises(ValueError, match="expected_revision"):
+            repo.update_context(
+                "ctx-1", expected_revision, {"objective": "must-not-apply"}
+            )
+
+        after = tuple(conn.execute(
+            "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
+        ).fetchone())
+        assert after == before
+        assert repo.get_context("ctx-1").revision == 1
+    finally:
+        close(conn)
+
+
 def test_close_reopen_and_fresh_repository_reconstructs_full_context(tmp_path):
     path = tmp_path / "context.db"
     conn = connect(path)
