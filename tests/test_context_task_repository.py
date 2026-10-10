@@ -136,6 +136,28 @@ def test_update_rejects_invalid_expected_revision_without_mutating_record(expect
         close(conn)
 
 
+@pytest.mark.parametrize(
+    "column,value",
+    [
+        ("current_task_state", "untrusted-state"),
+        ("verification_state", "PASS"),
+        ("revision", -1),
+        ("objective", 42),
+    ],
+)
+def test_recovery_rejects_invalid_persisted_context_rows(column, value):
+    conn = connect()
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context())
+        # Column names come only from the fixed parametrized cases above.
+        conn.execute(f"UPDATE task_contexts SET {column}=? WHERE context_id=?", (value, "ctx-1"))
+        with pytest.raises(ValueError):
+            repo.get_context("ctx-1")
+    finally:
+        close(conn)
+
+
 def test_close_reopen_and_fresh_repository_reconstructs_full_context(tmp_path):
     path = tmp_path / "context.db"
     conn = connect(path)
