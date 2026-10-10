@@ -293,3 +293,48 @@ def test_context_default_verification_state_is_valid_and_persistable():
         assert repo.get_context(context.context_id).verification_state == "reported"
     finally:
         conn.close()
+
+@pytest.mark.parametrize(
+    "initial,target,allowed",
+    [
+        ("proposed", "active", True),
+        ("proposed", "accepted", False),
+        ("active", "blocked", True),
+        ("blocked", "active", True),
+        ("awaiting_review", "accepted", True),
+        ("accepted", "corrective", True),
+        ("closed", "active", False),
+        ("verified", "accepted", True),
+    ],
+)
+def test_task_state_transition_matrix(initial, target, allowed):
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context(current_task_state=initial))
+        if allowed:
+            updated = repo.update_context("ctx-1", 0, {"current_task_state": target})
+            assert updated.current_task_state == target
+            assert updated.revision == 1
+        else:
+            with pytest.raises(ValueError, match="invalid task state transition"):
+                repo.update_context("ctx-1", 0, {"current_task_state": target})
+            assert repo.get_context("ctx-1").current_task_state == initial
+            assert repo.get_context("ctx-1").revision == 0
+    finally:
+        conn.close()
+
+
+def test_same_task_state_can_be_kept_while_updating_other_fields():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context(current_task_state="active"))
+        updated = repo.update_context("ctx-1", 0, {"objective": "updated objective"})
+        assert updated.current_task_state == "active"
+        assert updated.objective == "updated objective"
+        assert updated.revision == 1
+    finally:
+        conn.close()
