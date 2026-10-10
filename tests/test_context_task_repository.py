@@ -142,7 +142,7 @@ def test_update_rejects_invalid_expected_revision_without_mutating_record(expect
         ("current_task_state", "untrusted-state"),
         ("verification_state", "PASS"),
         ("revision", -1),
-        ("objective", 42),
+        ("required_inputs", '{"unexpected": "object"}'),
     ],
 )
 def test_recovery_rejects_invalid_persisted_context_rows(column, value):
