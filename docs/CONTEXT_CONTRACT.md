@@ -10,7 +10,7 @@ It does **not** implement authentication, authorization, Memory, routing, or Ψ-
 
 ## 1. Purpose
 
-Gnozis must preserve the canonical state of work independently of the AI terminal used to access it.
+Gnosis must preserve the canonical state of work independently of the AI terminal used to access it.
 
 A connected product is an interface to the project context, not the owner of that context.
 
