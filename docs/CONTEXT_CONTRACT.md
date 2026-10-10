@@ -96,6 +96,28 @@ closed
 
 The exact transition matrix belongs to the implementation task and must be explicit before code is accepted.
 
+
+### 4.1 Canonical task-state transition matrix
+
+A state may remain unchanged while other context fields are updated. When
+`current_task_state` changes, only the following transitions are permitted:
+
+| From | Permitted next states |
+|---|---|
+| `proposed` | `active`, `blocked`, `closed` |
+| `active` | `blocked`, `awaiting_review`, `corrective`, `verified`, `closed` |
+| `blocked` | `active`, `corrective`, `closed` |
+| `awaiting_review` | `active`, `blocked`, `corrective`, `verified`, `accepted` |
+| `corrective` | `active`, `blocked`, `awaiting_review`, `closed` |
+| `verified` | `active`, `corrective`, `accepted`, `closed` |
+| `accepted` | `corrective`, `closed` |
+| `closed` | no outgoing transitions |
+
+This is a workflow-state guard only. It does not prove verification, grant
+authority, or authorize external execution. Reopening accepted work requires
+an explicit transition to `corrective`; closed tasks are terminal.
+
+
 ## 5. Verification state
 
 Implementation and verification are separate dimensions.
