@@ -35,6 +35,13 @@ def main() -> None:
         conn = sqlite3.connect(args.context_db, isolation_level=None)
         conn.row_factory = sqlite3.Row
         try:
+            # Recovery must not create even the Context schema when pointed at
+            # an unrelated or empty database.
+            context_table = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='task_contexts'"
+            ).fetchone()
+            if context_table is None:
+                raise SystemExit("context database does not contain task_contexts table")
             handoff = TaskContextRepository(conn).reconstruct_context(args.context_id)
             print(json.dumps(asdict(handoff), ensure_ascii=False, indent=2, sort_keys=True))
         finally:
