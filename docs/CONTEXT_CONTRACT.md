@@ -139,6 +139,19 @@ An AI message saying `PASS` is never equivalent to independent verification.
 
 Context should reference evidence rather than silently copying unbounded external data.
 
+In the first Context implementation slice, `context_references` and
+`evidence_references` are **opaque metadata only**. Storing or reconstructing a
+reference does not fetch its target, verify its provenance, establish its scope,
+or attach the target content to the task. No resolver, connector ingestion, or
+scope authorization is implied by the presence of a reference. A consumer must
+not treat an opaque reference as verified evidence or permission to access data.
+
+Any later adapter that resolves a reference or attaches source content must be a
+separate bounded phase. Before use, it must establish source identity, provenance,
+task/user/organization scope, applicable data-class policy, and permission for
+the requested operation. If those checks cannot be established, it must fail
+closed rather than silently attach or consume the content.
+
 An evidence reference should eventually identify:
 
 ```text
@@ -176,7 +189,11 @@ This prevents GitHub/Drive/AI access from becoming implicit architectural author
 
 ## 8. Data-source policy
 
-A context may reference connected sources, but every source must eventually pass these gates:
+A context may reference connected sources, but a stored reference is not a
+connection, source validation, data attachment, or permission to consume data.
+In the first implementation slice, the repository stores reference metadata only;
+it does not resolve or ingest the referenced content. Any future resolver must
+enforce the following gates before content is attached to a task:
 
 ```text
 connected
@@ -315,7 +332,9 @@ Minimum evidence:
 3. close/reopen recovery;
 4. terminal-independent reconstruction from durable context;
 5. proof that Core tables/state are untouched;
-6. proof that unscoped data cannot be silently attached to a task;
+6. proof that the Context repository does not resolve or ingest external
+   references, and that no referenced content is attached implicitly; any later
+   resolver must separately prove scope enforcement before that adapter is accepted;
 7. independent adversarial audit;
 8. corrective pass if findings remain;
 9. re-audit;
