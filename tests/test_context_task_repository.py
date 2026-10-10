@@ -95,14 +95,14 @@ def test_revision_increments_and_stale_update_leaves_stored_bytes_unchanged():
     try:
         repo = TaskContextRepository(conn)
         repo.create_context(make_context())
-        updated = repo.update_context("ctx-1", 0, {"objective": "changed", "updated_at": "t1"})
+        updated = repo.update_context("ctx-1", 0, {"objective": "changed"})
         assert updated.revision == 1
         before = conn.execute(
             "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
         ).fetchone()
         before_bytes = tuple(before)
         with pytest.raises(ContextRevisionConflict):
-            repo.update_context("ctx-1", 0, {"objective": "must-not-apply", "updated_at": "t2"})
+            repo.update_context("ctx-1", 0, {"objective": "must-not-apply"})
         after = conn.execute(
             "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
         ).fetchone()
@@ -162,6 +162,7 @@ def test_close_reopen_and_fresh_repository_reconstructs_full_context(tmp_path):
         ("user_scope", "other-user"),
         ("organization_scope", "other-org"),
         ("created_at", "t9"),
+        ("updated_at", "t9"),
         ("revision", 9),
     ],
 )
