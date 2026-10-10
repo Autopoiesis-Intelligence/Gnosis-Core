@@ -19,6 +19,17 @@ VERIFICATION_STATES = frozenset({
     "independently_verified", "accepted", "rejected",
 })
 
+TASK_STATE_TRANSITIONS = {
+    "proposed": frozenset({"active", "blocked", "closed"}),
+    "active": frozenset({"blocked", "awaiting_review", "corrective", "verified", "closed"}),
+    "blocked": frozenset({"active", "corrective", "closed"}),
+    "awaiting_review": frozenset({"active", "blocked", "corrective", "verified", "accepted"}),
+    "corrective": frozenset({"active", "blocked", "awaiting_review", "closed"}),
+    "verified": frozenset({"active", "corrective", "accepted", "closed"}),
+    "accepted": frozenset({"corrective", "closed"}),
+    "closed": frozenset(),
+}
+
 CONTEXT_SCHEMA = """
 CREATE TABLE IF NOT EXISTS task_contexts (
     context_id TEXT PRIMARY KEY,
@@ -109,6 +120,11 @@ class TaskContextRepository:
             raise ValueError("patch contains immutable or unknown fields")
 
         updated = replace(current, **dict(patch), revision=current.revision + 1)
+        next_state = updated.current_task_state
+        if next_state != current.current_task_state and next_state not in TASK_STATE_TRANSITIONS[current.current_task_state]:
+            raise ValueError(
+                f"invalid task state transition: {current.current_task_state!r} -> {next_state!r}"
+            )
         self._validate(updated)
         p = self._params(updated)
         with transaction(self._conn):
