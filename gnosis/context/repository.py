@@ -170,15 +170,14 @@ class TaskContextRepository:
 
         immutable = {
             "context_id", "project_id", "task_id", "user_scope",
-            "organization_scope", "created_at", "revision",
+            "organization_scope", "created_at", "updated_at", "revision",
         }
         allowed = set(current.__dataclass_fields__) - immutable
         if set(patch) - allowed:
             raise ValueError("patch contains immutable or unknown fields")
 
         patch_values = dict(patch)
-        if "updated_at" not in patch_values:
-            patch_values["updated_at"] = datetime.now(timezone.utc).isoformat()
+        patch_values["updated_at"] = datetime.now(timezone.utc).isoformat()
         updated = replace(current, **patch_values, revision=current.revision + 1)
         next_state = updated.current_task_state
         if next_state != current.current_task_state and next_state not in TASK_STATE_TRANSITIONS[current.current_task_state]:
