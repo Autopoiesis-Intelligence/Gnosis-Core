@@ -273,3 +273,23 @@ def test_cli_recovery_does_not_create_context_schema_in_an_empty_database(tmp_pa
         assert tables == set()
     finally:
         check.close()
+
+
+def test_context_default_verification_state_is_valid_and_persistable():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        repo = TaskContextRepository(conn)
+        context = TaskContext(
+            context_id="ctx-default-verification",
+            project_id="project-1",
+            task_id="task-default",
+            user_scope="user-1",
+            objective="verify default state",
+            current_task_state="proposed",
+        )
+        stored = repo.create_context(context)
+        assert stored.verification_state == "reported"
+        assert repo.get_context(context.context_id).verification_state == "reported"
+    finally:
+        conn.close()
