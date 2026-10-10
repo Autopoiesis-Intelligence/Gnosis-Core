@@ -202,6 +202,16 @@ class TaskContextRepository:
 
     @staticmethod
     def _validate(context: TaskContext) -> None:
+        string_fields = (
+            "context_id", "project_id", "task_id", "user_scope", "objective",
+            "current_task_state", "implementation_state", "verification_state",
+            "next_permitted_action", "created_at", "updated_at",
+        )
+        for field_name in string_fields:
+            if not isinstance(getattr(context, field_name), str):
+                raise ValueError(f"{field_name} must be a string")
+        if context.organization_scope is not None and not isinstance(context.organization_scope, str):
+            raise ValueError("organization_scope must be a string or None")
         if not context.context_id or not context.project_id or not context.task_id:
             raise ValueError("context identity fields are required")
         if not context.user_scope:
@@ -210,6 +220,8 @@ class TaskContextRepository:
             raise ValueError(f"invalid current_task_state: {context.current_task_state!r}")
         if context.verification_state not in VERIFICATION_STATES:
             raise ValueError(f"invalid verification_state: {context.verification_state!r}")
+        if isinstance(context.revision, bool) or not isinstance(context.revision, int):
+            raise ValueError("revision must be an integer")
         if context.revision < 0:
             raise ValueError("revision must be non-negative")
         for field_name in _COLLECTION_FIELDS:

@@ -552,3 +552,57 @@ def test_importing_context_cli_does_not_import_storage_or_memory_in_fresh_proces
         check=False,
     )
     assert completed.returncode == 0, completed.stderr
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("context_id", 17),
+        ("project_id", 23),
+        ("task_id", None),
+        ("user_scope", 5),
+        ("objective", {"unexpected": "mapping"}),
+        ("implementation_state", ["not", "a", "string"]),
+        ("next_permitted_action", False),
+        ("organization_scope", 42),
+        ("revision", True),
+    ],
+)
+def test_create_rejects_invalid_scalar_types_before_inserting(field, value):
+    conn = connect()
+    try:
+        repo = TaskContextRepository(conn)
+        with pytest.raises(ValueError, match=field if field != "revision" else "revision"):
+            repo.create_context(make_context(**{field: value}))
+        assert conn.execute("SELECT count(*) FROM task_contexts").fetchone()[0] == 0
+    finally:
+        close(conn)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("objective", 123),
+        ("implementation_state", {"state": "spoofed"}),
+        ("next_permitted_action", ["execute"]),
+        ("organization_scope", 42),
+        ("revision", True),
+    ],
+)
+def test_update_rejects_invalid_scalar_types_without_mutating_record(field, value):
+    conn = connect()
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context())
+        before = tuple(conn.execute(
+            "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
+        ).fetchone())
+        with pytest.raises(ValueError):
+            repo.update_context("ctx-1", 0, {field: value})
+        after = tuple(conn.execute(
+            "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
+        ).fetchone())
+        assert after == before
+        assert repo.get_context("ctx-1").revision == 0
+    finally:
+        close(conn)
