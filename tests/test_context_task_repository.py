@@ -1,11 +1,24 @@
 import json
 import sqlite3
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+from threading import Barrier
 
 import pytest
 
 from gnosis.context import ContextRevisionConflict, TaskContext, TaskContextRepository
-from gnosis.storage.database import close, connect
+
+
+def connect(path=":memory:"):
+    conn = sqlite3.connect(path, timeout=10, isolation_level=None)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def close(conn):
+    conn.close()
 
 
 def make_context(**overrides):
@@ -428,3 +441,114 @@ def test_mutating_reconstructed_handoff_does_not_change_persisted_context_and_re
         assert persisted.evidence_references == ({"source": "research", "locator": "record-17"},)
     finally:
         conn.close()
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("required_inputs", {"key": "value"}),
+        ("context_references", "string-is-not-a-collection"),
+        ("evidence_references", {"source": "research", "locator": "lost-value"}),
+        ("unresolved_findings", ["list-is-not-the-declared-tuple-shape"]),
+        ("allowed_data_sources", 7),
+        ("available_capabilities", (object(),)),
+    ],
+)
+def test_create_rejects_invalid_collection_shapes_before_inserting(field, value):
+    conn = connect()
+    try:
+        repo = TaskContextRepository(conn)
+        with pytest.raises(ValueError, match=field):
+            repo.create_context(make_context(**{field: value}))
+        assert conn.execute("SELECT count(*) FROM task_contexts").fetchone()[0] == 0
+    finally:
+        close(conn)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("required_inputs", {"key": "value"}),
+        ("context_references", "string-is-not-a-collection"),
+        ("evidence_references", {"source": "research", "locator": "lost-value"}),
+        ("allowed_output_destinations", (object(),)),
+    ],
+)
+def test_update_rejects_invalid_collection_shapes_without_mutating_record(field, value):
+    conn = connect()
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(make_context())
+        before = tuple(conn.execute(
+            "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
+        ).fetchone())
+        with pytest.raises(ValueError, match=field):
+            repo.update_context("ctx-1", 0, {field: value})
+        after = tuple(conn.execute(
+            "SELECT * FROM task_contexts WHERE context_id=?", ("ctx-1",)
+        ).fetchone())
+        assert after == before
+        assert repo.get_context("ctx-1").revision == 0
+    finally:
+        close(conn)
+
+
+def test_two_independent_writers_cannot_both_commit_same_revision(tmp_path):
+    path = tmp_path / "concurrent-context.db"
+    initial = connect(path)
+    try:
+        TaskContextRepository(initial).create_context(make_context())
+    finally:
+        close(initial)
+
+    barrier = Barrier(2)
+
+    def writer(objective):
+        conn = connect(path)
+        try:
+            repo = TaskContextRepository(conn)
+            assert repo.get_context("ctx-1").revision == 0
+            barrier.wait(timeout=5)
+            try:
+                updated = repo.update_context("ctx-1", 0, {"objective": objective})
+                return ("success", updated.objective, updated.revision)
+            except ContextRevisionConflict:
+                return ("conflict", None, None)
+        finally:
+            close(conn)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = list(pool.map(writer, ("writer-a", "writer-b")))
+
+    successes = [outcome for outcome in outcomes if outcome[0] == "success"]
+    conflicts = [outcome for outcome in outcomes if outcome[0] == "conflict"]
+    assert len(successes) == 1
+    assert len(conflicts) == 1
+    final_conn = connect(path)
+    try:
+        final = TaskContextRepository(final_conn).get_context("ctx-1")
+        assert final.revision == 1
+        assert final.objective == successes[0][1]
+    finally:
+        close(final_conn)
+
+
+def test_importing_context_cli_does_not_import_storage_or_memory_in_fresh_process(tmp_path):
+    script = (
+        "import sys; "
+        "sys.argv = ['gnosis-context', '--root', " + repr(str(tmp_path)) + "]; "
+        "from gnosis.context.cli import main; main(); "
+        "assert not any(name == 'gnosis.storage' or name.startswith('gnosis.storage.') "
+        "or name == 'gnosis.memory' or name.startswith('gnosis.memory.') "
+        "for name in sys.modules), "
+        "sorted(name for name in sys.modules if name == 'gnosis.storage' "
+        "or name.startswith('gnosis.storage.') or name == 'gnosis.memory' "
+        "or name.startswith('gnosis.memory.'))"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr

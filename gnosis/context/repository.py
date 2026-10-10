@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import contextmanager
 from dataclasses import replace
 from datetime import datetime, timezone
-from typing import Any, Mapping
-
-from gnosis.storage.database import transaction
+from math import isfinite
+from typing import Any, Iterator, Mapping
 
 from .handoff import ContextHandoff
 from .model import TaskContext
@@ -65,8 +65,59 @@ class ContextNotFound(KeyError):
     pass
 
 
-def _json(value: tuple[Any, ...]) -> str:
-    return json.dumps(list(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+_COLLECTION_FIELDS = (
+    "required_inputs",
+    "context_references",
+    "evidence_references",
+    "unresolved_findings",
+    "available_capabilities",
+    "allowed_data_sources",
+    "allowed_output_destinations",
+)
+
+
+def _assert_json_value(value: Any, field_name: str, path: str) -> None:
+    """Reject values that JSON would silently coerce or cannot represent."""
+    if value is None or isinstance(value, (str, bool, int)):
+        return
+    if isinstance(value, float):
+        if isfinite(value):
+            return
+        raise ValueError(f"{field_name} contains a non-finite number at {path}")
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            _assert_json_value(item, field_name, f"{path}[{index}]")
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise ValueError(f"{field_name} contains a non-string object key at {path}")
+            _assert_json_value(item, field_name, f"{path}.{key}")
+        return
+    raise ValueError(f"{field_name} contains a non-JSON value at {path}")
+
+
+def _json(value: tuple[Any, ...], field_name: str) -> str:
+    if not isinstance(value, tuple):
+        raise ValueError(f"{field_name} must be a tuple of JSON values")
+    for index, item in enumerate(value):
+        _assert_json_value(item, field_name, f"[{index}]")
+    return json.dumps(
+        list(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+    )
+
+
+@contextmanager
+def _transaction(conn: sqlite3.Connection) -> Iterator[sqlite3.Connection]:
+    """Keep Context writes transactional without importing Core/Memory-adjacent Storage."""
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        yield conn
+    except BaseException:
+        conn.rollback()
+        raise
+    else:
+        conn.commit()
 
 
 def _decode(value: str) -> tuple[Any, ...]:
@@ -83,7 +134,7 @@ class TaskContextRepository:
 
     def create_context(self, context: TaskContext) -> TaskContext:
         self._validate(context)
-        with transaction(self._conn):
+        with _transaction(self._conn):
             self._conn.execute(
                 """INSERT INTO task_contexts
                 (context_id,project_id,task_id,organization_scope,user_scope,objective,current_task_state,
@@ -131,7 +182,7 @@ class TaskContextRepository:
             )
         self._validate(updated)
         p = self._params(updated)
-        with transaction(self._conn):
+        with _transaction(self._conn):
             result = self._conn.execute(
                 """UPDATE task_contexts SET project_id=?,task_id=?,organization_scope=?,
                 user_scope=?,objective=?,current_task_state=?,required_inputs=?,context_references=?,
@@ -161,15 +212,20 @@ class TaskContextRepository:
             raise ValueError(f"invalid verification_state: {context.verification_state!r}")
         if context.revision < 0:
             raise ValueError("revision must be non-negative")
+        for field_name in _COLLECTION_FIELDS:
+            value = getattr(context, field_name)
+            if not isinstance(value, tuple):
+                raise ValueError(f"{field_name} must be a tuple of JSON values")
+            _json(value, field_name)
 
     @staticmethod
     def _params(c: TaskContext) -> tuple[Any, ...]:
         return (
             c.context_id, c.project_id, c.task_id, c.organization_scope, c.user_scope, c.objective,
-            c.current_task_state, _json(c.required_inputs), _json(c.context_references),
-            _json(c.evidence_references), c.implementation_state, c.verification_state,
-            _json(c.unresolved_findings), c.next_permitted_action, _json(c.available_capabilities),
-            _json(c.allowed_data_sources), _json(c.allowed_output_destinations),
+            c.current_task_state, _json(c.required_inputs, "required_inputs"), _json(c.context_references, "context_references"),
+            _json(c.evidence_references, "evidence_references"), c.implementation_state, c.verification_state,
+            _json(c.unresolved_findings, "unresolved_findings"), c.next_permitted_action, _json(c.available_capabilities, "available_capabilities"),
+            _json(c.allowed_data_sources, "allowed_data_sources"), _json(c.allowed_output_destinations, "allowed_output_destinations"),
             c.created_at, c.updated_at, c.revision,
         )
 
