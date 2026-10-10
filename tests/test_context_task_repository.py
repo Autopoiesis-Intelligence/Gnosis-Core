@@ -508,7 +508,20 @@ def test_two_independent_writers_cannot_both_commit_same_revision(tmp_path):
         try:
             repo = TaskContextRepository(conn)
             assert repo.get_context("ctx-1").revision == 0
-            barrier.wait(timeout=5)
+            original_get_context = repo.get_context
+            synchronized = False
+
+            def synchronized_get_context(context_id):
+                nonlocal synchronized
+                current = original_get_context(context_id)
+                if context_id == "ctx-1" and not synchronized:
+                    synchronized = True
+                    # Force both update calls to observe revision 0 before either
+                    # can enter its write transaction.
+                    barrier.wait(timeout=5)
+                return current
+
+            repo.get_context = synchronized_get_context
             try:
                 updated = repo.update_context("ctx-1", 0, {"objective": objective})
                 return ("success", updated.objective, updated.revision)
