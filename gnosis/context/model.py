@@ -14,7 +14,7 @@ class TaskContext:
     context_references: tuple[Any, ...] = ()
     evidence_references: tuple[Any, ...] = ()
     implementation_state: str = ""
-    verification_state: str = ""
+    verification_state: str = "reported"
     unresolved_findings: tuple[Any, ...] = ()
     next_permitted_action: str = ""
     available_capabilities: tuple[Any, ...] = ()
