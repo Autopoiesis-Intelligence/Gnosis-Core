@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+from pathlib import Path
 from dataclasses import asdict
 
 from .repository import TaskContextRepository
@@ -32,7 +33,11 @@ def main() -> None:
     if args.context_id:
         # Use a plain SQLite connection so recovery does not initialize or migrate
         # Core/Reflection schemas as a side effect of opening the database.
-        conn = sqlite3.connect(args.context_db, isolation_level=None)
+        db_path = Path(args.context_db).resolve()
+        if not db_path.is_file():
+            raise SystemExit(f"context database file does not exist: {db_path}")
+        # Recovery is read-only: do not create missing files or mutate stored state.
+        conn = sqlite3.connect(f"{db_path.as_uri()}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
         try:
             # Recovery must not create even the Context schema when pointed at
