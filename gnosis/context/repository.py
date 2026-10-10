@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from dataclasses import replace
+from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from gnosis.storage.database import transaction
@@ -119,7 +120,10 @@ class TaskContextRepository:
         if set(patch) - allowed:
             raise ValueError("patch contains immutable or unknown fields")
 
-        updated = replace(current, **dict(patch), revision=current.revision + 1)
+        patch_values = dict(patch)
+        if "updated_at" not in patch_values:
+            patch_values["updated_at"] = datetime.now(timezone.utc).isoformat()
+        updated = replace(current, **patch_values, revision=current.revision + 1)
         next_state = updated.current_task_state
         if next_state != current.current_task_state and next_state not in TASK_STATE_TRANSITIONS[current.current_task_state]:
             raise ValueError(
