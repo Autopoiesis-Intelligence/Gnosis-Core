@@ -1,4 +1,4 @@
-# Gnozis-V2 — Canonical Context Continuity Contract
+# Gnozis — Canonical Context Continuity Contract
 
 ## Status
 
