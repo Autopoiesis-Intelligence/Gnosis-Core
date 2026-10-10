@@ -666,3 +666,45 @@ def test_update_rejects_invalid_scalar_types_without_mutating_record(field, valu
         assert repo.get_context("ctx-1").revision == 0
     finally:
         close(conn)
+
+
+
+def test_context_and_evidence_references_remain_opaque_metadata():
+    conn = connect()
+    context_ref = {
+        "source": "external",
+        "locator": "https://example.invalid/private/record-17",
+    }
+    evidence_ref = {
+        "source": "external",
+        "locator": "https://example.invalid/evidence-29",
+    }
+    try:
+        repo = TaskContextRepository(conn)
+        repo.create_context(
+            make_context(
+                context_references=(context_ref,),
+                evidence_references=(evidence_ref,),
+            )
+        )
+
+        # Persistence/reconstruction preserves reference descriptors only.
+        # It must not fetch targets or silently attach target content.
+        handoff = repo.reconstruct_context("ctx-1")
+        assert handoff.context_references == (context_ref,)
+        assert handoff.evidence_references == (evidence_ref,)
+        assert not hasattr(handoff, "resolved_context_content")
+        assert not hasattr(handoff, "resolved_evidence_content")
+
+        stored_context_ref = conn.execute(
+            "SELECT context_references FROM task_contexts WHERE context_id=?",
+            ("ctx-1",),
+        ).fetchone()[0]
+        stored_evidence_ref = conn.execute(
+            "SELECT evidence_references FROM task_contexts WHERE context_id=?",
+            ("ctx-1",),
+        ).fetchone()[0]
+        assert json.loads(stored_context_ref) == [context_ref]
+        assert json.loads(stored_evidence_ref) == [evidence_ref]
+    finally:
+        close(conn)
