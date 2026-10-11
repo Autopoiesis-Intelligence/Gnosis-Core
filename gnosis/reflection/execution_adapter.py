@@ -35,15 +35,34 @@ class SQLiteExecutionCommitAdapter:
             raise PermissionError("signed production owner authorization is required")
         with transaction(conn):
             trust_context.verify_commit(production_authorization, request)
-            consume_authorization_nonce_in_transaction(conn, production_authorization.nonce, authorization_id=production_authorization.authorization_id, actor=actor)
-            require_trusted_execution(request, conn=conn, actor=actor)
+            consume_authorization_nonce_in_transaction(
+                conn,
+                production_authorization.nonce,
+                authorization_id=production_authorization.authorization_id,
+                actor=actor,
+            )
+            require_trusted_execution(
+                request,
+                conn=conn,
+                actor=actor,
+                expected_policy_version=trust_context.policy_version,
+            )
             require_execution_candidate_binding(request, candidate, record)
             if str(request.provenance.evolution_identity) != request.evolution_identity:
                 raise PermissionError("execution commit identity mismatch")
-            _persist_transition_in_transaction(conn, instance, candidate, record, actor=actor, failure_at=getattr(request, "failure_injection", None))
+            _persist_transition_in_transaction(
+                conn,
+                instance,
+                candidate,
+                record,
+                actor=actor,
+                failure_at=getattr(request, "failure_injection", None),
+            )
             resulting = load_state(conn, record.to_state_id)
             if resulting.state_id != str(request.provenance.proposed_state_digest):
                 raise PermissionError("persisted resulting state does not match authorized evolution")
             receipt = ExecutionReceipt.after_commit(request, resulting)
-            return ExecutionCommitResult(receipt=receipt, resulting_state_id=resulting.state_id)
-
+            return ExecutionCommitResult(
+                receipt=receipt,
+                resulting_state_id=resulting.state_id,
+            )
