@@ -133,11 +133,11 @@ def verify_production_authorization(
     resolver: TrustedIssuerKeyResolver,
     *,
     now: int,
-    expected_scope: set[str] | None = None,
-    expected_policy_version: str | None = None,
-    expected_evolution_identity: str | None = None,
-    expected_parent_state_digest: str | None = None,
-    expected_request_provenance: str | None = None,
+    expected_scope: set[str],
+    expected_policy_version: str,
+    expected_evolution_identity: str,
+    expected_parent_state_digest: str,
+    expected_request_provenance: str,
 ) -> TrustedIssuerKey:
     """Verify cryptographic and binding validity without issuing execution authority.
 
@@ -145,6 +145,15 @@ def verify_production_authorization(
     verification primitive; callers must not treat a successful return as
     execution authorization.
     """
+    if (
+        not expected_scope
+        or not expected_policy_version
+        or not expected_evolution_identity
+        or not expected_parent_state_digest
+        or not expected_request_provenance
+    ):
+        raise PermissionError("trusted execution binding is incomplete")
+
     if not authorization.authorization_id:
         raise PermissionError("authorization identity is missing")
     if not authorization.issuer_id or not authorization.key_version:
@@ -170,15 +179,15 @@ def verify_production_authorization(
     if now < authorization.valid_from or now >= authorization.expires_at:
         raise PermissionError("authorization is outside its validity interval")
 
-    if expected_scope is not None and set(authorization.authority_scope) != expected_scope:
+    if set(authorization.authority_scope) != expected_scope:
         raise PermissionError("authorization scope mismatch")
-    if expected_policy_version is not None and authorization.policy_version != expected_policy_version:
+    if authorization.policy_version != expected_policy_version:
         raise PermissionError("authorization policy mismatch")
-    if expected_evolution_identity is not None and authorization.evolution_identity != expected_evolution_identity:
+    if authorization.evolution_identity != expected_evolution_identity:
         raise PermissionError("authorization evolution mismatch")
-    if expected_parent_state_digest is not None and authorization.parent_state_digest != expected_parent_state_digest:
+    if authorization.parent_state_digest != expected_parent_state_digest:
         raise PermissionError("authorization parent-state mismatch")
-    if expected_request_provenance is not None and authorization.request_provenance != expected_request_provenance:
+    if authorization.request_provenance != expected_request_provenance:
         raise PermissionError("authorization request-provenance mismatch")
 
     key = resolver.resolve(authorization.issuer_id, authorization.key_version)
