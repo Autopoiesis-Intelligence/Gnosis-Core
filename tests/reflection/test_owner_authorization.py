@@ -65,7 +65,7 @@ def test_valid_authorization_verifies_with_exact_issuer_and_key_version() -> Non
     trusted = TrustedIssuerKey("owner-1", "v1", signing_key.verify_key.encode())
     authorization = make_authorization(signing_key)
 
-    assert verify_production_authorization(
+    assert verify(
         authorization,
         Resolver(trusted),
         now=150,
@@ -84,7 +84,7 @@ def test_tampered_payload_fails_signature_verification() -> None:
     tampered = ProductionAuthorization(**{**authorization.__dict__, "policy_version": "policy-2"})
 
     with pytest.raises(PermissionError, match="authorization identity mismatch"):
-        verify_production_authorization(tampered, Resolver(trusted), now=150)
+        verify(tampered, Resolver(trusted), now=150)
 
 
 def test_unknown_issuer_or_key_version_fails_closed() -> None:
@@ -92,7 +92,7 @@ def test_unknown_issuer_or_key_version_fails_closed() -> None:
     authorization = make_authorization(signing_key)
 
     with pytest.raises(PermissionError, match="trusted issuer key not found"):
-        verify_production_authorization(authorization, Resolver(None), now=150)
+        verify(authorization, Resolver(None), now=150)
 
 
 def test_rotated_key_is_not_accepted() -> None:
@@ -101,7 +101,7 @@ def test_rotated_key_is_not_accepted() -> None:
     authorization = make_authorization(signing_key)
 
     with pytest.raises(PermissionError, match="not active"):
-        verify_production_authorization(authorization, Resolver(trusted), now=150)
+        verify(authorization, Resolver(trusted), now=150)
 
 
 @pytest.mark.parametrize("now", [99, 200])
@@ -111,7 +111,7 @@ def test_authorization_validity_interval_is_fail_closed(now: int) -> None:
     authorization = make_authorization(signing_key)
 
     with pytest.raises(PermissionError, match="authorization is outside"):
-        verify_production_authorization(authorization, Resolver(trusted), now=now)
+        verify(authorization, Resolver(trusted), now=now)
 
 
 @pytest.mark.parametrize(
@@ -149,7 +149,7 @@ def test_expected_binding_mismatch_fails_closed(field: str, expected: str) -> No
         match = "request-provenance mismatch"
 
     with pytest.raises(PermissionError, match=match):
-        verify_production_authorization(authorization, Resolver(trusted), now=150, **kwargs)
+        verify(authorization, Resolver(trusted), now=150, **kwargs)
 
 
 def test_scope_mismatch_fails_closed() -> None:
@@ -158,7 +158,7 @@ def test_scope_mismatch_fails_closed() -> None:
     authorization = make_authorization(signing_key)
 
     with pytest.raises(PermissionError, match="scope mismatch"):
-        verify_production_authorization(
+        verify(
             authorization, Resolver(trusted), now=150, expected_scope={"read"}
         )
 
@@ -171,7 +171,7 @@ def test_invalid_signature_encoding_fails_closed() -> None:
     )
 
     with pytest.raises(PermissionError, match="signature encoding is invalid"):
-        verify_production_authorization(authorization, Resolver(trusted), now=150)
+        verify(authorization, Resolver(trusted), now=150)
 
 
 def test_nonce_is_required() -> None:
@@ -182,7 +182,7 @@ def test_nonce_is_required() -> None:
     )
 
     with pytest.raises(PermissionError, match="authorization nonce is missing"):
-        verify_production_authorization(authorization, Resolver(trusted), now=150)
+        verify(authorization, Resolver(trusted), now=150)
 
 
 def test_authorization_id_tampering_fails_closed() -> None:
@@ -192,7 +192,7 @@ def test_authorization_id_tampering_fails_closed() -> None:
     tampered = ProductionAuthorization(**{**authorization.__dict__, "authorization_id": "auth:tampered"})
 
     with pytest.raises(PermissionError, match="authorization identity mismatch"):
-        verify_production_authorization(tampered, Resolver(trusted), now=150)
+        verify(tampered, Resolver(trusted), now=150)
 
 
 def test_scope_must_be_canonical() -> None:
@@ -202,4 +202,4 @@ def test_scope_must_be_canonical() -> None:
     tampered = ProductionAuthorization(**{**authorization.__dict__, "authority_scope": ("execute", "execute")})
 
     with pytest.raises(PermissionError, match="scope is not canonical"):
-        verify_production_authorization(tampered, Resolver(trusted), now=150)
+        verify(tampered, Resolver(trusted), now=150)
