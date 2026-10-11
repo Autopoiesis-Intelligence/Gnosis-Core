@@ -63,6 +63,7 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    policy_version: str = ""
 
     @property
     def can_execute(self) -> bool:
