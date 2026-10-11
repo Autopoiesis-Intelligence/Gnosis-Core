@@ -203,3 +203,36 @@ def test_scope_must_be_canonical() -> None:
 
     with pytest.raises(PermissionError, match="scope is not canonical"):
         verify(tampered, Resolver(trusted), now=150)
+
+
+
+def test_trusted_binding_arguments_are_required() -> None:
+    import inspect
+
+    parameters = inspect.signature(_verify_production_authorization).parameters
+    for name in (
+        "expected_scope",
+        "expected_policy_version",
+        "expected_evolution_identity",
+        "expected_parent_state_digest",
+        "expected_request_provenance",
+    ):
+        assert parameters[name].default is inspect.Parameter.empty
+
+
+def test_empty_trusted_binding_is_rejected() -> None:
+    signing_key = SigningKey.generate()
+    trusted = TrustedIssuerKey("owner-1", "v1", signing_key.verify_key.encode())
+    authorization = make_authorization(signing_key)
+
+    with pytest.raises(PermissionError, match="trusted execution binding is incomplete"):
+        _verify_production_authorization(
+            authorization,
+            Resolver(trusted),
+            now=150,
+            expected_scope=set(),
+            expected_policy_version="policy-1",
+            expected_evolution_identity="evolution:1",
+            expected_parent_state_digest="parent:1",
+            expected_request_provenance="request:1",
+        )
