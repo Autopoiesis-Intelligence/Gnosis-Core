@@ -5,6 +5,8 @@ from gnosis.storage import load_state
 from gnosis.storage.database import transaction
 from gnosis.storage.repositories import _persist_transition_in_transaction
 from gnosis.reflection.trusted_execution_gate import require_trusted_execution
+from gnosis.reflection.owner_authorization import ProductionAuthorization
+from gnosis.reflection.production_trust_context import ProductionTrustContext
 from gnosis.reflection.authority import (
     ExecutionCommitRequest,
     ExecutionCommitResult,
@@ -16,8 +18,22 @@ from gnosis.reflection.authority import (
 class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
-    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+    def commit(
+        self,
+        conn: object,
+        instance: object,
+        candidate: object,
+        record: object,
+        request: ExecutionCommitRequest,
+        *,
+        actor: str,
+        production_authorization: ProductionAuthorization | None = None,
+        trust_context: ProductionTrustContext | None = None,
+    ) -> ExecutionCommitResult:
         with transaction(conn):
+            if production_authorization is None or trust_context is None:
+                raise PermissionError("signed production owner authorization is required")
+            trust_context.verify_commit(production_authorization, request)
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
             if str(request.provenance.evolution_identity) != request.evolution_identity:
