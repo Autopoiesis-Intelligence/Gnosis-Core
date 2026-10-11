@@ -278,11 +278,22 @@ def test_real_authorized_commit_persists_state_and_rejects_replay(sqlite_conn):
         )
 
 
-def test_real_authorized_commit_rolls_back_nonce_when_persistence_fails(sqlite_conn):
+def test_real_authorized_commit_rolls_back_nonce_when_persistence_fails(sqlite_conn, monkeypatch):
     adapter, instance, candidate, record, request, signed, context, _ = _make_real_commit_case(
         sqlite_conn, nonce="rollback-integration-nonce"
     )
-    request.failure_injection = "after_audit"
+    from gnosis.reflection import execution_adapter as execution_adapter_module
+
+    persist = execution_adapter_module._persist_transition_in_transaction
+
+    def fail_after_audit(conn, instance, candidate, record, *, actor, failure_at=None):
+        return persist(
+            conn, instance, candidate, record, actor=actor, failure_at="after_audit"
+        )
+
+    monkeypatch.setattr(
+        execution_adapter_module, "_persist_transition_in_transaction", fail_after_audit
+    )
     with pytest.raises(RuntimeError, match="after_audit"):
         adapter.commit(
             sqlite_conn, instance, candidate, record, request,
