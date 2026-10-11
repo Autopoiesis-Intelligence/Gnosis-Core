@@ -9,7 +9,7 @@ from gnosis.reflection.owner_authorization import (
     ProductionAuthorization,
     ROTATED,
     TrustedIssuerKey,
-    verify_production_authorization,
+    verify_production_authorization as _verify_production_authorization,
 )
 
 
@@ -43,6 +43,20 @@ def make_authorization(signing_key: SigningKey) -> ProductionAuthorization:
     signature = signing_key.sign(unsigned.canonical_bytes()).signature
     return ProductionAuthorization(
         **{**unsigned.__dict__, "signature": base64.b64encode(signature).decode("ascii")}
+    )
+
+
+def verify(authorization, resolver, *, now: int, **overrides):
+    expected = {
+        "expected_scope": {"execute"},
+        "expected_policy_version": "policy-1",
+        "expected_evolution_identity": "evolution:1",
+        "expected_parent_state_digest": "parent:1",
+        "expected_request_provenance": "request:1",
+    }
+    expected.update(overrides)
+    return _verify(
+        authorization, resolver, now=now, **expected
     )
 
 
