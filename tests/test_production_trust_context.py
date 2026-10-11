@@ -16,6 +16,8 @@ from gnosis.reflection.owner_authorization import (
     TrustedIssuerKey,
 )
 from gnosis.reflection.production_trust_context import ProductionTrustContext
+from gnosis.reflection.authorization_consumption import consume_authorization_nonce_in_transaction
+from gnosis.storage.database import transaction
 
 
 ISSUER = "owner-root"
@@ -150,3 +152,29 @@ def test_trusted_clock_is_required_to_return_integer_timestamp():
     context = make_context(signing_key, clock=lambda: "not-a-timestamp")
     with pytest.raises(PermissionError, match="trusted clock"):
         context.verify_commit(authorization, make_request(authorization))
+
+
+
+def test_authorization_nonce_is_consumed_once_inside_transaction(sqlite_conn):
+    with transaction(sqlite_conn):
+        consume_authorization_nonce_in_transaction(
+            sqlite_conn,
+            "nonce-once",
+            authorization_id="auth:once",
+            actor="trusted-owner",
+        )
+
+    row = sqlite_conn.execute(
+        "SELECT event_hash FROM audit_events WHERE event_id=?",
+        ("execution-authorization-nonce:nonce-once",),
+    ).fetchone()
+    assert row is not None
+
+    with pytest.raises(PermissionError, match="nonce already consumed"):
+        with transaction(sqlite_conn):
+            consume_authorization_nonce_in_transaction(
+                sqlite_conn,
+                "nonce-once",
+                authorization_id="auth:second",
+                actor="trusted-owner",
+            )
