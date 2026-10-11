@@ -326,7 +326,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-cross-candidate"
     )
     request = ExecutionCommitRequest(
         auth,
