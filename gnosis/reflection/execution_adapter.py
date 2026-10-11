@@ -5,6 +5,7 @@ from gnosis.storage import load_state
 from gnosis.storage.database import transaction
 from gnosis.storage.repositories import _persist_transition_in_transaction
 from gnosis.reflection.trusted_execution_gate import require_trusted_execution
+from gnosis.reflection.authorization_consumption import consume_authorization_nonce_in_transaction
 from gnosis.reflection.owner_authorization import ProductionAuthorization
 from gnosis.reflection.production_trust_context import ProductionTrustContext
 from gnosis.reflection.authority import (
@@ -34,6 +35,7 @@ class SQLiteExecutionCommitAdapter:
             raise PermissionError("signed production owner authorization is required")
         with transaction(conn):
             trust_context.verify_commit(production_authorization, request)
+            consume_authorization_nonce_in_transaction(conn, production_authorization.nonce, authorization_id=production_authorization.authorization_id, actor=actor)
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
             if str(request.provenance.evolution_identity) != request.evolution_identity:
