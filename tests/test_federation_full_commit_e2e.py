@@ -23,7 +23,7 @@ def test_federation_e2e_reaches_trusted_gate(sqlite_conn):
     # Federation provenance is canonical, but the request identity is tampered after construction.
     # The trust gate must reject the mismatch before consuming authorization evidence.
     req = replace(req, evolution_identity="forged-evolution")
-    with pytest.raises(Exception):
+    with pytest.raises(PermissionError, match="does not match evolution"):
         require_trusted_execution(
             req,
             conn=sqlite_conn,
