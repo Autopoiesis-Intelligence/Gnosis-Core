@@ -178,3 +178,124 @@ def test_authorization_nonce_is_consumed_once_inside_transaction(sqlite_conn):
                 authorization_id="auth:second",
                 actor="trusted-owner",
             )
+
+
+def _make_real_commit_case(sqlite_conn, *, nonce: str = "integration-nonce"):
+    from gnosis.core import Candidate, State
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import save_instance
+    from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionIntentSnapshot
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+
+    signing_key = SigningKey.generate()
+    instance = Instance.create_root("integration-owner", State(elements={"before": 1}))
+    save_instance(sqlite_conn, instance)
+    parent_state_id = instance.engine.state.state_id
+    proposed = instance.engine.state.with_elements({"after": 2})
+    candidate = Candidate(parent_state_id, proposed, "authorized-integration")
+    record = instance.engine.step(candidate)
+    observations = {"integration": "authorized"}
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent_state_id,
+        parent_state_digest=parent_state_id,
+        proposed_state_digest=proposed.state_id,
+        observations=observations,
+        proposed_state_content_id=proposed.content_id,
+        candidate_binding_digest=candidate.binding_digest(parent_state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    unsigned = ProductionAuthorization(
+        authorization_id="pending",
+        issuer_id=ISSUER,
+        key_version=KEY_VERSION,
+        authority_scope=("core:commit",),
+        policy_version=POLICY,
+        evolution_identity=provenance.evolution_identity,
+        parent_state_digest=parent_state_id,
+        request_provenance=provenance.provenance_id,
+        valid_from=NOW - 60,
+        expires_at=NOW + 60,
+        nonce=nonce,
+        signature="pending",
+    )
+    unsigned = replace(unsigned, authorization_id=unsigned.expected_authorization_id())
+    signed = replace(
+        unsigned,
+        signature=base64.b64encode(signing_key.sign(unsigned.canonical_bytes()).signature).decode("ascii"),
+    )
+    request = ExecutionCommitRequest(
+        authorization=ExecutionAuthorization(
+            request_provenance=provenance.provenance_id,
+            owner_approved=True,
+            evolution_identity=provenance.evolution_identity,
+            approval_id=signed.authorization_id,
+        ),
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        provenance=provenance,
+        authorization_validity=AuthorizationValidity(
+            authorization_id=signed.authorization_id,
+            policy_version=POLICY,
+            validity_evidence_digest="legacy-evidence",
+        ),
+    )
+    return (
+        SQLiteExecutionCommitAdapter(), instance, candidate, record, request,
+        signed, make_context(signing_key), proposed,
+    )
+
+
+def test_real_authorized_commit_persists_state_and_rejects_replay(sqlite_conn):
+    from gnosis.storage import load_instance
+
+    adapter, instance, candidate, record, request, signed, context, proposed = _make_real_commit_case(sqlite_conn)
+    result = adapter.commit(
+        sqlite_conn, instance, candidate, record, request,
+        actor="integration-owner",
+        production_authorization=signed,
+        trust_context=context,
+    )
+    assert result.resulting_state_id == proposed.state_id
+    assert load_instance(sqlite_conn, instance.instance_id).engine.state.state_id == proposed.state_id
+    assert sqlite_conn.execute(
+        "SELECT 1 FROM audit_events WHERE event_id=?",
+        (f"execution-authorization-nonce:{signed.nonce}",),
+    ).fetchone() is not None
+
+    with pytest.raises(PermissionError, match="nonce already consumed|already consumed"):
+        adapter.commit(
+            sqlite_conn, instance, candidate, record, request,
+            actor="integration-owner",
+            production_authorization=signed,
+            trust_context=context,
+        )
+
+
+def test_real_authorized_commit_rolls_back_nonce_when_persistence_fails(sqlite_conn):
+    adapter, instance, candidate, record, request, signed, context, _ = _make_real_commit_case(
+        sqlite_conn, nonce="rollback-integration-nonce"
+    )
+    request.failure_injection = "after_audit"
+    with pytest.raises(RuntimeError, match="after_audit"):
+        adapter.commit(
+            sqlite_conn, instance, candidate, record, request,
+            actor="integration-owner",
+            production_authorization=signed,
+            trust_context=context,
+        )
+    assert sqlite_conn.execute(
+        "SELECT 1 FROM audit_events WHERE event_id=?",
+        (f"execution-authorization-nonce:{signed.nonce}",),
+    ).fetchone() is None
+    assert sqlite_conn.execute(
+        "SELECT 1 FROM transitions WHERE transition_id=?",
+        (record.transition_id,),
+    ).fetchone() is None
+    assert instance.engine.state.state_id != record.to_state_id
