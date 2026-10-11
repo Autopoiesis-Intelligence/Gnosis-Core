@@ -11,7 +11,7 @@ def _inject_persistence_failure(monkeypatch, failure_at):
 
     def fail_at_requested_point(conn, instance, candidate, record, *, actor, failure_at=None):
         return persist(
-            conn, instance, candidate, record, actor=actor, failure_at=failure_at_requested_point.point
+            conn, instance, candidate, record, actor=actor, failure_at=fail_at_requested_point.point
         )
 
     fail_at_requested_point.point = failure_at
