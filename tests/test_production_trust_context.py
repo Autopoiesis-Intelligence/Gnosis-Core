@@ -279,9 +279,12 @@ def test_real_authorized_commit_persists_state_and_rejects_replay(sqlite_conn):
 
 
 def test_real_authorized_commit_rolls_back_nonce_when_persistence_fails(sqlite_conn, monkeypatch):
+    from gnosis.storage import load_instance
+
     adapter, instance, candidate, record, request, signed, context, _ = _make_real_commit_case(
         sqlite_conn, nonce="rollback-integration-nonce"
     )
+    persisted_state_before = load_instance(sqlite_conn, instance.instance_id).engine.state.state_id
     from gnosis.reflection import execution_adapter as execution_adapter_module
 
     persist = execution_adapter_module._persist_transition_in_transaction
@@ -309,4 +312,4 @@ def test_real_authorized_commit_rolls_back_nonce_when_persistence_fails(sqlite_c
         "SELECT 1 FROM transitions WHERE transition_id=?",
         (record.transition_id,),
     ).fetchone() is None
-    assert instance.engine.state.state_id != record.to_state_id
+    assert load_instance(sqlite_conn, instance.instance_id).engine.state.state_id == persisted_state_before
