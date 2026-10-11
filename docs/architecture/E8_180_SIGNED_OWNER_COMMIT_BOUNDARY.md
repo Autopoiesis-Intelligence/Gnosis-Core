@@ -7,13 +7,18 @@ This contract records the minimum safe integration boundary. A successful signat
 ## Current evidence
 
 - PR #167 adds `gnosis/reflection/owner_authorization.py`, the PyNaCl dependency, and verifier contract tests.
-- CI for PR #167 head `207d7ec9846c85d1bff3f16431e3870068d7fe8b` reported Python 3.12: 941 passed, 33 failed, 2 errors. This is **FAIL**, not acceptance.
-- Import Graph and CodeQL checks passed for the run inspected. Dependency Review failed because GitHub Dependency Graph is disabled.
+- CI run #3555 for the branch after documentation commit `fcd142588dcc7fa883d8a7c2de79532908e84afe`: Python 3.11 reported **941 passed, 33 failed, 2 errors, 18 warnings**; Python 3.12 was cancelled after the Python 3.11 failure. This is **FAIL**, not acceptance. [Run #3555](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38175590263).
+- Import Graph #1736 and CodeQL #2436 passed. Dependency Review #977 failed; current evidence indicates the repository's GitHub Dependency Graph is disabled.
+- The 33 failing tests include authority-boundary identity/legacy-validity failures, endogenous proposal binding, persistence/audit replay, reflection-gate API mismatch, and self-learning adapter tests; 2 errors are in real-commit failure-injection tests. This is a categorized log summary, not proof these failures are pre-existing. Exact base-SHA comparison remains outstanding.
 - The current adapter still calls the legacy `require_trusted_execution(request, conn=..., actor=...)`; that gate does not verify a `ProductionAuthorization` signature.
 - `execute_approved_core_proposal()` still constructs `SQLiteExecutionCommitAdapter()` without a trusted owner-authorization context.
 - `issue_execution_authorization()` still raises `NotImplementedError`.
 - The existing one-time authorization-consumption event is written inside the caller's SQLite transaction. It is not yet bound to successful production signature verification.
 - No runtime or persisted end-to-end proof is established.
+
+## Latest inspected CI failure detail
+
+The Python 3.11 log ends with `941 passed, 33 failed, 2 errors, 18 warnings in 5.12s`. Representative failures include `test_execution_commit_gate_requires_all_boundaries` (`execution provenance identity is not canonical`), `test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution` (rejected earlier at missing authorization identity), and persistence/reflection API-contract failures. Do not change unrelated subsystems merely to make this PR green; first compare the exact failure set against the exact base SHA, then isolate regressions introduced by this branch.
 
 ## Required integration contract
 
