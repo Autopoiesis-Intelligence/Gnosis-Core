@@ -55,7 +55,7 @@ def verify(authorization, resolver, *, now: int, **overrides):
         "expected_request_provenance": "request:1",
     }
     expected.update(overrides)
-    return _verify(
+    return _verify_production_authorization(
         authorization, resolver, now=now, **expected
     )
 
