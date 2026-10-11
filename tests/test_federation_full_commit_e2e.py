@@ -1,5 +1,6 @@
 """R2 adversarial proof: Federation evidence may reach Core commit only through every trust gate."""
 import pytest
+from dataclasses import replace
 from gnosis.evolution.federation_admission import admit_federation_evidence, build_core_provenance
 from gnosis.reflection.authority import ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot
 from gnosis.reflection.authorization_validity import AuthorizationValidity
@@ -19,8 +20,9 @@ def build_request():
 
 def test_federation_e2e_reaches_trusted_gate(sqlite_conn):
     req,p=build_request()
-    # The authority gate is reached only after Federation admission and canonical provenance.
-    # A deliberately incomplete execution record must still fail closed before mutation.
+    # Federation provenance is canonical, but the request identity is tampered after construction.
+    # The trust gate must reject the mismatch before consuming authorization evidence.
+    req = replace(req, evolution_identity="forged-evolution")
     with pytest.raises(Exception):
         require_trusted_execution(
             req,
