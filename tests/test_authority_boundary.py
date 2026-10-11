@@ -212,7 +212,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     conn.close()
 
 
-def test_sqlite_execution_commit_adapter_rejects_parent_digest_mismatch_without_mutation():
+def test_sqlite_execution_commit_adapter_rejects_parent_digest_mismatch_without_mutation(monkeypatch):
     from gnosis.core import Candidate, State
     from gnosis.evolution.provenance import build_provenance, canonical_digest
     from gnosis.instances.instance import Instance
@@ -241,6 +241,11 @@ def test_sqlite_execution_commit_adapter_rejects_parent_digest_mismatch_without_
         governance_decision="ALLOW",
     )
     request = _make_execution_commit_request(provenance)
+    # Isolate the commit-boundary digest check from the separately failing legacy gate.
+    monkeypatch.setattr(
+        "gnosis.reflection.execution_adapter.require_trusted_execution",
+        lambda request, *, conn, actor: None,
+    )
 
     with pytest.raises(PermissionError, match="persisted parent state digest"):
         SQLiteExecutionCommitAdapter().commit(
