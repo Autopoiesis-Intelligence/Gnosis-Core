@@ -289,9 +289,7 @@ def test_endogenous_provenance_rejects_parent_digest_mismatch():
             "observation": "stable",
         },
     )
-    governance = __import__(
-        "gnosis.reflection.governance", fromlist=["GovernanceDecision"]
-    ).GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
+    governance = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
 
     with pytest.raises(ValueError, match="parent state digest does not match sandbox execution"):
         build_endogenous_provenance(
