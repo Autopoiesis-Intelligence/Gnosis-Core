@@ -30,9 +30,9 @@ class SQLiteExecutionCommitAdapter:
         production_authorization: ProductionAuthorization | None = None,
         trust_context: ProductionTrustContext | None = None,
     ) -> ExecutionCommitResult:
+        if production_authorization is None or trust_context is None:
+            raise PermissionError("signed production owner authorization is required")
         with transaction(conn):
-            if production_authorization is None or trust_context is None:
-                raise PermissionError("signed production owner authorization is required")
             trust_context.verify_commit(production_authorization, request)
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
