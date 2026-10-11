@@ -16,22 +16,29 @@ def require_trusted_execution(
     *,
     conn: object,
     actor: str,
+    trusted_policy_version: str | None = None,
+    trusted_evidence_digest: str | None = None,
 ) -> None:
-    """Validate request-bound authorization, consume it once, then run canonical Core gate.
+    """Validate against independently supplied trust anchors, then consume once.
 
-    The caller must invoke this inside the same transaction that performs the
-    eventual mutation. This function itself never mutates Core state.
+    The trusted values must come from a production-controlled configuration or
+    verifier, never from the request or AuthorizationValidity itself. Missing
+    trust anchors fail closed. Callers must invoke this inside the same
+    transaction that performs the eventual mutation.
     """
     validity = request.authorization_validity
     if not isinstance(validity, AuthorizationValidity):
         raise PermissionError("authorization validity is required")
     if validity.authorization_id != request.authorization.approval_id:
         raise PermissionError("authorization validity identity mismatch")
-    if validity.policy_version == "":
-        raise PermissionError("authorization policy is missing")
+    if validity.revoked:
+        raise PermissionError("authorization is revoked")
+    if not trusted_policy_version or not trusted_evidence_digest:
+        raise PermissionError("independent trusted execution policy is not configured")
+
     validity.require_valid(
-        expected_policy_version=validity.policy_version,
-        expected_evidence_digest=validity.validity_evidence_digest,
+        expected_policy_version=trusted_policy_version,
+        expected_evidence_digest=trusted_evidence_digest,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(
@@ -39,6 +46,6 @@ def require_trusted_execution(
         validity.authorization_id,
         request_provenance=request.request_provenance,
         evolution_identity=request.evolution_identity,
-        policy_version=validity.policy_version,
+        policy_version=trusted_policy_version,
         actor=actor,
     )
