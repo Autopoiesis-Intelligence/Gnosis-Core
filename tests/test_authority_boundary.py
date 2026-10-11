@@ -409,15 +409,19 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         proposed_state_content_id=candidate_b.proposed_state.content_id,
         candidate_binding_digest=candidate_b.binding_digest(parent_state_digest),
         evolution_identity=provenance_a.evolution_identity,
+        evaluator_identity_ref=str(provenance_a.evaluator_identity_ref),
+        evaluator_identity_version=str(provenance_a.evaluator_identity_version),
+    )
+    auth = ExecutionAuthorization(
+        provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1"
     )
     request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
+        auth,
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -529,14 +533,16 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         invariant_status="PRESERVED",
         governance_decision="ALLOW",
     )
+    auth_a = ExecutionAuthorization(
+        provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-a"
+    )
     request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
+        auth_a,
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity(auth_a.approval_id, "policy-1", "ev-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
