@@ -175,3 +175,13 @@ Do not merge or rebase the authorization stack yet. The smallest useful implemen
 - Active task and open findings still return UNKNOWN because no accepted structured canonical source exists. This is a deliberate fail-safe, but it means the full product recovery scenario is not yet accepted.
 - Main's stale repository identifier may correctly produce CONFLICT/UNKNOWN until canonical handoff docs are reconciled.
 - Next action: inspect the actual CI trigger/status after GitHub Actions processes PR #170; if checks start, inspect exact-head jobs/logs, fix only evidenced failures, and record the resulting exact SHA/run. Then compare the command output to all six user questions and the full product acceptance criteria.
+
+## 10. First CI failure and correction on isolated context-recovery PR — 2026-10-12
+
+- PR #170 first CI was triggered on merge commit a0f8071d71417e91356360b235987a28717cfd64, using PR head f5b9f14065fa712d04ba3e5c9e82613d1e8a25d2 and main base 00648d14106de03e194c58d90790d2fe202670a4.
+- CI run #3620, run ID 38254049726, failed at test collection on Python 3.12: SyntaxError in gnosis/context/snapshot.py line 176, an unterminated string caused by a stray trailing quote. Python 3.11 was cancelled by fail-fast; no complete result.
+- Import Graph run #1881, run ID 38254049789, failed on the same SyntaxError in snapshot.py. This is a confirmed defect in the authored patch, not a baseline regression.
+- Dependency Review run #1042, run ID 38254049691, failed with the previously observed repository capability message: Dependency review is not supported on this repository; enable Dependency Graph. It did not report a vulnerable dependency.
+- Removed the stray trailing quote in a follow-up commit. New PR head is 95f9d62b5e8301c1814089a312577bf2ce22fc4c. Exact file was read back after the correction.
+- At the time of this checkpoint update, workflow lookup for the corrected head returned no runs yet. Corrected-head CI remains NOT OBSERVED/PENDING; do not infer success from the correction.
+- PR #170 remains Draft. Do not merge until the corrected exact head has completed tests and import-graph checks, and focused test/runtime evidence has been reviewed.
