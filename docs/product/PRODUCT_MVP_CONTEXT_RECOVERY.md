@@ -1,6 +1,6 @@
 # Product MVP: Evidence-aware project context recovery
 
-- Status: **MVP DEFINITION — implementation scope not yet accepted**
+- Status: **FIRST IMPLEMENTATION SLICE COMMITTED — acceptance pending**
 - Date: 2026-10-12
 - Repository: `Autopoiesis-Intelligence/Gnosis-Core`
 - Related architecture: [ADR-001](../architecture/ADR-001-CORE-PRODUCT-BOUNDARY.md), [Context continuity contract](../CONTEXT_CONTRACT.md)
@@ -22,14 +22,15 @@ A user opens a project checkout and runs one read-only command. The command retu
 
 The command must work without network access, without initializing Core's database/schema, and without modifying the checkout.
 
-## Current implementation found
+## Current implementation
 
-- `gnosis/context/cli.py` exposes a read-only command that prints JSON.
-- `gnosis/context/snapshot.py` reads `docs/PHASE_LEDGER.md`, `AI_CONTEXT.md`, and `STATUS.md`, and reports repository URL, branch, and HEAD using Git.
-- The snapshot currently includes the entire contents of those three documents under `source_documents`.
-- It currently sets `active_task`, `implementation_state`, `verification_state`, and `acceptance_state` to generic `UNKNOWN` strings and returns an empty `open_findings` list.
-- Therefore, this is a useful read-only primitive, but it is **not yet a compact task recovery product**. Its current output can be large and does not derive the active task or blockers from structured canonical records.
-- Source inspection is not runtime proof. Exact-head CI was not yet checked for the later documentation-only ADR commit when this MVP was defined.
+- `gnosis/context/cli.py` exposes a read-only JSON command; full source documents now require the explicit `--include-source-documents` flag.
+- `gnosis/context/snapshot.py` emits schema version 1 with claim values, evidence statuses, and source references.
+- The active phase is extracted from the canonical `docs/PHASE_LEDGER.md#current-phase` section. Active task, implementation, verification, acceptance, and findings remain explicitly `UNKNOWN` where no structured source exists.
+- Repository identity disagreement across canonical handoff documents is reported as `CONFLICT`; it is not silently resolved.
+- Five initial contract tests cover compact output, conflict reporting, missing metadata/sources, opt-in raw documents, and CLI behavior. A sixth test runs the CLI against the real repository checkout.
+- The code-test commit `d6f6fba35044d833f1e000dff96a03de83a5ea44` passed CI run #3613: Python 3.11 **992 passed, 18 warnings**; Python 3.12 **992 passed, 18 warnings**. Import Graph #1862 passed. Dependency Review #1035 failed on the known repository configuration issue; CodeQL was still in progress at the time of this note.
+- These are CI/runtime results for that exact code-test SHA, not proof of product acceptance or production execution.
 
 ## MVP boundary
 
@@ -83,7 +84,7 @@ It delivers immediate user value—recovering the real state of work across AI s
 ## Current status
 
 - Product problem and first scenario: **DEFINED**.
-- Existing read-only CLI/snapshot: **SOURCE PRESENT**.
-- Compact evidence-aware task recovery: **NOT IMPLEMENTED / NOT ACCEPTED**.
-- Runtime behavior on exact current head: **NOT PROVEN BY THIS DOCUMENT**.
-- Next permitted action: inspect the actual tests for the CLI/snapshot and write the output contract tests before changing runtime behavior.
+- Compact evidence-aware CLI/snapshot: **IMPLEMENTED — first slice**.
+- Exact-head test/runtime evidence: **992 passed on Python 3.11 and 3.12 at code-test SHA `d6f6fba35044d833f1e000dff96a03de83a5ea44`**.
+- Product acceptance: **PENDING**. The structured active task and open findings are still unknown because the repository has no accepted machine-readable source for them.
+- Next permitted action: strengthen assertions for checkout immutability and run CI on the resulting exact head; then decide how canonical task data should be supplied without guessing from prose.
