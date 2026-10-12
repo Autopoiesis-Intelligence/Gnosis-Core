@@ -8,6 +8,13 @@ Repository:
 - GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
 
+## Canonical handoff authority (2026-10-12 reconciliation)
+
+For continuation state, read `docs/PROJECT_STATE.json` and `docs/PHASE_LEDGER.md` first. They are durable snapshots/contracts, not live pointers: fetch the current `main` HEAD at every new session and compare it with `canonical_head`. If the value differs or canonical documents conflict, report **RECONCILIATION REQUIRED** before implementation. Never infer current authority from a chat, old SHA, CI run on another commit, or a free-text next-action field.
+
+The active phase remains `CONTEXT-CONTINUITY ARCHITECTURE` / `DOCUMENTATION_AND_ARCHITECTURE` until a durable, explicit phase transition is recorded. Memory corrective implementation, Core semantic changes, Identity/authentication/authorization implementation, encryption, Internet Bridge, federation, and autonomous self-modification remain forbidden in this phase. No handoff sentence overrides `forbidden_scope`; access is not architectural authority. Independent reviewer status is `NOT_ASSIGNED` unless a genuinely independent reviewer is explicitly assigned.
+
+
 Rules:
 1. Repository code, tests and actual runtime/CI evidence outrank chat memory or this document.
 2. This document is architecture/research context, not proof of PASS.
