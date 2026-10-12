@@ -281,3 +281,12 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 - This is a proposed architecture decision, not yet accepted, implemented, or runtime-tested. It deliberately does not add DDL, migrations, a production DB path, or Core/Memory/Identity behavior.
 - Exact-head workflow runs were queued at last check: CI #3635 / run ID `38256422513`; CodeQL #2516 / `38256422675`; Import Graph #1912 / `38256422289`; Dependency Review #1057 / `38256422266`. Recheck before reporting conclusions. Do not infer pass from queued status.
 - Next: review the ADR against existing contracts and inspect exact-head CI when completed. If accepted, the following architecture gate must identify the canonical source and read interface from repo evidence before any snapshot wiring is authorized.
+
+
+### Follow-up to section 18 — exact-head workflow completion update
+
+- CI #3635, run ID `38256422513`, completed **FAIL**. Python 3.12: 33 failed, 931 passed, 18 warnings, 2 errors in 8.73s. Python 3.11 was cancelled after the Python 3.12 failure. This is the exact ADR head; no claim of green CI.
+- The failure identities are the same broad existing execution/persistence/endogenous/memory test areas observed on the current main baseline in the latest PR #170 evidence. This documentation-only ADR did not change runtime files, but a controlled same-base comparison is still the proper proof before claiming no regression from the ADR branch.
+- Dependency Review #1057, run ID `38256422266`, failed with explicit message: “Dependency review is not supported on this repository” because Dependency Graph is not enabled. This is a repository capability/configuration failure, not a reported vulnerable dependency.
+- Import Graph #1912, run ID `38256422289`: **PASS**.
+- CodeQL #2516, run ID `38256422675`: still in progress at this check; recheck before closing the sequence.
