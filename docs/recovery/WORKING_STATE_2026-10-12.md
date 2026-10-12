@@ -290,3 +290,14 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 - Dependency Review #1057, run ID `38256422266`, failed with explicit message: “Dependency review is not supported on this repository” because Dependency Graph is not enabled. This is a repository capability/configuration failure, not a reported vulnerable dependency.
 - Import Graph #1912, run ID `38256422289`: **PASS**.
 - CodeQL #2516, run ID `38256422675`: still in progress at this check; recheck before closing the sequence.
+
+
+### Follow-up to section 18 — exact-head CodeQL completion and source-model review
+
+- CodeQL #2516, run ID `38256422675`, completed **PASS** on the prior ADR head `65d2ce6b2277ca310ec772f3d6b677a99f6f2a5b`.
+- Read actual main files at baseline `00648d14106de03e194c58d90790d2fe202670a4`: `gnosis/context/model.py`, `gnosis/context/repository.py`, `gnosis/context/handoff.py`, `docs/TASK_PROPOSAL_PERSISTENCE_MODEL.md`, `docs/CONTEXT_SNAPSHOT_CONTRACT.md`, and `docs/TASK_CONTEXT_CONTINUITY_CONTRACT.md`.
+- Confirmed source-model gap: `TaskContext` is a frozen value object, but there is no `TaskCheckpoint` runtime type in the inspected model; `TaskContextRepository` creates its `task_contexts` table on initialization and supports mutable revisioned updates; `ContextHandoff` is a projection, not a latest-accepted-checkpoint resolver. The persistence model defines Task Checkpoint conceptually and explicitly leaves exact DDL/API to a separate task.
+- Therefore no concrete canonical checkpoint source can be safely designated from the inspected main tree. Logical authority is the Task Checkpoint concept; concrete storage, accepted record, monotonic ordering, and acceptance-gate record are not established. Do not adapt the mutable TaskContext repository as a shortcut.
+- Amended ADR with a repository-evidence table and a required source-designation gate. New exact head: `86e9012cf655bac9db823a1f6c8774c71cbce727`. PR #171 remains Draft: https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/171.
+- Exact-head runs for amended SHA were queued/in progress at last check: CI #3638 / ID `38256820348`; CodeQL #2519 / ID `38256820308`; Import Graph #1918 / ID `38256820388`; Dependency Review #1060 / ID `38256820310`. Previous-SHA results do not transfer to this amended head.
+- Next: recheck these four exact-head workflows. Then the next bounded architecture action is to record the source-designation decision as blocked until a concrete canonical source/storage/interface is evidenced; do not implement a speculative resolver.
