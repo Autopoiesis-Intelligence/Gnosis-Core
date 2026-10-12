@@ -1,4 +1,4 @@
-""""Build a compact, deterministic, read-only project context snapshot.
+"""Build a compact, deterministic, read-only project context snapshot.
 
 Claims are deliberately separated from their source references and evidence status.
 This module does not initialize databases, mutate repository state, or grant authority.
