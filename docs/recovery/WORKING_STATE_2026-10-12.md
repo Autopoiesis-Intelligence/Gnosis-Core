@@ -270,3 +270,14 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 ### Follow-up to section 17 — CodeQL completion
 
 - Rechecked exact head `543abb2b8947d1b36521e63ac37107a2fddb9cb4`: CodeQL #2513, run ID `38255939723`, completed **PASS**. This supersedes the earlier “in progress” note above. Exact-head status: CI FAIL (Python 3.12 observed; Python 3.11 cancelled), CodeQL PASS, Import Graph PASS, Dependency Review FAIL due repository Dependency Graph capability/configuration.
+
+
+## 18. Canonical Task Checkpoint resolution contract — SEQ 17 — 2026-10-12
+
+- Read the current phase ledger and the Task/Proposal persistence, Context Snapshot, and Task Context Continuity contracts from main at `00648d14106de03e194c58d90790d2fe202670a4`.
+- Created proposed documentation-only ADR at `docs/architecture/ADR_CANONICAL_TASK_CHECKPOINT_RESOLUTION.md` on branch `architecture/task-checkpoint-resolution-2026-10-12`.
+- Exact ADR commit: `65d2ce6b2277ca310ec772f3d6b677a99f6f2a5b`. Draft PR #171: https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/171. PR base is `00648d14106de03e194c58d90790d2fe202670a4`; compare reports one added file, 89 lines, no deletions, and no behind commits at creation.
+- The ADR specifies fail-closed read semantics: only a separately designated canonical source; only explicitly accepted immutable checkpoints; monotonic per-task sequence rather than timestamps; explicit `UNKNOWN` / `CONFLICT`; provenance and freshness; snapshot remains read-only; no guessed DB path and no silent designation of the mutable TaskContextRepository.
+- This is a proposed architecture decision, not yet accepted, implemented, or runtime-tested. It deliberately does not add DDL, migrations, a production DB path, or Core/Memory/Identity behavior.
+- Exact-head workflow runs were queued at last check: CI #3635 / run ID `38256422513`; CodeQL #2516 / `38256422675`; Import Graph #1912 / `38256422289`; Dependency Review #1057 / `38256422266`. Recheck before reporting conclusions. Do not infer pass from queued status.
+- Next: review the ADR against existing contracts and inspect exact-head CI when completed. If accepted, the following architecture gate must identify the canonical source and read interface from repo evidence before any snapshot wiring is authorized.
