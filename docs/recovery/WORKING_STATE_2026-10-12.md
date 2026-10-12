@@ -240,3 +240,29 @@ Do not merge or rebase the authorization stack yet. The smallest useful implemen
 - Architecture contracts explicitly distinguish Task Checkpoint (canonical workflow record) from Context Snapshot (portable read model), and require the snapshot not to become a second task state machine. No new task schema or database discovery behavior should be added until a canonical persisted checkpoint source/path and freshness/authority rules are established.
 - This review is static repository inspection only; it did not execute the CLI against a local checkout or database and does not prove cross-product runtime continuity.
 - Next sequence: decide/record the canonical source contract for latest task checkpoint and its repository location/read-only access, then implement only the bounded adapter/read-model behavior with tests. Keep task state UNKNOWN until that contract exists and an actual canonical record is available.
+
+## 17. Product-question review and latest PR #170 evidence — 2026-10-12
+
+### Six-question/output review
+
+The schema-v1 snapshot exposes the expected dimensions (active task, implementation, verification, acceptance, next action, open findings), but active task, implementation, verification, acceptance, and findings intentionally return `UNKNOWN` because no structured accepted source is wired to this read-only CLI. This makes missing state visible but does not yet answer the product's operational questions. The output is therefore a useful repository identity/phase diagnostic, not yet a complete continuation handoff.
+
+Repository inspection reconfirmed:
+- `docs/TASK_PROPOSAL_PERSISTENCE_MODEL.md` defines Task and immutable TaskCheckpoint concepts, but labels implementation as a separate bounded task and says exact DDL/API must be assigned before implementation.
+- `docs/TASK_LIFECYCLE_CONTRACT.md` and `docs/CONTEXT_SNAPSHOT_CONTRACT.md` require latest accepted checkpoint → evidence refs → bounded handoff.
+- `gnosis/context/repository.py` implements a mutable TaskContext SQLite repository, but no canonical live task/checkpoint database path or accepted checkpoint record was identified. It is not safe to infer that this mutable repository is the canonical checkpoint store.
+- `STATUS.md` explicitly reports User/Task/Context/Capability runtime as MISSING and Track A as contract-defined/runtime-not-implemented. This qualifies the fact that context model/repository code exists: the product-level runtime remains unaccepted.
+- Existing source documents have stale repository identity and pinned SHA values. They must not be used to populate current task truth.
+
+### Exact latest PR #170 head
+
+- Current head: `543abb2b8947d1b36521e63ac37107a2fddb9cb4`; base main: `00648d14106de03e194c58d90790d2fe202670a4`; PR remains open Draft with four changed files.
+- CI run #3632, ID `38255939606`: overall FAIL. Python 3.12: 33 failed, 939 passed, 18 warnings, 2 errors in 9.45s. Python 3.11 job was cancelled by fail-fast after the other matrix job failed; it is not a current-head Python 3.11 result. All eight context snapshot tests passed in the completed Python 3.12 job.
+- Import Graph #1905, ID `38255939663`: PASS.
+- Dependency Review #1054, ID `38255939581`: FAIL because Dependency Graph is disabled/unavailable; no vulnerability finding reported.
+- CodeQL #2513, ID `38255939723`: still in progress at time of this checkpoint; recheck before reporting final status.
+- This exact-head CI is consistent with the prior controlled baseline totals on Python 3.12, but the 3.11 matrix leg was cancelled, so do not claim both Python versions were checked on this HEAD. The prior run #3628 did complete both versions on head `e5499d7768b3f32eea80d94e4158482bf074356a`.
+
+### Decision / next permitted action
+
+Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path. The next implementation task should first be a bounded, phase-permitted canonical checkpoint source decision: define how a latest *accepted, immutable* TaskCheckpoint is identified and read, with source path/repository and freshness/provenance rules; then wire the snapshot as a read model. No authorization/Core/Memory implementation is authorized by this step.
