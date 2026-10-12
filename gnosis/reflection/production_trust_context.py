@@ -26,6 +26,7 @@ class ProductionTrustContext:
     authority_scope: frozenset[str]
     policy_version: str
     trusted_clock: Callable[[], int]
+    validity_evidence_digest_resolver: Callable[[str], str | None]
 
     def __post_init__(self) -> None:
         if not self.authority_scope or any(not item for item in self.authority_scope):
@@ -34,6 +35,17 @@ class ProductionTrustContext:
             raise ValueError("trusted policy version must be non-empty")
         if not callable(self.trusted_clock):
             raise ValueError("trusted clock is required")
+        if not callable(self.validity_evidence_digest_resolver):
+            raise ValueError("trusted validity evidence resolver is required")
+
+    def resolve_validity_evidence_digest(self, authorization_id: str) -> str:
+        """Resolve the expected digest from an independently provisioned trusted source."""
+        if not authorization_id:
+            raise PermissionError("authorization identity is missing")
+        digest = self.validity_evidence_digest_resolver(authorization_id)
+        if not isinstance(digest, str) or not digest:
+            raise PermissionError("trusted authorization validity evidence is missing")
+        return digest
 
     def verify_commit(
         self,
@@ -54,6 +66,11 @@ class ProductionTrustContext:
             raise PermissionError("signed authorization ID does not match validity record")
         if validity.policy_version != self.policy_version:
             raise PermissionError("authorization validity policy does not match trusted policy")
+        expected_evidence_digest = self.resolve_validity_evidence_digest(validity.authorization_id)
+        validity.require_valid(
+            expected_policy_version=self.policy_version,
+            expected_evidence_digest=expected_evidence_digest,
+        )
 
         return verify_production_authorization(
             authorization,
