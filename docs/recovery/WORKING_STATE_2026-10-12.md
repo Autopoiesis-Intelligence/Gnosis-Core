@@ -384,3 +384,13 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 **Not proven:** configured production database path/composition root, read-only open path, durable Task Checkpoint records, acceptance producer, per-task monotonic sequence, or runtime cross-product recovery.
 
 **Next:** inspect deployment/CI workflows and any documented application entrypoints for an explicitly configured database provider. If none is evidenced, preserve UNKNOWN and request an architecture choice; do not invent a path or implement a schema.
+
+
+### Follow-up — SEQ 21 exact-head workflows for ADR #171
+
+- Exact ADR head: `b00fcd5fd89b550ac8db73f73c72350b1b71e742`; PR #171 remains Draft/open/unmerged.
+- CI #3647 / run ID `38260621727`: **FAIL**. Python 3.11: 33 failed, 931 passed, 18 warnings, 2 errors in 6.29s; Python 3.12 was cancelled by fail-fast. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38260621727)
+- CodeQL #2528 / run ID `38260621722`: **IN PROGRESS** at last check; no conclusion claimed. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38260621722)
+- Import Graph #1936 / run ID `38260621740`: **PASS**. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38260621740)
+- Dependency Review #1069 / run ID `38260621819`: **FAIL** because Dependency Graph is disabled/unsupported for the repository; no vulnerability finding reported. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38260621819)
+- The ADR commit is documentation-only. No controlled base-vs-PR test comparison was completed; do not claim no regression. These results apply to `b00fcd5...` only.
