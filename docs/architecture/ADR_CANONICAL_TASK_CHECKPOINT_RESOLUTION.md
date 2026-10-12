@@ -87,3 +87,35 @@ The next architecture gate is to identify and explicitly accept the canonical so
 - `docs/CONTEXT_SNAPSHOT_CONTRACT.md`
 - `docs/TASK_CONTEXT_CONTINUITY_CONTRACT.md`
 - `docs/PHASE_LEDGER.md`
+
+
+## Repository evidence at the baseline
+
+Inspection of `main` at `00648d14106de03e194c58d90790d2fe202670a4` found:
+
+| Artifact | Observed property | What it establishes |
+|---|---|---|
+| `gnosis/context/model.py` | Defines frozen `TaskContext`; no `TaskCheckpoint` type | A context value object exists, not the immutable checkpoint entity specified by the persistence model |
+| `gnosis/context/repository.py` | `TaskContextRepository` creates `task_contexts` via `executescript(CONTEXT_SCHEMA)`; supports revisioned updates | A mutable context repository exists; it is not evidence of an accepted immutable checkpoint store |
+| `gnosis/context/handoff.py` | Builds a `ContextHandoff` from a `TaskContext` | A handoff projection exists, but it does not resolve the latest accepted checkpoint |
+| `docs/TASK_PROPOSAL_PERSISTENCE_MODEL.md` | Defines conceptual Task and immutable Task Checkpoint fields; says exact DDL/API is a separate implementation task | Checkpoint persistence is specified conceptually, not established as implemented by this contract |
+| `docs/CONTEXT_SNAPSHOT_CONTRACT.md` | Defines snapshot as derived from the latest checkpoint | Establishes the intended authority relationship, not a live source or production path |
+
+No repository evidence in this inspection identifies a canonical production database path, an accepted checkpoint record, a monotonic checkpoint sequence implementation, or an integration-gate acceptance record for such a checkpoint.
+
+**Current source-selection outcome: `UNKNOWN` / not yet implementable without an explicit architecture decision.** The logical authority is the Task Checkpoint concept from the persistence model, but no concrete implemented source may be designated from the evidence above. Do not treat `TaskContextRepository` as a substitute and do not add a second schema as a workaround.
+
+## Decision gate before wiring a resolver
+
+The source-designation task must provide evidence for all of the following before an adapter is implemented:
+
+1. Canonical source artifact and ownership boundary.
+2. Exact storage/repository location and initialization lifecycle.
+3. Task identity lookup and accepted-checkpoint query contract.
+4. Immutable checkpoint publication and monotonic per-task ordering.
+5. Explicit acceptance record and the gate that produces it.
+6. Read-only access path that does not initialize or mutate Core/application state.
+7. Compatibility/migration strategy, if existing persistence is to be extended.
+8. Tests against a real persisted checkpoint and a missing-source/no-side-effect case.
+
+If any item remains unassigned, keep the snapshot's task-level state `UNKNOWN` and report the missing decision rather than guessing.
