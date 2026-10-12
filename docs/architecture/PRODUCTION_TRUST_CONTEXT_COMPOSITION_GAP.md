@@ -55,3 +55,23 @@ The Python 3.11 failure-name comparison with the base CI run (base job 114579119
 Current failure list is concentrated in legacy execution/authority expectations, endogenous proposal and memory integration, persistence/recovery, and reflection-gate contracts. Do not weaken fail-closed authorization merely to make legacy tests pass. Reconcile the intended contracts and update tests/implementations deliberately.
 
 Acceptance remains BLOCKED until the production trust dependency source is identified and the exact head passes required CI and integration checks.
+
+## Latest exact-head reconciliation — 2026-10-12
+
+Reviewed branch head: `fad6697931471a0dad039a6ff751898b53e63062`.
+CI run: [38212710491](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38212710491), run #3584.
+Base: `381afa025a403a81f32eed4bfa2c44ce01a95540`.
+
+- Python 3.11: **959 passed, 27 failed, 18 warnings**; job failed.
+- Python 3.12: cancelled after Python 3.11 failed; no passing result.
+- Import Graph: PASS.
+- CodeQL: PASS.
+- Dependency Review: FAIL (repository Dependency Graph/configuration issue; not evidence by itself of a vulnerable dependency).
+- The 27 failures remain concentrated in legacy authority-boundary expectations, endogenous proposal/memory binding, persistence/recovery contracts, and reflection-gate API requirements. The existing base comparison recorded 27 shared failing test names, 6 base-only, and 0 head-only; this is not causal proof.
+
+### Production-entrypoint search
+
+At this exact tree, the only obvious Python entrypoint candidates are `gnosis/context/cli.py` and `gnosis/reflection/runtime.py`. The former emits a read-only context snapshot; the latter performs read-only reflection and persists reflection evidence. The GitHub Actions workflows inspected run tests, diagnostics, observation, or repository watching; none demonstrates production execution composition or trusted-key provisioning.
+
+This narrows the repository-local search but does not prove that an external deployment/composition layer does not exist. Do not manufacture trust configuration or claim production integration. The next implementation step is to identify the intended deployable application boundary (or explicitly define that Gnosis-Core currently has no production execution service) before adding a provider.
+
