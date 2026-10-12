@@ -34,9 +34,13 @@ class SQLiteExecutionCommitAdapter:
         if production_authorization is None or trust_context is None:
             raise PermissionError("signed production owner authorization is required")
         with transaction(conn):
-            trust_context.verify_commit(production_authorization, request)
             expected_evidence_digest = trust_context.resolve_validity_evidence_digest(
                 request.authorization_validity.authorization_id
+            )
+            trust_context.verify_commit(
+                production_authorization,
+                request,
+                expected_evidence_digest=expected_evidence_digest,
             )
             consume_authorization_nonce_in_transaction(
                 conn,
