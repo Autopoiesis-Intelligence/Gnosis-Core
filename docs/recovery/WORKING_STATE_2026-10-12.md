@@ -321,3 +321,13 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 - Current exact-head checks observed at 2026-10-12: Import Graph PASS; Dependency Review FAIL because repository Dependency Graph is disabled/unavailable; both Python test jobs and both CodeQL jobs were still in progress at the time of this record. Links: CI run https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584439 ; CodeQL https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584497 ; Dependency Review https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584609 ; Import Graph https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584518.
 - Exit criteria now explicitly separate: logical authority identified (yes); mutable shortcut rejected (yes); concrete persistence boundary/lifecycle evidenced (no); acceptance-record producer and monotonic sequence tied to concrete source (no); explicit architecture approval (no); implementation authorized (no).
 - Next permitted action: inspect existing Persistence configuration and lifecycle to prepare a narrow, evidence-backed storage-boundary proposal. Do not modify runtime/schema or select a physical path before that proposal is reviewed and explicitly accepted.
+
+
+### Follow-up — SEQ 19 exact-head workflow completion
+
+- Exact head `0a4b00a7bc810788438bf3a46bead3e4adc9944e`, PR #171, CI run #3641 / ID `38258584439`: **FAIL**. Python 3.11 test job failed; Python 3.12 was cancelled after fail-fast. This run does not provide a complete two-version test count for the new head.
+- CodeQL run #2522 / ID `38258584497`: overall workflow **PASS**; the Actions and Python CodeQL checks completed successfully.
+- Import Graph run ID `38258584518`: **PASS**.
+- Dependency Review run ID `38258584609`: **FAIL** because Dependency Graph is disabled/unavailable; no vulnerability finding was reported.
+- This is exact-head evidence for `0a4b00a...`; it does not prove no regression relative to base. No runtime files changed in the ADR commit, but no controlled base-vs-PR test comparison has been completed.
+- Recovery checkpoint update commit: `13d7464e66b508379940a55bb3d35c5cf8172b79` on branch `recovery/working-state-2026-10-12` (PR #169). This records source-option narrowing and the exact-head check state.
