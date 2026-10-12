@@ -51,6 +51,8 @@ class ProductionTrustContext:
         self,
         authorization: ProductionAuthorization,
         request: ExecutionCommitRequest,
+        *,
+        expected_evidence_digest: str | None = None,
     ) -> TrustedIssuerKey:
         """Verify the signed grant against actual commit-request bindings."""
         now = self.trusted_clock()
@@ -66,7 +68,8 @@ class ProductionTrustContext:
             raise PermissionError("signed authorization ID does not match validity record")
         if validity.policy_version != self.policy_version:
             raise PermissionError("authorization validity policy does not match trusted policy")
-        expected_evidence_digest = self.resolve_validity_evidence_digest(validity.authorization_id)
+        if expected_evidence_digest is None:
+            expected_evidence_digest = self.resolve_validity_evidence_digest(validity.authorization_id)
         validity.require_valid(
             expected_policy_version=self.policy_version,
             expected_evidence_digest=expected_evidence_digest,
