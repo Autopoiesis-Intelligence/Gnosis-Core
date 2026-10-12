@@ -151,3 +151,46 @@ Before runtime implementation, a separate task must inspect the repository's exi
 - [ ] Separate implementation task authorized.
 
 **SEQ 19 result:** architecture options narrowed; implementation remains blocked. No runtime or CI claim is implied by this documentation update.
+
+
+## SEQ 20 — Existing Persistence lifecycle inspection
+
+**Inspection baseline:** `main` at `0a4b00a7bc810788438bf3a46bead3e4adc9944e`. This section records observed repository facts; it does not authorize schema or runtime changes.
+
+### Existing storage boundary
+
+| Artifact | Observed implementation | Consequence for Task Checkpoint |
+|---|---|---|
+| `gnosis/storage/database.py` | Exposes `connect(path=":memory:")`, `transaction(conn)`, and `close(conn)`; uses stdlib `sqlite3`; sets `foreign_keys=ON` and `busy_timeout=5000` | A shared Persistence boundary exists, but the default is an in-memory database and does not identify the production/configured path |
+| `gnosis/storage/database.py` | `SCHEMA_VERSION = 5`; `connect()` may update supported v3/v4 metadata, run schema DDL, insert schema metadata, and invoke Reflection schema initialization | This connection factory is not a safe read-only recovery entry point: opening a database may mutate or initialize schema |
+| `gnosis/storage/database.py` | Current schema includes Core tables such as `states`, `instances`, `transitions`, `evolution_memory`, and `audit_events` | Do not model Task Checkpoint as another Core State or reinterpret existing Core records as task acceptance |
+| `gnosis/storage/repositories.py` and `gnosis/storage/__init__.py` | Repositories operate on a caller-supplied SQLite connection; package exports the connection lifecycle and Core persistence operations | An additive Task repository could conceptually share the existing connection boundary, but current evidence does not establish a Task repository, configured application composition root, or production connection provider |
+| `docs/architecture/PERSISTENCE_ADR.md` | Existing Persistence ADR describes SQLite and repository-owned transaction/serialization boundaries; it also says no production code is authorized by that document | This provides a storage design precedent, not permission to extend the schema under the current phase |
+
+### Decision implications
+
+1. **Preferred future integration point:** an additive Task-layer repository that accepts an already-configured persistence connection from an explicitly identified composition root. It must not independently open an inferred database file, create a second Core State store, or make the snapshot CLI call the schema-initializing `connect()` as a read-only shortcut.
+2. **Migration compatibility is unresolved:** adding checkpoint tables would require an explicit schema-version/migration decision because `connect()` currently owns schema initialization and version handling. Do not silently change `SCHEMA_VERSION`, `SCHEMA`, or migration behavior in this ADR task.
+3. **Read-only recovery path is unresolved:** the existing `connect()` function cannot be assumed read-only. A future implementation must identify whether an existing configured connection can be opened in SQLite read-only mode without running DDL/Reflection initialization, or define another narrowly scoped read-only access contract. Test no file creation and no schema changes when the source is absent.
+4. **Production path is still UNKNOWN:** the default `:memory:` argument is a function default, not evidence of the deployed database path. No physical path is selected by this ADR.
+5. **Checkpoint acceptance and sequence are still missing:** current Core audit `sequence` is database-wide and is not evidence of a per-task checkpoint sequence or a project integration-gate acceptance record. Do not reuse it for Task Checkpoint ordering without a separate accepted contract.
+
+### Narrow proposal for the next architecture gate
+
+- Keep the logical authority as immutable Task Checkpoint in the additive Task layer.
+- Before implementation, identify the real configured persistence/composition root and its connection lifecycle from actual callers/configuration.
+- Propose the smallest compatible migration path and a read-only connection path that bypasses schema initialization.
+- Specify immutable publication, per-task monotonic sequence, explicit acceptance evidence, and tests for missing source/no side effects.
+- Require explicit architecture approval before DDL, migration, API, or runtime changes.
+
+### SEQ 20 result
+
+- [x] Existing SQLite persistence module and connection lifecycle inspected.
+- [x] Schema initialization/migration side effects identified.
+- [x] Existing Core state tables distinguished from Task Checkpoint authority.
+- [ ] Real configured production connection source identified.
+- [ ] Read-only no-initialization path established.
+- [ ] Task acceptance-record producer and per-task sequence implemented/evidenced.
+- [ ] Architecture proposal explicitly accepted; runtime implementation authorized.
+
+**Status:** architecture recommendation only. No runtime code, schema, database path, or migration was changed by this sequence.
