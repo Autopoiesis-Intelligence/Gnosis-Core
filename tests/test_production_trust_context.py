@@ -257,6 +257,13 @@ def test_real_authorized_commit_persists_state_and_rejects_replay(sqlite_conn):
     from gnosis.storage import load_instance
 
     adapter, instance, candidate, record, request, signed, context, proposed = _make_real_commit_case(sqlite_conn)
+    resolver_calls = []
+    context = replace(
+        context,
+        validity_evidence_digest_resolver=lambda authorization_id: (
+            resolver_calls.append(authorization_id) or "legacy-evidence"
+        ),
+    )
     result = adapter.commit(
         sqlite_conn, instance, candidate, record, request,
         actor="integration-owner",
@@ -264,6 +271,7 @@ def test_real_authorized_commit_persists_state_and_rejects_replay(sqlite_conn):
         trust_context=context,
     )
     assert result.resulting_state_id == proposed.state_id
+    assert resolver_calls == [signed.authorization_id]
     assert load_instance(sqlite_conn, instance.instance_id).engine.state.state_id == proposed.state_id
     assert sqlite_conn.execute(
         "SELECT 1 FROM audit_events WHERE event_id=?",
