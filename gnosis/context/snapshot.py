@@ -173,4 +173,3 @@ def build_context_snapshot(
         source_documents=raw if include_source_documents else None,
     ).to_dict()
     return result
-"
