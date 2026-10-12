@@ -37,3 +37,21 @@ This is a source-inspection finding, not proof that no external deployment layer
 - End-to-end execution acceptance: BLOCKED.
 
 Do not merge PR #168 based on the focused tests alone. The reviewed CI run has failing Python 3.11 tests; Python 3.12 test jobs were cancelled.
+
+## CI reconciliation — 2026-10-12
+
+Exact reviewed branch head: `a24731af9bd5579cf1ee536b900bcfea76f33186`.
+PR #168 base: `381afa025a403a81f32eed4bfa2c44ce01a95540`.
+
+- Python 3.11 on the reviewed head: 27 failed tests.
+- Python 3.12: cancelled after the Python 3.11 job failed.
+- Graph: PASS.
+- CodeQL Python and Actions: PASS.
+- Dependency Review: FAIL; repository dependency graph configuration remains a separate issue to investigate.
+- The immediately preceding trust-context head's focused test confirmed the digest resolver is called exactly once for a successful commit. That focused result does not establish full-suite or production-runtime acceptance.
+
+The Python 3.11 failure-name comparison with the base CI run (base job 114579119105; head job 114611953200) found 27 shared failing test names, 6 base-only failing names, and zero head-only failing names. This compares test names only; it does not prove causality or that all failures are harmless.
+
+Current failure list is concentrated in legacy execution/authority expectations, endogenous proposal and memory integration, persistence/recovery, and reflection-gate contracts. Do not weaken fail-closed authorization merely to make legacy tests pass. Reconcile the intended contracts and update tests/implementations deliberately.
+
+Acceptance remains BLOCKED until the production trust dependency source is identified and the exact head passes required CI and integration checks.
