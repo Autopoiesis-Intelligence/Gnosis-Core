@@ -28,7 +28,7 @@ def test_cumulative_reflection_reads_instance_scoped_evolution_memory():
 
 def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
     from pathlib import Path
-    from gnosis.core import State
+    from gnosis.core import Candidate, State
     from gnosis.instances.instance import Instance
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.storage import append_evolution_memory, close, connect, load_evolution_memory, save_instance
