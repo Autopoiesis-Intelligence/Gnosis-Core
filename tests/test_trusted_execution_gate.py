@@ -9,7 +9,7 @@ def test_gate_rejects_revoked_before_consumption(sqlite_conn, provenance):
     validity=AuthorizationValidity("auth-1","policy-1","ev-1",revoked=True)
     req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
     with pytest.raises(PermissionError,match="revoked"):
-        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner",expected_policy_version="policy-1")
+        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner",expected_policy_version="policy-1",expected_evidence_digest="ev-1")
 
 
 def test_gate_rejects_identity_mismatch_before_consumption(sqlite_conn, provenance):
@@ -17,4 +17,4 @@ def test_gate_rejects_identity_mismatch_before_consumption(sqlite_conn, provenan
     validity=AuthorizationValidity("other-auth","policy-1","ev-1")
     req=ExecutionCommitRequest(auth,ExecutionIntentSnapshot.from_provenance(provenance),provenance.provenance_id,provenance.evolution_identity,provenance,validity)
     with pytest.raises(PermissionError,match="identity"):
-        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner",expected_policy_version="policy-1")
+        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner",expected_policy_version="policy-1",expected_evidence_digest="ev-1")
