@@ -352,3 +352,14 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 **Not proven:** concrete Task Checkpoint storage, per-task monotonic sequence, acceptance-record producer, production composition root, read-only open path, runtime recovery, or full CI pass.
 
 **Next:** identify actual callers/configuration that supply `gnosis.storage.connect()` and establish whether an existing connection can be acquired without schema initialization. If the composition root/path is still absent, record that absence as UNKNOWN and stop before schema/runtime edits. Explicit architecture approval remains required.
+
+
+### Follow-up — SEQ 20 exact-head workflow results for ADR #171
+
+- Exact ADR head `c0efe4fb69f7bf9f3f6bd0b60206095c032924a2`; PR #171 remains Draft/open, base `00648d14106de03e194c58d90790d2fe202670a4`.
+- CI #3644 / run ID `38259249013`: **FAIL**. Python 3.11: 33 failed, 931 passed, 18 warnings, 2 errors in 8.10s. Python 3.12 was cancelled by fail-fast, so no complete two-version result on this head. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38259249013)
+- The observed failure names/errors are in existing persistence, reflection-gate, self-learning execution-boundary, and commit-failure-injection tests. This documentation-only ADR changed no runtime files, but no controlled base-vs-PR comparison has been run; do not claim no regression.
+- CodeQL #2525 / run ID `38259249044`: **IN PROGRESS** at last check; not yet PASS/FAIL. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38259249044)
+- Import Graph #1930 / run ID `38259249027`: **PASS**. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38259249027)
+- Dependency Review #1066 / run ID `38259249063`: **FAIL** with explicit message that Dependency Graph is not enabled/supported on this repository; no vulnerability finding was reported. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38259249063)
+- The latest recovery checkpoint commit now records these exact-head results. They apply to ADR head `c0efe4f...`; they do not transfer to a later ADR commit.
