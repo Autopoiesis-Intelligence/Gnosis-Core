@@ -363,3 +363,24 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 - Import Graph #1930 / run ID `38259249027`: **PASS**. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38259249027)
 - Dependency Review #1066 / run ID `38259249063`: **FAIL** with explicit message that Dependency Graph is not enabled/supported on this repository; no vulnerability finding was reported. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38259249063)
 - The latest recovery checkpoint commit now records these exact-head results. They apply to ADR head `c0efe4f...`; they do not transfer to a later ADR commit.
+
+
+## 20. SEQ 21 — Configured connection and caller search — 2026-10-12
+
+- Inspected main at `00648d14106de03e194c58d90790d2fe202670a4` using source files and targeted repository code search.
+- `gnosis/self_learning/partner_learning_recovery.py` exposes `recover_partner_learning(path, ...)` and calls `connect(path)`. The caller supplies the path; the helper does not locate production configuration.
+- `diagnostic_corpus/generate.py` creates a temporary `diagnostic.sqlite`; this is diagnostic output, not a production connection provider.
+- `gnosis/context/repository.py` takes a caller-owned SQLite connection but its constructor executes `CONTEXT_SCHEMA`; it is not read-only.
+- `gnosis/context/cli.py` and `gnosis/context/snapshot.py` only read repository documents and Git metadata; they do not open SQLite or load persisted Task Context/Checkpoint records.
+- Targeted inspected source/config searches did not identify a canonical production composition root, configured database path/key, or no-DDL read-only opener. This is a bounded UNKNOWN, not proof that no external deployment configuration exists.
+- ADR #171 amended at exact head `b00fcd5fd89b550ac8db73f73c72350b1b71e742`, PR remains Draft/open/unmerged: https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/171.
+- PR body updated with SEQ 21 results and next architecture gate: choose explicitly between a separately configured Task/context store and an existing application-provided connection once a real composition root is found. Then define read-only/no-file-creation/no-DDL access.
+- No runtime code, physical path, DDL, migration, or database schema changed. No implementation authorized.
+
+### SEQ 21 result / next action
+
+**Proven:** the inspected connection helper requires a supplied path for file-backed recovery; temporary DB usage is diagnostic; TaskContextRepository initialization is schema-mutating; snapshot CLI does not load persisted Task Checkpoint state.
+
+**Not proven:** configured production database path/composition root, read-only open path, durable Task Checkpoint records, acceptance producer, per-task monotonic sequence, or runtime cross-product recovery.
+
+**Next:** inspect deployment/CI workflows and any documented application entrypoints for an explicitly configured database provider. If none is evidenced, preserve UNKNOWN and request an architecture choice; do not invent a path or implement a schema.
