@@ -119,3 +119,35 @@ The source-designation task must provide evidence for all of the following befor
 8. Tests against a real persisted checkpoint and a missing-source/no-side-effect case.
 
 If any item remains unassigned, keep the snapshot's task-level state `UNKNOWN` and report the missing decision rather than guessing.
+
+
+## SEQ 19 — Source-design alternatives and bounded recommendation
+
+The related persistence model already resolves the **logical authority**: the immutable Task Checkpoint is the canonical task-continuation record; Context Snapshot is derived from it. The remaining blocker is not which concept is authoritative, but the absence of an implemented, accepted storage/read path.
+
+### Alternatives evaluated against existing contracts
+
+| Option | Fit with repository contracts | Decision |
+|---|---|---|
+| A. Add a Task-layer persistence boundary with immutable `task_checkpoints`, explicit acceptance records, and read-only lookup by `task_id` | Matches the persistence model's additive Task layer and immutable checkpoint contract without introducing a second Core State model | **Preferred architecture direction; not yet approved as a concrete storage implementation** |
+| B. Treat `TaskContextRepository` / `task_contexts` as the checkpoint source | Repository supports mutable revisioned updates and initializes its schema in the constructor; no accepted immutable checkpoint record or monotonic checkpoint sequence was evidenced | **Rejected as the canonical checkpoint source** |
+| C. Reuse Core state/transition tables as task checkpoints | Persistence model explicitly separates user/task entities from Core state and prohibits a second/reinterpreted State model; no contract establishes Core transitions as task checkpoint acceptance | **Rejected absent a separate architecture decision** |
+| D. Infer the source from a database file, status document, chat history, or arbitrary existing persistence | No stable source designation or acceptance authority; risks selecting stale or non-authoritative state | **Rejected** |
+
+### Recommended next bounded decision
+
+Accept Option A only at the **logical architecture level**: task checkpoints belong to an additive Task persistence boundary, are immutable after publication, have a monotonic per-task sequence, and carry explicit acceptance evidence. Do not yet prescribe a database path, DDL, migration, repository API, or constructor lifecycle.
+
+Before runtime implementation, a separate task must inspect the repository's existing Persistence configuration and lifecycle and propose the narrowest compatible location for this Task-layer boundary. It must state whether the Task layer can extend an existing configured persistence backend without creating an independent Core State store. That proposal must include migration/compatibility and read-only recovery implications and must be explicitly accepted before code changes.
+
+### Exit criteria for this architecture blocker
+
+- [x] Logical authority identified from existing persistence/snapshot contracts: immutable Task Checkpoint.
+- [x] Mutable `TaskContextRepository` shortcut ruled out.
+- [x] Core-state reinterpretation and guessed-source discovery ruled out.
+- [ ] Concrete persistence boundary and lifecycle evidenced in repository.
+- [ ] Acceptance-record producer and monotonic sequence semantics tied to a concrete source.
+- [ ] Explicit architecture approval recorded.
+- [ ] Separate implementation task authorized.
+
+**SEQ 19 result:** architecture options narrowed; implementation remains blocked. No runtime or CI claim is implied by this documentation update.
