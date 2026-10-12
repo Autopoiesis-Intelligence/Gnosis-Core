@@ -194,3 +194,36 @@ Before runtime implementation, a separate task must inspect the repository's exi
 - [ ] Architecture proposal explicitly accepted; runtime implementation authorized.
 
 **Status:** architecture recommendation only. No runtime code, schema, database path, or migration was changed by this sequence.
+
+
+## SEQ 21 — Configured connection and caller search
+
+**Inspection baseline:** `main@00648d14106de03e194c58d90790d2fe202670a4`. This is source inspection only; it does not authorize runtime changes.
+
+### Callers and lifecycle found
+
+- `gnosis/self_learning/partner_learning_recovery.py` defines `recover_partner_learning(path, ...)` and calls `connect(path)`. The path is supplied by its caller; this function does not resolve a configured/default production path.
+- The other source-level `connect()` usage surfaced by the targeted repository search is diagnostic corpus generation, where a temporary `diagnostic.sqlite` is created. This is explicitly a disposable test/diagnostic artifact, not a production path.
+- `gnosis/context/repository.py` accepts a caller-owned SQLite connection, but `TaskContextRepository.__init__()` runs `executescript(CONTEXT_SCHEMA)`; its API is not read-only. Its tests open either the default in-memory DB or a temporary test DB.
+- `gnosis/context/cli.py` / `gnosis/context/snapshot.py` read repository files and Git metadata only. The snapshot CLI does not open SQLite or load persisted Task Context/Checkpoint records.
+- Targeted code search found no evidence at the inspected baseline of a canonical application composition root, environment/config key for a production database path, or a no-DDL read-only database opener. Absence here is bounded to the searched source/config paths; do not generalize it into proof that no deployment-specific external configuration exists.
+
+### SEQ 21 decision
+
+1. **Configured connection provider: UNKNOWN / not located in inspected source.** Do not infer one from test paths or from the path parameter of a recovery helper.
+2. **Existing connection reuse: technically compatible as a repository shape, but not sufficient.** Existing repositories accept `sqlite3.Connection`; the context repository initializes a mutable schema, and `connect()` runs DDL/migration/Reflection initialization.
+3. **No safe read-only recovery path is currently evidenced.** Do not call either existing schema-initializing entry point from the snapshot CLI.
+4. **Concrete storage design remains blocked.** Keep the logical Task Checkpoint authority and additive Task-layer direction, but do not choose a physical DB path, add a table, change `SCHEMA_VERSION`, or write runtime code.
+5. **Next architecture decision needed:** explicitly choose whether the first product checkpoint store is (A) a new, independently configured Task/context store with its own documented lifecycle, or (B) a Task-layer extension of an existing application-provided connection once a real composition root is identified. The current source does not prove which deployment model exists, so this is a decision request, not an implementation instruction.
+
+### SEQ 21 result
+
+- [x] Recovery helper and caller-supplied path behavior inspected.
+- [x] Diagnostic-only temporary database usage distinguished from production configuration.
+- [x] Existing context repository's schema-mutating constructor confirmed.
+- [x] Snapshot CLI confirmed not to load persisted task/checkpoint data.
+- [ ] Canonical production composition root/configured DB path identified.
+- [ ] Read-only, no-file-creation/no-DDL database access established.
+- [ ] Concrete storage option explicitly accepted.
+
+**Status:** source/configuration discovery reached a bounded UNKNOWN. Stop before runtime or schema edits until a concrete source or explicit architecture choice exists.
