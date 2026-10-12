@@ -331,3 +331,24 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 - Dependency Review run ID `38258584609`: **FAIL** because Dependency Graph is disabled/unavailable; no vulnerability finding was reported.
 - This is exact-head evidence for `0a4b00a...`; it does not prove no regression relative to base. No runtime files changed in the ADR commit, but no controlled base-vs-PR test comparison has been completed.
 - Recovery checkpoint update commit: `13d7464e66b508379940a55bb3d35c5cf8172b79` on branch `recovery/working-state-2026-10-12` (PR #169). This records source-option narrowing and the exact-head check state.
+
+
+## 19. SEQ 20 — Existing Persistence lifecycle inspection — 2026-10-12
+
+- Inspected current main at exact baseline `00648d14106de03e194c58d90790d2fe202670a4`: `gnosis/storage/database.py`, `gnosis/storage/repositories.py`, `gnosis/storage/__init__.py`, `tests/test_persistence.py`, `docs/architecture/PERSISTENCE_ADR.md`, `docs/TASK_PROPOSAL_PERSISTENCE_MODEL.md`, and `docs/PHASE_LEDGER.md`.
+- `gnosis/storage/database.py` exposes stdlib SQLite `connect(path=":memory:")`, `transaction(conn)`, and `close(conn)`; sets foreign keys and a 5000 ms busy timeout. Schema version is 5.
+- `connect()` is not read-only: it may update schema metadata for supported v3/v4 databases, execute schema DDL, insert schema metadata, and initialize Reflection schema. It must not be used as a read-only context-recovery path without a separate safe access design.
+- The existing schema includes Core `states`, `instances`, `transitions`, `evolution_memory`, and `audit_events`. Core audit sequence is database-wide and does not establish a per-task checkpoint sequence or acceptance record.
+- Existing repositories accept a caller-supplied connection, but inspected evidence did not establish the real production/configured connection provider or physical database path. The `:memory:` default is not evidence of production configuration.
+- Updated proposed ADR #171 with SEQ 20 evidence and the narrow direction: additive Task-layer repository may eventually share an explicitly configured persistence connection, but only after identifying the composition root, migration compatibility, and a read-only no-initialization access path. No runtime code, schema, database path, or migration changed.
+- Exact new ADR head: `c0efe4fb69f7bf9f3f6bd0b60206095c032924a2`. PR #171 remains Draft/open/unmerged. PR body updated to reflect the new head and the evidence limits.
+- Prior-head checks are not transferable to this new head. Exact-head CI, CodeQL, Import Graph, and Dependency Review must be rechecked; no controlled base-vs-PR test comparison exists.
+- Updated this recovery checkpoint as a docs-only record. No runtime behavior or product acceptance is claimed.
+
+### SEQ 20 result / next permitted action
+
+**Proven by source inspection:** existing SQLite persistence boundary and its schema-init/migration side effects; no proof of a configured production DB path or read-only recovery connection.
+
+**Not proven:** concrete Task Checkpoint storage, per-task monotonic sequence, acceptance-record producer, production composition root, read-only open path, runtime recovery, or full CI pass.
+
+**Next:** identify actual callers/configuration that supply `gnosis.storage.connect()` and establish whether an existing connection can be acquired without schema initialization. If the composition root/path is still absent, record that absence as UNKNOWN and stop before schema/runtime edits. Explicit architecture approval remains required.
