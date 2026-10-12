@@ -1,9 +1,12 @@
 {
   "schema": "gnozis-project-state/v1",
-  "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
+  "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "canonical_branch": "main",
-  "canonical_head": "7d40a9c91fd2e69736305141a71b62aeebb99461",
+  "canonical_head": "0daf9cfdfac673972796066ca809f38f204c1a16",
   "context_sources": [
+    "docs/PHASE_LEDGER.md",
+    "docs/PROJECT_STATE.json",
+    "docs/recovery/CONTINUATION_RECONCILIATION_2026-10-12.md",
     "AI_CONTEXT.md",
     "STATUS.md",
     "docs/AI_HANDOFF_PROTOCOL.md",
@@ -43,7 +46,7 @@
     "name": "context-continuity architecture",
     "status": "DOCUMENTATION_AND_ARCHITECTURE",
     "primary_implementer": "ChatGPT",
-    "independent_reviewer": "Manus when available",
+    "independent_reviewer": "NOT_ASSIGNED; ChatGPT may review under owner direction, but this is not independent verification",
     "integration_gate": "ChatGPT under human owner authorization",
     "allowed_scope": [
       "context recovery contracts",
@@ -62,7 +65,7 @@
       "autonomous self-modification"
     ]
   },
-  "next_permitted_action": "Independent read-only audit of the context-continuity documentation/state layer, then proceed to the already approved Memory corrective pass.",
+  "next_permitted_action": "Finish documentation-only reconciliation of canonical repository identity, handoff pointers, current-head staleness, and phase/status authority. Then re-check exact-head CI and select the next task allowed by docs/PHASE_LEDGER.md. Memory corrective implementation remains forbidden until the active phase is formally changed.",
   "evidence_rule": "Current repository source and reproducible tests outrank AI reports or conversation history.",
-  "staleness_rule": "This file records a pinned snapshot. A new session must verify canonical_head against the live repository before relying on it."
+  "staleness_rule": "canonical_head is the exact main HEAD observed when this file was updated, not a live pointer. Re-fetch main and compare this value at every new session; if different, report the delta and update the snapshot only after reconciliation."
 }
