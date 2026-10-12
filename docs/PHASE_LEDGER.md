@@ -15,7 +15,7 @@ Build the durable project-context layer that allows a newly connected AI product
 
 **Primary implementer:** ChatGPT
 
-**Independent reviewer:** Manus when available
+**Independent reviewer:** NOT ASSIGNED. ChatGPT may perform a bounded review under owner direction, but that is not independent verification.
 
 **Integration gate:** ChatGPT under explicit human project-owner authorization
 
