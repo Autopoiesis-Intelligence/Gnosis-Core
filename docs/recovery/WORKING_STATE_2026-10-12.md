@@ -118,3 +118,32 @@ Current `docs/PHASE_LEDGER.md` says the active phase is `CONTEXT-CONTINUITY ARCH
 3. Enable GitHub Dependency Graph in repository settings if permitted; rerun Dependency Review and record the exact run.
 4. Only then continue the context recovery MVP within its approved scope, or formally authorize the E8.180/E8.181 authorization track.
 5. Production trust composition remains BLOCKED until an actual protected composition root and independent sources are found or implemented and tested.
+
+
+## 8. Context-recovery MVP contract review — 2026-10-12
+
+Reviewed the actual PR #168 branch files `gnosis/context/snapshot.py`, `tests/test_context_snapshot.py`, `docs/product/PRODUCT_MVP_CONTEXT_RECOVERY.md`, and `docs/architecture/ADR-001-CORE-PRODUCT-BOUNDARY.md`.
+
+### What is implemented in the inspected branch
+
+- The snapshot is read-only at source level: it reads three documents, obtains Git metadata through subprocess calls, and does not initialize Core storage.
+- It separates claims from status/source fields and returns UNKNOWN for unstructured active task, implementation, verification, acceptance, and findings.
+- It detects repository-identity conflicts between the Git remote and repository labels in canonical documents rather than silently choosing one.
+- Raw source documents are opt-in.
+- The product MVP document defines acceptance criteria and explicitly states that product acceptance remains pending.
+
+### Concrete test-quality gap
+
+In `tests/test_context_snapshot.py`, `test_snapshot_is_compact_and_claims_have_source_references` uses `assert snapshot["head"] != "UNKNOWN"`. But `head` is a dictionary claim object, so this assertion passes even when its value is UNKNOWN. It should assert `snapshot["head"]["value"] != "UNKNOWN"` (and ideally validate a full SHA shape). This is a real test weakness, not proof the implementation is wrong.
+
+### Acceptance gaps remain
+
+- The implementation intentionally returns UNKNOWN for active task and open findings because no accepted structured source exists. Therefore the MVP does not yet deliver the full six-question handoff; it delivers repository/phase metadata and explicit unknowns.
+- The branch's context recovery tests and authorization integration are bundled in PR #168. Since the current phase ledger explicitly excludes authorization implementation, future work should isolate context-recovery scope from the E8 authorization stack rather than treating the whole PR as one approved unit.
+- The main-branch `AI_CONTEXT.md` contains a stale repository identifier. Given the conflict-detection rule, a real run may correctly report repository identity as CONFLICT/UNKNOWN until canonical handoff documents are corrected. This is desirable fail-safe behavior, but the conflict must be resolved in canonical documentation before claiming a clean recovery UX.
+- The real-checkout test currently checks JSON schema version and HEAD shape, but does not assert repository conflict behavior, read-only Git status, or absence of database side effects on the real checkout. Fixture coverage does check status and database absence; keep the distinction clear.
+- Passing CI at a historical code-test SHA cannot be attributed to later branch heads or establish acceptance of the bundled PR.
+
+### Safe next action within the current phase
+
+Do not merge or rebase the authorization stack yet. The smallest useful implementation task is to separate the context-recovery MVP into a branch based on current main, strengthen the false-positive HEAD assertion, and add a contract test for stale repository identity/conflict output. First verify the current main SHA and ensure the isolated patch touches only the context CLI/snapshot/tests and narrowly scoped docs. Run focused tests and CI on the exact resulting SHA; keep MVP acceptance pending until the documented acceptance criteria are satisfied.
