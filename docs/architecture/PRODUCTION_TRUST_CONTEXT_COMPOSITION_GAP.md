@@ -75,3 +75,19 @@ At this exact tree, the only obvious Python entrypoint candidates are `gnosis/co
 
 This narrows the repository-local search but does not prove that an external deployment/composition layer does not exist. Do not manufacture trust configuration or claim production integration. The next implementation step is to identify the intended deployable application boundary (or explicitly define that Gnosis-Core currently has no production execution service) before adding a provider.
 
+## Follow-up: CI on the updated PR head — 2026-10-12
+
+Exact PR head: `2391ab9e5b59d8096e9b1aa952437868d38e745d`.
+PR #168 remains OPEN / Draft; base remains `381afa025a403a81f32eed4bfa2c44ce01a95540`.
+CI run: [38212892233](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38212892233).
+
+- Python 3.12: **959 passed, 27 failed, 18 warnings**.
+- Python 3.11: cancelled; no result for this head.
+- Import Graph: PASS.
+- CodeQL: PASS.
+- Dependency Review: FAIL, separate repository Dependency Graph/configuration issue.
+
+The failed test names continue to cover four adapter calls that omit the newly required signed authorization/trust context, endogenous proposal/memory integration, persistence/recovery API drift, and reflection-gate authorization arguments. The four adapter tests are contract-conflicting legacy tests: the adapter now intentionally rejects unsigned calls. Do not weaken the fail-closed adapter to satisfy them. Instead, migrate those tests to assert denial without credentials, and retain authorized-path coverage using the signed integration fixtures. This migration must preserve the original candidate-substitution and canonical-head-advance assertions on an authorized request; simply replacing their assertions with a generic denial would reduce coverage.
+
+The latest head therefore remains **CI FAIL / production integration NOT PROVEN**. The source-level entrypoint search does not establish whether the intended product includes a deployable execution service; resolve that product boundary before wiring a trust provider.
+
