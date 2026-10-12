@@ -100,6 +100,7 @@ def make_context(signing_key: SigningKey, *, policy: str = POLICY, clock= lambda
         authority_scope=SCOPE,
         policy_version=policy,
         trusted_clock=clock,
+        validity_evidence_digest_resolver=lambda authorization_id: "legacy-evidence",
     )
 
 
@@ -313,3 +314,30 @@ def test_real_authorized_commit_rolls_back_nonce_when_persistence_fails(sqlite_c
         (record.transition_id,),
     ).fetchone() is None
     assert load_instance(sqlite_conn, instance.instance_id).engine.state.state_id == persisted_state_before
+
+
+def test_validity_evidence_must_match_independent_trusted_digest():
+    signing_key = SigningKey.generate()
+    authorization = signed_authorization(signing_key)
+    request = make_request(authorization)
+    request.authorization_validity = AuthorizationValidity(
+        authorization_id=authorization.authorization_id,
+        policy_version=POLICY,
+        validity_evidence_digest="forged-evidence",
+    )
+    with pytest.raises(PermissionError, match="validity evidence mismatch"):
+        make_context(signing_key).verify_commit(authorization, request)
+
+
+def test_missing_trusted_validity_evidence_fails_closed():
+    signing_key = SigningKey.generate()
+    authorization = signed_authorization(signing_key)
+    context = ProductionTrustContext(
+        issuer_key_resolver=make_context(signing_key).issuer_key_resolver,
+        authority_scope=SCOPE,
+        policy_version=POLICY,
+        trusted_clock=lambda: NOW,
+        validity_evidence_digest_resolver=lambda authorization_id: None,
+    )
+    with pytest.raises(PermissionError, match="trusted authorization validity evidence is missing"):
+        context.verify_commit(authorization, make_request(authorization))
