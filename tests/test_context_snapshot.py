@@ -107,3 +107,25 @@ def test_cli_emits_valid_json_and_does_not_create_database(tmp_path):
     assert parsed["head"]["status"] == "OBSERVED"
     assert not db.exists()
     assert not list(root.glob("*.db"))
+
+
+def test_cli_runs_against_real_repository_checkout():
+    repository_root = Path(__file__).resolve().parents[1]
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "gnosis.context.cli",
+            "--root",
+            str(repository_root),
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    parsed = json.loads(result.stdout)
+    assert parsed["schema_version"] == 1
+    assert parsed["head"]["status"] == "OBSERVED"
+    assert len(parsed["head"]["value"]) == 40
+    assert "source_documents" not in parsed
