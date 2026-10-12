@@ -79,3 +79,42 @@ DESIGN → IMPLEMENTED → REACHABLE → RUNTIME → PERSISTED → AUDITED → C
 Selection is not verification; authorization binding is not authority provenance; persistence is not execution proof; structural replay is not event authenticity; synthetic PASS is not runtime evidence; green CI is not production acceptance.
 
 A chat transfer is a recovery aid, not proof. If this document conflicts with live repository refs, source, CI, or runtime evidence, reconcile it and update the checkpoint.
+
+
+## 7. Follow-up investigation — 2026-10-12 (after initial checkpoint)
+
+### Dependency Review failure: exact cause now verified
+
+Fetched job log for workflow run ID `38248625769`, job ID `114808802326`. The action exits with:
+`Dependency review is not supported on this repository. Please ensure that Dependency graph is enabled`.
+
+Therefore this run does **not** report a high-severity dependency finding. It is a repository capability/configuration failure: GitHub's Dependency Graph is disabled or unavailable. The workflow file `.github/workflows/dependency-review.yml` uses `actions/dependency-review-action@v5` with `fail-on-severity: high`. Keep the security gate; the proper next action is to enable Dependency Graph in repository Settings → Security (if authorized/available), then rerun. Do not silently disable the check or lower its severity.
+
+### Current main source: authorization boundary still not integrated
+
+Fetched current-main files at observed HEAD `00648d14106de03e194c58d90790d2fe202670a4`:
+- `gnosis/reflection/execution_adapter.py` calls `require_trusted_execution(request, conn=conn, actor=actor)` without a production trust context.
+- `gnosis/reflection/trusted_execution_gate.py` obtains `expected_policy_version` and `expected_evidence_digest` from the same `AuthorizationValidity` object it validates. This is not an independent trust source.
+- `gnosis/reflection/owner_authorization.py` is absent on current main (GitHub contents API returned NOT_FOUND).
+- `gnosis/context/cli.py` on main is the old compact JSON emitter without the opt-in source-document flag from PR #168.
+This independently confirms the E8.180/E8.181 work is not integrated into current main.
+
+### Branch relationship is explicitly diverged
+
+GitHub compare endpoint:
+- `main` vs `e8-180-signed-owner-commit-boundary`: status `diverged`, branch is 6 commits ahead and 3 behind; merge base `838f3f2b3405fb5f43fe85f7316c68f5a53ac1e1`. Four files changed by the PR #167 head.
+- `e8-181-production-trust-context` is 68 commits ahead of its PR #167 base branch ref `381afa025a403a81f32eed4bfa2c44ce01a95540`, with no behind commits relative to that base. This is a stacked branch, not a standalone change against current main.
+- PR #167 remains Draft/open and is not merge-ready until base divergence is reconciled.
+- PR #168 remains Draft/open and must be reviewed as a dependent stack. Do not merge it independently or assume its passing tests mean the feature is live on main.
+
+### Governance/phase-ledger conflict
+
+Current `docs/PHASE_LEDGER.md` says the active phase is `CONTEXT-CONTINUITY ARCHITECTURE` and explicitly forbids identity/authentication/authorization implementation, while open PRs #167/#168 implement owner authorization and execution-gate integration. This is a scope-governance conflict, not a code defect to resolve by inference. Before further auth-code changes, the project owner/authorized integration gate must explicitly reconcile the phase scope in durable project docs. Do not treat broad chat permission as silently superseding the repository's phase ledger.
+
+### Revised next actions
+
+1. Decide/reconcile the phase-ledger scope conflict in durable project state before more authorization implementation.
+2. Refresh main and PR refs; inspect full commit/file diffs and merge bases, then plan a safe stack rebase/update. Do not force-update either branch without a verified plan.
+3. Enable GitHub Dependency Graph in repository settings if permitted; rerun Dependency Review and record the exact run.
+4. Only then continue the context recovery MVP within its approved scope, or formally authorize the E8.180/E8.181 authorization track.
+5. Production trust composition remains BLOCKED until an actual protected composition root and independent sources are found or implemented and tested.
