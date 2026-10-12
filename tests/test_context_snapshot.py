@@ -88,7 +88,10 @@ def test_raw_documents_are_opt_in(tmp_path):
 
 def test_cli_emits_valid_json_and_does_not_create_database(tmp_path):
     root = make_checkout(tmp_path / "repo")
-    status_before = subprocess.check_output(\n        ["git", "-C", str(root), "status", "--porcelain"], text=True\n    )\n    result = subprocess.run(
+    status_before = subprocess.check_output(
+        ["git", "-C", str(root), "status", "--porcelain"], text=True
+    )
+    result = subprocess.run(
         [
             sys.executable,
             "-m",
@@ -104,7 +107,11 @@ def test_cli_emits_valid_json_and_does_not_create_database(tmp_path):
     parsed = json.loads(result.stdout)
     assert parsed["schema_version"] == 1
     assert parsed["head"]["status"] == "OBSERVED"
-    status_after = subprocess.check_output(\n        ["git", "-C", str(root), "status", "--porcelain"], text=True\n    )\n    assert status_after == status_before == ""\n    assert not list(root.rglob("*.db"))
+    status_after = subprocess.check_output(
+        ["git", "-C", str(root), "status", "--porcelain"], text=True
+    )
+    assert status_after == status_before == ""
+    assert not list(root.rglob("*.db"))
 
 
 def test_cli_runs_against_real_repository_checkout():
