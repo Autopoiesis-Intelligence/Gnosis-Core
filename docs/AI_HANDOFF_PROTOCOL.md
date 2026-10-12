@@ -8,34 +8,41 @@ The repository is the durable project state. An AI session is replaceable.
 
 ## Canonical entry point
 
-A newly connected AI must treat these files as the minimum recovery set:
+A newly connected AI must use this minimum recovery set, in order:
 
-1. `AI_CONTEXT.md` — operational architecture and current phase context.
-2. `STATUS.md` — implementation/verification status matrix.
-3. `docs/AI_HANDOFF_PROTOCOL.md` — this continuation protocol.
-4. `docs/MULTI_AGENT_BUILD_STRATEGY.md` — governance and evidence model.
-5. `AGENT_ROLES.md` — role and authority boundaries.
+1. `docs/PROJECT_STATE.json` — machine-readable state snapshot, scope and staleness rule.
+2. `docs/PHASE_LEDGER.md` — active phase, allowed/forbidden scope and transition rules.
+3. `AI_CONTEXT.md` — operational architecture and research context.
+4. `STATUS.md` — legacy status snapshot; historical claims are not current evidence.
+5. `docs/AI_HANDOFF_PROTOCOL.md` — this continuation protocol.
 
-After these, read only the specifications, source files and tests relevant to the assigned task.
+Then fetch the live `main` HEAD and compare it with `docs/PROJECT_STATE.json::canonical_head`. Read `docs/MULTI_AGENT_BUILD_STRATEGY.md` and `AGENT_ROLES.md` as supporting governance context only; reconcile their role/tool assumptions against the active phase and current owner instructions. They do not override the phase ledger.
 
 ## Recovery sequence
 
 ```text
-READ AI_CONTEXT
+READ PROJECT_STATE + PHASE_LEDGER
     ↓
-READ STATUS
+READ AI_CONTEXT + STATUS + HANDOFF PROTOCOL
     ↓
-READ HANDOFF PROTOCOL + GOVERNANCE
+FETCH LIVE MAIN HEAD AND RECORD EXACT SHA
     ↓
-READ CURRENT HEAD
+COMPARE LIVE SHA WITH PROJECT_STATE.canonical_head
     ↓
-IDENTIFY ACTIVE PHASE
+IF STALE OR CONFLICTING: REPORT RECONCILIATION REQUIRED
     ↓
-READ RELEVANT SOURCE / TESTS / CONTRACTS
+IDENTIFY ACTIVE PHASE / ALLOWED AND FORBIDDEN SCOPE
     ↓
-REPORT BASELINE + EVIDENCE
+INSPECT EXACT-HEAD CI AND RELEVANT EVIDENCE
     ↓
-WAIT FOR OR EXECUTE ONLY THE EXPLICIT TASK
+REPORT BASELINE + OPEN FINDINGS
+    ↓
+EXECUTE ONLY AN EXPLICIT TASK PERMITTED BY THE ACTIVE PHASE
+```
+
+A pinned `canonical_head` is a dated snapshot, not a live pointer. A SHA mismatch requires an explicit delta report; it does not authorize automatically rewriting the snapshot or changing scope.
+
+A `next_permitted_action` string cannot override `forbidden_scope`. Starting work forbidden by the active phase requires a durable formal phase transition and explicit human owner authorization. Connector access and a prior AI statement are not architectural authority.
 ```
 
 ## Mandatory session report
@@ -202,4 +209,4 @@ The preferred evidence order is:
 
 A new AI can be attached with the following operational instruction:
 
-> Read `AI_CONTEXT.md`, `STATUS.md`, `docs/AI_HANDOFF_PROTOCOL.md`, `docs/MULTI_AGENT_BUILD_STRATEGY.md`, and `AGENT_ROLES.md`. Determine the exact current HEAD, implementation/verification/acceptance states, active phase, allowed and forbidden scope, latest tested commit, and open findings from repository evidence. Do not infer missing state from conversation history. Report the baseline first, then wait for or execute only the explicitly assigned bounded task.
+> Read `docs/PROJECT_STATE.json` and `docs/PHASE_LEDGER.md` first, then `AI_CONTEXT.md`, `STATUS.md`, and `docs/AI_HANDOFF_PROTOCOL.md`. Fetch live `main`, record its exact SHA, and compare it with the pinned `canonical_head`. Report any mismatch as `RECONCILIATION REQUIRED`. Determine implementation/verification/acceptance states, active phase, allowed and forbidden scope, latest tested commit, and open findings from repository evidence. Do not infer authority or current state from conversation history or free-text next-action fields. Report the baseline first, then execute only an explicitly assigned task permitted by the active phase.
