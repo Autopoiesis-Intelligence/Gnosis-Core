@@ -147,3 +147,31 @@ In `tests/test_context_snapshot.py`, `test_snapshot_is_compact_and_claims_have_s
 ### Safe next action within the current phase
 
 Do not merge or rebase the authorization stack yet. The smallest useful implementation task is to separate the context-recovery MVP into a branch based on current main, strengthen the false-positive HEAD assertion, and add a contract test for stale repository identity/conflict output. First verify the current main SHA and ensure the isolated patch touches only the context CLI/snapshot/tests and narrowly scoped docs. Run focused tests and CI on the exact resulting SHA; keep MVP acceptance pending until the documented acceptance criteria are satisfied.
+
+## 9. Isolated context-recovery MVP branch — 2026-10-12
+
+### Exact refs and scope
+
+- Rechecked current main via GitHub commit search: 00648d14106de03e194c58d90790d2fe202670a4 remains the observed latest commit (chore: refresh current partner contract block, created 2026-10-12T07:22:03Z).
+- Created branch mvp/context-recovery-isolated-2026-10-12 from that exact SHA.
+- Opened Draft PR #170: https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/170
+- PR #170 base SHA: 00648d14106de03e194c58d90790d2fe202670a4.
+- Current observed PR head SHA: f5b9f14065fa712d04ba3e5c9e82613d1e8a25d2.
+- Compare main → PR #170 head: ahead by 4 commits, behind by 0; exactly three files changed: gnosis/context/cli.py, gnosis/context/snapshot.py, tests/test_context_snapshot.py.
+- No authorization files or Core execution-gate files are changed in this isolated PR.
+
+### Changes and verification state
+
+- Ported the evidence-aware schema-v1 snapshot and opt-in source-document CLI from the context recovery slice, without the authorization stack.
+- Added six focused tests for compact output/source references, stale repository identity conflict, missing sources, opt-in raw documents, CLI read-only/no-database side effects, and real-checkout execution.
+- Corrected the HEAD assertion to validate snapshot[head][value] against a 40-character hexadecimal SHA, rather than comparing the enclosing dictionary with the string UNKNOWN.
+- During authoring, a leading quote was introduced in the snapshot module docstring; it was detected by reading back the exact branch file and corrected in a follow-up commit before opening/reviewing the PR head.
+- Exact-head workflow lookup for f5b9f14065fa712d04ba3e5c9e82613d1e8a25d2 returned no workflow runs; combined commit status also returned no statuses. Therefore CI is PENDING/NOT OBSERVED, not PASS. PR #170 remains Draft and unaccepted.
+- No local pytest or runtime command was executed in this tool session. The tests are authored but not yet proven to pass.
+- PR #170 was observed mergeable after the initial creation response; this is metadata only, not approval to merge.
+
+### Remaining acceptance gaps
+
+- Active task and open findings still return UNKNOWN because no accepted structured canonical source exists. This is a deliberate fail-safe, but it means the full product recovery scenario is not yet accepted.
+- Main's stale repository identifier may correctly produce CONFLICT/UNKNOWN until canonical handoff docs are reconciled.
+- Next action: inspect the actual CI trigger/status after GitHub Actions processes PR #170; if checks start, inspect exact-head jobs/logs, fix only evidenced failures, and record the resulting exact SHA/run. Then compare the command output to all six user questions and the full product acceptance criteria.
