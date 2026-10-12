@@ -310,3 +310,14 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 - Dependency Review #1060 / run ID `38256820310`: **FAIL**. The repository's known explicit failure is that Dependency Graph is disabled/unavailable; no dependency vulnerability is reported by that configuration message.
 - CodeQL #2519 / run ID `38256820308`: still in progress at this check; recheck before reporting its conclusion.
 - The amended ADR remains documentation-only (one file changed). Prior workflow results are not transferred to the new SHA.
+
+
+### Follow-up to section 18 — SEQ 19 source-option narrowing and current exact-head checks
+
+- Read the four architecture contracts again at baseline `00648d14106de03e194c58d90790d2fe202670a4`. They already settle logical authority: immutable Task Checkpoint is the durable continuation unit; Context Snapshot is a derived read/transport model. The unresolved issue is concrete persistence boundary/lifecycle, not the logical entity.
+- Compared source alternatives in ADR `docs/architecture/ADR_CANONICAL_TASK_CHECKPOINT_RESOLUTION.md`: preferred direction is an additive Task-layer persistence boundary with immutable checkpoints and explicit acceptance evidence; mutable `TaskContextRepository`, reinterpretation of Core state, and guessed-source discovery are rejected. This is only a logical architecture recommendation, not authorization for DDL, a database path, or runtime code.
+- New ADR commit / exact PR #171 head: `0a4b00a7bc810788438bf3a46bead3e4adc9944e`. PR remains Draft and open: https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/171.
+- Updated PR body to distinguish prior-head checks from this new head. No test conclusion is transferred from `86e9012...` to `0a4b00a...`.
+- Current exact-head checks observed at 2026-10-12: Import Graph PASS; Dependency Review FAIL because repository Dependency Graph is disabled/unavailable; both Python test jobs and both CodeQL jobs were still in progress at the time of this record. Links: CI run https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584439 ; CodeQL https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584497 ; Dependency Review https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584609 ; Import Graph https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38258584518.
+- Exit criteria now explicitly separate: logical authority identified (yes); mutable shortcut rejected (yes); concrete persistence boundary/lifecycle evidenced (no); acceptance-record producer and monotonic sequence tied to concrete source (no); explicit architecture approval (no); implementation authorized (no).
+- Next permitted action: inspect existing Persistence configuration and lifecycle to prepare a narrow, evidence-backed storage-boundary proposal. Do not modify runtime/schema or select a physical path before that proposal is reviewed and explicitly accepted.
