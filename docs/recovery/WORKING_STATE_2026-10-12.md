@@ -194,3 +194,12 @@ Do not merge or rebase the authorization stack yet. The smallest useful implemen
 - Import Graph #1885, ID 38254158365: PASS. CodeQL #2503, ID 38254158303: PASS. Dependency Review #1044, ID 38254158231: FAIL because Dependency Graph is not enabled for the repository; this repeats the repository capability/configuration failure, not a vulnerability finding.
 - Focused tests have runtime evidence on the PR merge commit a96d35ade7d4475f4babbb0da7fa5041901f79e3 (the six tests all passed there); this is not a standalone exact-head test run, and the complete suite fails.
 - Next action: obtain baseline CI for exact main SHA 00648d14106de03e194c58d90790d2fe202670a4 (no run found at checkpoint time) or rerun a controlled main baseline, then compare failing test identities. Do not merge PR #170 until baseline comparison and acceptance review. Keep PR Draft.
+## 12. Controlled baseline comparison for context-recovery CI — 2026-10-12
+
+- Found a useful docs-only baseline PR #169 run: CI #3624, run ID 38254435438, merge SHA 0a5e55737a704e4dd6eeafdf7a26c7ec8b29c879 (PR #169 changes only docs/recovery/WORKING_STATE_2026-10-12.md; base is main SHA 00648d14106de03e194c58d90790d2fe202670a4).
+- Baseline run summary on Python 3.11: 33 failed, 931 passed, 18 warnings, 2 errors in 8.15s. Python 3.12 cancelled by fail-fast.
+- Compared exact failed/error test identifiers from baseline job 114828730739 with PR #170 job 114827767158. Both have 35 failure/error identifiers, and the sets are identical: no failure/error appeared only in PR #170 and none disappeared relative to the docs-only baseline.
+- PR #170 has 937 passed vs baseline's 931 passed, corresponding to the six new context-recovery tests, all of which passed.
+- This is strong controlled evidence that PR #170 introduced no additional test failures relative to the docs-only baseline on the same main SHA, but the overall suite remains failing (33 failed + 2 errors). It does not establish the underlying failures' historical origin beyond this comparison, nor does it satisfy product acceptance by itself.
+- Exact comparison refs: PR #170 merge SHA a96d35ade7d4475f4babbb0da7fa5041901f79e3; baseline PR #169 merge SHA 0a5e55737a704e4dd6eeafdf7a26c7ec8b29c879; common base main SHA 00648d14106de03e194c58d90790d2fe202670a4.
+- Next: record the no-new-failures result in PR #170, keep Draft while completing product acceptance/runtime checks, and avoid treating Dependency Review's disabled-graph error as a code vulnerability.
