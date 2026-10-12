@@ -125,3 +125,39 @@ def test_cli_runs_against_real_repository_checkout():
     assert parsed["head"]["status"] == "OBSERVED"
     assert re.fullmatch(r"[0-9a-f]{40}", parsed["head"]["value"])
     assert "source_documents" not in parsed
+
+
+def test_empty_checkout_cli_does_not_initialize_core_schema(tmp_path):
+    empty = tmp_path / "empty-checkout"
+    empty.mkdir()
+    before = sorted(path.relative_to(empty).as_posix() for path in empty.rglob("*"))
+
+    result = subprocess.run(
+        [sys.executable, "-m", "gnosis.context.cli", "--root", str(empty)],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    parsed = json.loads(result.stdout)
+    assert parsed["head"]["status"] == "UNKNOWN"
+    assert parsed["active_phase"]["status"] == "UNKNOWN"
+    after = sorted(path.relative_to(empty).as_posix() for path in empty.rglob("*"))
+    assert after == before == []
+
+
+def test_cli_rejects_unknown_options_with_usage_error(tmp_path):
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "gnosis.context.cli",
+            "--definitely-not-a-valid-option",
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 2
+    assert "usage:" in result.stderr.lower()
+    assert "unrecognized arguments" in result.stderr.lower()
