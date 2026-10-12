@@ -91,3 +91,28 @@ The failed test names continue to cover four adapter calls that omit the newly r
 
 The latest head therefore remains **CI FAIL / production integration NOT PROVEN**. The source-level entrypoint search does not establish whether the intended product includes a deployable execution service; resolve that product boundary before wiring a trust provider.
 
+
+
+## Exact-head reconciliation — 2026-10-12 (follow-up)
+
+Exact reviewed PR #168 head: `e1aefaf1f4ebeac4cfd3efef95a9308994629e1a`.
+Exact CI run: [38240574621](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38240574621), run #3607.
+PR base SHA remains `381afa025a403a81f32eed4bfa2c44ce01a95540`.
+
+- Python 3.11: **986 passed, 18 warnings**; job PASS.
+- Python 3.12: **986 passed, 18 warnings**; job PASS.
+- Import Graph: PASS.
+- CodeQL: PASS.
+- Dependency Review: FAIL. Repository Dependency Graph/configuration is the known issue; this result alone does not establish a vulnerable dependency.
+- The passing full-suite result supersedes the earlier exact-head notes above that reported 27 failing tests for older SHAs. Those historical counts remain valid only for their named commits.
+- No new base-versus-head test-name comparison was performed for this exact SHA; do not reuse the older comparison as if it were current.
+
+The passing CI closes the current full-suite test blocker for this exact head, but it does **not** close the production trust-composition finding. The repository-local source review still has not identified a deployable production execution entry point that provisions issuer keys/key status, policy/scope, trusted time, and the independent validity-evidence digest resolver. The current package README describes an engineering foundation; the obvious Python entrypoints remain read-only context recovery and read-only reflection.
+
+Next acceptance action: define the intended product boundary explicitly. If this repository is currently a library/foundation rather than a deployable execution service, record that boundary and implement trusted dependency provisioning only in the future application/composition layer. If a deployable service already exists outside this repository, identify its actual source and deployment boundary before wiring the provider. Do not hard-code trust roots or expose trust-context construction to request-controlled inputs.
+
+Updated acceptance status:
+- Exact-head full CI: **PASS**.
+- Production trust dependency provisioning: **UNRESOLVED**.
+- Production composition-root integration: **NOT PROVEN**.
+- End-to-end production execution acceptance: **BLOCKED**.
