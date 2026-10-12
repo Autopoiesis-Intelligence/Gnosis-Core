@@ -185,3 +185,12 @@ Do not merge or rebase the authorization stack yet. The smallest useful implemen
 - Removed the stray trailing quote in a follow-up commit. New PR head is 95f9d62b5e8301c1814089a312577bf2ce22fc4c. Exact file was read back after the correction.
 - At the time of this checkpoint update, workflow lookup for the corrected head returned no runs yet. Corrected-head CI remains NOT OBSERVED/PENDING; do not infer success from the correction.
 - PR #170 remains Draft. Do not merge until the corrected exact head has completed tests and import-graph checks, and focused test/runtime evidence has been reviewed.
+## 11. Corrected-head CI result — 2026-10-12
+
+- Exact PR head: 95f9d62b5e8301c1814089a312577bf2ce22fc4c; merge-test SHA: a96d35ade7d4475f4babbb0da7fa5041901f79e3.
+- CI run #3622, ID 38254158297: FAIL. Python 3.11 summary: 33 failed, 937 passed, 18 warnings, 2 errors in 8.72s. Python 3.12 job was cancelled by fail-fast after the 3.11 failure; do not report a full dual-version result.
+- All six new tests in tests/test_context_snapshot.py passed in the Python 3.11 job: compact/source references; stale repository identity conflict; missing metadata/documents; raw documents opt-in; CLI JSON/no DB or Git-status side effects; real checkout CLI.
+- The 33 failures and 2 errors are in existing authority-boundary, endogenous-generation/runtime, memory-evidence, persistence, reflection-gate, and self-learning execution tests. The PR diff contains only gnosis/context/cli.py, gnosis/context/snapshot.py, and tests/test_context_snapshot.py. However, no exact-main baseline CI was available, so classify these as unrelated-to-changed-files by location, but NOT PROVEN baseline failures. Do not claim the branch has a clean suite.
+- Import Graph #1885, ID 38254158365: PASS. CodeQL #2503, ID 38254158303: PASS. Dependency Review #1044, ID 38254158231: FAIL because Dependency Graph is not enabled for the repository; this repeats the repository capability/configuration failure, not a vulnerability finding.
+- Focused tests have runtime evidence on the PR merge commit a96d35ade7d4475f4babbb0da7fa5041901f79e3 (the six tests all passed there); this is not a standalone exact-head test run, and the complete suite fails.
+- Next action: obtain baseline CI for exact main SHA 00648d14106de03e194c58d90790d2fe202670a4 (no run found at checkpoint time) or rerun a controlled main baseline, then compare failing test identities. Do not merge PR #170 until baseline comparison and acceptance review. Keep PR Draft.
