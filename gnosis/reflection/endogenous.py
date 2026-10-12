@@ -155,7 +155,7 @@ def commit_endogenous_candidates(
             and relation.target in proposals
         )
         if len(proposal_relations) != 1:
-            raise ValueError("endogenous candidate must bind exactly one supplied reflection proposal")
+            raise ValueError("endogenous candidate is not bound to exactly one supplied reflection proposal")
         proposal = proposals[proposal_relations[0].target]
         if not candidate_binds_proposal(candidate, proposal):
             raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
