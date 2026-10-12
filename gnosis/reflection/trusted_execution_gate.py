@@ -17,6 +17,7 @@ def require_trusted_execution(
     conn: object,
     actor: str,
     expected_policy_version: str,
+    expected_evidence_digest: str,
 ) -> None:
     """Validate authorization against policy supplied by an independent trust boundary.
 
@@ -26,6 +27,8 @@ def require_trusted_execution(
     """
     if not expected_policy_version:
         raise PermissionError("trusted expected policy version is required")
+    if not expected_evidence_digest:
+        raise PermissionError("trusted expected validity evidence digest is required")
     validity = request.authorization_validity
     if not isinstance(validity, AuthorizationValidity):
         raise PermissionError("authorization validity is required")
@@ -33,7 +36,7 @@ def require_trusted_execution(
         raise PermissionError("authorization validity identity mismatch")
     validity.require_valid(
         expected_policy_version=expected_policy_version,
-        expected_evidence_digest=validity.validity_evidence_digest,
+        expected_evidence_digest=expected_evidence_digest,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(
