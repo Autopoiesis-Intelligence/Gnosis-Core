@@ -29,6 +29,7 @@ def test_federation_e2e_reaches_trusted_gate(sqlite_conn):
             conn=sqlite_conn,
             actor="trusted-owner",
             expected_policy_version="policy-1",
+            expected_evidence_digest="ev-1",
         )
     row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-e2e",)).fetchone()
     assert row is None
