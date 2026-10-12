@@ -1,3 +1,5 @@
+> **Legacy status snapshot — not the canonical live project state.** This file contains historical repository names and dated claims. Canonical repository: `Autopoiesis-Intelligence/Gnosis-Core`; current phase and scope: [`docs/PHASE_LEDGER.md`](docs/PHASE_LEDGER.md); machine-readable pinned snapshot: [`docs/PROJECT_STATE.json`](docs/PROJECT_STATE.json); reconciliation notes: [`docs/recovery/CONTINUATION_RECONCILIATION_2026-10-12.md`](docs/recovery/CONTINUATION_RECONCILIATION_2026-10-12.md). Re-check live `main` HEAD and CI before relying on any status claim below.
+
 ## Repository role
 
 **GENESIS / GENEZIS = protected engineering foundation + Module Factory.**
