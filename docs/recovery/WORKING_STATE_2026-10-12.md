@@ -266,3 +266,7 @@ Repository inspection reconfirmed:
 ### Decision / next permitted action
 
 Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path. The next implementation task should first be a bounded, phase-permitted canonical checkpoint source decision: define how a latest *accepted, immutable* TaskCheckpoint is identified and read, with source path/repository and freshness/provenance rules; then wire the snapshot as a read model. No authorization/Core/Memory implementation is authorized by this step.
+
+### Follow-up to section 17 — CodeQL completion
+
+- Rechecked exact head `543abb2b8947d1b36521e63ac37107a2fddb9cb4`: CodeQL #2513, run ID `38255939723`, completed **PASS**. This supersedes the earlier “in progress” note above. Exact-head status: CI FAIL (Python 3.12 observed; Python 3.11 cancelled), CodeQL PASS, Import Graph PASS, Dependency Review FAIL due repository Dependency Graph capability/configuration.
