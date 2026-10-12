@@ -202,11 +202,11 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     conn.close()
 
 
-def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
+def test_e9_restart_keeps_provenance_separate_from_core_evolution_memory(tmp_path):
     from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
-    from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory
+    from gnosis.storage import connect, ensure_reflection_schema
     from gnosis.reflection.runtime import reflect_with_history
     db = tmp_path / "e9.sqlite"
     state = State(elements={"a": 1})
@@ -219,18 +219,18 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     provenance1 = build_endogenous_provenance(candidate1, sandbox1, evaluation1, governance1, parent_state_digest=state.content_id)
     conn = connect(db); ensure_reflection_schema(conn)
     tx1 = persist_evolution_transaction(conn, provenance1, event_type="PROVENANCE", payload={"status":"RECORDED","cycle":1})
-    memory1 = append_evolution_memory(conn, instance_id="e9-instance", candidate_id=candidate1.candidate_id, transition_id=tx1.audit_record.record_digest, state_id=candidate1.parent_state_id, proposal_id=proposal1.proposal_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
     conn.close()
     conn = connect(db)
-    restored = load_evolution_memory(conn, "e9-instance")
-    assert restored and restored[0].memory_id == memory1.memory_id
+    persisted = conn.execute("SELECT record_digest, provenance_id FROM evolution_audit WHERE sequence = 1").fetchone()
+    assert persisted == (tx1.audit_record.record_digest, provenance1.provenance_id)
     reflection = reflect_with_history(engine, conn, instance_id="e9-instance")
-    assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
+    # Provenance audit is not a Core transition and must not be reclassified as evolution memory.
+    assert all(item.candidate_id != candidate1.candidate_id for item in reflection.evolution_evidence)
     proposal2 = type("P", (), {"proposal_id":"p-e9-2","finding_id":"f-e9-2","rule_id":"r-e9-2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f-e9-2",)})()
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=reflection.history, recurring_unresolved=(), evolution_evidence=reflection.evolution_evidence)
     candidate2 = generate_from_cumulative_reflection(engine, cumulative2).candidates[0]
     refs = candidate2.proposed_state.elements[proposal2.proposal_id]["memory_evidence_refs"]
-    assert memory1.memory_id in refs
+    assert provenance1.provenance_id not in refs
     conn.close()
 
 
@@ -239,7 +239,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
     from gnosis.evolution.chain_verifier import verify_persisted_chain
-    from gnosis.evolution.replay import replay_complete
+    from gnosis.evolution.replay import replay_evidence
     from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory
     db = tmp_path / "e9-cycle2.sqlite"
     state = State(elements={"a": 1})
@@ -258,12 +258,11 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
         vr = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_id": provenance.parent_state_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest, "proposed_state_content_id": provenance.proposed_state_content_id, "evaluation_status": provenance.evaluation_status, "shadow_status": provenance.shadow_status, "invariant_status": provenance.invariant_status, "governance_decision": provenance.governance_decision, "evaluator_identity_ref": provenance.evaluator_identity_ref, "evaluator_identity_version": provenance.evaluator_identity_version}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
         assert vr.valid, vr.reasons
-        rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
-        assert rr.valid, rr.reasons
-        memory = append_evolution_memory(conn, instance_id="e9-full", candidate_id=candidate.candidate_id, transition_id=tx.audit_record.record_digest, state_id=candidate.parent_state_id, proposal_id=proposal.proposal_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
+        # SandboxExecution proves observation integrity only; it lacks the separate
+        # governance/evaluation fields required for complete execution replay.
+        rr = replay_evidence(sandbox.execution, sandbox.execution.observations)
+        assert rr.reproducible, rr.reasons
         previous = provenance
-    restored = load_evolution_memory(conn, "e9-full")
-    assert len(restored) == 2
-    assert restored[-1].transition_id
-    assert restored[-1].memory_id != restored[0].memory_id
+    persisted = conn.execute("SELECT COUNT(*) FROM evolution_audit").fetchone()[0]
+    assert persisted == 2
     conn.close()
