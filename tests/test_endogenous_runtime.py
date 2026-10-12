@@ -222,7 +222,7 @@ def test_e9_restart_keeps_provenance_separate_from_core_evolution_memory(tmp_pat
     conn.close()
     conn = connect(db)
     persisted = conn.execute("SELECT record_digest, provenance_id FROM evolution_audit WHERE provenance_id = ?", (provenance1.provenance_id,)).fetchone()
-    assert persisted == (tx1.audit_record.record_digest, provenance1.provenance_id)
+    assert tuple(persisted) == (tx1.audit_record.record_digest, provenance1.provenance_id)
     reflection = reflect_with_history(engine, conn, instance_id="e9-instance")
     # Provenance audit is not a Core transition and must not be reclassified as evolution memory.
     assert all(item.candidate_id != candidate1.candidate_id for item in reflection.evolution_evidence)
