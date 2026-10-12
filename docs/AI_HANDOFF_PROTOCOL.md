@@ -43,7 +43,6 @@ EXECUTE ONLY AN EXPLICIT TASK PERMITTED BY THE ACTIVE PHASE
 A pinned `canonical_head` is a dated snapshot, not a live pointer. A SHA mismatch requires an explicit delta report; it does not authorize automatically rewriting the snapshot or changing scope.
 
 A `next_permitted_action` string cannot override `forbidden_scope`. Starting work forbidden by the active phase requires a durable formal phase transition and explicit human owner authorization. Connector access and a prior AI statement are not architectural authority.
-```
 
 ## Mandatory session report
 
