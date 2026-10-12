@@ -301,3 +301,12 @@ Keep PR #170 Draft. Do not create a speculative second schema or guess a DB path
 - Amended ADR with a repository-evidence table and a required source-designation gate. New exact head: `86e9012cf655bac9db823a1f6c8774c71cbce727`. PR #171 remains Draft: https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/171.
 - Exact-head runs for amended SHA were queued/in progress at last check: CI #3638 / ID `38256820348`; CodeQL #2519 / ID `38256820308`; Import Graph #1918 / ID `38256820388`; Dependency Review #1060 / ID `38256820310`. Previous-SHA results do not transfer to this amended head.
 - Next: recheck these four exact-head workflows. Then the next bounded architecture action is to record the source-designation decision as blocked until a concrete canonical source/storage/interface is evidenced; do not implement a speculative resolver.
+
+
+### Follow-up — amended ADR exact-head workflow results
+
+- For amended head `86e9012cf655bac9db823a1f6c8774c71cbce727`, CI #3638 / run ID `38256820348` completed **FAIL**: Python 3.12 had 33 failed, 931 passed, 18 warnings, 2 errors in 8.65s; Python 3.11 was cancelled by fail-fast. Failures remain in existing authority-boundary, endogenous generation/runtime, persistence, memory-evidence, reflection-gate, and self-learning execution tests. This is not a green CI result and no exact-main baseline comparison for this amended SHA has been completed.
+- Import Graph #1918 / run ID `38256820388`: **PASS**.
+- Dependency Review #1060 / run ID `38256820310`: **FAIL**. The repository's known explicit failure is that Dependency Graph is disabled/unavailable; no dependency vulnerability is reported by that configuration message.
+- CodeQL #2519 / run ID `38256820308`: still in progress at this check; recheck before reporting its conclusion.
+- The amended ADR remains documentation-only (one file changed). Prior workflow results are not transferred to the new SHA.
