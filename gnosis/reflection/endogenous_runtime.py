@@ -86,6 +86,8 @@ def build_endogenous_provenance(
         raise ValueError("sandbox candidate does not match endogenous candidate")
     if execution.parent_state_id != candidate.parent_state_id:
         raise ValueError("sandbox parent state does not match endogenous candidate")
+    if parent_state_digest != execution.parent_state_digest:
+        raise ValueError("provenance parent state digest does not match sandbox execution")
     if not sandbox.accepted_for_evaluation:
         raise ValueError("sandbox execution is not admissible for provenance")
     if evaluation.evidence_digest != execution.evidence_digest:

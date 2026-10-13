@@ -252,3 +252,50 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     assert restored[-1].transition_id
     assert restored[-1].memory_id != restored[0].memory_id
     conn.close()
+
+
+def test_endogenous_provenance_rejects_parent_digest_mismatch():
+    import pytest
+    from gnosis.reflection.endogenous_runtime import (
+        build_endogenous_provenance,
+        evaluate_candidate_in_sandbox,
+    )
+    from gnosis.reflection.governance import GovernanceDecision
+
+    state = State(elements={"a": 1})
+    engine = Engine(state=state, budget=Budget(total=3))
+    proposal = type("P", (), {
+        "proposal_id": "p-parent-digest-mismatch",
+        "finding_id": "f-parent-digest-mismatch",
+        "rule_id": "r-parent-digest-mismatch",
+        "current_version": 1,
+        "proposed_version": 2,
+        "hypothesis": "reject mismatched parent digest",
+        "evidence_refs": ("f-parent-digest-mismatch",),
+    })()
+    report = ReflectionReport(proposals=(proposal,))
+    cumulative = CumulativeReflectionReport(
+        current=report,
+        history=None,
+        recurring_unresolved=(),
+        evolution_evidence=(),
+    )
+    candidate = generate_from_cumulative_reflection(engine, cumulative).candidates[0]
+    sandbox, evaluation = evaluate_candidate_in_sandbox(
+        engine,
+        candidate,
+        lambda current_state, current_candidate: {
+            "candidate_id": current_candidate.candidate_id,
+            "observation": "stable",
+        },
+    )
+    governance = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
+
+    with pytest.raises(ValueError, match="parent state digest does not match sandbox execution"):
+        build_endogenous_provenance(
+            candidate,
+            sandbox,
+            evaluation,
+            governance,
+            parent_state_digest="0" * 64,
+        )

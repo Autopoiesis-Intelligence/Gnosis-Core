@@ -186,6 +186,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     from gnosis.storage import save_instance
     save_instance(conn, instance)
     initial_state_id = instance.engine.state.state_id
+    initial_state_content_id = instance.engine.state.content_id
     proposed = instance.engine.state.with_elements({"b": 2})
     candidate = Candidate(initial_state_id, proposed, "test")
     record = instance.engine.step(candidate)
@@ -193,11 +194,11 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     provenance = build_provenance(
         candidate_id=candidate.candidate_id,
         parent_state_id=initial_state_id,
-        parent_state_digest=initial_state_id,
+        parent_state_digest=initial_state_content_id,
         proposed_state_digest=proposed.state_id,
         observations=observations,
         proposed_state_content_id=proposed.content_id,
-        candidate_binding_digest=candidate.binding_digest(initial_state_id),
+        candidate_binding_digest=candidate.binding_digest(initial_state_content_id),
         evidence_digest=canonical_digest(observations),
         evaluation_status="PASS", shadow_status="UNCHANGED",
         invariant_status="PRESERVED", governance_decision="ALLOW",
@@ -208,6 +209,54 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
+    conn.close()
+
+
+def test_sqlite_execution_commit_adapter_rejects_parent_digest_mismatch_without_mutation(monkeypatch):
+    from gnosis.core import Candidate, State
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    parent = instance.engine.state
+    candidate = Candidate(parent.state_id, parent.with_elements({"b": 2}), "parent-digest-test")
+    record = instance.engine.step(candidate)
+    observations = {"result": "ok"}
+    forged_parent_digest = "0" * 64
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent.state_id,
+        parent_state_digest=forged_parent_digest,
+        proposed_state_digest=candidate.proposed_state.state_id,
+        observations=observations,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(forged_parent_digest),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    request = _make_execution_commit_request(provenance)
+    # Isolate the commit-boundary digest check from the separately failing legacy gate.
+    monkeypatch.setattr(
+        "gnosis.reflection.execution_adapter.require_trusted_execution",
+        lambda request, *, conn, actor: None,
+    )
+
+    with pytest.raises(PermissionError, match="persisted parent state digest"):
+        SQLiteExecutionCommitAdapter().commit(
+            conn, instance, candidate, record, request, actor="user-1"
+        )
+
+    assert load_instance(conn, instance.instance_id).engine.state.state_id == parent.state_id
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    assert conn.execute(
+        "SELECT count(*) FROM audit_events WHERE transition_id IS NOT NULL"
+    ).fetchone()[0] == 0
     conn.close()
 
 
@@ -256,6 +305,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
     save_instance(conn, instance)
 
     parent_state_id = instance.engine.state.state_id
+    parent_state_digest = instance.engine.state.content_id
     candidate_a = Candidate(
         parent_state_id, instance.engine.state.with_elements({"a": 2}), "candidate-a"
     )
@@ -264,11 +314,11 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
     provenance = build_provenance(
         candidate_id=candidate_a.candidate_id,
         parent_state_id=parent_state_id,
-        parent_state_digest=parent_state_id,
+        parent_state_digest=parent_state_digest,
         proposed_state_digest=candidate_a.proposed_state.state_id,
         observations=observations,
         proposed_state_content_id=candidate_a.proposed_state.content_id,
-        candidate_binding_digest=candidate_a.binding_digest(parent_state_id),
+        candidate_binding_digest=candidate_a.binding_digest(parent_state_digest),
         evidence_digest=canonical_digest(observations),
         evaluation_status="PASS",
         shadow_status="UNCHANGED",
@@ -276,7 +326,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-cross-candidate"
     )
     request = ExecutionCommitRequest(
         auth,
@@ -320,6 +370,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
     save_instance(conn, instance)
     parent_state_id = instance.engine.state.state_id
+    parent_state_digest = instance.engine.state.content_id
 
     candidate_a = Candidate(
         parent_state_id, instance.engine.state.with_elements({"a": 2}), "candidate-a"
@@ -328,11 +379,11 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     provenance_a = build_provenance(
         candidate_id=candidate_a.candidate_id,
         parent_state_id=parent_state_id,
-        parent_state_digest=parent_state_id,
+        parent_state_digest=parent_state_digest,
         proposed_state_digest=candidate_a.proposed_state.state_id,
         observations=observations,
         proposed_state_content_id=candidate_a.proposed_state.content_id,
-        candidate_binding_digest=candidate_a.binding_digest(parent_state_id),
+        candidate_binding_digest=candidate_a.binding_digest(parent_state_digest),
         evidence_digest=canonical_digest(observations),
         evaluation_status="PASS",
         shadow_status="UNCHANGED",
@@ -347,7 +398,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         execution_id=provenance_a.execution_id,
         candidate_id=candidate_b.candidate_id,
         parent_state_id=parent_state_id,
-        parent_state_digest=parent_state_id,
+        parent_state_digest=parent_state_digest,
         proposed_state_digest=candidate_b.proposed_state.state_id,
         evidence_digest=provenance_a.evidence_digest,
         evaluation_status=provenance_a.evaluation_status,
@@ -356,17 +407,21 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         governance_decision=provenance_a.governance_decision,
         provenance_id=provenance_a.provenance_id,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
-        candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        candidate_binding_digest=candidate_b.binding_digest(parent_state_digest),
         evolution_identity=provenance_a.evolution_identity,
+        evaluator_identity_ref=str(provenance_a.evaluator_identity_ref),
+        evaluator_identity_version=str(provenance_a.evaluator_identity_version),
+    )
+    auth = ExecutionAuthorization(
+        provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1"
     )
     request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
+        auth,
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -458,6 +513,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     instance = Instance.create_root("user-1", State(elements={"a": 1}))
     save_instance(conn, instance)
     parent_state_id = instance.engine.state.state_id
+    parent_state_digest = instance.engine.state.content_id
 
     candidate_a = Candidate(
         parent_state_id, instance.engine.state.with_elements({"a": 2}), "authorized-a"
@@ -466,25 +522,27 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     provenance_a = build_provenance(
         candidate_id=candidate_a.candidate_id,
         parent_state_id=parent_state_id,
-        parent_state_digest=parent_state_id,
+        parent_state_digest=parent_state_digest,
         proposed_state_digest=candidate_a.proposed_state.state_id,
         observations=observations,
         proposed_state_content_id=candidate_a.proposed_state.content_id,
-        candidate_binding_digest=candidate_a.binding_digest(parent_state_id),
+        candidate_binding_digest=candidate_a.binding_digest(parent_state_digest),
         evidence_digest=canonical_digest(observations),
         evaluation_status="PASS",
         shadow_status="UNCHANGED",
         invariant_status="PRESERVED",
         governance_decision="ALLOW",
     )
+    auth_a = ExecutionAuthorization(
+        provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-a"
+    )
     request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
+        auth_a,
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity(auth_a.approval_id, "policy-1", "ev-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
@@ -496,11 +554,11 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     provenance_b = build_provenance(
         candidate_id=candidate_b.candidate_id,
         parent_state_id=parent_state_id,
-        parent_state_digest=parent_state_id,
+        parent_state_digest=parent_state_digest,
         proposed_state_digest=candidate_b.proposed_state.state_id,
         observations=observations_b,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
-        candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        candidate_binding_digest=candidate_b.binding_digest(parent_state_digest),
         evidence_digest=canonical_digest(observations_b),
         evaluation_status="PASS",
         shadow_status="UNCHANGED",
