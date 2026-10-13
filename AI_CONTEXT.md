@@ -5,8 +5,17 @@
 This file is the operational handoff and research context for AI agents working on Gnozis Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
+
+## Current operational overlay — 2026-10-13
+
+- Canonical repository identity: `Autopoiesis-Intelligence/Gnosis-Core`; current default branch: `main`.
+- Live `main` HEAD observed for this reconciliation: `6eed57dbbae1778039f1c2db67ab6a17b3ca091a` (observation time: 2026-10-13T11:17:56Z). Recheck the live ref before relying on this pin in a later session.
+- ChatGPT is the active working assistant and performs the review/audit in this workflow. Claude, Gemini, and Manus are not assumed to be active agents unless the project owner explicitly reassigns them.
+- ChatGPT reviewing its own implementation is **not independent review**. Mark independent review as NOT ASSIGNED unless a separate reviewer actually performs it.
+- Older repository names and agent assignments elsewhere in this file are historical context unless explicitly reconfirmed by a current phase/task. Do not erase useful history or treat historical assignments as current instructions.
+- These operational pointers do not upgrade implementation, runtime, persistence, audit, or CI status. Exact source and exact-head evidence remain mandatory.
 
 Rules:
 1. Repository code, tests and actual runtime/CI evidence outrank chat memory or this document.
