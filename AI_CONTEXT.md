@@ -20,7 +20,7 @@ Repository:
 
 - Canonical repository identity: `Autopoiesis-Intelligence/Gnosis-Core`; current default branch: `main`.
 - Live `main` HEAD observed for this reconciliation: `78f84f6c6ac771478525b547ba467aa773e626b7` (observation time: 2026-10-13T16:00:05Z). Recheck the live ref before relying on this pin in a later session.
-- ChatGPT is the active working assistant and performs the review/audit in this workflow. Claude, Gemini, and Manus are not assumed to be active agents unless the project owner explicitly reassigns them.
+- ChatGPT is the active working assistant. Claude, Gemini, and Manus are not active agents in the current workflow.
 - ChatGPT reviewing its own implementation is **not independent review**. Mark independent review as NOT ASSIGNED unless a separate reviewer actually performs it.
 - Older repository names and agent assignments elsewhere in this file are historical context unless explicitly reconfirmed by a current phase/task. Do not erase useful history or treat historical assignments as current instructions.
 - These operational pointers do not upgrade implementation, runtime, persistence, audit, or CI status. Exact source and exact-head evidence remain mandatory.
@@ -50,7 +50,7 @@ Core mechanisms should be reusable across multiple future kernels and products. 
 
 ## 1. ARCHITECTURAL PURPOSE
 
-Gnosis-Core is the engineering foundation for research into recursive evolution. No autonomy or runtime maturity should be inferred from a product description alone; canonical state/evolution semantics remain governed by the verified Ψ-Core contracts.
+Gnosis-Core is the engineering foundation for research into recursive evolution. No autonomy or runtime maturity should be inferred from a product description alone; canonical state/evolution semantics remain governed by the Core contracts and their verified invariants.
 
 A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
@@ -58,9 +58,9 @@ Canonical evolution remains CLOSED until the complete evidence, sandbox, governa
 
 ## 2. NON-NEGOTIABLE PRINCIPLES
 
-- Ψ-Core is the authoritative source of state/evolution semantics.
+- Gnosis Core is the authoritative source of state/evolution semantics.
 - No second state model may silently diverge from Core.
-- No AI model belongs inside Ψ-Core.
+- No AI model belongs inside Gnosis Core.
 - External data is untrusted by default.
 - External evidence may generate candidates/challenges but does not directly authorize Core mutation.
 - Missing evidence remains UNKNOWN / INSUFFICIENT_EVIDENCE.
@@ -345,11 +345,11 @@ Instead investigate observable/derivable properties such as:
 
 ## 14. CURRENT ARCHITECTURAL IMPLICATION — NOT IMPLEMENTATION AUTHORIZATION
 
-The current research does NOT justify redesigning Ψ-Core.
+The current research does NOT justify redesigning Gnosis Core.
 
 The leading interpretation is:
 
-Ψ-Core remains the protected semantic/state-transition authority.
+Gnosis Core remains the protected semantic/state-transition authority.
 
 Higher analytical/experimental layers may organize:
 - environmental observations;
@@ -619,7 +619,7 @@ CI-green must be tied to an exact commit/run.
 ## 24. HANDOFF
 
 Current research handoff:
-- Ψ-Core remains the protected semantic/state-transition authority.
+- Gnosis Core remains the protected semantic/state-transition authority.
 - Gnosis-Core is examined from current source and runtime evidence, not treated as an assumed architectural specimen.
 - The broader working product concept is an autopoietic environment-interaction machine that continuously transforms information, distinctions and organization under constraints.
 - “Gnosis” is a candidate descriptive name for an emergent organizational/epistemic phenomenon, not a claim of consciousness.
