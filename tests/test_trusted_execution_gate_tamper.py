@@ -35,3 +35,15 @@ def test_missing_trusted_policy_fails_closed_before_consumption(sqlite_conn, pro
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
     row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-t",)).fetchone()
     assert row is None
+
+def test_tampered_validity_evidence_is_rejected_before_consumption(sqlite_conn, provenance):
+    validity=AuthorizationValidity("auth-t","policy-1","evidence-forged")
+    req=make_request(provenance,validity)
+    with pytest.raises(PermissionError, match="evidence"):
+        require_trusted_execution(
+            req, conn=sqlite_conn, actor="trusted-owner",
+            trusted_policy_version="policy-1",
+            trusted_evidence_digest="ev-1",
+        )
+    row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-t",)).fetchone()
+    assert row is None
