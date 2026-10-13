@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Gnozis is a user-owned working context, not an application context tied to one AI product. A user may enter the same task through different connected terminals, agents, or products and continue from the durable project state without reconstructing the conversation manually.
+Gnosis is a user-owned working context, not an application context tied to one AI product. A user may enter the same task through different connected terminals, agents, or products and continue from the durable project state without reconstructing the conversation manually.
 
 ## Core principle
 
 ```text
 AI terminal is an interface/actor.
-Task context belongs to the Gnozis workspace/task.
+Task context belongs to the Gnosis workspace/task.
 ```
 
 Connection to GitHub, Google Drive, an AI product, CRM, chat, or mobile application does not create a new authoritative context. It provides a bounded interface to an existing context.
@@ -129,7 +129,7 @@ A connected product may receive only the subset of context and evidence permitte
 
 ## Practical user scenario
 
-A user receives a task notification in one product, opens another AI terminal, asks for the real current status, and expects a response based on the durable Gnozis context and permitted connected sources.
+A user receives a task notification in one product, opens another AI terminal, asks for the real current status, and expects a response based on the durable Gnosis context and permitted connected sources.
 
 The expected flow is:
 
@@ -154,13 +154,13 @@ The contract is intentionally domain-neutral. The same continuity model must sup
 - engineers;
 - analysts;
 - scientists processing large datasets;
-- organizational users using Gnozis as a shared analytical/CRM-like core.
+- organizational users using Gnosis as a shared analytical/CRM-like core.
 
 The domain-specific product remains an interface. The durable task/context model remains shared.
 
 ## Organizational model
 
-A company may use Gnozis as a shared analytical core while individual users retain their own connected tools and routing preferences.
+A company may use Gnosis as a shared analytical core while individual users retain their own connected tools and routing preferences.
 
 Conceptually:
 
