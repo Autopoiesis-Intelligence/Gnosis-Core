@@ -184,6 +184,12 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     assert result.valid, result.reasons
     replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations, evaluation_status=evaluation.status, shadow_status=governance.shadow_status, invariant_status=governance.invariant_status, governance_decision=governance.decision)
     assert replay.valid, replay.reasons
+    incomplete = replay_complete(
+        sandbox.execution, provenance, tx.audit_record,
+        observations=sandbox.execution.observations,
+    )
+    assert not incomplete.reproducible
+    assert "independent evaluation/governance evidence missing" in incomplete.reasons
     tampered = replace(provenance, governance_decision="APPROVE")
     rejected = replay_complete(
         sandbox.execution, tampered, tx.audit_record,
