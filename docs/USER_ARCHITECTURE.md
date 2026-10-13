@@ -1,4 +1,4 @@
-# Gnozis-V2 — User Architecture
+# Gnosis — User Architecture
 
 ## Status
 
@@ -8,11 +8,11 @@ This document records the intended user-facing architecture. It is a design cont
 
 ## 1. Purpose
 
-Gnozis is being built as a **user-centered architecture** in which a user can interact with the same project, task, data, and accumulated evidence through different connected products or AI terminals without losing the canonical context.
+Gnosis is being built as a **user-centered architecture** in which a user can interact with the same project, task, data, and accumulated evidence through different connected products or AI terminals without losing the canonical context.
 
-The same architecture may also be used as an **organizational/CRM intelligence layer**: an organization can feed work events, requests, notifications, and records into Gnozis, while individual users retain control over which of their authorized personal or professional data sources may participate in analysis and which results may be returned to them.
+The same architecture may also be used as an **organizational/CRM intelligence layer**: an organization can feed work events, requests, notifications, and records into Gnosis, while individual users retain control over which of their authorized personal or professional data sources may participate in analysis and which results may be returned to them.
 
-A connected product is an interface, connector, tool source, or execution environment around Gnozis. It is not automatically the source of truth and does not receive architectural authority merely because it has access to GitHub, Google Drive, a work chat, CRM, email, calendar, or another resource.
+A connected product is an interface, connector, tool source, or execution environment around Gnosis. It is not automatically the source of truth and does not receive architectural authority merely because it has access to GitHub, Google Drive, a work chat, CRM, email, calendar, or another resource.
 
 The target property is:
 
@@ -141,7 +141,7 @@ result authorized for a recipient
 
 ## 4. Different users, one architecture
 
-Gnozis must support a broad spectrum of users without creating a separate Core engine for every profession.
+Gnosis must support a broad spectrum of users without creating a separate Core engine for every profession.
 
 Examples include:
 
@@ -191,7 +191,7 @@ A connector does not become the canonical project state merely because it contai
 The architecture must preserve a distinction between:
 
 ```text
-canonical Gnozis state
+canonical Gnosis state
         ≠
 connector-local state
         ≠
@@ -200,7 +200,7 @@ chat/session transcript
 
 ## 6. Organization / CRM use case
 
-Gnozis may serve as an intelligence and continuity layer around an organization's existing CRM/work systems without requiring the organization to replace those systems.
+Gnosis may serve as an intelligence and continuity layer around an organization's existing CRM/work systems without requiring the organization to replace those systems.
 
 Example:
 
@@ -209,7 +209,7 @@ Work chat / CRM / ticket system
         ↓
 organization task / notification
         ↓
-Gnozis task reference
+Gnosis task reference
         ↓
 authorized analysis context
         ↑
@@ -220,9 +220,9 @@ verified analysis / answer
 user-selected output channel
 ```
 
-A company could, for example, send a bot notification or work-chat task into the Gnozis environment. The employee could then use their own authorized AI terminal or mobile application to request the current situation, analysis, calculation, or next action.
+A company could, for example, send a bot notification or work-chat task into the Gnosis environment. The employee could then use their own authorized AI terminal or mobile application to request the current situation, analysis, calculation, or next action.
 
-The employee's personal configuration would determine which connected sources may participate in that request and which classes of results may be returned. The organization may control organizational resources and policies within its scope; it must not silently acquire access to unrelated user-controlled data merely because the user connected that source to Gnozis.
+The employee's personal configuration would determine which connected sources may participate in that request and which classes of results may be returned. The organization may control organizational resources and policies within its scope; it must not silently acquire access to unrelated user-controlled data merely because the user connected that source to Gnosis.
 
 This is an architectural target, not an implemented CRM integration.
 
@@ -241,7 +241,7 @@ Company work chat
       ↓
 Task / event notification
       ↓
-Gnozis canonical task reference
+Gnosis canonical task reference
       ↓
 User's routing policy
       ├── GitHub: allowed
@@ -378,4 +378,4 @@ For organizations, the corresponding property is:
 
 > **The organization can provide shared work context and tasks, while each authorized user can explicitly control which of their connected data sources participate in analysis and where resulting information may be delivered, subject to applicable organizational policy and security boundaries.**
 
-Gnozis should therefore make project/task context portable across authorized terminals while preserving provenance, scope, evidence, data-routing policy, output-routing policy, and authority boundaries.
+Gnosis should therefore make project/task context portable across authorized terminals while preserving provenance, scope, evidence, data-routing policy, output-routing policy, and authority boundaries.
