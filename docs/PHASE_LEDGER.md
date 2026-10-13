@@ -1,6 +1,8 @@
-# Gnozis Core — Phase Ledger
+# Gnosis-Core — Phase Ledger
 
 This ledger is the durable continuation record for substantive project phases.
+
+**Canonical naming:** product = Gnosis; engineering Core repository = Autopoiesis-Intelligence/Gnosis-Core. Older spellings in historical records are provenance only, not current identities.
 
 It exists so a replacement AI can continue from repository evidence rather than conversation history.
 
