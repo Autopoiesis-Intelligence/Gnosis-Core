@@ -32,7 +32,7 @@ def root():
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
-        authorization_id="test-recovery",
+        authorization_id=f"test-recovery:{instance_id}",
         subject=instance_id,
         requested_by="test-principal",
         authority="test-governance",
@@ -257,7 +257,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -417,7 +417,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
     assert verify_durable_graph(reopened)[0] == 1
 
 
@@ -440,7 +440,7 @@ def test_a54_rejected_transition_replay_is_idempotent():
     assert _recover(conn, instance.instance_id).engine.state.state_id == record.from_state_id
 
 
-def test_a55_conflicting_transition_replay_fails_closed():
+def test_a55_distinct_transition_replay_from_stale_head_fails_closed():
     conn, instance, record = _persisted_transition()
     conflicting = TransitionRecord(
         record.from_state_id,
@@ -451,7 +451,7 @@ def test_a55_conflicting_transition_replay_fails_closed():
         "conflict",
         record.test_rule_id,
     )
-    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+    with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
 
 
