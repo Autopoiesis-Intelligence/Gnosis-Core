@@ -10,6 +10,17 @@ Historical references to Genesis/Genezis or earlier repository owners are retain
 
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
+## Latest documentation-branch CI observation (2026-10-13)
+
+- Exact branch HEAD: `47788cdd67785988db4dc771c6ca01c2d51d6dba` (PR #173).
+- Import graph check: PASS — [run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441621955).
+- CodeQL checks: PASS — [CodeQL](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/runs/115449685017), [Python/Actions CodeQL workflow](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632319).
+- Python 3.11 test job: FAIL — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632279/job/115449408367).
+- Python 3.12 test job: CANCELLED — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632279/job/115449407898). A cancelled job is not a pass and is not evidence that the Python 3.12 suite failed.
+- Dependency Review: FAIL — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632294/job/115449408913). The previously observed blocker is the repository dependency-graph setting; confirm the current annotation before treating the cause as unchanged.
+- Overall CI is **not passing** on this SHA. These runs validate only this exact documentation branch commit. Do not infer that the branding changes caused the test failures; compare exact failing test identifiers against the same-base SHA before assigning regression status.
+- This entry is an observation ledger, not a readiness claim. Recheck the current head and runs before relying on it in a later session.
+
 ## CI baseline and branding-PR verification (2026-10-13)
 
 - Base-branch CI run [#38409516906](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38409516906), SHA `2adddfb8ca5acca220df08b3d5995472ff8cc857`: **33 failed, 931 passed, 2 errors**.
