@@ -38,10 +38,8 @@ def require_trusted_execution(
 
     validity.require_valid(
         expected_policy_version=trusted_policy_version,
-        expected_evidence_digest=request.provenance.evidence_digest,
+        expected_evidence_digest=trusted_evidence_digest,
     )
-    if trusted_evidence_digest != request.provenance.evidence_digest:
-        raise PermissionError("trusted evidence digest does not match request provenance")
     require_execution_commit(request)
     consume_authorization_in_transaction(
         conn,
