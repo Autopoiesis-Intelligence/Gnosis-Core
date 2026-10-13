@@ -42,8 +42,17 @@ def replay_complete(
     audit_record: Any | None,
     *,
     observations: Mapping[str, Any],
+    evaluation_status: str | None = None,
+    shadow_status: str | None = None,
+    invariant_status: str | None = None,
+    governance_decision: str | None = None,
 ) -> ReplayResult:
-    """Fail closed unless candidate, states, evidence, provenance and audit are all present and consistent."""
+    """Fail closed unless evidence, provenance, audit and independent evaluation facts agree.
+
+    Evaluation and governance facts must be supplied by the caller from the
+    separately held evaluator/governance results. Reusing values read from the
+    provenance object would only validate that object's internal consistency.
+    """
     reasons: list[str] = []
     if provenance is None:
         reasons.append("provenance missing")
@@ -51,6 +60,9 @@ def replay_complete(
         reasons.append("audit record missing")
     evidence = replay_evidence(execution, observations)
     reasons.extend(evidence.reasons)
+    independent_facts = (evaluation_status, shadow_status, invariant_status, governance_decision)
+    if any(value is None for value in independent_facts):
+        reasons.append("independent evaluation/governance evidence missing")
     if provenance is not None:
         check = crosscheck_provenance(
             provenance=provenance,
@@ -69,10 +81,10 @@ def replay_complete(
             ),
             # SandboxExecution contains observed execution facts only. Evaluation
             # and governance are separate provenance facts, not sandbox fields.
-            evaluation_status=provenance.evaluation_status,
-            shadow_status=provenance.shadow_status,
-            invariant_status=provenance.invariant_status,
-            governance_decision=provenance.governance_decision,
+            evaluation_status=evaluation_status or "",
+            shadow_status=shadow_status or "",
+            invariant_status=invariant_status or "",
+            governance_decision=governance_decision or "",
             evaluator_identity_ref=provenance.evaluator_identity_ref,
             evaluator_identity_version=provenance.evaluator_identity_version,
         )
