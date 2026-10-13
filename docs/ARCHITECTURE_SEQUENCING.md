@@ -1,4 +1,4 @@
-# Gnozis Core — Architecture Implementation Sequencing
+# Gnosis Core — Architecture Implementation Sequencing
 
 ## Status
 
@@ -13,7 +13,7 @@ The project is currently a single-owner, single-account, single-canonical-reposi
 ```text
 ONE OWNER
    ↓
-Gnozis-V2
+Gnosis
    ├── durable project/task continuity
    ├── Ψ-Core
    ├── persistence
@@ -85,7 +85,7 @@ Track B must not implement unrestricted self-modification, autonomous rule activ
 The tracks are complementary but independently bounded.
 
 ```text
-                 Gnozis-V2
+                 Gnosis
                      │
           ┌──────────┴──────────┐
           ↓                     ↓
