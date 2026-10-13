@@ -158,20 +158,14 @@ def commit_endogenous_candidates(
     candidates: Sequence[Candidate],
 ) -> object:
     """Commit endogenous candidates only after exact proposal provenance validation."""
-    proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
     for candidate in candidates:
-        proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
-            None,
+        matches = tuple(
+            proposal for proposal in report.proposals
+            if not _candidate_binding_mismatches(candidate, proposal)
         )
-        proposal = proposals.get(proposal_id)
-        if proposal is None:
-            raise ValueError("endogenous candidate is not bound to the supplied reflection proposal: proposal missing")
-        mismatches = _candidate_binding_mismatches(candidate, proposal)
-        if mismatches:
+        if len(matches) != 1:
+            reason = "no matching proposal" if not matches else "ambiguous proposal binding"
             raise ValueError(
-                "endogenous candidate is not bound to the supplied reflection proposal: "
-                + ", ".join(mismatches)
+                "endogenous candidate is not bound to the supplied reflection proposal: " + reason
             )
     return engine.step_select(candidates)
