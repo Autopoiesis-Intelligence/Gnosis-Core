@@ -12,8 +12,8 @@ are checked against.
 | Core | The verified state-transition engine itself | Fully trusted by definition — but has no privileged bypass; even Core's own generator goes through `verify()` |
 | Human User | Owns one or more Instances/Agents | Untrusted for direct state mutation; trusted only via Capabilities it holds |
 | Human Agent | A User's agent identity inside the system | Same as User, scoped by Capability |
-| Gnozis Agent | An agent formed from a verified Instance (Phase 5/6) | Untrusted beyond its granted Capabilities |
-| External Agent | Any agent outside this Instance (another Gnozis instance, another AI, a human via Bridge) | Least trusted; reaches Core only via Bridge + Capability check |
+| Gnosis Agent | An agent formed from a verified Instance (Phase 5/6) | Untrusted beyond its granted Capabilities |
+| External Agent | Any agent outside this Instance (another Gnosis instance, another AI, a human via Bridge) | Least trusted; reaches Core only via Bridge + Capability check |
 | Memory subsystem | Persistent storage layer (Phase 4) | Trusted for read/write of its own records; MUST NOT have a path to mutate Core directly |
 | Bridge | External interface (Phase 8) | Trusted to enforce Capability checks; MUST NOT expose Core mutation to the outside world |
 
