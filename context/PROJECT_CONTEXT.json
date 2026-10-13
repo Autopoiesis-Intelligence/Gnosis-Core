@@ -3,7 +3,7 @@
   "context_id": "gnozis-core-canonical-project",
   "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "branch": "main",
-  "snapshot_of_canonical_source_head": "6eed57dbbae1778039f1c2db67ab6a17b3ca091a",
+  "snapshot_of_canonical_source_head": "78f84f6c6ac771478525b547ba467aa773e626b7",
   "current_operating_scope": "SINGLE OWNER / SINGLE ACCOUNT / SINGLE CANONICAL PROJECT",
   "implementation_state": {
     "psi_core": "IMPLEMENTED",
@@ -164,7 +164,7 @@
     },
     "repository_sync": "E7.15 added as verification gate for E7.10-E7.14"
   },
-  "snapshot_timestamp_utc": "2026-10-13T11:17:56Z",
+  "snapshot_timestamp_utc": "2026-10-13T16:00:05Z",
   "canonical_product_name": "Gnosis",
   "canonical_core_repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "canonical_public_product_repository": "Autopoiesis-Intelligence/Gnosis"
