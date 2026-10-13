@@ -1,10 +1,10 @@
-# Gnozis-V2 — Task Lifecycle Contract
+# Gnosis — Task Lifecycle Contract
 
 Status: architecture contract; implementation not yet accepted.
 
 ## Purpose
 
-A Task is the durable unit of work that allows Gnozis to continue an analytical or engineering request across different products, agents, and sessions.
+A Task is the durable unit of work that allows Gnosis to continue an analytical or engineering request across different products, agents, and sessions.
 
 A Task is not a chat thread and is not owned by a particular AI terminal.
 
