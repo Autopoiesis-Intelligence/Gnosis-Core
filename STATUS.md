@@ -1,20 +1,21 @@
 ## Repository role
 
-**GENESIS / GENEZIS = protected engineering foundation + Module Factory.**
+**Canonical repository: `Autopoiesis-Intelligence/Gnosis-Core` — engineering Core and architecture/runtime contracts.**
 
-Gnozis is the public research/evidence/opportunity surface. Gnozis-Research-Memory is the machine-readable research, mathematics, provenance and context layer. Genesis/Genezis contains the protected Core/Uroboros boundary and the governed factory for specialized modules and products.
+The public `Gnosis` repository is the product/evidence surface. `Gnosis-Memory` holds durable research and project context. Other repositories have bounded roles that must be documented in the repository map; their existence does not make them interchangeable with Core.
 
-The repository must not be treated as a public research archive or as a second research-memory authority.
+Historical references to Genesis/Genezis or earlier repository owners are retained where useful for provenance, but they are not the current canonical repository identity.
 
 # STATUS — GNOSIS CORE
 
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
 ## Current repository baseline
-- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `d10de2a32b7c1daeec3678dd127e8542afead8ef` (current audited main); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` is stale.
+- Canonical `main` HEAD observed during repository-state reconciliation on 2026-10-13: `6eed57dbbae1778039f1c2db67ab6a17b3ca091a` (observation time: 2026-10-13T11:17:56Z). This records the observed ref only; it does not establish a passing test/CI result for this SHA.
 
-- Repository: `Mikhail-Kucheriavyi-23/Genezis`
+- Repository: `Autopoiesis-Intelligence/Gnosis-Core`
 - Branch: `main`
+- Independent reviewer: NOT ASSIGNED. ChatGPT is the active auditor but cannot count its own review as independent verification.
 - Reflection foundation is implemented outside `gnosis/core` and remains non-mutating.
 - Persistence is present for reflection reports and is still awaiting end-to-end verification.
 - `AI_CONTEXT.md` is the operational handoff context.
