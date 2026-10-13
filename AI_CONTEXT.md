@@ -5205,3 +5205,7 @@ Added contracts:
 - ARCHITECTURE_DECISION_AND_LICENSING_CONTRACT.md
 
 Current evidence from repository inspection: pyproject.toml exists and uses setuptools; public Core structure was not verified from a directory listing in this audit pass; LICENSE was not found at repository root through the file fetch; therefore licensing status remains UNVERIFIED/MISSING until inspected and decided. No claim is made that mypy --strict or a lockfile is currently present.
+
+## Full reflection and development mechanics — 2026-10-13
+
+The owner’s reusable project method is recorded in [docs/recovery/REFLECTION_XR_PRODUCT_MECHANICS_2026-10-13.md](docs/recovery/REFLECTION_XR_PRODUCT_MECHANICS_2026-10-13.md) and companion Notion page: https://app.notion.com/p/3f830957f2c081dbb5fac25d897522ee?pvs=204. It formalizes X/R as a target product model, automaton trigger/stop contracts, reverse-scaling + down-scaling, full-history reflection, dependency-ordered gap resolution, and strict evidence/governance limits. Treat it as design context, not implementation/runtime proof. Reconcile live refs and phase ledger before acting; PR #169 remains unmerged and this note does not authorize merge or out-of-phase implementation.
