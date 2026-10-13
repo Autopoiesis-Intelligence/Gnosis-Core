@@ -100,7 +100,7 @@ Public product/evidence repository: **`Autopoiesis-Intelligence/Gnosis`**.
 
 Research/context repository: **`Autopoiesis-Intelligence/Gnosis-Memory`**, with canonical source-of-truth scope still unresolved.
 
-Private repository: **`Autopoiesis-Intelligence/Gnosis-Genesis`**; its exact relationship to the public Core remains unresolved. Do not use `Genesis/Genezis` as an alias for this repository until the boundary is explicitly accepted. Historical `Gnosis`, `historical V2 Core line`, and `Genezis` references may remain where needed for provenance, but are not current canonical identities.
+Private repository: **`Autopoiesis-Intelligence/Gnosis-Genesis`**; its exact relationship to the public Core remains unresolved. Do not use `Genesis/Genezis` as an alias for this repository until the boundary is explicitly accepted. Historical `Gnozis`, `Gnozis-V2`, and `Genezis` references may remain where needed for provenance, but are not current canonical identities.
 
 ## Partnership and specialized commercial cores
 
