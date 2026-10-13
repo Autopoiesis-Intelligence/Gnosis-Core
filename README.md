@@ -96,7 +96,7 @@ Protected engineering role: **Genesis — Core + Module Factory**.
 
 Research-memory role: **Gnosis-Memory**.
 
-The historical `Gnosis-V2` naming is retired from product documentation. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
+The historical `Gnozis-V2` naming is retired from product documentation. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
 
 ## Partnership and specialized commercial cores
 
