@@ -49,6 +49,21 @@ Descriptions observed from repository metadata on 2026-10-13. These are current 
 
 **Decision:** do not edit these descriptions until the owner resolves the `Gnosis` / `Gnosis-Core` / `Gnosis-Genesis` role boundary and the canonical owner of duplicated project context. Once the role map is accepted, descriptions can be normalized as a single bounded documentation task.
 
+## Proposed repository descriptions (not yet applied)
+
+The connected GitHub actions available in this workflow can read repository metadata but do not expose a repository-description write operation. These are proposed strings for the repository settings UI; they are not yet applied metadata.
+
+| Repository | Proposed description | Status |
+|---|---|---|
+| `Gnosis` | Public product and evidence surface for Gnosis: opportunities, contracts, validated modules, provenance, and partner-facing discovery. | Proposed; consistent with current README draft. |
+| `Gnosis-Core` | Public engineering Core for Gnosis: reusable state/evolution mechanisms, contracts, tests, and implementation evidence. | Proposed; consistent with current README draft. |
+| `Gnosis-Memory` | Research and project-context archive for Gnosis. Historical and proposed material is not runtime proof or execution authority. | Proposed; canonical ownership scope still unresolved. |
+| `Gnosis-Exchange` | Gnosis exchange/adapter repository; exact contract scope and integration status remain to be confirmed. | Provisional; do not imply an implemented exchange. |
+| `Gnosis-SDK` | Gnosis SDK repository; supported interfaces, consumers, and release scope are not yet documented. | Provisional; avoid implying a stable API. |
+| `Gnosis-Research` | Gnosis research and migration workspace. Research material becomes an implementation claim only when mapped to exact source and evidence. | Provisional; relationship to Memory remains unresolved. |
+| `Gnosis-Knowledge` | Gnosis knowledge repository; schema, ingestion contract, and consumers remain to be defined. | Provisional; no accepted role inferred from the name. |
+| `Gnosis-Genesis` (private) | Private Gnosis repository. Its factory, production, and authority boundaries are not yet confirmed by current repository contents. | Provisional; private repository. |
+
 ## Operating rules
 
 1. **Observed contents are not accepted architecture.** Names, README claims, and directory names are clues, not proof of role or authority.
