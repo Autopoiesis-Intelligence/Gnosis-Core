@@ -1,25 +1,25 @@
 # Gnosis Contract Registry
 
-Status: ACTIVE ARCHITECTURAL REGISTRY
+Status: ACTIVE ARCHITECTURAL REGISTRY  
 Snapshot date: 2026-10-13
 
 This registry indexes declared contracts and observed repository boundaries. It does not grant authority or replace implementation contracts, CI, or runtime evidence. A contract is VERIFIED only when its required implementation, tests, exact-revision CI/runtime evidence, and acceptance conditions are present.
 
 ## Repository topology
 
-Repository names and visibility below were observed from the connected GitHub organization on 2026-10-13. Roles are based on the current repository map; a repository name alone does not establish its function or authority.
+Repository names and visibility below were observed from the connected GitHub organization on 2026-10-13. Roles are based on current repository contents and explicit documentation; a repository name alone does not establish its function or authority.
 
 | Repository | Observed / declared role | Authority and boundary |
 |---|---|---|
-| Gnosis (public) | Public product and evidence surface; current README/metadata alignment is under reconciliation | Public presentation and product surface; exact ownership of product code versus Core-owned code remains unresolved |
-| Gnosis-Core (public) | Canonical engineering repository for the active project workflow | Engineering contracts and implementation; relationship to private Gnosis-Genesis is unresolved |
+| Gnosis (public) | Public product and evidence surface | Product-code ownership versus Core-owned code remains unresolved |
+| Gnosis-Core (public) | Canonical engineering repository for the active project workflow | Engineering contracts and implementation; relationship to private Gnosis-Genesis remains unresolved |
 | Gnosis-Memory (public) | Research, formal material, provenance, and project-context collection | No execution authority inferred; canonical source-of-truth scope remains unresolved |
 | Gnosis-Research (public) | Research and migration workspace suggested by current contents | Relationship to research material in Gnosis and Gnosis-Memory remains unresolved |
 | Gnosis-Knowledge (public) | Repository exists; current root does not establish a stable role | Schema, ingestion contract, consumers, and authority are unconfirmed |
 | Gnosis-SDK (public) | Repository exists; current root does not establish a stable role | Supported interfaces, consumers, versioning, and release scope are unconfirmed |
 | Gnosis-Exchange (public) | Repository exists; current root does not establish a stable role | Product purpose and integration contract are unconfirmed |
 | Thoth (private) | Private repository exists; role is not established by the current repository map | No dependency, execution, or authority boundary inferred from its name |
-| Gnosis-Genesis (private) | Private repository exists; current root does not establish a production-factory role | Factory, production, deployment, and authority boundaries require explicit evidence and owner decision |
+| Gnosis-Genesis (private) | Private repository exists; current root does not establish a production-factory role | Factory, production, deployment, and authority boundaries require explicit evidence and an owner decision |
 
 Unconfirmed repositories must not be treated as implemented services or dependencies. Names in this table describe repository inventory, not accepted architecture.
 
