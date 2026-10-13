@@ -1,14 +1,14 @@
-# Gnozis Core — Research Knowledge Interface
+# Gnosis-Core — Research Knowledge Interface
 
 ## Purpose
 
-The Gnozis Research Machine is the durable, machine-readable knowledge layer for Gnozis. Gnozis Core remains the minimal execution and verification layer.
+The Gnosis Research Machine is the durable, machine-readable knowledge layer for Gnosis. Gnosis-Core remains the minimal execution and verification layer.
 
 The Core may consume research-derived records through an explicit interface. Research material does not acquire authority merely by being present in the library.
 
 ## Separation
 
-Gnozis Research Machine:
+Gnosis Research Machine:
 - discoveries;
 - reverse-analysis;
 - formal models;
