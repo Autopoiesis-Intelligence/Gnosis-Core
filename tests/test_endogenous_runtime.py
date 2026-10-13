@@ -167,6 +167,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     from gnosis.evolution.transaction import persist_evolution_transaction
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
+    from gnosis.reflection.persistence import list_evolution_provenance
     from gnosis.storage import connect, ensure_reflection_schema
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
@@ -180,7 +181,8 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     conn = connect(db); ensure_reflection_schema(conn)
     tx = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"status":"RECORDED"})
     rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
-    result = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
+    persisted_provenance = list_evolution_provenance(conn, candidate_id=provenance.candidate_id)[0]
+    result = verify_persisted_chain(persisted_provenance, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
     assert result.valid, result.reasons
     replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
     assert replay.valid, replay.reasons
