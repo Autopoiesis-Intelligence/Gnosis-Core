@@ -126,7 +126,7 @@ Goal: another authorized terminal reconstructs durable task context without depe
 Current operational layer:
 
 ```text
-L0 Ψ-Core
+L0 Gnosis Core
     ↓
 L1 Observation / Evidence
     ↓
@@ -139,7 +139,7 @@ L3 Shadow / Verification / Governance
 L4 Future Endogenous Evolution
 ```
 
-Reflection remains outside `gnosis/core`. No AI model belongs inside Ψ-Core. A `RuleProposal` is not a Core transition and cannot activate itself.
+Reflection remains outside `gnosis/core`. No AI model belongs inside Gnosis Core. A `RuleProposal` is not a Core transition and cannot activate itself.
 
 ## Reflection roadmap
 
