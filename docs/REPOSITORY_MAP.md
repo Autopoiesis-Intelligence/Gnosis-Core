@@ -24,7 +24,7 @@ These are point-in-time `main` commit refs resolved on 2026-10-13, not CI or run
 | Repository | Observed `main` SHA |
 |---|---|
 | `Gnosis` | `93f045f562e93e2f0fa74b42a711ec59b5b570da` |
-| `Gnosis-Core` | `6eed57dbbae1778039f1c2db67ab6a17b3ca091a` |
+| `Gnosis-Core` | `78f84f6c6ac771478525b547ba467aa773e626b7` |
 | `Gnosis-Memory` | `7d1b97ccea2febead512b5c0ff2905d038d7bb3a` |
 | `Gnosis-Exchange` | `f2f2d118706311e174672095c1430db75851e9a6` |
 | `Gnosis-SDK` | `f508bfe45109ba7bb7c3a00b3f2a625798d9a4cd` |
