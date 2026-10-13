@@ -276,7 +276,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-1"
     )
     request = ExecutionCommitRequest(
         auth,
@@ -367,6 +367,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity("approval-1", "policy-1", "ev-1"),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -485,6 +486,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity("approval-1", "policy-1", "ev-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
