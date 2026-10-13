@@ -457,30 +457,36 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
         "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
+    # Keep the forged duplicate inside a valid audit hash chain so graph
+    # verification reaches the duplicate-transition semantic check.
+    previous_hash = conn.execute(
+        "SELECT event_hash FROM audit_events WHERE sequence=?", (row[1],)
+    ).fetchone()[0]
+    duplicate_event = {
+        "event_id": "duplicate-audit",
+        "sequence": row[1] + 1,
+        "transition_id": row[2],
+        "actor": row[3],
+        "action": row[4],
+        "resource": row[5],
+        "result": row[6],
+        "timestamp": row[7],
+        "prev_hash": previous_hash,
+    }
     conn.execute(
         "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
-            "duplicate-audit",
-            row[1] + 1,
-            row[2],
-            row[3],
-            row[4],
-            row[5],
-            row[6],
-            row[7],
-            row[8],
-            _audit_hash({
-                "event_id": "duplicate-audit",
-                "sequence": row[1] + 1,
-                "transition_id": row[2],
-                "actor": row[3],
-                "action": row[4],
-                "resource": row[5],
-                "result": row[6],
-                "timestamp": row[7],
-                "prev_hash": row[8],
-            }),
+            duplicate_event["event_id"],
+            duplicate_event["sequence"],
+            duplicate_event["transition_id"],
+            duplicate_event["actor"],
+            duplicate_event["action"],
+            duplicate_event["resource"],
+            duplicate_event["result"],
+            duplicate_event["timestamp"],
+            duplicate_event["prev_hash"],
+            _audit_hash(duplicate_event),
         ),
     )
     with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
