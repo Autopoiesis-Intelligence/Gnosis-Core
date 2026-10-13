@@ -10,12 +10,14 @@ It exists so a replacement AI can continue from repository evidence rather than 
 
 **Status:** DOCUMENTATION_AND_ARCHITECTURE
 
+**Live main baseline observed for this reconciliation (2026-10-13):** `6eed57dbbae1778039f1c2db67ab6a17b3ca091a` at 2026-10-13T11:17:56Z. This is a point-in-time ref observation; recheck before future continuation. It is not CI/runtime evidence.
+
 **Objective:**
 Build the durable project-context layer that allows a newly connected AI product to recover the real project state, distinguish implementation from verification and acceptance, and continue bounded work without depending on a previous conversation.
 
 **Primary implementer:** ChatGPT
 
-**Independent reviewer:** Manus when available
+**Independent reviewer:** NOT ASSIGNED; ChatGPT performs the current audit, but self-review is not independent verification.
 
 **Integration gate:** ChatGPT under explicit human project-owner authorization
 
