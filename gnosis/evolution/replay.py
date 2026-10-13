@@ -53,6 +53,7 @@ def replay_complete(
     separately held evaluator/governance results. Reusing values read from the
     provenance object would only validate that object's internal consistency.
     This check does not establish that the sandbox independently observed governance.
+    A reproducible result is evidence consistency, not execution authority.
     """
     reasons: list[str] = []
     if provenance is None:
