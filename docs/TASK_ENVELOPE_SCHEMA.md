@@ -1,4 +1,4 @@
-# Gnozis Core — Task Envelope Schema
+# Gnosis-Core — Task Envelope Schema
 
 Status: architecture specification / no runtime implementation yet.
 
@@ -91,7 +91,7 @@ The same envelope can represent:
 - a management request;
 - a data-analysis task;
 - a CRM/work-chat request;
-- a delegated task performed by a future Gnozis agent.
+- a delegated task performed by a future Gnosis agent.
 
 Organization-specific routing and access policy must be layered on top rather than encoded as implicit behavior in the envelope.
 
