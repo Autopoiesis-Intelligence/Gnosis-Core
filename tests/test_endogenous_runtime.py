@@ -218,6 +218,19 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     )
     assert not rejected.reproducible
     assert "governance_decision mismatch" in rejected.reasons
+    tampered_binding = replace(provenance, candidate_binding_digest="tampered-binding")
+    rejected_binding = replay_complete(
+        sandbox.execution, tampered_binding, tx.audit_record,
+        observations=sandbox.execution.observations,
+        evaluation_status=evaluation.status,
+        shadow_status=governance.shadow_status,
+        invariant_status=governance.invariant_status,
+        governance_decision=governance.decision,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(state.content_id),
+    )
+    assert not rejected_binding.reproducible
+    assert "candidate_binding_digest mismatch" in rejected_binding.reasons
     conn.close()
 
 
