@@ -1,9 +1,9 @@
 {
   "schema": "gnozis.project-context/v5",
   "context_id": "gnozis-core-canonical-project",
-  "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
+  "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "branch": "main",
-  "snapshot_of_canonical_source_head": "722e3df0639b21155733ec9850ae1402dd62bc59",
+  "snapshot_of_canonical_source_head": "6eed57dbbae1778039f1c2db67ab6a17b3ca091a",
   "current_operating_scope": "SINGLE OWNER / SINGLE ACCOUNT / SINGLE CANONICAL PROJECT",
   "implementation_state": {
     "psi_core": "IMPLEMENTED",
@@ -66,9 +66,9 @@
     "R6 endogenous rule generation",
     "R7 cooperative self-reflection network - future multi-user strategy"
   ],
-  "primary_implementer": "Claude when explicitly assigned",
-  "independent_reviewer": "Manus when available",
-  "integration_gate": "ChatGPT under project-owner authorization",
+  "primary_implementer": "ChatGPT (active working assistant; bounded scope only under project-owner direction)",
+  "independent_reviewer": "NOT ASSIGNED — ChatGPT performs the current audit/review but is not independent of its own implementation",
+  "integration_gate": "Project owner explicit authorization; ChatGPT records evidence and review findings",
   "forbidden_scope": [
     "autonomous rule activation",
     "direct self-modification",
@@ -107,12 +107,10 @@
     "context/PHILOSOPHICAL_FORMALIZATION_MAPPING_GATE.json"
   ],
   "next_permitted_actions": [
-    "Run real pytest/CI against the current reflection foundation",
-    "Continue cross-contract self-audit from current main HEAD; do not inherit evidence from stale snapshots",
-    "verify reflection persistence and proposal lineage end-to-end",
-    "continue adversarial R2 trust-boundary contract work with exact current-head evidence",
-    "update public/project descriptions only from current source and verified evidence",
-    "do not activate or self-modify rules"
+    "Recheck live main HEAD and exact PR head/base refs before each new continuation.",
+    "Finish the repository identity, README, and description inventory tracked by Gnosis-Core issue #172.",
+    "Reconcile canonical handoff/status documents without upgrading implementation or CI claims.",
+    "Keep runtime, schema, path, migration, Memory corrective implementation, and execution-authority changes outside this documentation task unless the active phase and project owner explicitly authorize them."
   ],
   "rule": "Conversation history is non-canonical. Current source, reproducible tests/CI, accepted contracts and independent audit evidence outrank AI reports. Reflection may propose and evolve evidence-linked hypotheses, but has no activation authority over canonical Core.",
   "repository_role": "CANONICAL_CORE_FOUNDATION",
@@ -164,5 +162,6 @@
       "evidence_rule": "Only exact commit + exact test command + result + persisted evidence may promote status to VERIFIED"
     },
     "repository_sync": "E7.15 added as verification gate for E7.10-E7.14"
-  }
+  },
+  "snapshot_timestamp_utc": "2026-10-13T11:17:56Z"
 }
