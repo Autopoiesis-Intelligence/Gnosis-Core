@@ -1,9 +1,8 @@
 """Fail-closed trusted owner-authority issuance contract.
 
-The issuer is deliberately a pure boundary: it accepts an explicit root,
-scope, policy and exact evolution binding, and emits an immutable
-ExecutionAuthorization only when all bindings are exact. No clock, global
-state, external selector or automatic approval is introduced here.
+OwnerApproval is caller-constructible data, not proof of owner identity.
+Until a trusted-key signature verifier is wired into this path, this module
+must not convert an approval-shaped object into executable authority.
 """
 from __future__ import annotations
 
@@ -27,7 +26,21 @@ class TrustedOwnerIssuer:
     scope: str
     policy_version: str
 
-    def issue(self, request: TrustedIssuerInput, *, request_provenance: str, evolution_identity: str) -> ExecutionAuthorization:
+    def issue(
+        self,
+        request: TrustedIssuerInput,
+        *,
+        request_provenance: str,
+        evolution_identity: str,
+    ) -> ExecutionAuthorization:
+        """Reject unsigned approvals; never elevate caller-supplied fields.
+
+        This intentionally remains unavailable until signature authenticity,
+        trusted-key status/version, signed-field binding, and validity checks
+        are implemented and integrated with the existing execution gate.
+        """
+        # Retain cheap binding checks for clear, deterministic failures. These
+        # checks are not authentication and never suffice to issue authority.
         if not self.authority_root or not self.scope or not self.policy_version:
             raise PermissionError("trusted issuer configuration is incomplete")
         if request.authority_root != self.authority_root:
@@ -45,9 +58,8 @@ class TrustedOwnerIssuer:
             raise PermissionError("owner approval does not match provenance")
         if approval.evolution_identity != evolution_identity:
             raise PermissionError("owner approval does not match evolution")
-        return ExecutionAuthorization(
-            request_provenance=request_provenance,
-            owner_approved=True,
-            evolution_identity=evolution_identity,
-            approval_id=approval.approval_id,
+
+        raise PermissionError(
+            "unsigned OwnerApproval is not trusted; cryptographic owner "
+            "verification is not implemented"
         )
