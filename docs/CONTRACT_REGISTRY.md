@@ -1,16 +1,16 @@
-# Gnozis Contract Registry
+# Gnosis Contract Registry
 
 Status: ACTIVE ARCHITECTURAL REGISTRY
 Date: 2026-09-25
 
-This registry is the orchestration index for the current Gnozis repository architecture. It does not replace implementation contracts or runtime evidence. A contract becomes VERIFIED only when its required implementation, tests, CI/runtime evidence and acceptance conditions are present on the relevant canonical revision.
+This registry is the orchestration index for the current Gnosis repository architecture. It does not replace implementation contracts or runtime evidence. A contract becomes VERIFIED only when its required implementation, tests, CI/runtime evidence and acceptance conditions are present on the relevant canonical revision.
 
 ## Repository topology
 
 | Repository | Role | Authority |
 |---|---|---|
-| Gnozis | Public research/evidence/opportunity surface | Public presentation only |
-| Gnozis-Research-Memory | Machine-readable research, mathematics, provenance and context | No Core mutation authority |
+| Gnosis | Public research/evidence/opportunity surface | Public presentation only |
+| Gnosis-Memory | Machine-readable research, mathematics, provenance and context | No Core mutation authority |
 | Mnemosyne | Knowledge / relations / evidence graph | No Core mutation authority |
 | Hermes | Discoveries / signals / observation intake | No Core mutation authority |
 | Thoth | Research / experiments / evidence | No Core mutation authority |
@@ -18,7 +18,7 @@ This registry is the orchestration index for the current Gnozis repository archi
 | Hephaestus | Modules / products / marketplace outputs | No Core mutation authority |
 | Prometheus | Opportunities / market pipeline | No Core mutation authority |
 | Daedalus | CLI / MCP / API / SDK interface boundary | Capability-scoped access only |
-| Genesis / Genezis | Protected Core + Module Factory | Governed engineering authority |
+| Genesis | Protected Core + Module Factory | Governed engineering authority |
 | Uroboros | Core evolutionary mechanism | Bounded by Genesis trust/governance contracts |
 
 ## Execution order
@@ -49,8 +49,8 @@ This registry is the orchestration index for the current Gnozis repository archi
 | C6 | Core integration boundary | IMPLEMENTED CANDIDATE / AUDIT | Genesis |
 | C7 | Reflection evidence | IMPLEMENTED / UNVERIFIED | Genesis |
 | C8 | Governance / activation / rollback | MISSING | Genesis |
-| C9 | Research-Memory contract | PLANNED | Gnozis-Research-Memory |
-| C10 | Mathematical corpus | PLANNED | Gnozis-Research-Memory |
+| C9 | Research-Memory contract | PLANNED | Gnosis-Memory |
+| C10 | Mathematical corpus | PLANNED | Gnosis-Memory |
 | C11 | Knowledge graph contract | PLANNED | Mnemosyne |
 | C12 | Discovery/signal contract | PLANNED | Hermes |
 | C13 | Research/evidence contract | PLANNED | Thoth |
@@ -58,7 +58,7 @@ This registry is the orchestration index for the current Gnozis repository archi
 | C15 | Module/product contract | PLANNED | Hephaestus |
 | C16 | Opportunity/market contract | PLANNED | Prometheus |
 | C17 | Interface/capability contract | PLANNED | Daedalus |
-| C18 | Public Gnozis surface contract | PLANNED | Gnozis |
+| C18 | Public Gnosis surface contract | PLANNED | Gnosis |
 | C19 | Module Factory contract | PLANNED / bounded | Genesis |
 
 ## Evidence rule

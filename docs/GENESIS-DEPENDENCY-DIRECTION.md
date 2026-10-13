@@ -12,7 +12,7 @@ External layers may depend on Core contracts. Core must not depend on Genesis, P
 
 ## Rules
 
-1. `gnozis_core` is the lowest trusted runtime boundary.
+1. `gnosis_core` is the lowest trusted runtime boundary.
 2. Genesis may call Core through explicit interfaces.
 3. Genesis may propose state changes, modules, rules, or evidence, but Core verification decides whether trusted state can change.
 4. Product services may orchestrate Genesis and Knowledge but cannot bypass Core verification.
