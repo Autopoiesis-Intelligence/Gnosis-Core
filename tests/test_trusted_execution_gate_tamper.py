@@ -16,8 +16,8 @@ def test_validity_is_immutable(provenance):
         v.authorization_id="forged"
 
 
-def test_tampered_policy_is_rejected_before_consumption(sqlite_conn, provenance):
-    v=AuthorizationValidity("auth-t","policy-forged","ev-1")
+def test_mismatched_validity_evidence_is_rejected_before_consumption(sqlite_conn, provenance):
+    v=AuthorizationValidity("auth-t","policy-1","forged-evidence-digest")
     req=make_request(provenance,v)
     with pytest.raises(PermissionError):
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
