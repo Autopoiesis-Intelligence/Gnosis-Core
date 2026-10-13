@@ -150,7 +150,7 @@ Preserve all of the following:
 
 A self-consistent internal history can still be wrong about the external world.
 
-For empirical claims, Gnozis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
+For empirical claims, Gnosis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
 
 Conceptual path:
 
@@ -710,7 +710,7 @@ One of:
 
 At the end of substantial steps, provide the next task block using the CONSTANT TASK REGISTRY FORMAT.
 
-Do not add “time saved” or efficiency framing unless the user explicitly asks for it. The reverse-analysis method is itself part of the Gnozis research/product concept.
+Do not add “time saved” or efficiency framing unless the user explicitly asks for it. The reverse-analysis method is itself part of the Gnosis research/product concept.
 
 ## 27. ACTIVE TASK REGISTRY — E7.9 FRONTIER
 
@@ -1036,7 +1036,7 @@ The research question has shifted from “how many layers does the system have?�
 
 “What organizational process causes a system to create, activate, reorganize, compress and reuse levels of resolution in response to environmental tension while remaining epistemically and operationally bounded?”
 
-The strongest current hypothesis is that Gnozis is better modeled as a dynamic ecology of resolution structures than as a fixed hierarchy of processing layers.
+The strongest current hypothesis is that Gnosis is better modeled as a dynamic ecology of resolution structures than as a fixed hierarchy of processing layers.
 
 This hypothesis remains subject to counterexample-driven analysis.
 
@@ -1114,7 +1114,7 @@ Current chain:
 Environment → observation → distinction → tension/limitation → multiple resolution paths → verification → relational/structural reorganization → changed resolution capacity → new observation.
 
 Current strong hypothesis:
-Gnozis can be studied as a machine that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
+Gnosis can be studied as a machine that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
 
 The research must remain counterexample-driven. Do not infer consciousness, sentience, or metaphysical panpsychism from the architecture. Panpsychism may be used as a philosophical comparison lens, while the engineering object remains observable organization, information provenance, verification, and causal reorganization.
 
@@ -1251,7 +1251,7 @@ toward:
 environment-coupled and potentially co-evolutionary organization.
 
 Current strongest working formulation:
-Gnozis may be studied as a system that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
+Gnosis may be studied as a system that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
 
 This remains a research hypothesis. It is not proof of consciousness, sentience, panpsychism, or universal intelligence.
 
@@ -1797,8 +1797,8 @@ Biological examples must remain analogical unless a precise mapping is demonstra
 
 Do not infer:
 
-Biodiversity = Gnozis population
-Life = Gnozis
+Biodiversity = Gnosis population
+Life = Gnosis
 Evolution = software optimization
 Gnosis = consciousness
 Panpsychism = architecture.
@@ -2093,7 +2093,7 @@ This remains a research hypothesis until mapped to actual V2 behavior.
 
 ### E7.9.56 — Tension as a Driver Without a Global Objective
 
-If Gnozis is not given a universal objective such as MaximizeKnowledge or MaximizePossibility, a candidate source of directional movement is unresolved tension/insufficiency.
+If Gnosis is not given a universal objective such as MaximizeKnowledge or MaximizePossibility, a candidate source of directional movement is unresolved tension/insufficiency.
 
 Working cycle:
 
@@ -2555,7 +2555,7 @@ Research Machine is not a second Core and is not an authority source. Historical
 
 ### Purpose of restructuring
 
-The restructuring is itself product/engineering work. Its purpose is to move Gnozis from a research-heavy repository state toward a clean, working, auditable Core without losing the accumulated research history.
+The restructuring is itself product/engineering work. Its purpose is to move Gnosis from a research-heavy repository state toward a clean, working, auditable Core without losing the accumulated research history.
 
 The working translation loop is:
 
@@ -2589,7 +2589,7 @@ Do not perform blind bulk migration. Preserve provenance, status, uncertainty, r
 
 ### Important correction
 
-A temporary archive/ foundation was created in Gnozis-V2 during the transition before this naming/model was fully restored. It is not the final architectural target. Do not continue populating it as a separate product subsystem. First reconcile it with the intended Gnosis research layer model and existing docs/AI_KNOWLEDGE_INTERFACE.md contract.
+A temporary archive/foundation was created in Gnosis-Core during the transition. Older notes used the legacy label Gnozis-V2 for this repository; that label is historical, not a separate current product. It is not the final architectural target. Do not continue populating it as a separate product subsystem. First reconcile it with the intended Gnosis research layer model and existing docs/AI_KNOWLEDGE_INTERFACE.md contract.
 
 ### Current restructuring phase
 
@@ -4714,7 +4714,7 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 
 ## Repository Role Baseline
 
-`Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
+`Gnosis-Core` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnosis` remains the legacy/research/archive line.
 
 
 ## E7.118 — First Proof Runtime Evidence Integrity & Artifact Sealing
