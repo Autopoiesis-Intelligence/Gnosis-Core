@@ -85,7 +85,14 @@ def replay_complete(
         for field in ("parent_state_digest", "proposed_state_digest", "evidence_digest"):
             if getattr(audit_record, field, None) != getattr(execution, field, None):
                 reasons.append(f"audit {field} mismatch")
-        if audit_record.execution_id != getattr(execution, "execution_id", execution.candidate_id):
+        expected_execution_id = execution_id(
+            execution.candidate_id,
+            execution.parent_state_id,
+            execution.evidence_digest,
+            execution.parent_state_digest,
+            execution.proposed_state_digest,
+        )
+        if audit_record.execution_id != expected_execution_id:
             reasons.append("audit execution mismatch")
         if provenance is not None:
             link = crosscheck_provenance_audit(provenance, audit_record)
