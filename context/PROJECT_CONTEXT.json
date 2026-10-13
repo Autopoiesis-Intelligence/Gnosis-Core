@@ -140,7 +140,7 @@
       "task_id": "PHIL-001",
       "status": "PHIL-001..PHIL-006 CONTRACT STACK DEFINED",
       "authority": "RESEARCH_ONLY",
-      "migration_gate": "formalization -> falsifiable consequence -> counterexample attack -> Gnozis mapping -> independent audit",
+      "migration_gate": "formalization -> falsifiable consequence -> counterexample attack -> Gnosis mapping -> independent audit",
       "core_integration": "NOT_AUTHORIZED",
       "next_task": "RESEARCH-MOD-001",
       "module": "RESEARCH-PHIL-001",
