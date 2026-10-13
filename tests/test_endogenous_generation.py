@@ -107,6 +107,35 @@ def test_endogenous_candidate_binds_exact_proposal():
     assert candidate_binds_proposal(candidate, report.proposals[0])
 
 
+def test_endogenous_candidate_rejects_relation_payload_substitution():
+    from gnosis.core.types import Candidate, Relation
+
+    state = State(elements={"a": 1})
+    report = ReflectionReport(proposals=(proposal(1),))
+    candidate = generate_endogenous_candidates(state, report).candidates[0]
+    relations = tuple(
+        Relation(
+            source=relation.source,
+            target=relation.target,
+            relation_type=relation.relation_type,
+            value={**dict(relation.value), "hypothesis": "tampered hypothesis"},
+        ) if relation.source == "__gnozis_reflection__" else relation
+        for relation in candidate.proposed_state.relations
+    )
+    tampered_state = State(
+        elements=candidate.proposed_state.elements,
+        relations=relations,
+        version=candidate.proposed_state.version,
+    )
+    tampered = Candidate(
+        parent_state_id=candidate.parent_state_id,
+        proposed_state=tampered_state,
+        origin=candidate.origin,
+        seed=candidate.seed,
+    )
+    assert not candidate_binds_proposal(tampered, report.proposals[0])
+
+
 def test_endogenous_candidate_rejects_proposal_substitution():
     state = State(elements={"a": 1})
     report = ReflectionReport(proposals=(proposal(1), proposal(2)))
