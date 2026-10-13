@@ -2,7 +2,7 @@
 
 **Canonical repository: `Autopoiesis-Intelligence/Gnosis-Core` — engineering Core and architecture/runtime contracts.**
 
-The public `Gnosis` repository is the product/evidence surface. `Gnosis-Memory` holds durable research and project context. Other repositories have bounded roles that must be documented in the repository map; their existence does not make them interchangeable with Core.
+The public `Gnosis` repository describes itself as the product/evidence surface. `Gnosis-Memory` currently contains research and project-context documents, but its canonical source-of-truth scope is unresolved; its `AI_CONTEXT.md` is byte-identical to the copy in `Gnosis` at the refs inspected on 2026-10-13. See `docs/REPOSITORY_MAP.md`. Other repositories have bounded or unresolved roles; do not infer authority or dependencies from names alone.
 
 Historical references to Genesis/Genezis or earlier repository owners are retained where useful for provenance, but they are not the current canonical repository identity.
 
