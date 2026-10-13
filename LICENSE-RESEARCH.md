@@ -1,10 +1,10 @@
-# Gnozis Research Use and Copyright Notice
+# Gnosis Research Use and Copyright Notice
 
 Copyright © 2026 Mikhail Kucheriavyi. All rights reserved.
 
 ## Purpose
 
-This repository contains research material, experimental implementations, documentation, mathematical models and historical development work related to Gnozis.
+This repository contains research material, experimental implementations, documentation, mathematical models and historical development work related to Gnosis.
 
 The repository is provided for research, study, evaluation and educational use under the terms stated in this notice, unless a more specific license or notice applies to an individual file.
 
@@ -13,9 +13,9 @@ The repository is provided for research, study, evaluation and educational use u
 You may inspect, run, reproduce and modify the research material for non-commercial research, education and personal study, provided that:
 
 1. copyright and attribution notices are retained;
-2. substantial derived research material identifies Gnozis as its source;
+2. substantial derived research material identifies Gnosis as its source;
 3. modifications are clearly identified as modifications;
-4. no modified work is represented as an official Gnozis release.
+4. no modified work is represented as an official Gnosis release.
 
 ## Commercial use
 
@@ -23,7 +23,7 @@ Commercial use, commercial distribution, incorporation into a commercial product
 
 ## No implied rights
 
-Publication of source code does not grant ownership of Gnozis, its names, trademarks, commercial rights or future product rights.
+Publication of source code does not grant ownership of Gnosis, its names, trademarks, commercial rights or future product rights.
 
 ## No warranty
 
