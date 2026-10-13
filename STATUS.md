@@ -12,12 +12,13 @@ Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / D
 
 ## Latest exact-HEAD CI observation (2026-10-13; PR #173)
 
-- Observed branch HEAD: `7e76def0a96c0298aaf04cfe08dc74407693ef80`; base `main` at observation: `78f84f6c6ac771478525b547ba467aa773e626b7`.
-- Python 3.11 tests: **FAIL**. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443097764).
-- Python 3.12 tests: **CANCELLED** — not a pass and not proof that the suite failed.
-- Dependency Review: **FAIL**. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443097762).
-- Graph checks, CodeQL, and generation check: **PASS** in the observed check set.
-- Overall CI on this exact HEAD is **NOT PASSING**. The failure details have not been reconciled against the same-base SHA in this observation, so regression attribution remains **UNRESOLVED**. Documentation-only changes do not justify claiming the failures are caused by branding edits.
+- Observed branch HEAD: `9c63ded28efad98b4a76782d50ab13aae58fe67a`; base `main` at observation: `78f84f6c6ac771478525b547ba467aa773e626b7`.
+- Python 3.11 test job: **FAIL** — 33 failed, 931 passed, 2 errors. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443778431).
+- Python 3.12 test job: **CANCELLED** by the workflow after the 3.11 failure; its available log nevertheless reports the same 33 failed, 931 passed, 2 errors. This is not a successful CI result.
+- The failure set includes persistence/audit replay, recovery authorization call signatures, reflection-gate required arguments, missing `Engine.generate_candidates`, and execution-adapter interface mismatch. These are broader runtime/API contract issues; this documentation-only PR does not attempt to repair them.
+- Dependency Review: **FAIL because GitHub reports dependency review is unsupported while the repository dependency graph is disabled** — [run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443778509). This is a repository security-setting/configuration blocker, not evidence of a newly detected vulnerable dependency.
+- Graph checks, generation, and CodeQL (Python and Actions) are **PASS** in the observed check set.
+- Overall CI on this exact HEAD is **NOT PASSING**. The current base SHA does not have a comparable completed Python test run in the inspected check set, so regression attribution versus this exact base remains **UNRESOLVED**. Do not attribute these failures to the documentation edits without controlled comparison.
 - This is a time-bounded CI observation, not a runtime or release-readiness claim. Recheck checks against the latest branch HEAD after any further commit.
 
 
