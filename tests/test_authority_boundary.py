@@ -115,6 +115,40 @@ def test_execution_commit_gate_requires_all_boundaries():
     require_execution_commit(request)
 
 
+def test_execution_commit_identity_includes_evaluator_identity_fields():
+    observations = {"result": "ok"}
+    evidence_digest = canonical_digest(observations)
+    provenance = build_provenance(
+        candidate_id="candidate-evaluator-bound",
+        parent_state_id="parent-1",
+        parent_state_digest="parent-digest",
+        proposed_state_digest=canonical_digest({"state": "new"}),
+        observations=observations,
+        proposed_state_content_id="content-1",
+        candidate_binding_digest="binding-1",
+        evidence_digest=evidence_digest,
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+        evaluator_identity_ref="evaluator:trusted",
+        evaluator_identity_version="v1",
+    )
+    auth = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+    )
+    request = ExecutionCommitRequest(
+        authorization=auth,
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        provenance=provenance,
+    )
+    require_execution_commit(request)
+
+
 def test_execution_commit_gate_rejects_cross_bound_evolution():
     provenance = _snapshot_provenance()
     auth = ExecutionAuthorization(request_provenance=provenance.provenance_id, evolution_identity="wrong", owner_approved=True)
