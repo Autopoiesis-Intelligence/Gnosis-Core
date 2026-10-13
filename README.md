@@ -1,13 +1,13 @@
 # GNOSIS CORE — Engineering Foundation
 
-> **Canonical naming (2026-10-13):** this repository is `Autopoiesis-Intelligence/Gnosis-Core`, the public engineering Core. The product/evidence surface is `Autopoiesis-Intelligence/Gnosis`. `Autopoiesis-Intelligence/Gnosis-Genesis` is a separate private repository; its precise implementation/authority boundary is not yet established by the inspected repository contents. Older role descriptions that conflate this repository with the private factory repository are obsolete and do not define current identity.
+> **Canonical naming (2026-10-13):** this repository is `Autopoiesis-Intelligence/Gnosis-Core`, the public engineering Core. The product/evidence surface is `Autopoiesis-Intelligence/Gnosis`. A separate private repository exists, but its precise implementation and authority boundary relative to this Core is not established by the inspected contents. Older descriptions that conflate this repository with the private factory repository do not define current identity.
 
 
 ## Canonical engineering base for Gnosis research kernels and user products
 
 Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The public `Gnosis` repository is the product and evidence surface. `Gnosis-Memory` contains research and project-context material, but its canonical source-of-truth scope remains unresolved. This repository is the public engineering Core; it must not be treated as identical to the separate private `Gnosis-Genesis` repository without an explicit architecture decision. Core receives research-derived requirements only after they have been formalized and mapped to code.
+The public `Gnosis` repository is the product and evidence surface. `Gnosis-Memory` contains research and project-context material, but its canonical source-of-truth scope remains unresolved. This repository is the public engineering Core; it must not be treated as identical to the separate private repository without an explicit architecture decision. Core receives research-derived requirements only after they have been formalized and mapped to code.
 
 ## Project relationship
 
@@ -17,7 +17,7 @@ Gnosis-Memory (scope under reconciliation)
         ↓ research / mathematics / provenance
 Gnosis-Core
         ↓ engineering implementation and verification
-[private Gnosis-Genesis boundary: role not yet confirmed]
+[private repository boundary: role not yet confirmed]
 
 ## Core rule
 
@@ -100,7 +100,7 @@ Public product/evidence repository: **`Autopoiesis-Intelligence/Gnosis`**.
 
 Research/context repository: **`Autopoiesis-Intelligence/Gnosis-Memory`**, with canonical source-of-truth scope still unresolved.
 
-Private repository: **`Autopoiesis-Intelligence/Gnosis-Genesis`**; its exact relationship to the public Core remains unresolved. Do not treat the private factory repository as an alias for this repository until the boundary is explicitly accepted. Legacy repository identifiers may remain in provenance artifacts where needed, but are not current canonical identities.
+A separate private repository exists, but its exact relationship to the public Core remains unresolved. Do not treat it as an alias for this repository until the boundary is explicitly accepted. Historical repository identifiers may remain in provenance artifacts where needed, but are not current canonical identities.
 
 ## Partnership and specialized commercial cores
 
