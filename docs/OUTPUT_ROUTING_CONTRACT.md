@@ -1,10 +1,10 @@
-# Gnozis Core — Output Routing Contract
+# Gnosis-Core — Output Routing Contract
 
 ## Status
 
 `ARCHITECTURE CONTRACT — IMPLEMENTATION NOT YET ACCEPTED`
 
-Gnozis may eventually deliver verified task results through multiple connected products: AI terminals, work chats, mobile applications, CRM systems, or other user-selected destinations. Delivery must remain an explicit policy decision rather than an accidental property of connector availability.
+Gnosis may eventually deliver verified task results through multiple connected products: AI terminals, work chats, mobile applications, CRM systems, or other user-selected destinations. Delivery must remain an explicit policy decision rather than an accidental property of connector availability.
 
 ## 1. Logical model
 
