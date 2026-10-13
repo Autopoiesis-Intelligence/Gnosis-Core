@@ -111,6 +111,8 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
         return False
     if node.get("proposed_version") != proposal.proposed_version:
         return False
+    if node.get("hypothesis") != proposal.hypothesis:
+        return False
     if tuple(node.get("evidence_refs", ())) != tuple(proposal.evidence_refs):
         return False
     relations = tuple(
