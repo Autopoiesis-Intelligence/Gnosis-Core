@@ -10,8 +10,16 @@ Historical references to Genesis/Genezis or earlier repository owners are retain
 
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
+## CI baseline and branding-PR verification (2026-10-13)
+
+- Base-branch CI run [#38409516906](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38409516906), SHA `2adddfb8ca5acca220df08b3d5995472ff8cc857`: **33 failed, 931 passed, 2 errors**.
+- Branding PR #173 CI run [#38429535018](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38429535018), SHA `c3338318215db32f27fc1c148af00969267ebea4`: **33 failed, 931 passed, 2 errors**. The extracted failing/error test identifiers match the base run exactly (35 entries; no base-only or PR-only entries). The PR's changes at that point were documentation-only, so this evidence supports classifying those test failures as pre-existing, not regressions from the branding changes.
+- The current `main` SHA `78f84f6c6ac771478525b547ba467aa773e626b7` differs from that test baseline only in `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md`; no source or test files changed between those refs.
+- Dependency Review run #1109 failed because GitHub Dependency Review is unsupported while the repository's dependency graph is disabled. This is a repository security-settings blocker, not a test-suite result. Do not silently weaken or skip the security check; resolve the repository setting separately.
+- These results apply to the cited SHAs only. The later documentation commits in this PR still require their own exact-HEAD CI before being considered CI-proven.
+
 ## Current repository baseline
-- Canonical `main` HEAD observed during repository-state reconciliation on 2026-10-13: `6eed57dbbae1778039f1c2db67ab6a17b3ca091a` (observation time: 2026-10-13T11:17:56Z). This records the observed ref only; it does not establish a passing test/CI result for this SHA.
+- Canonical `main` HEAD observed during repository-state reconciliation on 2026-10-13: `78f84f6c6ac771478525b547ba467aa773e626b7` (observation time: 2026-10-13T16:00:05Z). This records the observed ref only; it does not establish a passing test/CI result for this SHA.
 
 - Repository: `Autopoiesis-Intelligence/Gnosis-Core`
 - Branch: `main`
