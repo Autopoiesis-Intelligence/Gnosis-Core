@@ -43,6 +43,27 @@ def reflection_id(report: ReflectionReport, created_at: str | None = None) -> st
 def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
+        CREATE TABLE IF NOT EXISTS owner_authorizations (
+            authorization_id TEXT PRIMARY KEY,
+            nonce TEXT NOT NULL UNIQUE,
+            issuer_id TEXT NOT NULL,
+            key_version TEXT NOT NULL,
+            authority_root TEXT NOT NULL,
+            scope TEXT NOT NULL,
+            policy_version TEXT NOT NULL,
+            request_provenance TEXT NOT NULL,
+            evolution_identity TEXT NOT NULL,
+            parent_state_digest TEXT NOT NULL,
+            evidence_digest TEXT NOT NULL,
+            valid_from TEXT NOT NULL,
+            valid_until TEXT NOT NULL,
+            signature BLOB NOT NULL,
+            consumed INTEGER NOT NULL DEFAULT 0 CHECK(consumed IN (0,1)),
+            revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)),
+            integrity_digest TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_owner_authorizations_evolution
+            ON owner_authorizations(evolution_identity);
         CREATE TABLE IF NOT EXISTS reflection_reports (
             report_id TEXT PRIMARY KEY,
             created_at TEXT NOT NULL,
