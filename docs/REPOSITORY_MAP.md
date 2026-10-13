@@ -4,6 +4,8 @@
 **Purpose:** distinguish observed repository contents from intended roles and unresolved ownership boundaries.  
 **Authority rule:** this map records observations; it does not itself grant implementation or execution authority. Recheck default-branch refs before relying on any SHA.
 
+**Snapshot scope note (2026-10-13):** repository contents, README statements, descriptions, and SHAs in the tables below record the observed default-branch (`main`) state at the snapshot time. They do not describe unmerged PR branches. In particular, the README/branding changes in the open Gnosis-Core PR #173 and related branding PRs are branch-only until merged; do not read this map's older `main` observations as a claim that those changes are absent from the PR branches. Recheck live refs before treating the snapshot as current.
+
 ## Repositories
 
 | Repository | Visibility | Observed root / declared role | Current classification | Unresolved boundary |
