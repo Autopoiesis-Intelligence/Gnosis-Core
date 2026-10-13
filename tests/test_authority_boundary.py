@@ -540,3 +540,28 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+
+def test_evolution_identity_producer_and_authority_use_same_canonical_function():
+    from gnosis.evolution.provenance import EvidenceProvenance, canonical_evolution_identity
+    from gnosis.reflection.authority import _canonical_evolution_identity
+
+    provenance = EvidenceProvenance(
+        execution_id="e",
+        candidate_id="c",
+        parent_state_id="s",
+        parent_state_digest="pd",
+        proposed_state_digest="sd",
+        proposed_state_content_id="sc",
+        candidate_binding_digest="cb",
+        evaluator_identity_ref="evaluator-ref",
+        evaluator_identity_version="v1",
+        evidence_digest="ed",
+        evaluation_status="PASS",
+        shadow_status="NO_BEHAVIORAL_CHANGE",
+        invariant_status="PASS",
+        governance_decision="ACCEPT",
+    )
+
+    assert provenance.evolution_identity == canonical_evolution_identity(provenance)
+    assert provenance.evolution_identity == _canonical_evolution_identity(provenance)
