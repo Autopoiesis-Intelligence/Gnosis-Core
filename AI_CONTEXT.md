@@ -1,8 +1,16 @@
-# Gnozis — AI Context
+# Gnosis-Core — AI Context
+
+## Canonical identity and precedence (2026-10-13)
+
+- Canonical product spelling: **Gnosis**.
+- This repository is **Gnosis-Core** (Autopoiesis-Intelligence/Gnosis-Core). The public product/evidence repository is **Gnosis** (Autopoiesis-Intelligence/Gnosis).
+- Gnozis, Gnozis-V2, and Genezis are legacy spellings or historical labels, not current repository identities. Do not use them as current names.
+- This accumulated file contains older research notes and historical architectural labels. Preserve them only when discussing historical evidence; do not treat them as current architecture without corroboration from current source, accepted contracts, and exact-SHA CI/runtime evidence.
+- Current repository identity and operating status are governed by README.md, STATUS.md, context/PROJECT_CONTEXT.json, docs/CONTRACT_REGISTRY.md, and docs/REPOSITORY_MAP.md. If an older section conflicts with those sources, reconcile the conflict instead of assuming the older section is current.
 
 ## 0. PURPOSE / OPERATING RULE
 
-This file is the operational handoff and research context for AI agents working on Gnozis Core.
+This file is the operational handoff and accumulated research context for AI agents working on Gnosis-Core.
 
 Repository:
 - GitHub: Autopoiesis-Intelligence/Gnosis-Core
