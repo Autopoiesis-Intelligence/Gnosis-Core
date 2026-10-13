@@ -1,10 +1,10 @@
-# Gnozis-V2 — Capability and Result Routing Contract
+# Gnosis — Capability and Result Routing Contract
 
 Status: architecture specification / no runtime implementation yet.
 
 ## 1. Principle
 
-A connected product is a surface through which a user or authorized agent interacts with Gnozis. Connection alone grants no architectural authority.
+A connected product is a surface through which a user or authorized agent interacts with Gnosis. Connection alone grants no architectural authority.
 
 ```text
 connection
@@ -146,14 +146,14 @@ This prevents stale notifications from becoming authoritative project state.
 
 ## 8. Organization / CRM routing
 
-An organization may use Gnozis as an analytical core while individual users retain separate personal tool connections.
+An organization may use Gnosis as an analytical core while individual users retain separate personal tool connections.
 
 Example:
 
 ```text
 work chat → creates organizational task
                  ↓
-              Gnozis
+              Gnosis
                  ↓
        role-specific analysis
           ↙             ↘
