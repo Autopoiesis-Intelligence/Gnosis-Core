@@ -6,6 +6,7 @@ state records the proposal as a relation in X/R, making the hypothesis itself a
 bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Sequence
 from gnosis.core.evolution import Engine
@@ -98,7 +99,9 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
     if candidate.origin != "reflection:endogenous":
         return False
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
+    # State.__post_init__ deep-freezes nested mappings into MappingProxyType.
+    # Validate against the Mapping contract rather than concrete mutable dicts.
+    if not isinstance(node, Mapping):
         return False
     if node.get("kind") != "rule_proposal":
         return False
@@ -110,13 +113,28 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
         return False
     if node.get("proposed_version") != proposal.proposed_version:
         return False
+    if node.get("hypothesis") != proposal.hypothesis:
+        return False
     if tuple(node.get("evidence_refs", ())) != tuple(proposal.evidence_refs):
         return False
     relations = tuple(
         relation for relation in candidate.proposed_state.relations
         if relation.source == REFLECTION_NODE and relation.target == proposal.proposal_id
     )
-    return len(relations) == 1 and relations[0].relation_type == "proposed_rule"
+    if len(relations) != 1 or relations[0].relation_type != "proposed_rule":
+        return False
+    relation_value = relations[0].value
+    if not isinstance(relation_value, Mapping):
+        return False
+    expected_relation = {
+        "finding_id": proposal.finding_id,
+        "rule_id": proposal.rule_id,
+        "current_version": proposal.current_version,
+        "proposed_version": proposal.proposed_version,
+        "hypothesis": proposal.hypothesis,
+        "evidence_refs": tuple(proposal.evidence_refs),
+    }
+    return all(relation_value.get(key) == value for key, value in expected_relation.items())
 
 
 def commit_endogenous_candidates(
@@ -127,12 +145,18 @@ def commit_endogenous_candidates(
     """Commit endogenous candidates only after exact proposal provenance validation."""
     proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
     for candidate in candidates:
-        proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
-            None,
+        # A candidate can inherit historical proposal relations from its parent
+        # State. Bind it to the unique proposal in the supplied report rather
+        # than whichever historical relation happens to appear first.
+        proposal_relations = tuple(
+            relation for relation in candidate.proposed_state.relations
+            if relation.source == REFLECTION_NODE
+            and relation.relation_type == "proposed_rule"
+            and relation.target in proposals
         )
-        proposal = proposals.get(proposal_id)
-        if proposal is None or not candidate_binds_proposal(candidate, proposal):
+        if len(proposal_relations) != 1:
+            raise ValueError("endogenous candidate is not bound to exactly one supplied reflection proposal")
+        proposal = proposals[proposal_relations[0].target]
+        if not candidate_binds_proposal(candidate, proposal):
             raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
     return engine.step_select(candidates)

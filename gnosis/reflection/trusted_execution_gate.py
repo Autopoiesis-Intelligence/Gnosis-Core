@@ -16,22 +16,27 @@ def require_trusted_execution(
     *,
     conn: object,
     actor: str,
+    expected_policy_version: str,
+    expected_evidence_digest: str,
 ) -> None:
-    """Validate request-bound authorization, consume it once, then run canonical Core gate.
+    """Validate authorization against policy supplied by an independent trust boundary.
 
-    The caller must invoke this inside the same transaction that performs the
-    eventual mutation. This function itself never mutates Core state.
+    The caller must provide expected_policy_version from trusted configuration;
+    it must not be copied from the request or its validity record. The caller
+    must invoke this inside the same transaction that performs the mutation.
     """
+    if not expected_policy_version:
+        raise PermissionError("trusted expected policy version is required")
+    if not expected_evidence_digest:
+        raise PermissionError("trusted expected validity evidence digest is required")
     validity = request.authorization_validity
     if not isinstance(validity, AuthorizationValidity):
         raise PermissionError("authorization validity is required")
     if validity.authorization_id != request.authorization.approval_id:
         raise PermissionError("authorization validity identity mismatch")
-    if validity.policy_version == "":
-        raise PermissionError("authorization policy is missing")
     validity.require_valid(
-        expected_policy_version=validity.policy_version,
-        expected_evidence_digest=validity.validity_evidence_digest,
+        expected_policy_version=expected_policy_version,
+        expected_evidence_digest=expected_evidence_digest,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(
@@ -39,6 +44,6 @@ def require_trusted_execution(
         validity.authorization_id,
         request_provenance=request.request_provenance,
         evolution_identity=request.evolution_identity,
-        policy_version=validity.policy_version,
+        policy_version=expected_policy_version,
         actor=actor,
     )

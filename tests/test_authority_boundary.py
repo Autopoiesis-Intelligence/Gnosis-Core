@@ -176,6 +176,79 @@ def _make_execution_commit_request(provenance):
     )
 
 
+
+def _bind_signed_production_authorization(provenance, request, *, nonce):
+    """Give an integration test a real signed grant bound to its exact request."""
+    import base64
+    from dataclasses import replace
+    from nacl.signing import SigningKey
+    from gnosis.reflection.owner_authorization import (
+        ACTIVE, ProductionAuthorization, TrustedIssuerKey,
+    )
+    from gnosis.reflection.production_trust_context import ProductionTrustContext
+
+    issuer_id = "test-owner-root"
+    key_version = "test-key-1"
+    policy_version = "policy-1"
+    now = 1_800_000_000
+    signing_key = SigningKey.generate()
+    unsigned = ProductionAuthorization(
+        authorization_id="pending",
+        issuer_id=issuer_id,
+        key_version=key_version,
+        authority_scope=("core:commit",),
+        policy_version=policy_version,
+        evolution_identity=provenance.evolution_identity,
+        parent_state_digest=provenance.parent_state_digest,
+        request_provenance=provenance.provenance_id,
+        valid_from=now - 60,
+        expires_at=now + 60,
+        nonce=nonce,
+        signature="pending",
+    )
+    unsigned = replace(unsigned, authorization_id=unsigned.expected_authorization_id())
+    signed = replace(
+        unsigned,
+        signature=base64.b64encode(
+            signing_key.sign(unsigned.canonical_bytes()).signature
+        ).decode("ascii"),
+    )
+    trusted_key = TrustedIssuerKey(
+        issuer_id=issuer_id,
+        key_version=key_version,
+        public_key=bytes(signing_key.verify_key),
+        status=ACTIVE,
+        valid_from=now - 100,
+        expires_at=now + 100,
+    )
+
+    class Resolver:
+        def resolve(self, requested_issuer_id, requested_key_version):
+            if (requested_issuer_id, requested_key_version) != (issuer_id, key_version):
+                return None
+            return trusted_key
+
+    context = ProductionTrustContext(
+        issuer_key_resolver=Resolver(),
+        authority_scope=frozenset({"core:commit"}),
+        policy_version=policy_version,
+        trusted_clock=lambda: now,
+        validity_evidence_digest_resolver=lambda authorization_id: "legacy-evidence",
+    )
+    bound_request = replace(
+        request,
+        authorization=replace(
+            request.authorization,
+            approval_id=signed.authorization_id,
+        ),
+        authorization_validity=AuthorizationValidity(
+            authorization_id=signed.authorization_id,
+            policy_version=policy_version,
+            validity_evidence_digest="legacy-evidence",
+        ),
+    )
+    return bound_request, signed, context
+
 def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     from gnosis.core import Candidate, State, TestResult, TransitionRecord
     from gnosis.evolution.provenance import build_provenance, canonical_digest
@@ -204,8 +277,13 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     )
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
-    request = _make_execution_commit_request(provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
+    request, signed, trust_context = _bind_signed_production_authorization(
+        provenance, _make_execution_commit_request(provenance), nonce="persist-actual-state"
+    )
+    result = SQLiteExecutionCommitAdapter().commit(
+        conn, instance, candidate, record, request, actor="user-1",
+        production_authorization=signed, trust_context=trust_context,
+    )
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
@@ -299,9 +377,13 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         reason="committed",
     )
 
+    request, signed, trust_context = _bind_signed_production_authorization(
+        provenance, request, nonce="cross-candidate-substitution"
+    )
     with pytest.raises(PermissionError, match="candidate"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_b, record_b, request, actor="user-1"
+            conn, instance, candidate_b, record_b, request, actor="user-1",
+            production_authorization=signed, trust_context=trust_context,
         )
 
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
@@ -377,9 +459,13 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         reason="committed",
     )
 
+    request, signed, trust_context = _bind_signed_production_authorization(
+        forged, request, nonce="forged-provenance-binding"
+    )
     with pytest.raises(PermissionError, match="canonical"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_b, record_b, request, actor="user-1"
+            conn, instance, candidate_b, record_b, request, actor="user-1",
+            production_authorization=signed, trust_context=trust_context,
         )
 
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
@@ -477,14 +563,9 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         invariant_status="PRESERVED",
         governance_decision="ALLOW",
     )
-    request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
-        ExecutionIntentSnapshot.from_provenance(provenance_a),
-        provenance_a.provenance_id,
-        provenance_a.evolution_identity,
-        provenance_a,
+    request = _make_execution_commit_request(provenance_a)
+    request, signed_a, trust_context_a = _bind_signed_production_authorization(
+        provenance_a, request, nonce="stale-authorized-a"
     )
 
     # Another valid transition advances the canonical instance head after authorization.
@@ -508,10 +589,14 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         governance_decision="ALLOW",
     )
     record_b = instance.engine.step(candidate_b)
+    request_b, signed_b, trust_context_b = _bind_signed_production_authorization(
+        provenance_b, _make_execution_commit_request(provenance_b),
+        nonce="advance-canonical-head-b",
+    )
     SQLiteExecutionCommitAdapter().commit(
-        conn, instance, candidate_b, record_b,
-        _make_execution_commit_request(provenance_b),
-        actor="user-1",
+        conn, instance, candidate_b, record_b, request_b,
+        actor="user-1", production_authorization=signed_b,
+        trust_context=trust_context_b,
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
     assert advanced_head == candidate_b.proposed_state.state_id
@@ -527,7 +612,8 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     with pytest.raises(ValueError, match="stale instance head"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_a, record_a, request, actor="user-1"
+            conn, instance, candidate_a, record_a, request, actor="user-1",
+            production_authorization=signed_a, trust_context=trust_context_a,
         )
 
     current = load_instance(conn, instance.instance_id)

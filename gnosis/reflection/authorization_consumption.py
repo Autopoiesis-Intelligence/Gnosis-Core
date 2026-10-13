@@ -28,3 +28,36 @@ def consume_authorization(conn, authorization_id: str, *, request_provenance: st
     from gnosis.storage.database import transaction
     with transaction(conn):
         return consume_authorization_in_transaction(conn, authorization_id, request_provenance=request_provenance, evolution_identity=evolution_identity, policy_version=policy_version, actor=actor)
+
+def consume_authorization_nonce_in_transaction(
+    conn,
+    nonce: str,
+    *,
+    authorization_id: str,
+    actor: str,
+) -> None:
+    """Consume a signed authorization nonce inside the existing commit transaction."""
+    if not all(
+        isinstance(value, str) and value.strip()
+        for value in (nonce, authorization_id, actor)
+    ):
+        raise PermissionError("authorization nonce consumption input is incomplete")
+    from gnosis.storage.repositories import append_audit, verify_audit_chain
+
+    event_key = f"execution-authorization-nonce:{nonce}"
+    existing = conn.execute(
+        "SELECT event_hash FROM audit_events WHERE event_id=?",
+        (event_key,),
+    ).fetchone()
+    if existing is not None:
+        raise PermissionError("execution authorization nonce already consumed")
+    append_audit(
+        conn,
+        actor=actor,
+        action="execution.authorization.nonce.consume",
+        resource=authorization_id,
+        result="accepted",
+        event_key=event_key,
+    )
+    verify_audit_chain(conn)
+
