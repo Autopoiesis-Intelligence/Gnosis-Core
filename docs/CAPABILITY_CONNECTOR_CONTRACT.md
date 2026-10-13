@@ -1,10 +1,10 @@
-# Gnozis-V2 — Capability & Connector Contract
+# Gnosis — Capability & Connector Contract
 
 Status: architecture contract / implementation not yet accepted.
 
 ## Purpose
 
-Connected products are interfaces to Gnozis, not owners of Gnozis authority.
+Connected products are interfaces to Gnosis, not owners of Gnosis authority.
 
 Examples include:
 
