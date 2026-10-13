@@ -1,10 +1,10 @@
-# Gnozis Core — Connected Data Source Contract
+# Gnosis-Core — Connected Data Source Contract
 
 ## Status
 
 `ARCHITECTURE CONTRACT — IMPLEMENTATION NOT YET ACCEPTED`
 
-A connected data source is an input channel through which Gnozis may obtain information. Connection alone never means that all data in the source is available to a task.
+A connected data source is an input channel through which Gnosis may obtain information. Connection alone never means that all data in the source is available to a task.
 
 ## 1. Logical model
 
