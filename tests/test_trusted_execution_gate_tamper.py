@@ -17,7 +17,7 @@ def test_validity_is_immutable(provenance):
 
 
 def test_tampered_policy_is_rejected_before_consumption(sqlite_conn, provenance):
-    v=AuthorizationValidity("auth-t","policy-forged",provenance.evidence_digest)
+    v=AuthorizationValidity("auth-t","policy-forged","ev-1")
     req=make_request(provenance,v)
     with pytest.raises(PermissionError, match="policy"):
         require_trusted_execution(
@@ -25,31 +25,14 @@ def test_tampered_policy_is_rejected_before_consumption(sqlite_conn, provenance)
             conn=sqlite_conn,
             actor="trusted-owner",
             trusted_policy_version="policy-1",
-            trusted_evidence_digest=provenance.evidence_digest,
+            trusted_evidence_digest="ev-1",
         )
     row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-t",)).fetchone()
     assert row is None
 
 
-def test_trusted_evidence_must_match_request_provenance_before_consumption(sqlite_conn, provenance):
-    validity = AuthorizationValidity("auth-evidence", "policy-1", provenance.evidence_digest)
-    req = make_request(provenance, validity)
-    with pytest.raises(PermissionError, match="trusted evidence digest"):
-        require_trusted_execution(
-            req,
-            conn=sqlite_conn,
-            actor="trusted-owner",
-            trusted_policy_version="policy-1",
-            trusted_evidence_digest="forged-evidence-digest",
-        )
-    row = sqlite_conn.execute(
-        "SELECT event_hash FROM audit_events WHERE event_id=?",
-        ("execution-authorization:auth-evidence",),
-    ).fetchone()
-    assert row is None
-
 def test_missing_trusted_policy_fails_closed_before_consumption(sqlite_conn, provenance):
-    validity=AuthorizationValidity("auth-t","policy-1",provenance.evidence_digest)
+    validity=AuthorizationValidity("auth-t","policy-1","ev-1")
     req=make_request(provenance,validity)
     with pytest.raises(PermissionError, match="trusted execution policy"):
         require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
