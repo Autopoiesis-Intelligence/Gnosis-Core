@@ -117,7 +117,21 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
         relation for relation in candidate.proposed_state.relations
         if relation.source == REFLECTION_NODE and relation.target == proposal.proposal_id
     )
-    return len(relations) == 1 and relations[0].relation_type == "proposed_rule"
+    if len(relations) != 1 or relations[0].relation_type != "proposed_rule":
+        return False
+    relation_value = relations[0].value
+    if not isinstance(relation_value, Mapping):
+        return False
+    expected_relation = {
+        "finding_id": proposal.finding_id,
+        "rule_id": proposal.rule_id,
+        "current_version": proposal.current_version,
+        "proposed_version": proposal.proposed_version,
+        "hypothesis": proposal.hypothesis,
+        "evidence_refs": proposal.evidence_refs,
+        "historical_memory_outcomes": tuple(node.get("historical_memory_outcomes", ())),
+    }
+    return all(relation_value.get(key) == value for key, value in expected_relation.items())
 
 
 def commit_endogenous_candidates(
