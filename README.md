@@ -53,7 +53,7 @@ Domain-specific behavior normally belongs above Core in a specialized kernel or 
 
 ## What does not enter Core automatically
 
-Research-only hypotheses, domain-specific user features, philosophical interpretations, experimental mechanisms without a demonstrated Core requirement, an AI/LLM inside Ψ-Core, and autonomous rule activation without the required governance boundary.
+Research-only hypotheses, domain-specific user features, philosophical interpretations, experimental mechanisms without a demonstrated Core requirement, an AI/LLM inside Gnosis Core, and autonomous rule activation without the required governance boundary.
 
 ## Verification principle
 
@@ -113,6 +113,6 @@ A specialized commercial core is not a second canonical Core. It is a bounded sp
 
 `Gnosis-Core + partner project specification + authorized learning/evidence -> specialized commercial core`
 
-Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate Ψ-Core.
+Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate Gnosis Core.
 
 The current partner-facing contract map is maintained in `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md` and refreshed by `scripts/update_partner_contract_block.py`. It is an index/briefing surface, not an authority or learning-proof artifact.
