@@ -60,11 +60,19 @@ def replay_complete(
             proposed_state_digest=execution.proposed_state_digest,
             observations=observations,
             evidence_digest=execution.evidence_digest,
-            execution_id_value=execution.execution_id,
-            evaluation_status=execution.evaluation_status,
-            shadow_status=execution.shadow_status,
-            invariant_status=execution.invariant_status,
-            governance_decision=execution.governance_decision,
+            execution_id_value=execution_id(
+                execution.candidate_id,
+                execution.parent_state_id,
+                execution.evidence_digest,
+                execution.parent_state_digest,
+                execution.proposed_state_digest,
+            ),
+            # SandboxExecution contains observed execution facts only. Evaluation
+            # and governance are separate provenance facts, not sandbox fields.
+            evaluation_status=provenance.evaluation_status,
+            shadow_status=provenance.shadow_status,
+            invariant_status=provenance.invariant_status,
+            governance_decision=provenance.governance_decision,
             evaluator_identity_ref=provenance.evaluator_identity_ref,
             evaluator_identity_version=provenance.evaluator_identity_version,
         )
