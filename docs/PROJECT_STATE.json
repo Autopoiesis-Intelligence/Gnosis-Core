@@ -1,5 +1,5 @@
 {
-  "schema": "gnosis-project-state/v1",
+  "schema": "gnozis-project-state/v1",
   "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "canonical_branch": "main",
   "snapshot_observed_at": "2026-10-13",
