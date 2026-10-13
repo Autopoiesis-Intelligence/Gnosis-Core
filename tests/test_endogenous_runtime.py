@@ -182,8 +182,19 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
     result = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
     assert result.valid, result.reasons
-    replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
+    replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations, evaluation_status=evaluation.status, shadow_status=governance.shadow_status, invariant_status=governance.invariant_status, governance_decision=governance.decision)
     assert replay.valid, replay.reasons
+    tampered = replace(provenance, governance_decision="APPROVE")
+    rejected = replay_complete(
+        sandbox.execution, tampered, tx.audit_record,
+        observations=sandbox.execution.observations,
+        evaluation_status=evaluation.status,
+        shadow_status=governance.shadow_status,
+        invariant_status=governance.invariant_status,
+        governance_decision=governance.decision,
+    )
+    assert not rejected.reproducible
+    assert "governance_decision mismatch" in rejected.reasons
     conn.close()
 
 
@@ -243,7 +254,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
         vr = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "candidate_binding_digest": provenance.candidate_binding_digest}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
         assert vr.valid, vr.reasons
-        rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
+        rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations, evaluation_status=evaluation.status, shadow_status=governance.shadow_status, invariant_status=governance.invariant_status, governance_decision=governance.decision)
         assert rr.valid, rr.reasons
         memory = append_evolution_memory(conn, instance_id="e9-full", candidate_id=candidate.candidate_id, transition_id=tx.audit_record.record_digest, state_id=candidate.parent_state_id, proposal_id=proposal.proposal_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
         previous = provenance
