@@ -12,14 +12,14 @@ Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / D
 
 ## Latest documentation-branch CI observation (2026-10-13)
 
-- Exact branch HEAD: `47788cdd67785988db4dc771c6ca01c2d51d6dba` (PR #173).
+- Commit whose CI was inspected: `47788cdd67785988db4dc771c6ca01c2d51d6dba` (PR #173; this was the branch HEAD at the time of inspection).
 - Import graph check: PASS — [run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441621955).
 - CodeQL checks: PASS — [CodeQL](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/runs/115449685017), [Python/Actions CodeQL workflow](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632319).
 - Python 3.11 test job: FAIL — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632279/job/115449408367).
 - Python 3.12 test job: CANCELLED — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632279/job/115449407898). A cancelled job is not a pass and is not evidence that the Python 3.12 suite failed.
 - Dependency Review: FAIL — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632294/job/115449408913). The previously observed blocker is the repository dependency-graph setting; confirm the current annotation before treating the cause as unchanged.
 - Overall CI is **not passing** on this SHA. These runs validate only this exact documentation branch commit. Do not infer that the branding changes caused the test failures; compare exact failing test identifiers against the same-base SHA before assigning regression status.
-- This entry is an observation ledger, not a readiness claim. Recheck the current head and runs before relying on it in a later session.
+- This entry records the observed CI for the commit above, not the newer commit that adds this ledger. The ledger update triggers its own CI; inspect the new exact HEAD before assigning current CI status. This is an observation ledger, not a readiness claim.
 
 ## CI baseline and branding-PR verification (2026-10-13)
 
