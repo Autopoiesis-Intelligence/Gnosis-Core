@@ -211,6 +211,31 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     conn.close()
 
 
+
+def test_sqlite_execution_commit_adapter_fails_closed_without_independent_trust_anchors():
+    from gnosis.core import Candidate, State
+    from gnosis.instances.instance import Instance
+    from gnosis.storage import connect, load_instance, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("user-1", State(elements={"a": 1}))
+    save_instance(conn, instance)
+    parent_state_id = instance.engine.state.state_id
+    proposed = instance.engine.state.with_elements({"b": 2})
+    candidate = Candidate(parent_state_id, proposed, "test")
+    record = instance.engine.step(candidate)
+    provenance = _provenance_for(candidate, instance.engine.state, proposed_state_digest=proposed.state_id)
+    request = _make_execution_commit_request(provenance)
+
+    with pytest.raises(PermissionError, match="independent trusted execution policy"):
+        SQLiteExecutionCommitAdapter().commit(
+            conn, instance, candidate, record, request, actor="user-1"
+        )
+
+    assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
+    assert conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
+    conn.close()
+
 def test_sqlite_execution_commit_adapter_rejects_before_mutation():
     from gnosis.core import Candidate, State
     from gnosis.instances.instance import Instance
