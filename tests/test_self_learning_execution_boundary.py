@@ -5,6 +5,7 @@ from gnosis.self_learning.execution import execute_approved_core_proposal
 from gnosis.reflection.authority import (
     ExecutionAuthorization, ExecutionCommitRequest, ExecutionIntentSnapshot,
 )
+from gnosis.reflection.trusted_execution_gate import TrustedExecutionContext
 
 def valid_proposal():
     record=IntegrationRecord("sha256:i","sha256:p","sha256:v","common-self-learning","merge")
@@ -28,5 +29,5 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
     with pytest.raises(PermissionError):
         execute_approved_core_proposal(
             proposal,request,conn=object(),instance=object(),
-            candidate=object(),record=object(),actor="test"
+            candidate=object(),record=object(),actor="test",trusted_context=TrustedExecutionContext(policy_version="policy-1")
         )

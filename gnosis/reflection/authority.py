@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .governance import GovernanceDecision
+from .crypto import verify_owner_authorization
 from gnosis.evolution.provenance import canonical_digest
 from gnosis.storage import load_state
 from gnosis.storage.repositories import _persist_transition
@@ -50,11 +51,38 @@ def request_authorization(decision: GovernanceDecision) -> AuthorityRequest:
 
 @dataclass(frozen=True)
 class OwnerApproval:
-    """Opaque approval evidence from an external owner-authority boundary."""
+    """Verified approval evidence from an external owner-authority boundary."""
     approval_id: str
     request_provenance: str
     evolution_identity: str
+    authority_root: str
+    scope: str
+    policy_version: str
+    evidence_digest: str
+    signature: bytes
+    owner_public_key: bytes
 
+    @classmethod
+    def from_signed_authorization(
+        cls,
+        authorization: dict[str, object],
+        *,
+        signature: bytes,
+        owner_public_key: bytes,
+    ) -> "OwnerApproval":
+        if not verify_owner_authorization(owner_public_key, authorization, signature):
+            raise PermissionError("owner authorization signature is invalid")
+        return cls(
+            approval_id=str(authorization["approval_id"]),
+            request_provenance=str(authorization["request_provenance"]),
+            evolution_identity=str(authorization["evolution_identity"]),
+            authority_root=str(authorization["authority_root"]),
+            scope=str(authorization["scope"]),
+            policy_version=str(authorization["policy_version"]),
+            evidence_digest=str(authorization["evidence_digest"]),
+            signature=signature,
+            owner_public_key=owner_public_key,
+        )
 
 @dataclass(frozen=True)
 class ExecutionAuthorization:
@@ -74,6 +102,53 @@ class ExecutionAuthorization:
 
 
 
+@dataclass(frozen=True)
+class TrustedIssuerInput:
+    approval: OwnerApproval
+    authority_root: str
+    scope: str
+    policy_version: str
+    evidence_digest: str
+
+@dataclass(frozen=True)
+class TrustedOwnerIssuer:
+    authority_root: str
+    scope: str
+    policy_version: str
+
+    def issue(self, request: TrustedIssuerInput, *, request_provenance: str, evolution_identity: str) -> ExecutionAuthorization:
+        if not self.authority_root or not self.scope or not self.policy_version:
+            raise PermissionError("trusted issuer configuration is incomplete")
+        if request.authority_root != self.authority_root:
+            raise PermissionError("authority root mismatch")
+        if request.scope != self.scope:
+            raise PermissionError("authorization scope mismatch")
+        if request.policy_version != self.policy_version:
+            raise PermissionError("authorization policy mismatch")
+        if not request.evidence_digest:
+            raise PermissionError("authorization evidence is missing")
+        approval = request.approval
+        if not approval.approval_id:
+            raise PermissionError("approval identity is missing")
+        if approval.authority_root != self.authority_root:
+            raise PermissionError("owner approval root mismatch")
+        if approval.scope != self.scope:
+            raise PermissionError("owner approval scope mismatch")
+        if approval.policy_version != self.policy_version:
+            raise PermissionError("owner approval policy mismatch")
+        if approval.evidence_digest != request.evidence_digest:
+            raise PermissionError("owner approval evidence mismatch")
+        if approval.request_provenance != request_provenance:
+            raise PermissionError("owner approval does not match provenance")
+        if approval.evolution_identity != evolution_identity:
+            raise PermissionError("owner approval does not match evolution")
+        return ExecutionAuthorization(
+            request_provenance=request_provenance,
+            owner_approved=True,
+            evolution_identity=evolution_identity,
+            approval_id=approval.approval_id,
+        )
+
 def issue_execution_authorization(
     approval: OwnerApproval | None,
     *,
@@ -88,7 +163,67 @@ def issue_execution_authorization(
         or approval.evolution_identity != evolution_identity
     ):
         raise PermissionError("owner approval does not match evolution")
-    raise NotImplementedError("trusted owner-authority issuer is not implemented")
+    issuer = TrustedOwnerIssuer(
+        authority_root=approval.authority_root,
+        scope=approval.scope,
+        policy_version=approval.policy_version,
+    )
+    return issuer.issue(
+        TrustedIssuerInput(
+            approval=approval,
+            authority_root=approval.authority_root,
+            scope=approval.scope,
+            policy_version=approval.policy_version,
+            evidence_digest=approval.evidence_digest,
+        ),
+        request_provenance=request_provenance,
+        evolution_identity=evolution_identity,
+    )
+
+def build_execution_commit_request(
+    approval: OwnerApproval | None,
+    provenance: object,
+) -> ExecutionCommitRequest:
+    """Build one execution request from external owner approval and exact provenance.
+
+    This function creates no authority. The OwnerApproval must already have been
+    verified at the external owner-authority boundary; this builder only binds it
+    to the canonical evolution identity and produces the immutable request material
+    consumed by the trusted execution gate.
+    """
+    request_provenance = str(getattr(provenance, "provenance_id", ""))
+    if not request_provenance:
+        raise PermissionError("execution provenance identity is missing")
+    canonical_identity = _canonical_evolution_identity(provenance)
+    declared_identity = str(getattr(provenance, "evolution_identity", ""))
+    if canonical_identity != declared_identity:
+        raise PermissionError("execution provenance identity is not canonical")
+
+    authorization = issue_execution_authorization(
+        approval,
+        request_provenance=request_provenance,
+        evolution_identity=canonical_identity,
+    )
+    from .authorization_validity import AuthorizationValidity
+
+    validity = AuthorizationValidity(
+        authorization_id=authorization.approval_id,
+        policy_version=str(approval.policy_version),
+        validity_evidence_digest=str(approval.evidence_digest),
+    )
+    validity.require_valid(
+        expected_policy_version=str(approval.policy_version),
+        expected_evidence_digest=str(approval.evidence_digest),
+    )
+    return ExecutionCommitRequest(
+        authorization=authorization,
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
+        request_provenance=request_provenance,
+        evolution_identity=canonical_identity,
+        provenance=provenance,
+        authorization_validity=validity,
+    )
+
 
 def require_execution_authorization(
     auth: ExecutionAuthorization | None,
@@ -163,6 +298,8 @@ def _canonical_evolution_identity(provenance: object) -> str:
         "proposed_state_digest": str(provenance.proposed_state_digest),
         "proposed_state_content_id": str(provenance.proposed_state_content_id),
         "candidate_binding_digest": str(provenance.candidate_binding_digest),
+        "evaluator_identity_ref": str(provenance.evaluator_identity_ref),
+        "evaluator_identity_version": str(provenance.evaluator_identity_version),
         "evidence_digest": str(provenance.evidence_digest),
         "evaluation_status": str(provenance.evaluation_status),
         "shadow_status": str(provenance.shadow_status),
