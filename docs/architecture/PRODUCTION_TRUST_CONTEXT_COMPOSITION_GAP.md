@@ -137,3 +137,19 @@ This exact-head result supersedes prior CI counts for older PR #168 commits. It 
 The source still does not establish who provisions `ProductionTrustContext` from an independently protected trust root. The adapter accepts a signed authorization and trust context as arguments; the verifier's resolver, policy/scope, trusted clock, and validity-evidence resolver are dependencies, not trust roots. The repo-local search documented here did not identify a production composition root.
 
 Do not hardcode keys/policy, derive trust from caller-controlled request fields, or expose the context as an untrusted public request parameter. Next step is to establish the intended deployment boundary (or explicitly scope Core as a library without a production execution service) and provision trust dependencies there. Until then: signed verifier IMPLEMENTED; trust-context interface IMPLEMENTED; production trust-root provisioning UNRESOLVED; production composition-root integration NOT PROVEN; end-to-end production execution NOT PROVEN.
+
+
+## Mainline-to-integration boundary cross-check — 2026-10-13
+
+Observed mainline reference: `78f84f6c6ac771478525b547ba467aa773e626b7`.
+
+- Mainline `gnosis/reflection/trusted_execution_gate.py` supplies `validity.policy_version` as its own expected policy and `validity.validity_evidence_digest` as its own expected evidence digest. Those comparisons are self-referential, not independent trust-anchor checks.
+- Mainline `gnosis/reflection/execution_adapter.py` calls the gate without a `ProductionTrustContext`; it therefore does not wire signed production authorization into the commit boundary.
+- On PR #168's branch, `SQLiteExecutionCommitAdapter.commit` requires both `ProductionAuthorization` and `ProductionTrustContext`, resolves the validity digest through the context, verifies the signature/bindings, consumes the signed nonce transactionally, and passes independent expected values to the gate. This is an integration improvement, but the caller still supplies the context; the context's dependencies are not themselves trust roots.
+- A repository code search for `ProductionTrustContext(` on the default branch returned no matches. This search result is bounded evidence, not proof that no external application or unindexed construction exists.
+
+### Decision gate
+
+Do not add a default trust provider inside Core without an identified protected configuration/deployment owner. The current repository evidence supports treating Core as a reusable engineering foundation until the actual application composition boundary is identified. If the product owner intends Core itself to become a deployable execution service, that is a separate product-boundary decision requiring an explicit trust-root provisioning model before implementation.
+
+Status remains: fail-closed signed adapter integration IMPLEMENTED on PR #168; mainline remains vulnerable to self-referential validity checks; production trust-root ownership UNRESOLVED; production execution acceptance BLOCKED. No trust keys or policy values were invented, and no PR was merged.
