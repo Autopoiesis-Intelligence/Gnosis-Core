@@ -1,5 +1,3 @@
-import sqlite3
-
 from gnosis.storage import connect, save_instance
 from gnosis.storage.diagnostics import storage_snapshot
 from gnosis.core import State
