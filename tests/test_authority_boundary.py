@@ -205,7 +205,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = _make_execution_commit_request(provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
+    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1")
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
@@ -226,7 +226,7 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
         SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, ExecutionCommitRequest(
             ExecutionAuthorization("bad", False, "bad"),
             ExecutionIntentSnapshot("", "", "", "", "", "", ""),
-            "bad", "bad", object()), actor="user-1")
+            "bad", "bad", object()), actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == initial_state_id
     conn.close()
 
@@ -512,6 +512,8 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         conn, instance, candidate_b, record_b,
         _make_execution_commit_request(provenance_b),
         actor="user-1",
+        trusted_policy_version="policy-1",
+        trusted_evidence_digest="ev-1",
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
     assert advanced_head == candidate_b.proposed_state.state_id
