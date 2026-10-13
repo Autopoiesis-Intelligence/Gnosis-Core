@@ -1,21 +1,22 @@
-# GNOSIS CORE — Engineering Foundation
+# Gnosis Core — Engineering Foundation
 
 ## Canonical engineering base for Gnosis research kernels and user products
 
 Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The older Gnosis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis. The product identity remains Gnosis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
+The public Gnosis repository contains research materials, evidence and experimental implementations. This repository contains the Gnosis Core engineering implementation. Its production deployment status, private access boundary, and any separate module-factory role must be established from current repository and deployment evidence; documentation alone does not establish them. Research-derived requirements enter Core work only after they have been formalized and mapped to code.
 
 ## Project relationship
 
-Gnosis
-        ↓ public evidence / opportunities
-Gnosis-Memory
-        ↓ machine-readable research / mathematics / provenance
-Genesis
-        ├── Uroboros / Ψ-Core
-        ├── Module Factory
-        └── governed specialized outputs
+Gnosis public surfaces
+        ↓ evidence / opportunities
+Gnosis-Memory (intended research/context layer)
+        ↓ formalized requirements and provenance
+Gnosis Core
+        ↓ governed, verified interfaces
+Specialized kernels and product surfaces
+
+Note: this is a target relationship, not proof that every layer or integration is currently deployed.
 
 ## Core rule
 
@@ -92,11 +93,11 @@ A connected AI product is a surface over the durable Gnosis context, not an alte
 
 Product identity: **Gnosis**.
 
-Protected engineering role: **Genesis — Core + Module Factory**.
+Engineering role: **Gnosis Core**. Any separate module-factory role remains unverified until supported by current implementation and deployment evidence.
 
 Research-memory role: **Gnosis-Memory**.
 
-The historical `Gnozis-V2` naming is retired from product documentation. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
+Legacy product-facing names are retired. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
 
 ## Partnership and specialized commercial cores
 
