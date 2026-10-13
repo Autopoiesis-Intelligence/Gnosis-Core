@@ -1,6 +1,6 @@
 # GNOSIS CORE — Engineering Foundation
 
-> **Canonical naming (2026-10-13):** this repository is `Autopoiesis-Intelligence/Gnosis-Core`, the public engineering Core. The product/evidence surface is `Autopoiesis-Intelligence/Gnosis`. `Autopoiesis-Intelligence/Gnosis-Genesis` is a separate private repository; its precise implementation/authority boundary is not yet established by the inspected repository contents. Older wording that treats “Genesis/Genezis” as an alias for this repository is historical and is not a current repository identity.
+> **Canonical naming (2026-10-13):** this repository is `Autopoiesis-Intelligence/Gnosis-Core`, the public engineering Core. The product/evidence surface is `Autopoiesis-Intelligence/Gnosis`. `Autopoiesis-Intelligence/Gnosis-Genesis` is a separate private repository; its precise implementation/authority boundary is not yet established by the inspected repository contents. Older role descriptions that conflate this repository with the private factory repository are obsolete and do not define current identity.
 
 
 ## Canonical engineering base for Gnosis research kernels and user products
@@ -100,7 +100,7 @@ Public product/evidence repository: **`Autopoiesis-Intelligence/Gnosis`**.
 
 Research/context repository: **`Autopoiesis-Intelligence/Gnosis-Memory`**, with canonical source-of-truth scope still unresolved.
 
-Private repository: **`Autopoiesis-Intelligence/Gnosis-Genesis`**; its exact relationship to the public Core remains unresolved. Do not use `Genesis/Genezis` as an alias for this repository until the boundary is explicitly accepted. Historical `Gnozis`, `Gnozis-V2`, and `Genezis` references may remain where needed for provenance, but are not current canonical identities.
+Private repository: **`Autopoiesis-Intelligence/Gnosis-Genesis`**; its exact relationship to the public Core remains unresolved. Do not treat the private factory repository as an alias for this repository until the boundary is explicitly accepted. Legacy repository identifiers may remain in provenance artifacts where needed, but are not current canonical identities.
 
 ## Partnership and specialized commercial cores
 
