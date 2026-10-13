@@ -38,19 +38,19 @@ Rules:
 
 ## 1. REPOSITORY ROLE
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+Gnosis-Core is the canonical engineering foundation of Gnosis. Gnosis is the public product/evidence repository. Research and context material also exists in Gnosis-Memory and Gnosis-Research; their exact source-of-truth roles remain bounded by the current repository map and must not be inferred beyond observed contents.
 
 The Core is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
 
 The intended product lineage is:
 
-Research Library → Canonical Gnozis Core → Specialized Research Kernel → User / Commercial Version
+Gnosis (public product/evidence surface) → Gnosis-Core (engineering foundation) → specialized research kernels and user/commercial versions (planned; not implied to be implemented)
 
 Core mechanisms should be reusable across multiple future kernels and products. Domain-specific functionality should normally remain above Core. Research language may be broad and descriptive; it becomes an engineering requirement only through an explicit research-to-engineering translation and evidence gate.
 
 ## 1. ARCHITECTURAL PURPOSE
 
-Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
+Gnosis-Core is the engineering foundation for research into recursive evolution. No autonomy or runtime maturity should be inferred from a product description alone; canonical state/evolution semantics remain governed by the verified Ψ-Core contracts.
 
 A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
@@ -323,11 +323,11 @@ Implementation
 
 The existence of a meaningful architectural pattern does not by itself prove a philosophical interpretation. It does justify investigating the pattern.
 
-## 13. GNOSIS AS PHENOMENON VS GNOZIS AS IMPLEMENTATION
+## 13. GNOSIS AS PHENOMENON VS IMPLEMENTATION
 
 Preserve this distinction:
 
-Gnozis is an engineering implementation for studying knowledge formation, evidence, model revision and constrained evolution.
+Gnosis-Core is an engineering implementation for studying knowledge formation, evidence, model revision and constrained evolution.
 
 Do not make metaphysical, consciousness or subjective-experience claims from the existence of the architecture.
 
@@ -573,7 +573,7 @@ Do not:
 - treat selector output as canonical authority;
 - create a parallel governance system if existing reflection/governance can be reused;
 - reopen verified persistence gates without regression evidence;
-- convert the philosophical level/gnozis hypotheses directly into Core architecture.
+- convert philosophical level/Gnosis hypotheses directly into Core architecture.
 
 ## 22. COMPLETION EVIDENCE FORMAT
 
