@@ -540,3 +540,19 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+
+
+def test_canonical_evolution_identity_binds_evaluator_identity_fields():
+    from gnosis.reflection.authority import _canonical_evolution_identity
+
+    provenance = _snapshot_provenance()
+    provenance = type(provenance)(
+        **{
+            **provenance.__dict__,
+            "evaluator_identity_ref": "evaluator:test-suite",
+            "evaluator_identity_version": "v1",
+        }
+    )
+
+    assert _canonical_evolution_identity(provenance) == provenance.evolution_identity
