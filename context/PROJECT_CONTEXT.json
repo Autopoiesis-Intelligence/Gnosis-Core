@@ -114,24 +114,25 @@
   ],
   "rule": "Conversation history is non-canonical. Current source, reproducible tests/CI, accepted contracts and independent audit evidence outrank AI reports. Reflection may propose and evolve evidence-linked hypotheses, but has no activation authority over canonical Core.",
   "repository_role": "CANONICAL_CORE_FOUNDATION",
-  "research_source_repository": "Mikhail-Kucheriavyi-23/Gnozis",
+  "research_source_repository": "Autopoiesis-Intelligence/Gnosis",
   "product_lineage": [
-    "Research Library",
-    "Canonical Gnozis Core",
-    "Specialized Research Kernel",
-    "User / Commercial Version"
+    "Gnosis (public product/evidence surface)",
+    "Gnosis-Core (engineering Core)",
+    "Specialized research kernels (planned/role-specific)",
+    "User / commercial versions (planned)"
   ],
   "notes": [
-    "Older Gnozis is the public research/information library.",
+    "Canonical naming baseline (2026-10-13): product name Gnosis; engineering repository Autopoiesis-Intelligence/Gnosis-Core; public product/evidence repository Autopoiesis-Intelligence/Gnosis. Legacy names in historical artifacts are not current repository identities.",
+    "Gnosis is the public product/evidence surface; do not conflate it with Gnosis-Core.",
     "Core is the engineering Core foundation, not merely an archive replacement.",
     "Research findings enter Core only through formalization, engineering mapping and evidence.",
     "PHIL-001 establishes a machine-readable philosophical research track for comparative spiritual/high-writings study; it is not an engineering or Core-authority task.",
-    "PHIL-002 defines the provenance-first machine-readable corpus schema; source claims, interpretations, formal hypotheses and Gnozis mappings remain explicitly separated.",
+    "PHIL-002 defines the provenance-first machine-readable corpus schema; source claims, interpretations, formal hypotheses and Gnosis mappings remain explicitly separated.",
     "PHIL-003 defines a controlled heterogeneous comparison matrix with explicit disanalogies and negative cases to reduce abstraction-induced similarity.",
     "The philosophical research workflow is now generalized into a candidate bounded Hypothesis Reverse-Analysis Module. It may analyze heterogeneous hypotheses but has no Core modification or activation authority.",
     "PHIL-004 defines invariant extraction as a bounded structural comparison problem, requiring negative cases, preserved source differences, independence assessment and explicit abstraction boundaries.",
     "PHIL-005 establishes adversarial-first analysis: candidate patterns must be attacked with counterexamples, negative cases, alternative explanations and abstraction-sensitivity tests before promotion.",
-    "PHIL-006 defines the formalization-to-Gnozis migration gate. The philosophical track now has a complete research-contract stack; domain-independent module extraction is the next architectural phase.",
+    "PHIL-006 defines the formalization-to-Gnosis migration gate. The philosophical track now has a complete research-contract stack; domain-independent module extraction is the next architectural phase.",
     "2026-09-23 contract execution checkpoint: canonical main verified at e9e56b610e10911d3a197a539df1840acbbd00ca; prior b97a3058 snapshot was stale by 721 commits. Contract progress remains approximate and must not be inferred from documentation alone."
   ],
   "research_tracks": {
@@ -163,5 +164,8 @@
     },
     "repository_sync": "E7.15 added as verification gate for E7.10-E7.14"
   },
-  "snapshot_timestamp_utc": "2026-10-13T11:17:56Z"
+  "snapshot_timestamp_utc": "2026-10-13T11:17:56Z",
+  "canonical_product_name": "Gnosis",
+  "canonical_core_repository": "Autopoiesis-Intelligence/Gnosis-Core",
+  "canonical_public_product_repository": "Autopoiesis-Intelligence/Gnosis"
 }
