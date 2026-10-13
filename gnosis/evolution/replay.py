@@ -52,6 +52,7 @@ def replay_complete(
     Evaluation and governance facts must be supplied by the caller from the
     separately held evaluator/governance results. Reusing values read from the
     provenance object would only validate that object's internal consistency.
+    This check does not establish that the sandbox independently observed governance.
     """
     reasons: list[str] = []
     if provenance is None:
