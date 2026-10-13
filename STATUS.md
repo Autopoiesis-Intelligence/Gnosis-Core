@@ -10,6 +10,17 @@ Historical references to Genesis/Genezis or earlier repository owners are retain
 
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
+## Latest exact-HEAD CI observation (2026-10-13; PR #173)
+
+- Observed branch HEAD: `7e76def0a96c0298aaf04cfe08dc74407693ef80`; base `main` at observation: `78f84f6c6ac771478525b547ba467aa773e626b7`.
+- Python 3.11 tests: **FAIL**. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443097764).
+- Python 3.12 tests: **CANCELLED** — not a pass and not proof that the suite failed.
+- Dependency Review: **FAIL**. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443097762).
+- Graph checks, CodeQL, and generation check: **PASS** in the observed check set.
+- Overall CI on this exact HEAD is **NOT PASSING**. The failure details have not been reconciled against the same-base SHA in this observation, so regression attribution remains **UNRESOLVED**. Documentation-only changes do not justify claiming the failures are caused by branding edits.
+- This is a time-bounded CI observation, not a runtime or release-readiness claim. Recheck checks against the latest branch HEAD after any further commit.
+
+
 ## Latest documentation-branch CI observation (2026-10-13)
 
 - Commit whose CI was inspected: `47788cdd67785988db4dc771c6ca01c2d51d6dba` (PR #173; this was the branch HEAD at the time of inspection).
