@@ -3,7 +3,7 @@
 > **Canonical naming (2026-10-13):** this repository is `Autopoiesis-Intelligence/Gnosis-Core`, the public engineering Core. The product/evidence surface is `Autopoiesis-Intelligence/Gnosis`. `Autopoiesis-Intelligence/Gnosis-Genesis` is a separate private repository; its precise implementation/authority boundary is not yet established by the inspected repository contents. Older wording that treats “Genesis/Genezis” as an alias for this repository is historical and is not a current repository identity.
 
 
-## Canonical engineering base for Gnozis research kernels and user products
+## Canonical engineering base for Gnosis research kernels and user products
 
 Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
@@ -87,7 +87,7 @@ Every product-facing capability should answer four questions:
 3. What authority does it receive, if any?
 4. What happens when evidence is missing, stale, conflicting or revoked?
 
-A connected AI product is a surface over the durable Gnozis context, not an alternative source of truth.
+A connected AI product is a surface over the durable Gnosis context, not an alternative source of truth.
 
 
 ## Repository naming baseline
@@ -100,7 +100,7 @@ Public product/evidence repository: **`Autopoiesis-Intelligence/Gnosis`**.
 
 Research/context repository: **`Autopoiesis-Intelligence/Gnosis-Memory`**, with canonical source-of-truth scope still unresolved.
 
-Private repository: **`Autopoiesis-Intelligence/Gnosis-Genesis`**; its exact relationship to the public Core remains unresolved. Do not use `Genesis/Genezis` as an alias for this repository until the boundary is explicitly accepted. Historical `Gnozis`, `Gnozis-V2`, and `Genezis` references may remain where needed for provenance, but are not current canonical identities.
+Private repository: **`Autopoiesis-Intelligence/Gnosis-Genesis`**; its exact relationship to the public Core remains unresolved. Do not use `Genesis/Genezis` as an alias for this repository until the boundary is explicitly accepted. Historical `Gnosis`, `historical V2 Core line`, and `Genezis` references may remain where needed for provenance, but are not current canonical identities.
 
 ## Partnership and specialized commercial cores
 
