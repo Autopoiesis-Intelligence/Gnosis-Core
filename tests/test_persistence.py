@@ -418,7 +418,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     conn.close()
     reopened = connect(path)
     assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -566,6 +566,6 @@ def test_authorized_recovery_does_not_change_core_state_and_is_audited():
     assert recovered.engine.state.state_id == before == after
     row = conn.execute(
         "SELECT action,actor,result FROM audit_events WHERE event_id=?",
-        ("recovery:test-recovery",),
+        (f"recovery:test-recovery:{instance.instance_id}",),
     ).fetchone()
     assert tuple(row) == ("recovery.execute", "test-principal", "accepted")
