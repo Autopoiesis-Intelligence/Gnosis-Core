@@ -12,13 +12,13 @@ Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / D
 
 ## Latest exact-HEAD CI observation (2026-10-13; PR #173)
 
-- Observed branch HEAD: `9c63ded28efad98b4a76782d50ab13aae58fe67a`; base `main` at observation: `78f84f6c6ac771478525b547ba467aa773e626b7`.
-- Python 3.11 test job: **FAIL** — 33 failed, 931 passed, 2 errors. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443778431).
-- Python 3.12 test job: **CANCELLED** by the workflow after the 3.11 failure; its available log nevertheless reports the same 33 failed, 931 passed, 2 errors. This is not a successful CI result.
-- The failure set includes persistence/audit replay, recovery authorization call signatures, reflection-gate required arguments, missing `Engine.generate_candidates`, and execution-adapter interface mismatch. These are broader runtime/API contract issues; this documentation-only PR does not attempt to repair them.
-- Dependency Review: **FAIL because GitHub reports dependency review is unsupported while the repository dependency graph is disabled** — [run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38443778509). This is a repository security-setting/configuration blocker, not evidence of a newly detected vulnerable dependency.
-- Graph checks, generation, and CodeQL (Python and Actions) are **PASS** in the observed check set.
-- Overall CI on this exact HEAD is **NOT PASSING**. The current base SHA does not have a comparable completed Python test run in the inspected check set, so regression attribution versus this exact base remains **UNRESOLVED**. Do not attribute these failures to the documentation edits without controlled comparison.
+- Observed branch HEAD: `63dd92fa4d10394d0a5f50b25ccfc8afb1b9e187`; base `main` at PR observation: `78f84f6c6ac771478525b547ba467aa773e626b7`.
+- Python 3.12 test job: **FAIL** — 33 failed, 931 passed, 2 errors. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38445639313). The log shows failures in endogenous proposal binding, evolution-memory API compatibility, persisted-chain verification, persistence/audit replay, recovery authorization arguments, reflection-gate arguments, and execution-adapter interface expectations.
+- Python 3.11 job: **CANCELLED**; its log records the test step as failed before cancellation. Do not count this job as a pass.
+- The same-base historical comparison at base SHA `78f84f6c6ac771478525b547ba467aa773e626b7` has not been found as a completed comparable Python run in the inspected workflow set. Earlier base SHA `2adddfb8ca5acca220df08b3d5995472ff8cc857` and earlier PR SHA `c3338318215db32f27fc1c148af00969267ebea4` both had 33 failed, 931 passed, 2 errors with matching failure identifiers. This supports that those failures pre-existed at those earlier refs, but does not establish a complete comparison against the current base SHA.
+- Dependency Review: **FAIL** — [run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38445639493). The check has previously reported that dependency review is unsupported while the repository dependency graph is disabled; verify the current run annotation before treating the cause as unchanged. This is a settings/configuration blocker, not evidence by itself of a vulnerable dependency.
+- Import Graph: **PASS**. CodeQL parent run reports success, while child Python/Actions checks were still in progress at the last check; recheck before marking both child checks complete.
+- Overall CI on this exact HEAD is **NOT PASSING**. Do not attribute the test failures to documentation edits without a controlled same-base comparison.
 - This is a time-bounded CI observation, not a runtime or release-readiness claim. Recheck checks against the latest branch HEAD after any further commit.
 
 
