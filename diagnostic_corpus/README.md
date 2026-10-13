@@ -1,6 +1,6 @@
 # Reproducible Self-Diagnostic Corpus
 
-This directory contains deterministic evidence corpora generated from real Ψ-Core execution for reflection experiments.
+This directory contains deterministic evidence corpora generated from real Gnosis Core execution for reflection experiments.
 
 ## Rules
 
