@@ -1,18 +1,18 @@
 # GNOSIS CORE — Engineering Foundation
 
-## Canonical engineering base for Gnozis research kernels and user products
+## Canonical engineering base for Gnosis research kernels and user products
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
+Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The older Gnozis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis/Genezis. The product identity remains Gnozis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
+The older Gnosis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis/Genezis. The product identity remains Gnosis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
 
 ## Project relationship
 
-Gnozis
+Gnosis
         ↓ public evidence / opportunities
-Gnozis-Research-Memory
+Gnosis-Memory
         ↓ machine-readable research / mathematics / provenance
-Genesis / Genezis
+Genesis
         ├── Uroboros / Ψ-Core
         ├── Module Factory
         └── governed specialized outputs
@@ -66,7 +66,7 @@ No capability should be described as verified solely because a document or test 
 
 ## Product boundary and current value
 
-Gnozis Core is intended to become a reusable foundation for specialized research kernels and user/commercial products. The current product-facing contract is deliberately narrower than the long-term vision:
+Gnosis-Core is intended to become a reusable foundation for specialized research kernels and user/commercial products. The current product-facing contract is deliberately narrower than the long-term vision:
 
 - preserve durable task/project context independently of the connected AI product;
 - keep evidence and provenance addressable independently of the interface that produced them;
@@ -85,29 +85,29 @@ Every product-facing capability should answer four questions:
 3. What authority does it receive, if any?
 4. What happens when evidence is missing, stale, conflicting or revoked?
 
-A connected AI product is a surface over the durable Gnozis context, not an alternative source of truth.
+A connected AI product is a surface over the durable Gnosis context, not an alternative source of truth.
 
 
 ## Repository naming baseline
 
-Product identity: **Gnozis**.
+Product identity: **Gnosis**.
 
-Protected engineering role: **Genesis / Genezis — Core + Module Factory**.
+Protected engineering role: **Genesis — Core + Module Factory**.
 
-Research-memory role: **Gnozis-Research-Memory**.
+Research-memory role: **Gnosis-Memory**.
 
-The historical `Gnozis-V2` naming is retired from product documentation. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
+The historical `Gnosis-V2` naming is retired from product documentation. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
 
 ## Partnership and specialized commercial cores
 
-Gnozis Core is the common minimal engineering foundation. Self-Learning is intended to support two complementary partnership paths:
+Gnosis-Core is the common minimal engineering foundation. Self-Learning is intended to support two complementary partnership paths:
 
 1. **Core-initiated development:** the Core identifies validated opportunities, missing capabilities or commercially relevant development directions and, through the governed contract pipeline, can prepare partner-facing development proposals.
 2. **Partner-initiated specialization:** a partner may provide a project repository/specification and an agreed learning scope. The common Core can then serve as the minimal foundation for a separately specialized commercial core tuned to that partner's first tasks.
 
 A specialized commercial core is not a second canonical Core. It is a bounded specialization:
 
-`Gnozis Core + partner project specification + authorized learning/evidence -> specialized commercial core`
+`Gnosis-Core + partner project specification + authorized learning/evidence -> specialized commercial core`
 
 Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate Ψ-Core.
 
