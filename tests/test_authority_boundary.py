@@ -172,7 +172,7 @@ def _make_execution_commit_request(provenance):
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     return ExecutionCommitRequest(
         auth, snapshot, provenance.provenance_id, provenance.evolution_identity, provenance,
-        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
+        AuthorizationValidity(auth.approval_id, "policy-1", provenance.evidence_digest),
     )
 
 
@@ -284,7 +284,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         provenance.provenance_id,
         provenance.evolution_identity,
         provenance,
-        AuthorizationValidity(auth.approval_id, "policy-1", "ev-1"),
+        AuthorizationValidity(auth.approval_id, "policy-1", provenance.evidence_digest),
     )
 
     candidate_b = Candidate(
