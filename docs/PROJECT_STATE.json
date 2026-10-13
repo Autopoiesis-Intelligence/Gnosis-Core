@@ -1,8 +1,10 @@
 {
-  "schema": "gnozis-project-state/v1",
-  "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
+  "schema": "gnosis-project-state/v1",
+  "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "canonical_branch": "main",
-  "canonical_head": "7d40a9c91fd2e69736305141a71b62aeebb99461",
+  "snapshot_observed_at": "2026-10-13",
+  "snapshot_note": "Pinned repository state is a point-in-time pointer, not CI/runtime evidence; recheck live main before relying on it.",
+  "canonical_head": "78f84f6c6ac771478525b547ba467aa773e626b7",
   "context_sources": [
     "AI_CONTEXT.md",
     "STATUS.md",
@@ -43,8 +45,8 @@
     "name": "context-continuity architecture",
     "status": "DOCUMENTATION_AND_ARCHITECTURE",
     "primary_implementer": "ChatGPT",
-    "independent_reviewer": "Manus when available",
-    "integration_gate": "ChatGPT under human owner authorization",
+    "independent_reviewer": "NOT ASSIGNED — ChatGPT is the active reviewer but is not independent of its own implementation",
+    "integration_gate": "Project owner authorization; ChatGPT records evidence and review findings",
     "allowed_scope": [
       "context recovery contracts",
       "handoff protocol",
@@ -62,7 +64,7 @@
       "autonomous self-modification"
     ]
   },
-  "next_permitted_action": "Independent read-only audit of the context-continuity documentation/state layer, then proceed to the already approved Memory corrective pass.",
+  "next_permitted_action": "Finish canonical repository identity and README inventory; reconcile stale handoff state; then select one bounded implementation task from current exact-SHA evidence. Memory corrective implementation remains blocked until its explicit gate is re-confirmed.",
   "evidence_rule": "Current repository source and reproducible tests outrank AI reports or conversation history.",
   "staleness_rule": "This file records a pinned snapshot. A new session must verify canonical_head against the live repository before relying on it."
 }
