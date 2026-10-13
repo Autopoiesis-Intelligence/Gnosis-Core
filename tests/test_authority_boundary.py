@@ -357,6 +357,8 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_id=provenance_a.provenance_id,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
         candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        evaluator_identity_ref=provenance_a.evaluator_identity_ref,
+        evaluator_identity_version=provenance_a.evaluator_identity_version,
         evolution_identity=provenance_a.evolution_identity,
     )
     request = ExecutionCommitRequest(
@@ -480,13 +482,13 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1"
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-a"
         ),
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
-        AuthorizationValidity("approval-1", "policy-1", "ev-1"),
+        AuthorizationValidity("approval-a", "policy-1", "ev-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
