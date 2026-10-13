@@ -32,6 +32,23 @@ These are point-in-time `main` commit refs resolved on 2026-10-13, not CI or run
 | `Gnosis-Knowledge` | `2ce0fda215a2318072ef68b214e7967cffa781de` |
 | `Gnosis-Genesis` (private) | `8f3d482ad4f533e685860b4824b49bdecb4c5c0f` |
 
+## GitHub repository-description snapshot
+
+Descriptions observed from repository metadata on 2026-10-13. These are current metadata strings, not accepted architecture.
+
+| Repository | Current GitHub description | Assessment |
+|---|---|---|
+| `Gnosis` | `Universal scientific discovery platform powered by UROBOROS — Ψ-Core v33: a recursive, naturally autopoietic computational core for modeling, AI, reasoning, simulation, research and discovery.` | Does not clearly match the README's stated public product/evidence-surface role; the description appears to present the Core as the repository's main identity. |
+| `Gnosis-Core` | `next realize ` | Not an informative repository description. |
+| `Gnosis-Memory` | None | Missing. |
+| `Gnosis-Exchange` | None | Missing. |
+| `Gnosis-SDK` | None | Missing. |
+| `Gnosis-Research` | None | Missing. |
+| `Gnosis-Knowledge` | None | Missing. |
+| `Gnosis-Genesis` (private) | None | Missing; do not infer the private repository's role from the absence of a description. |
+
+**Decision:** do not edit these descriptions until the owner resolves the `Gnosis` / `Gnosis-Core` / `Gnosis-Genesis` role boundary and the canonical owner of duplicated project context. Once the role map is accepted, descriptions can be normalized as a single bounded documentation task.
+
 ## Operating rules
 
 1. **Observed contents are not accepted architecture.** Names, README claims, and directory names are clues, not proof of role or authority.
