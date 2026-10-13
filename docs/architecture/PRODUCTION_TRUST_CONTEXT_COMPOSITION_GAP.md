@@ -116,3 +116,24 @@ Updated acceptance status:
 - Production trust dependency provisioning: **UNRESOLVED**.
 - Production composition-root integration: **NOT PROVEN**.
 - End-to-end production execution acceptance: **BLOCKED**.
+
+
+## Exact-head reconciliation — 2026-10-13
+
+Reviewed PR #168 head: `eb014870ef8d207e0a1e6f5986a9e83defc9b16b`.
+CI run: [38248625783](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38248625783).
+
+- Python 3.11: **992 passed, 18 warnings** — PASS.
+- Python 3.12: **992 passed, 18 warnings** — PASS.
+- Import Graph: PASS.
+- CodeQL: PASS.
+- Self-Diagnostic: PASS.
+- Dependency Review: FAIL; repository Dependency Graph/configuration remains a separate issue and this result alone is not evidence of a vulnerable dependency.
+
+This exact-head result supersedes prior CI counts for older PR #168 commits. It proves the current branch test suite and configured checks above, not deployment/runtime authorization.
+
+### Remaining architecture blocker
+
+The source still does not establish who provisions `ProductionTrustContext` from an independently protected trust root. The adapter accepts a signed authorization and trust context as arguments; the verifier's resolver, policy/scope, trusted clock, and validity-evidence resolver are dependencies, not trust roots. The repo-local search documented here did not identify a production composition root.
+
+Do not hardcode keys/policy, derive trust from caller-controlled request fields, or expose the context as an untrusted public request parameter. Next step is to establish the intended deployment boundary (or explicitly scope Core as a library without a production execution service) and provision trust dependencies there. Until then: signed verifier IMPLEMENTED; trust-context interface IMPLEMENTED; production trust-root provisioning UNRESOLVED; production composition-root integration NOT PROVEN; end-to-end production execution NOT PROVEN.
