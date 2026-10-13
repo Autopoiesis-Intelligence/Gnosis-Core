@@ -1,8 +1,8 @@
 ## Repository role
 
-**GENESIS / GENEZIS = protected engineering foundation + Module Factory.**
+**GENESIS = protected engineering foundation + Module Factory.**
 
-Gnozis is the public research/evidence/opportunity surface. Gnozis-Research-Memory is the machine-readable research, mathematics, provenance and context layer. Genesis/Genezis contains the protected Core/Uroboros boundary and the governed factory for specialized modules and products.
+Gnosis is the public research/evidence/opportunity surface. Gnosis-Memory is the machine-readable research, mathematics, provenance and context layer. Genesis contains the protected Core/Uroboros boundary and the governed factory for specialized modules and products.
 
 The repository must not be treated as a public research archive or as a second research-memory authority.
 
@@ -13,7 +13,7 @@ Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / D
 ## Current repository baseline
 - Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `d10de2a32b7c1daeec3678dd127e8542afead8ef` (current audited main); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` is stale.
 
-- Repository: `Mikhail-Kucheriavyi-23/Genezis`
+- Repository: `Autopoiesis-Intelligence/Gnosis-Core`
 - Branch: `main`
 - Reflection foundation is implemented outside `gnosis/core` and remains non-mutating.
 - Persistence is present for reflection reports and is still awaiting end-to-end verification.
@@ -351,7 +351,7 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E5.29 — Partner Repository Agency / Knowledge Federation:** DESIGNED / NOT_IMPLEMENTED. Added governed contract for attaching a separately audited partner repository plus an isolated adjacent knowledge DB. The partner source is an external evidence/learning surface, not a second Core or authority root. Required path: Partner Repository -> Partner DB -> Provenance/Audit -> Quarantine -> Evidence -> Candidate -> Core Verification -> Governed Evolution. Initial agency levels: READ_RESEARCH, SUBMIT_EVIDENCE, SUBMIT_CANDIDATE, SUBMIT_TEST, REQUEST_REVIEW, PROPOSE_CHANGE, EXECUTION_AUTHORITY. Direct PartnerData -> CanonicalState is forbidden. AI_CONTEXT commit: 0ae71cc2; architecture contract commit: 4bf60ba1.
 - This creates the planned partnership extension without enabling automatic model training, code execution, credentials or production authority. Exact runtime/CI evidence is not claimed.
 
-- **E5.30 — Agent Identity, Participation Intake and Contract Debate:** DESIGNED / TEMPLATE IMPLEMENTED; runtime identity/discussion infrastructure NOT_IMPLEMENTED. Added `docs/partners/PARTNER_AGENT_PARTICIPATION_TEMPLATE.md` (`fa403db2`). The template captures proposed identity, role, participation intent, evidence/provenance, requested agency, contract challenges/proposals, debate protocol, dataset metadata, audit declarations and machine identity material. The machine-processing section is reserved for Gnozis.
+- **E5.30 — Agent Identity, Participation Intake and Contract Debate:** DESIGNED / TEMPLATE IMPLEMENTED; runtime identity/discussion infrastructure NOT_IMPLEMENTED. Added `docs/partners/PARTNER_AGENT_PARTICIPATION_TEMPLATE.md` (`fa403db2`). The template captures proposed identity, role, participation intent, evidence/provenance, requested agency, contract challenges/proposals, debate protocol, dataset metadata, audit declarations and machine identity material. The machine-processing section is reserved for Gnosis.
 - E5.30 boundary: `Identity != Trust != Authority`; `Discussion != Authorization`; agent consensus is not proof; PartnerData has no direct path to CanonicalState. AI_CONTEXT `162bb527`; architecture contract `ff884aba`.
 - Partnership extension remains non-production: no credentials, execution authority, automatic model training or automatic code execution are enabled by the template itself.
 - Overall contract progress remains ~50%; E5.29 remains DESIGNED / NOT_IMPLEMENTED, while E5.30 template artifact is now implemented.
@@ -405,7 +405,7 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.22 — Partner Repository Admission & Identity:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/PARTNER_REPOSITORY_ADMISSION_IDENTITY_CONTRACT.md` (`98782bc1`). Defines controlled partner admission, immutable PartnerIdentity, declared scope, baseline provenance, quarantine, revocation and no-authority-inheritance rules.
 - **P0 self-learning integrated proof:** remains ~20%. E7.22 architectural coverage ~40%, verification coverage ~5%.
 
-- **Repository role baseline:** `Gnozis-V2` = canonical Core/source of truth. Future second repository = **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**, holding theory, mathematics, evidence, context and machine-readable self-optimization material; it is not a second Core. Historical `Gnozis` remains legacy/research/archive.
+- **Repository role baseline:** `Gnosis-V2` = canonical Core/source of truth. Future second repository = **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**, holding theory, mathematics, evidence, context and machine-readable self-optimization material; it is not a second Core. Historical `Gnosis` remains legacy/research/archive.
 - Added `docs/architecture/REPOSITORY_ROLE_AND_NAMING_CONTRACT.md` (`85cccebf`).
 
 
@@ -493,7 +493,7 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **Partner Contract Block correction:** the partner contract generator is explicitly a continuously refreshed partner-facing current contract map, not a proof-of-learning artifact. Added `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md`, generator `scripts/update_partner_contract_block.py`, and hourly/manual refresh workflow. The generated block is an index-only surface; Registry and individual contract artifacts remain authoritative.
 
-- **Partner model correction / product description:** Main Gnozis Core is the common minimal foundation. Self-Learning supports two partnership paths: Core-initiated governed development proposals and partner-initiated specialization from a project repository/specification into a bounded commercial specialized core. Partner-private data remains inside its trust boundary; only explicitly shareable, validated, generalizable evidence may return to common learning. The current partner contract block is an index/briefing surface, not learning proof or authority.
+- **Partner model correction / product description:** Main Gnosis Core is the common minimal foundation. Self-Learning supports two partnership paths: Core-initiated governed development proposals and partner-initiated specialization from a project repository/specification into a bounded commercial specialized core. Partner-private data remains inside its trust boundary; only explicitly shareable, validated, generalizable evidence may return to common learning. The current partner contract block is an index/briefing surface, not learning proof or authority.
 - **E7.50 — Self-Learning Evidence Replay / Reconstruction:** IMPLEMENTED / UNVERIFIED. Added deterministic reconstruction and integrity checking of ledger sequences, including subject-mixing and broken-chain detection. Replay reconstructs evidence only and cannot repair, authorize, execute or mutate history.
 
 - **E7.51 — Learning Flow Integrity / Complete Contract Lifecycle:** IMPLEMENTED / UNVERIFIED. Added an end-to-end verifier for the required DATABASE → FINDING → PROPOSAL → VALIDATION → GOVERNANCE → EXECUTION_PLAN → RECEIPT sequence. Missing stages, subject mixing, chain corruption and ordering violations fail explicitly; no history repair or execution is performed.
@@ -1801,7 +1801,7 @@ A later commit inherits no verification claim from an earlier commit until the a
 
 ## R1 adversarial finding — corrected at source — 2026-09-24
 
-- A prior independent audit artifact (`GNOZIS_V2_AUDIT_2026-09-17.md`) was located in the project Library. It is genuinely independent of the current self-audit, but it targets an older source state and therefore cannot certify current R1.
+- A prior independent audit artifact (`GNOSIS_V2_AUDIT_2026-09-17.md`) was located in the project Library. It is genuinely independent of the current self-audit, but it targets an older source state and therefore cannot certify current R1.
 - The audit's concrete finding was rechecked against current `main`: `InvariantDelta.status` still classified an empty `ShadowEvaluation.cases` as `PRESERVED`.
 - This is a real fail-open evidence defect: no evaluation cases must not imply invariant preservation.
 - Corrective production change: `gnosis/reflection/invariant_delta.py` now returns `INSUFFICIENT_EVIDENCE` for empty evaluation cases.
