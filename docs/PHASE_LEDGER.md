@@ -12,7 +12,7 @@ It exists so a replacement AI can continue from repository evidence rather than 
 
 **Status:** DOCUMENTATION_AND_ARCHITECTURE
 
-**Live main baseline observed for this reconciliation (2026-10-13):** `6eed57dbbae1778039f1c2db67ab6a17b3ca091a` at 2026-10-13T11:17:56Z. This is a point-in-time ref observation; recheck before future continuation. It is not CI/runtime evidence.
+**Live main baseline observed for this reconciliation (2026-10-13):** `78f84f6c6ac771478525b547ba467aa773e626b7` at 2026-10-13T16:00:05Z. This is a point-in-time ref observation; recheck before future continuation. It is not CI/runtime evidence.
 
 **Objective:**
 Build the durable project-context layer that allows a newly connected AI product to recover the real project state, distinguish implementation from verification and acceptance, and continue bounded work without depending on a previous conversation.
