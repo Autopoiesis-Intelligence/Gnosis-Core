@@ -301,7 +301,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
 
     with pytest.raises(PermissionError, match="candidate"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_b, record_b, request, actor="user-1"
+            conn, instance, candidate_b, record_b, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1"
         )
 
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
@@ -379,7 +379,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
 
     with pytest.raises(PermissionError, match="canonical"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_b, record_b, request, actor="user-1"
+            conn, instance, candidate_b, record_b, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1"
         )
 
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
@@ -529,7 +529,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     with pytest.raises(ValueError, match="stale instance head"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_a, record_a, request, actor="user-1"
+            conn, instance, candidate_a, record_a, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1"
         )
 
     current = load_instance(conn, instance.instance_id)
