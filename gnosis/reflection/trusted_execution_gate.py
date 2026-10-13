@@ -36,9 +36,12 @@ def require_trusted_execution(
     if not trusted_policy_version or not trusted_evidence_digest:
         raise PermissionError("independent trusted execution policy is not configured")
 
+    if trusted_evidence_digest != request.provenance.evidence_digest:
+        raise PermissionError("trusted evidence digest does not match request provenance")
+
     validity.require_valid(
         expected_policy_version=trusted_policy_version,
-        expected_evidence_digest=trusted_evidence_digest,
+        expected_evidence_digest=request.provenance.evidence_digest,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(
