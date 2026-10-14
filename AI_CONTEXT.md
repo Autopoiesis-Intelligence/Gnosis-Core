@@ -1,11 +1,11 @@
-# Gnozis — AI Context
+# Gnosis — AI Context
 
 ## 0. PURPOSE / OPERATING RULE
 
-This file is the operational handoff and research context for AI agents working on Gnozis Core.
+This file is the operational handoff and engineering context for AI agents working on Gnosis Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
 
 Rules:
@@ -21,19 +21,19 @@ Rules:
 
 ## 1. REPOSITORY ROLE
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+Gnosis-Core is the canonical engineering foundation of the Gnosis project. The separate Gnosis research repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
 
 The Core is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
 
 The intended product lineage is:
 
-Research Library → Canonical Gnozis Core → Specialized Research Kernel → User / Commercial Version
+Research Library → Gnosis-Core → Specialized Research Kernel → User / Commercial Version
 
 Core mechanisms should be reusable across multiple future kernels and products. Domain-specific functionality should normally remain above Core. Research language may be broad and descriptive; it becomes an engineering requirement only through an explicit research-to-engineering translation and evidence gate.
 
 ## 1. ARCHITECTURAL PURPOSE
 
-Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
+Gnosis-Core is an engineering foundation for evidence-based, governed evolution research whose canonical state/evolution semantics remain controlled by Ψ-Core.
 
 A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
@@ -133,7 +133,7 @@ Preserve all of the following:
 
 A self-consistent internal history can still be wrong about the external world.
 
-For empirical claims, Gnozis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
+For empirical claims, Gnosis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
 
 Conceptual path:
 
