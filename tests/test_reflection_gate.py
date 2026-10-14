@@ -92,4 +92,9 @@ def test_reflection_gate_fails_when_evolution_recovery_is_invalidated():
     )
     assert not result.passed
     assert "evolution provenance/audit recovery failed" in result.reasons
+    assert any(
+        reason.startswith("evolution recovery: ")
+        and "provenance identity required for trusted recovery" in reason
+        for reason in result.reasons
+    )
     conn.close()
