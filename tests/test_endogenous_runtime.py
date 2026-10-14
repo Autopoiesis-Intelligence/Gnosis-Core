@@ -76,9 +76,10 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     instance = Instance.create_root("e8c", State(elements={"a": 1}))
     save_instance(conn, instance)
 
-    proposal1 = RuleProposal(proposal_id="p1", finding_id="f1", target="r1:v1", hypothesis="cycle-1", evidence_refs=("f1",), expected_effect="persist memory evidence", regression_risk="test-only", required_test="two-cycle memory persistence", rule_id="r1")
+    proposal1 = type("P", (), {"proposal_id":"p1","finding_id":"f1","rule_id":"r1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f1",)})()
     report1 = ReflectionReport(proposals=(proposal1,))
-    report1_id = save_reflection_report(conn, report1, created_at="2026-10-13T00:00:01+00:00")
+    persisted_proposal1 = RuleProposal(proposal_id="p1", finding_id="f1", target="r1:v1", hypothesis="cycle-1", evidence_refs=("f1",), expected_effect="persist memory evidence", regression_risk="test-only", required_test="two-cycle memory persistence", rule_id="r1")
+    report1_id = save_reflection_report(conn, ReflectionReport(proposals=(persisted_proposal1,)), created_at="2026-10-13T00:00:01+00:00")
     cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
     gen1 = generate_from_cumulative_reflection(instance.engine, cumulative1)
     rec1 = commit_endogenous_candidates(instance.engine, report1, gen1.candidates)
@@ -90,9 +91,10 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     restored = load_evolution_memory(conn, instance.instance_id)
     assert [m.memory_id for m in restored] == [mem1.memory_id]
     history = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
-    proposal2 = RuleProposal(proposal_id="p2", finding_id="f2", target="r2:v1", hypothesis="cycle-2", evidence_refs=("f2",), expected_effect="reuse persisted memory evidence", regression_risk="test-only", required_test="two-cycle memory persistence", rule_id="r2")
+    proposal2 = type("P", (), {"proposal_id":"p2","finding_id":"f2","rule_id":"r2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f2",)})()
     report2 = ReflectionReport(proposals=(proposal2,))
-    report2_id = save_reflection_report(conn, report2, created_at="2026-10-13T00:00:02+00:00")
+    persisted_proposal2 = RuleProposal(proposal_id="p2", finding_id="f2", target="r2:v1", hypothesis="cycle-2", evidence_refs=("f2",), expected_effect="reuse persisted memory evidence", regression_risk="test-only", required_test="two-cycle memory persistence", rule_id="r2")
+    report2_id = save_reflection_report(conn, ReflectionReport(proposals=(persisted_proposal2,)), created_at="2026-10-13T00:00:02+00:00")
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
     gen2 = generate_from_cumulative_reflection(instance.engine, cumulative2)
     assert gen2.candidates[0].proposed_state.elements["p2"]["memory_evidence_refs"] == (mem1.memory_id,)
@@ -204,7 +206,6 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     )
     assert not incomplete.reproducible
     assert "independent evaluation/governance evidence missing" in incomplete.reasons
-    from dataclasses import replace
     tampered = replace(provenance, governance_decision="APPROVE")
     rejected = replay_complete(
         sandbox.execution, tampered, tx.audit_record,
