@@ -113,4 +113,13 @@ def real_commit_fixture():
         provenance=provenance,
         authorization_validity=validity,
     )
+    class _FailureInjectedRequest:
+        def __init__(self, wrapped):
+            self._wrapped = wrapped
+            self.failure_injection = None
+
+        def __getattr__(self, name):
+            return getattr(self._wrapped, name)
+
+    request = _FailureInjectedRequest(request)
     return _Fixture(conn, instance, candidate, record, request, SQLiteExecutionCommitAdapter())
