@@ -208,6 +208,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     )
     assert not incomplete.reproducible
     assert "independent evaluation/governance evidence missing" in incomplete.reasons
+    assert "independent candidate-binding evidence missing" in incomplete.reasons
     tampered = replace(provenance, governance_decision="APPROVE")
     rejected = replay_complete(
         sandbox.execution, tampered, tx.audit_record,
