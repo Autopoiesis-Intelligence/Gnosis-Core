@@ -40,3 +40,9 @@ Current repository evidence describes Gnosis-Core as an engineering foundation. 
 | End-to-end production execution is accepted | Blocked |
 
 This document records source-level findings, not runtime proof. Recheck the default-branch SHA before using these findings as current evidence. No PR is authorized to merge solely because focused tests pass.
+
+## Additional issuer finding — 2026-10-14
+
+Review of current `main` also found that `gnosis/reflection/trusted_issuer.py::TrustedOwnerIssuer.issue()` validates caller-supplied root/scope/policy strings and a non-empty evidence digest, then constructs `ExecutionAuthorization(owner_approved=True)`. The method does not verify a cryptographic owner proof against a protected trust root. Therefore these field checks must not be interpreted as proof of owner authority. `gnosis/reflection/authority.py::issue_execution_authorization()` separately raises `NotImplementedError` after checking the approval fields.
+
+This finding reinforces the same integration blocker: no production issuer can grant execution capability until proof verification is anchored in a protected composition boundary. Do not solve this by trusting a typed/injected context, creating a placeholder key, or enabling an implicit fallback. Any eventual fix must test denial and absence of durable side effects through the actual execution entry point.
