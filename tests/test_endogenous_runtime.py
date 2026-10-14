@@ -193,7 +193,16 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     persisted_provenance = list_evolution_provenance(conn, candidate_id=provenance.candidate_id)[0]
     result = verify_persisted_chain(persisted_provenance, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
     assert result.valid, result.reasons
-    replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
+    replay = replay_complete(
+        sandbox.execution, provenance, tx.audit_record,
+        observations=sandbox.execution.observations,
+        evaluation_status=evaluation.status,
+        shadow_status=governance.shadow_status,
+        invariant_status=governance.invariant_status,
+        governance_decision=governance.decision,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(state.content_id),
+    )
     assert replay.reproducible, replay.reasons
     conn.close()
 
@@ -313,7 +322,16 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         persisted_provenance = list_evolution_provenance(conn, candidate_id=provenance.candidate_id)[0]
         vr = verify_persisted_chain(persisted_provenance, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
         assert vr.valid, vr.reasons
-        rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
+        rr = replay_complete(
+            sandbox.execution, provenance, tx.audit_record,
+            observations=sandbox.execution.observations,
+            evaluation_status=evaluation.status,
+            shadow_status=governance.shadow_status,
+            invariant_status=governance.invariant_status,
+            governance_decision=governance.decision,
+            proposed_state_content_id=candidate.proposed_state.content_id,
+            candidate_binding_digest=candidate.binding_digest(parent_digest),
+        )
         assert rr.reproducible, rr.reasons
 
         # Persist a real transition in the Core transition ledger. The
