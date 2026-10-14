@@ -46,13 +46,17 @@ def replay_complete(
     shadow_status: str | None = None,
     invariant_status: str | None = None,
     governance_decision: str | None = None,
+    proposed_state_content_id: str | None = None,
+    candidate_binding_digest: str | None = None,
 ) -> ReplayResult:
     """Fail closed unless evidence, provenance, audit and independent evaluation facts agree.
 
     Evaluation and governance facts must be supplied by the caller from the
     separately held evaluator/governance results. Reusing values read from the
     provenance object would only validate that object's internal consistency.
-    This check does not establish that the sandbox independently observed governance.
+    Candidate content and binding digests must likewise come from a separately held
+    candidate, not be copied from provenance. This check does not establish that
+    the sandbox independently observed governance.
     A reproducible result is evidence consistency, not execution authority.
     """
     reasons: list[str] = []
@@ -65,6 +69,8 @@ def replay_complete(
     independent_facts = (evaluation_status, shadow_status, invariant_status, governance_decision)
     if any(value is None for value in independent_facts):
         reasons.append("independent evaluation/governance evidence missing")
+    if proposed_state_content_id is None or candidate_binding_digest is None:
+        reasons.append("independent candidate-binding evidence missing")
     if provenance is not None:
         check = crosscheck_provenance(
             provenance=provenance,
@@ -87,6 +93,8 @@ def replay_complete(
             shadow_status=shadow_status or "",
             invariant_status=invariant_status or "",
             governance_decision=governance_decision or "",
+            proposed_state_content_id=proposed_state_content_id or "",
+            candidate_binding_digest=candidate_binding_digest or "",
             evaluator_identity_ref=provenance.evaluator_identity_ref,
             evaluator_identity_version=provenance.evaluator_identity_version,
         )
