@@ -3,13 +3,12 @@ import sqlite3
 import pytest
 
 from gnosis.core import Candidate, State
-from gnosis.evolution.audit import make_audit_record
 from gnosis.evolution.decision_evidence import (
     load_decision_evidence,
     persist_decision_evidence,
 )
 from gnosis.evolution.evaluator import evaluate_observation
-from gnosis.evolution.provenance import build_provenance
+from gnosis.evolution.provenance import build_provenance, execution_id
 from gnosis.evolution.replay import replay_complete
 from gnosis.evolution.sandbox import run_sandbox
 from gnosis.reflection.governance import GovernanceDecision
@@ -65,7 +64,7 @@ def test_decision_evidence_reloads_independently_and_replays_after_restart(tmp_p
     conn.execute("BEGIN")
     evaluation_id, governance_id = persist_decision_evidence(
         conn,
-        execution_id=execution.execution_id,
+        execution_id=provenance.execution_id,
         candidate_id=candidate.candidate_id,
         evidence_digest=execution.evidence_digest,
         evaluation=evaluation,
@@ -83,7 +82,7 @@ def test_decision_evidence_reloads_independently_and_replays_after_restart(tmp_p
         conn,
         evaluation_record_id=evaluation_id,
         governance_record_id=governance_id,
-        execution_id=execution.execution_id,
+        execution_id=provenance.execution_id,
         candidate_id=candidate.candidate_id,
         evidence_digest=execution.evidence_digest,
     )
@@ -118,7 +117,7 @@ def test_decision_evidence_rejects_tampered_payload_after_restart(tmp_path):
     conn = sqlite3.connect(db)
     evaluation_id, governance_id = persist_decision_evidence(
         conn,
-        execution_id=sandbox.execution.execution_id,
+        execution_id=execution_id(candidate.candidate_id, candidate.parent_state_id, sandbox.execution.evidence_digest, sandbox.execution.parent_state_digest, sandbox.execution.proposed_state_digest),
         candidate_id=candidate.candidate_id,
         evidence_digest=sandbox.execution.evidence_digest,
         evaluation=evaluation,
