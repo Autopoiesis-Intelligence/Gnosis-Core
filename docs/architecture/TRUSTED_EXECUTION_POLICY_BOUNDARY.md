@@ -45,3 +45,22 @@ AUDITED: inspect the exact diff for bypasses and configuration injection.
 CI_PROVEN: obtain passing CI for the exact resulting commit SHA.
 
 Until every applicable stage is evidenced, trusted execution remains NOT ACCEPTED. Do not merge based on this contract document or on isolated unit-test success.
+
+## Reconciliation update — 2026-10-14
+
+The earlier CI reference above was for the pre-documentation head and is historical. A fresh run was inspected for the current integration PR merge commit generated from head `c5dbdb39bbb7c2497c71825418a2a1755fe56783`:
+
+- CI run: [38527466213](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38527466213)
+- Python 3.11: **966 passed / 1 failed**; Python 3.12 job was cancelled after the failure.
+- The same tamper test fails: `test_tampered_policy_is_rejected_before_consumption`.
+- Import Graph and CodeQL succeeded for the current PR build. Dependency Review failed separately; it does not negate the specific Python test finding.
+
+A branch-scoped source review found no `TrustedExecutionContext` or trusted policy provider through repository code search. The issuer's only discovered implementation is still the isolated `TrustedOwnerIssuer.issue()` function; it emits `ExecutionAuthorization`, not independently verifiable validity evidence. The adapter still calls the gate without a policy provider.
+
+### Decision
+
+Do **not** patch the failure by hardcoding `policy-1`, copying expected values from the request, or adding an ordinary caller-constructible dataclass and labelling it trusted. Those changes would make the test green without establishing authority provenance.
+
+Next implementation gate: locate or deliberately establish a protected production composition root and its trusted configuration source. If that boundary cannot be established in this repository, the production commit path must remain unavailable/fail-closed while the pure planning/replay paths remain usable. This is a deliberate security constraint, not a passing implementation.
+
+Current status: **DEFECT CONFIRMED ON CURRENT PR BUILD / TRUSTED POLICY SOURCE NOT FOUND / FIX NOT IMPLEMENTED / CI FAIL**.
