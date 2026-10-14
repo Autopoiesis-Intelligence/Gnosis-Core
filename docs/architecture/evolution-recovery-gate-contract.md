@@ -10,6 +10,17 @@ Branch context: security/signed-owner-auth-commit-boundary-2026-10-14
 
 `recover_evolution_audit()` requires a provenance identity for trusted recovery and independently supplied observations and proposed state. It also defaults to rejecting recovery unless authorization is explicitly valid. Therefore, the current call cannot prove evolution recovery and must fail closed. Instance-recovery authorization must not be silently reused as evolution-recovery authority.
 
+## Data-availability finding (repository inspection, 2026-10-15)
+
+The persisted schema was inspected at the current PR head:
+
+- `evolution_provenance` stores identity fields and digests, including `evidence_digest` and `proposed_state_content_id`; it does not store the observation mapping or a reconstructable proposed `State` object.
+- `evolution_audit` stores `payload_digest`, not the original audit payload.
+- `list_evolution_provenance()` and `list_evolution_audit()` therefore cannot, by themselves, supply the independent replay inputs required by `recover_evolution_audit()`.
+- The repository search found no dedicated `EvolutionRecoveryAuthorization` type or `authorize_evolution_recovery` issuance path. The existing `RecoveryAuthorization` is used for instance/partner recovery and must not be silently repurposed.
+
+**Consequence:** the missing inputs are not just an omitted function argument. A trusted producer/source and an evolution-scoped authorization path must be identified or deliberately designed within the existing authority boundary. Do not reconstruct observations or state from digests, and do not add a boolean-to-authority adapter. Until those dependencies exist, the reflection gate must continue to fail closed when evolution provenance is present.
+
 ## Required integration contract
 
 Before implementation, the caller and API must explicitly bind all of the following:
