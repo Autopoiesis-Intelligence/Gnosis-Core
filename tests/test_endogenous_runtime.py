@@ -204,6 +204,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
         candidate_binding_digest=candidate.binding_digest(state.content_id),
     )
     assert replay.reproducible, replay.reasons
+    assert replay.expected_digest == replay.actual_digest == sandbox.execution.evidence_digest
     incomplete = replay_complete(
         sandbox.execution, provenance, tx.audit_record,
         observations=sandbox.execution.observations,
