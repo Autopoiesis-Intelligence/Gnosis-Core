@@ -121,3 +121,40 @@ A fresh read of the PR branch at `security/signed-owner-auth-commit-boundary-202
 
 No production readiness or runtime execution claim follows from this finding. PR #198 remains Draft and must not be merged until this gap, protected trust composition, end-to-end tests, and exact-head CI are addressed.
 
+
+
+## SEQ 1.40 — proposal-binding implementation and exact-head CI (2026-10-14)
+
+At branch HEAD `4e5ab97ed4d7a5602569e7e465a73458c22b4a27`, the bridge proposal-to-commit binding correction is implemented in the Draft branch:
+
+- `ProductionAuthorization` includes `proposal_binding_digest` in its canonical signed payload and authorization identity.
+- `verify_production_authorization()` requires an independently supplied `expected_proposal_binding_digest` and rejects mismatch.
+- `execute_approved_core_proposal()` retains the `BoundCoreExecution` result and forwards its digest to the adapter.
+- `SQLiteExecutionCommitAdapter.commit()` fails closed if the expected binding is missing.
+- A negative verifier test rejects an authorization bound to a different proposal. Direct adapter fixtures and replay/substitution tests pass the expected binding explicitly.
+
+### Exact-head CI evidence
+
+- CI run [38556270933](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556270933), SHA `4e5ab97ed4d7a5602569e7e465a73458c22b4a27`: **952 passed, 23 failed, 18 warnings**. Python 3.11 and 3.12 both failed with the same 23 failure identifiers.
+- The prior new replay-test omission is no longer among the failures. No new failure in the proposal-binding verifier/adapter tests appears in the reported failing-test list; this is useful regression evidence but not a green CI result.
+- Import Graph run [38556270959](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556270959): PASS.
+- CodeQL run [38556271099](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556271099): PASS.
+- Self-Diagnostic run [38556264785](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556264785): FAIL before diagnostic generation, with six persistence-test failures; this run did not produce the diagnostic artifact.
+- Dependency Review run [38556270919](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556270919): FAIL; repository dependency-graph/configuration limitation remains to be separately classified.
+
+The 23 full-suite failures cluster in endogenous proposal/candidate binding, evolution-memory and persisted-chain contracts, persistence/recovery behavior, and reflection-gate call sites. Do not claim these are all baseline failures without a matching-base comparison. This run proves the suite remains red, not that the security patch is production-ready.
+
+### Updated evidence status
+
+| Layer | Status |
+|---|---|
+| Design | Defined; host-composition gap remains explicit |
+| Proposal binding implementation | Present on Draft branch |
+| Targeted negative proposal-binding test | Present; not listed among exact-head failures |
+| Exact-head full CI | FAIL — 952 passed, 23 failed |
+| Protected production composition | Not established |
+| Runtime end-to-end execution | Not proven |
+| Durable trust-root provisioning | Not proven |
+| Production readiness | Not proven |
+
+Decision: keep PR #198 Draft. Next, compare the 23 failing test identifiers against a fresh CI run on the PR base SHA, and inspect the real protected host boundary before attempting runtime claims. Do not broaden this security PR into unrelated persistence/endogenous-runtime repairs without an evidence-based dependency reason.
