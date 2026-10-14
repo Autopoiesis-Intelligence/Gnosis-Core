@@ -1,7 +1,13 @@
 """R2 adversarial proof: Federation evidence may reach Core commit only through every trust gate."""
 import pytest
 from gnosis.evolution.federation_admission import admit_federation_evidence, build_core_provenance
-from gnosis.reflection.authority import (\n    ExecutionAuthorization,\n    ExecutionCommitRequest,\n    ExecutionIntentSnapshot,\n    require_execution_candidate_binding,\n)\nfrom gnosis.reflection.authorization_validity import AuthorizationValidity
+from gnosis.reflection.authority import (
+    ExecutionAuthorization,
+    ExecutionCommitRequest,
+    ExecutionIntentSnapshot,
+    require_execution_candidate_binding,
+)
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.trusted_execution_gate import require_trusted_execution
 from registry.core_handoff import create_handoff
 
