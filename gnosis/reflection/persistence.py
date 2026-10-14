@@ -685,21 +685,33 @@ def list_evolution_provenance(
     if candidate_id is None:
         rows = conn.execute(
             "SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version,"
-            "evaluation_status,shadow_status,invariant_status,governance_decision,status "
+            "evaluation_status,shadow_status,invariant_status,governance_decision,status,status_digest "
             "FROM evolution_provenance ORDER BY rowid"
         ).fetchall()
     else:
         rows = conn.execute(
             "SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version,"
-            "evaluation_status,shadow_status,invariant_status,governance_decision,status "
+            "evaluation_status,shadow_status,invariant_status,governance_decision,status,status_digest "
             "FROM evolution_provenance WHERE candidate_id=? ORDER BY rowid",
             (candidate_id,),
         ).fetchall()
     keys = (
         "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluator_identity_ref","evaluator_identity_version",
-        "evaluation_status","shadow_status","invariant_status","governance_decision","status",
+        "evaluation_status","shadow_status","invariant_status","governance_decision","status","status_digest",
     )
-    return tuple(dict(zip(keys, row)) for row in rows)
+    results = []
+    for row in rows:
+        result = dict(zip(keys, row))
+        digest = result.get("status_digest", "")
+        if digest:
+            if digest != canonical_digest({"status": result["status"]}):
+                result["integrity_status"] = "tampered"
+            else:
+                result["integrity_status"] = "verified"
+        else:
+            result["integrity_status"] = "legacy_unverified"
+        results.append(result)
+    return tuple(results)
 
 
 def crosscheck_stored_provenance(
