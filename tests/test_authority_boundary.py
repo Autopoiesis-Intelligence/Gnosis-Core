@@ -380,6 +380,7 @@ def test_execution_commit_rejects_replay_after_canonical_head_advanced(real_comm
         "actor": "test-owner",
         "production_authorization": fixture.production_authorization,
         "trust_context": fixture.trust_context,
+        "expected_proposal_binding_digest": fixture.proposal_binding_digest,
     }
     fixture.adapter.commit(
         fixture.conn, fixture.instance, fixture.candidate, fixture.record,
