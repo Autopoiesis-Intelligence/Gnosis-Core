@@ -14,6 +14,7 @@ def _commit(fixture, request):
         actor="trusted-owner",
         production_authorization=fixture.production_authorization,
         trust_context=fixture.trust_context,
+        expected_proposal_binding_digest=fixture.proposal_binding_digest,
     )
 
 
