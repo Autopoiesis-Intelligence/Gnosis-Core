@@ -204,6 +204,13 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
         candidate_binding_digest=candidate.binding_digest(state.content_id),
     )
     assert replay.reproducible, replay.reasons
+    incomplete = replay_complete(
+        sandbox.execution, provenance, tx.audit_record,
+        observations=sandbox.execution.observations,
+    )
+    assert not incomplete.reproducible
+    assert "independent evaluation/governance evidence missing" in incomplete.reasons
+    assert "independent candidate-binding evidence missing" in incomplete.reasons
     conn.close()
 
 
