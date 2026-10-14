@@ -240,6 +240,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
 
 def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
+    from gnosis.reflection.analyzer import RuleProposal
     from gnosis.reflection.endogenous import commit_endogenous_candidates
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
