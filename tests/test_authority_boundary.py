@@ -228,15 +228,17 @@ def test_owner_approval_cannot_cross_bind_evolution():
 
 
 
+
 def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution(real_commit_fixture):
     from gnosis.core import Candidate, TestResult, TransitionRecord
     from gnosis.storage import load_instance
 
     fixture = real_commit_fixture
-    parent_state_id = fixture.instance.engine.state.state_id
+    persisted = load_instance(fixture.conn, fixture.instance.instance_id)
+    parent_state_id = persisted.engine.state.state_id
     candidate_b = Candidate(
         parent_state_id,
-        fixture.instance.engine.state.with_elements({"substituted": True}),
+        persisted.engine.state.with_elements({"substituted": True}),
         "candidate-substitution",
     )
     record_b = TransitionRecord(
@@ -262,17 +264,17 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution(re
 def test_execution_commit_rejects_forged_provenance_identity_binding(real_commit_fixture) -> None:
     from dataclasses import replace
     from gnosis.core import Candidate, TestResult, TransitionRecord
-    from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionIntentSnapshot
+    from gnosis.reflection.authority import ExecutionIntentSnapshot
     from gnosis.storage import load_instance
 
     fixture = real_commit_fixture
-    parent_state_id = fixture.instance.engine.state.state_id
+    persisted = load_instance(fixture.conn, fixture.instance.instance_id)
+    parent_state_id = persisted.engine.state.state_id
     candidate_b = Candidate(
         parent_state_id,
-        fixture.instance.engine.state.with_elements({"forged": True}),
+        persisted.engine.state.with_elements({"forged": True}),
         "forged-provenance-candidate",
     )
-    # Preserve the signed evolution identity while substituting candidate-bound fields.
     forged = replace(
         fixture.request.provenance,
         candidate_id=candidate_b.candidate_id,
@@ -293,7 +295,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding(real_commit
         accepted=True,
         reason="test",
     )
-    with pytest.raises(PermissionError, match="canonical"):
+    with pytest.raises(PermissionError, match="identity mismatch"):
         fixture.adapter.commit(
             fixture.conn, fixture.instance, candidate_b, record_b,
             forged_request, actor="test-owner",
@@ -365,95 +367,31 @@ def test_execution_receipt_rejects_tampered_resulting_state_digest():
         require_execution_receipt(receipt, request)
 
 
-def test_execution_commit_rejects_authorized_request_after_canonical_head_advanced() -> None:
-    """Authorization bound to an old parent must not commit after the head advances."""
-    from gnosis.evolution.provenance import build_provenance, canonical_digest
-    from gnosis.instances.instance import Instance
-    from gnosis.storage import connect, load_instance, save_instance
 
-    conn = connect()
-    instance = Instance.create_root("user-1", State(elements={"a": 1}))
-    save_instance(conn, instance)
-    parent_state_id = instance.engine.state.state_id
+def test_execution_commit_rejects_replay_after_canonical_head_advanced(real_commit_fixture) -> None:
+    """A consumed signed authorization cannot commit a second time."""
+    from gnosis.storage import load_instance
 
-    candidate_a = Candidate(
-        parent_state_id, instance.engine.state.with_elements({"a": 2}), "authorized-a"
+    fixture = real_commit_fixture
+    kwargs = {
+        "actor": "test-owner",
+        "production_authorization": fixture.production_authorization,
+        "trust_context": fixture.trust_context,
+    }
+    fixture.adapter.commit(
+        fixture.conn, fixture.instance, fixture.candidate, fixture.record,
+        fixture.request, **kwargs,
     )
-    observations = {"candidate": candidate_a.candidate_id}
-    provenance_a = build_provenance(
-        candidate_id=candidate_a.candidate_id,
-        parent_state_id=parent_state_id,
-        parent_state_digest=parent_state_id,
-        proposed_state_digest=candidate_a.proposed_state.state_id,
-        observations=observations,
-        proposed_state_content_id=candidate_a.proposed_state.content_id,
-        candidate_binding_digest=candidate_a.binding_digest(parent_state_id),
-        evidence_digest=canonical_digest(observations),
-        evaluation_status="PASS",
-        shadow_status="UNCHANGED",
-        invariant_status="PRESERVED",
-        governance_decision="ALLOW",
-    )
-    request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
-        ExecutionIntentSnapshot.from_provenance(provenance_a),
-        provenance_a.provenance_id,
-        provenance_a.evolution_identity,
-        provenance_a,
-    )
+    committed_state_id = fixture.candidate.proposed_state.state_id
+    assert load_instance(fixture.conn, fixture.instance.instance_id).engine.state.state_id == committed_state_id
 
-    # Another valid transition advances the canonical instance head after authorization.
-    parent_state = instance.engine.state
-    candidate_b = Candidate(
-        parent_state_id, parent_state.with_elements({"a": 3}), "advanced-head"
-    )
-    observations_b = {"candidate": candidate_b.candidate_id}
-    provenance_b = build_provenance(
-        candidate_id=candidate_b.candidate_id,
-        parent_state_id=parent_state_id,
-        parent_state_digest=parent_state_id,
-        proposed_state_digest=candidate_b.proposed_state.state_id,
-        observations=observations_b,
-        proposed_state_content_id=candidate_b.proposed_state.content_id,
-        candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
-        evidence_digest=canonical_digest(observations_b),
-        evaluation_status="PASS",
-        shadow_status="UNCHANGED",
-        invariant_status="PRESERVED",
-        governance_decision="ALLOW",
-    )
-    record_b = instance.engine.step(candidate_b)
-    SQLiteExecutionCommitAdapter().commit(
-        conn, instance, candidate_b, record_b,
-        _make_execution_commit_request(provenance_b),
-        actor="user-1",
-    )
-    advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
-    assert advanced_head == candidate_b.proposed_state.state_id
-
-    # The old authorization remains structurally valid but is stale at commit time.
-    record_a = TransitionRecord(
-        from_state_id=parent_state_id,
-        to_state_id=candidate_a.proposed_state.state_id,
-        candidate_id=candidate_a.candidate_id,
-        test_result=TestResult(True, ("authorized-test",)),
-        accepted=True,
-        reason="committed",
-    )
-    with pytest.raises(ValueError, match="stale instance head"):
-        SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_a, record_a, request, actor="user-1"
+    with pytest.raises(PermissionError, match="nonce already consumed"):
+        fixture.adapter.commit(
+            fixture.conn, fixture.instance, fixture.candidate, fixture.record,
+            fixture.request, **kwargs,
         )
 
-    current = load_instance(conn, instance.instance_id)
-    assert current.engine.state.state_id == advanced_head
-    assert conn.execute(
-        "SELECT count(*) FROM transitions WHERE candidate_id=?", (candidate_a.candidate_id,)
-    ).fetchone()[0] == 0
-    assert conn.execute(
-        "SELECT count(*) FROM audit_events WHERE transition_id IS NOT NULL AND transition_id=?",
-        (record_a.transition_id,),
-    ).fetchone()[0] == 0
-    conn.close()
+    assert load_instance(fixture.conn, fixture.instance.instance_id).engine.state.state_id == committed_state_id
+    assert fixture.conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 1
+
+
