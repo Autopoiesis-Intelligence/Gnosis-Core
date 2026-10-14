@@ -722,6 +722,13 @@ def crosscheck_stored_provenance(
 ) -> Any:
     """Re-validate stored identity/evidence links against supplied observations."""
     row = load_evolution_provenance(conn, provenance_id)
+    if row.get("integrity_status") != "verified":
+        reason = (
+            "stored provenance status integrity mismatch"
+            if row.get("integrity_status") == "tampered"
+            else "stored provenance status integrity is unverified"
+        )
+        return ProvenanceCrossCheck(valid=False, reasons=(reason,))
     # Legacy rows may have no evaluator identity; trusted recovery must classify them as unverified.
     # The database key is itself a trust anchor: stored fields must recompute to it.
     if row["provenance_id"] != provenance_id:
