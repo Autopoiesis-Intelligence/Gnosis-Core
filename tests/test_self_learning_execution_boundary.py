@@ -67,4 +67,5 @@ def test_execution_bridge_forwards_signed_authorization_and_trust_context(monkey
         "actor": "test",
         "production_authorization": signed_authorization,
         "trust_context": trust_context,
+        "expected_proposal_binding_digest": execution_module.bind_core_proposal(proposal, request).binding_digest,
     }
