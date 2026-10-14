@@ -7,6 +7,7 @@ bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from collections.abc import Mapping
 from typing import Sequence
 from gnosis.core.evolution import Engine
 from gnosis.core.types import Candidate, Relation, State
@@ -93,46 +94,78 @@ def generate_endogenous_candidates(
     )
 
 
-def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bool:
-    """Return True only when an endogenous Candidate is deterministically bound to its RuleProposal."""
+def _candidate_binding_mismatches(candidate: Candidate, proposal: RuleProposal) -> tuple[str, ...]:
+    """Return binding contract violations without exposing proposal payloads."""
+    reasons: list[str] = []
     if candidate.origin != "reflection:endogenous":
-        return False
+        reasons.append("candidate origin")
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
-        return False
-    if node.get("kind") != "rule_proposal":
-        return False
-    if node.get("finding_id") != proposal.finding_id:
-        return False
-    if node.get("rule_id") != proposal.rule_id:
-        return False
-    if node.get("current_version") != proposal.current_version:
-        return False
-    if node.get("proposed_version") != proposal.proposed_version:
-        return False
-    if tuple(node.get("evidence_refs", ())) != tuple(proposal.evidence_refs):
-        return False
+    if not isinstance(node, Mapping):
+        return tuple((*reasons, "proposal node missing or not a mapping"))
+    expected_node = {
+        "kind": "rule_proposal",
+        "finding_id": proposal.finding_id,
+        "rule_id": proposal.rule_id,
+        "current_version": proposal.current_version,
+        "proposed_version": proposal.proposed_version,
+        "hypothesis": proposal.hypothesis,
+        "evidence_refs": tuple(proposal.evidence_refs),
+    }
+    for key, expected in expected_node.items():
+        actual = node.get(key)
+        if key == "evidence_refs":
+            actual = tuple(actual or ())
+        if actual != expected:
+            reasons.append(f"proposal node {key}")
     relations = tuple(
         relation for relation in candidate.proposed_state.relations
         if relation.source == REFLECTION_NODE and relation.target == proposal.proposal_id
     )
-    return len(relations) == 1 and relations[0].relation_type == "proposed_rule"
+    if len(relations) != 1:
+        reasons.append("proposal relation cardinality")
+        return tuple(reasons)
+    relation = relations[0]
+    if relation.relation_type != "proposed_rule":
+        reasons.append("proposal relation type")
+    relation_value = relation.value
+    if not isinstance(relation_value, Mapping):
+        reasons.append("proposal relation value")
+        return tuple(reasons)
+    expected_relation = {
+        "finding_id": proposal.finding_id,
+        "rule_id": proposal.rule_id,
+        "current_version": proposal.current_version,
+        "proposed_version": proposal.proposed_version,
+        "hypothesis": proposal.hypothesis,
+        "evidence_refs": tuple(proposal.evidence_refs),
+        "historical_memory_outcomes": tuple(node.get("historical_memory_outcomes", ())),
+    }
+    for key, expected in expected_relation.items():
+        actual = relation_value.get(key)
+        if key in ("evidence_refs", "historical_memory_outcomes"):
+            actual = tuple(actual or ())
+        if actual != expected:
+            reasons.append(f"proposal relation {key}")
+    return tuple(reasons)
 
 
+def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bool:
+    """Return True only when an endogenous Candidate is deterministically bound to its RuleProposal."""
+    return not _candidate_binding_mismatches(candidate, proposal)
 def commit_endogenous_candidates(
     engine: Engine,
     report: ReflectionReport,
     candidates: Sequence[Candidate],
 ) -> object:
     """Commit endogenous candidates only after exact proposal provenance validation."""
-    proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
     for candidate in candidates:
-        proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
-            None,
+        matches = tuple(
+            proposal for proposal in report.proposals
+            if not _candidate_binding_mismatches(candidate, proposal)
         )
-        proposal = proposals.get(proposal_id)
-        if proposal is None or not candidate_binds_proposal(candidate, proposal):
-            raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
+        if len(matches) != 1:
+            reason = "no matching proposal" if not matches else "ambiguous proposal binding"
+            raise ValueError(
+                "endogenous candidate is not bound to the supplied reflection proposal: " + reason
+            )
     return engine.step_select(candidates)
