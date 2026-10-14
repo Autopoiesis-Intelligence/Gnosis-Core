@@ -216,6 +216,8 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
         shadow_status=governance.shadow_status,
         invariant_status=governance.invariant_status,
         governance_decision=governance.decision,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(state.content_id),
     )
     assert not rejected.reproducible
     assert "governance_decision mismatch" in rejected.reasons
