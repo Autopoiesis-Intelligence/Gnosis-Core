@@ -64,3 +64,27 @@ Do **not** patch the failure by hardcoding `policy-1`, copying expected values f
 Next implementation gate: locate or deliberately establish a protected production composition root and its trusted configuration source. If that boundary cannot be established in this repository, the production commit path must remain unavailable/fail-closed while the pure planning/replay paths remain usable. This is a deliberate security constraint, not a passing implementation.
 
 Current status: **DEFECT CONFIRMED ON CURRENT PR BUILD / TRUSTED POLICY SOURCE NOT FOUND / FIX NOT IMPLEMENTED / CI FAIL**.
+
+## Cross-workstream reconciliation — 2026-10-14
+
+A repository-wide reconciliation found that this defect is already tracked in the dedicated security workstream; do not start a duplicate implementation inside the replay-provenance PR:
+
+- [Issue #166 — E8.180 production signed-authorization integration](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/issues/166)
+- [Issue #174 — trusted owner evidence before Core commit](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/issues/174)
+- [PR #165 — fail closed without independent trusted policy](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/165), still open Draft.
+- [PR #167 — signed owner-authorization verifier](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/167), still open Draft.
+- [PR #168 — production trust-context interface and adapter integration](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/pull/168), still open Draft.
+
+Inspection of PR #168's current branch shows that `ProductionTrustContext` and a fail-closed adapter path exist there: the adapter requires signed authorization plus a trust context and checks signature/bindings, nonce consumption, and independent validity digest. This is a meaningful implementation step, but the trust context itself is supplied by the caller and the repository has not established who provisions its resolver, policy/scope, clock, and digest resolver from an independently protected trust root. Its own `PRODUCTION_TRUST_CONTEXT_COMPOSITION_GAP.md` records this unresolved boundary. Do not duplicate that interface in this replay PR or mistake a context object for a protected root.
+
+### Current base/CI reconciliation
+
+- Default branch `main` observed at `2a90f28ad75cc63ec3f66c3d9430fe16d95250d9`.
+- PR #193 head: `a7162d41d5b906e8e3cb8c868737d9139e31eabc`.
+- Comparing PR #193 with current `main`: **32 commits ahead, 2 behind, diverged**; merge base is `13e5b9bd12044d485859f9eda4a6d7fd8d85a9bf`. The PR therefore needs base reconciliation before final acceptance.
+- CI run [38527734184](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38527734184) for the current PR head failed on the same tamper-policy test (Python 3.11); Python 3.12 was cancelled. Import Graph and CodeQL passed; Dependency Review failed separately.
+- The mainline head still contains the self-referential gate implementation, while the fail-closed/signed-context work is in unmerged drafts. This explains the known defect's presence in the current base, but does **not** prove the replay PR has no other regressions. A current-main exact-SHA CI comparison is not available from the inspected evidence.
+
+### Scope decision
+
+Keep PR #193 focused on replay/proposal provenance. Treat this document as a warning and cross-reference, not as the implementation of owner authorization. Before merge consideration, reconcile the two-commit base drift and compare the complete failure set against the exact current base. The signed execution work remains governed by Issues #166/#174 and PRs #165/#167/#168. No PR was merged and no production execution acceptance is claimed.
