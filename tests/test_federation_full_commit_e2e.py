@@ -1,6 +1,7 @@
 """R2 adversarial proof: Federation evidence may reach Core commit only through every trust gate."""
 import pytest
 from gnosis.evolution.federation_admission import admit_federation_evidence, build_core_provenance
+from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.authority import (
     ExecutionAuthorization,
     ExecutionCommitRequest,
