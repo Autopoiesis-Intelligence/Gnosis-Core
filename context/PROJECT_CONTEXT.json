@@ -165,5 +165,16 @@
       "evidence_rule": "Only exact commit + exact test command + result + persisted evidence may promote status to VERIFIED"
     },
     "repository_sync": "E7.15 added as verification gate for E7.10-E7.14"
+  },
+  "current_execution_trust_boundary": {
+    "status": "BLOCKED / NOT PROVEN INTEGRATED",
+    "reviewed_main_sha": "2a90f28ad75cc63ec3f66c3d9430fe16d95250d9",
+    "reviewed_at": "2026-10-14",
+    "finding": "Mainline validity checks compare policy and evidence digest against values taken from the same validity record; current adapter and self-learning entry point do not wire the signed production trust context.",
+    "production_trust_root": "UNRESOLVED",
+    "production_composition_root": "NOT PROVEN",
+    "end_to_end_execution": "BLOCKED",
+    "canonical_document": "docs/architecture/CURRENT_EXECUTION_TRUST_BOUNDARY.md",
+    "rule": "Do not hard-code trust roots or accept trust dependencies from request-controlled inputs. Recheck exact main SHA before relying on this snapshot."
   }
 }
