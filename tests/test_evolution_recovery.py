@@ -205,3 +205,37 @@ def test_recovery_rejects_tampered_promotion_status_tuple():
     assert report.chain_valid is False
     assert report.replay_valid is False
     assert "provenance identity mismatch" in report.reasons or "evolution identity mismatch" in report.reasons
+
+def test_recovery_fails_closed_on_tampered_provenance_status_digest():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    pid, observations, state = _persist(conn)
+    conn.execute(
+        "UPDATE evolution_provenance SET status='CONSUMED' WHERE provenance_id=?",
+        (pid,),
+    )
+    report = recover_evolution_audit(
+        conn, provenance_id=pid, observations=observations,
+        proposed_state=state, authorization_valid=True,
+    )
+    assert report.replay_valid is False
+    assert report.chain_valid is False
+    assert "persisted provenance status integrity mismatch" in report.reasons
+
+
+def test_recovery_fails_closed_on_legacy_unverified_status_digest():
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    pid, observations, state = _persist(conn)
+    conn.execute(
+        "UPDATE evolution_provenance SET status_digest='' WHERE provenance_id=?",
+        (pid,),
+    )
+    report = recover_evolution_audit(
+        conn, provenance_id=pid, observations=observations,
+        proposed_state=state, authorization_valid=True,
+    )
+    assert report.replay_valid is False
+    assert report.chain_valid is False
+    assert "persisted provenance status integrity is unverified" in report.reasons
+
