@@ -144,3 +144,55 @@ def test_decision_evidence_rejects_tampered_payload_after_restart(tmp_path):
             evidence_digest=sandbox.execution.evidence_digest,
         )
     conn.close()
+
+
+
+def test_decision_evidence_rejects_tampered_governance_payload_after_restart(tmp_path):
+    db = tmp_path / "decision-governance-tamper.sqlite"
+    state = State(elements={"a": 1})
+    candidate = _candidate(state)
+    sandbox = run_sandbox(state, candidate, _observe)
+    evaluation = evaluate_observation(
+        sandbox.execution.observations,
+        evidence_digest=sandbox.execution.evidence_digest,
+        predicate="observations_present",
+    )
+    governance = GovernanceDecision(
+        "REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",)
+    )
+    canonical_execution_id = execution_id(
+        candidate.candidate_id,
+        candidate.parent_state_id,
+        sandbox.execution.evidence_digest,
+        sandbox.execution.parent_state_digest,
+        sandbox.execution.proposed_state_digest,
+    )
+    conn = sqlite3.connect(db)
+    evaluation_id, governance_id = persist_decision_evidence(
+        conn,
+        execution_id=canonical_execution_id,
+        candidate_id=candidate.candidate_id,
+        evidence_digest=sandbox.execution.evidence_digest,
+        evaluation=evaluation,
+        governance=governance,
+    )
+    conn.commit()
+    conn.close()
+
+    # Reopen the database to verify tampering is detected after a restart.
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "UPDATE evolution_decision_evidence SET payload=? WHERE record_id=?",
+        ('{"decision":"ACCEPT"}', governance_id),
+    )
+    conn.commit()
+    with pytest.raises(RuntimeError, match="governance evidence integrity mismatch"):
+        load_decision_evidence(
+            conn,
+            evaluation_record_id=evaluation_id,
+            governance_record_id=governance_id,
+            execution_id=canonical_execution_id,
+            candidate_id=candidate.candidate_id,
+            evidence_digest=sandbox.execution.evidence_digest,
+        )
+    conn.close()
