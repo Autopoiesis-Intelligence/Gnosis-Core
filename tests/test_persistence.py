@@ -253,7 +253,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -413,7 +413,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
     assert verify_durable_graph(reopened)[0] == 1
 
 
