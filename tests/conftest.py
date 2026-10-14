@@ -134,7 +134,8 @@ def real_commit_fixture(request):
             evolution_identity=provenance.evolution_identity,
             parent_state_digest=provenance.parent_state_digest,
             request_provenance=provenance.provenance_id,
-            valid_from=10, expires_at=200, nonce="test-rollback-nonce", signature="",
+            valid_from=10, expires_at=200, nonce="test-rollback-nonce",
+            proposal_binding_digest="sha256:test-proposal-binding", signature="",
         )
         authorization_id = unsigned.expected_authorization_id()
         to_sign = ProductionAuthorization(
@@ -144,7 +145,7 @@ def real_commit_fixture(request):
             parent_state_digest=unsigned.parent_state_digest,
             request_provenance=unsigned.request_provenance,
             valid_from=unsigned.valid_from, expires_at=unsigned.expires_at,
-            nonce=unsigned.nonce, signature="",
+            nonce=unsigned.nonce, proposal_binding_digest=unsigned.proposal_binding_digest, signature="",
         )
         signature = base64.b64encode(signing_key.sign(to_sign.canonical_bytes()).signature).decode("ascii")
         signed = ProductionAuthorization(
@@ -181,6 +182,7 @@ def real_commit_fixture(request):
         )
         fixture.production_authorization = signed
         fixture.trust_context = trust
+        fixture.proposal_binding_digest = signed.proposal_binding_digest
         pytest_request.addfinalizer(conn.close)
         return fixture
     except Exception:
