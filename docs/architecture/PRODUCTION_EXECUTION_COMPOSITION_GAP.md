@@ -170,3 +170,18 @@ Fetched the actual job logs and compared failing test identifiers, rather than r
 - New exact-head docs SHA `58683137080fbe37a881677c622e4909839077ea`: CI run [38556483956](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556483956) still reports 952 passed / 23 failed / 18 warnings on both Python 3.11 and 3.12; the docs-only change did not alter the failing-test set. Import Graph [38556483965](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556483965): PASS. Contract Database [38556477904](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556477904): PASS. CodeQL was still in progress at the last poll. Dependency Review remains failed due to the known repository dependency-graph/configuration limitation.
 
 Decision: the current Draft branch has a favorable failure-set delta versus this recorded base run, but the suite is still red. Keep PR #198 Draft. Next work should not blindly fix the 23 inherited failures inside this security change; first inspect whether the actual protected host service exists and can supply trust anchors independently. If no such service exists, make the host-composition work an explicit product gate.
+
+
+## SEQ 1.43 — cross-repository entrypoint check (2026-10-14)
+
+A bounded search was extended to the public `Autopoiesis-Intelligence/Gnosis` repository at reviewed commit `935233c08f154f1ba842abdc32fdddf15b16de9d` to check whether its visible service is the missing production composition root.
+
+Evidence:
+- `gnosis-terminal-bridge/src/chat_server.py` at that commit exposes `/chat`, `/v1/handshake`, and `/v1/exchange`. The HTTP bearer token gates transport access only.
+- The `/v1/exchange` handler calls `InternetPort.exchange()`; its handler `_port_handler()` calls `information_from_exchange()` and returns `effect: proposal_only` plus `authority_granted: false`. It does not call `Gnosis-Core`'s `execute_approved_core_proposal()` or construct the signed Core authorization/trust context.
+- `docs/contracts/EXTERNAL_ENTRYPOINT_INVENTORY_V1.md` explicitly records GLOBAL NON-BYPASS as NOT PROVEN and says `/chat` uses a compatibility adapter, not an established authorized external-information path.
+- `research_machine/LEARNING_RUNTIME_CALLGRAPH_R1.yaml` records autonomous invocation of the self-learning commit chain as NOT_PROVEN; the scheduler/workflow does not invoke the reviewed chain.
+
+Decision: the public terminal bridge is **not evidence of the missing protected owner-authority composition root**. Do not connect it directly to Core commit or elevate bearer/session credentials into owner authority. A separate trusted host integration must own key provisioning, policy, clock, validity evidence, and signed authorization issuance, then invoke the existing Core commit boundary. Until such an integration is identified and tested, keep production composition, global non-bypass, and autonomous self-modification NOT PROVEN.
+
+Scope caveat: this is a bounded repository/code-path check at the exact public-repository commit above, not proof that no private deployment service exists.
