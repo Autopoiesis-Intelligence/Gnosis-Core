@@ -3,7 +3,7 @@ from gnosis.storage.repositories import _persist_transition
 def _authorized_recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
-        authorization_id="test-recovery", subject=instance_id,
+        authorization_id=f"test-recovery:{instance_id}:{digest[:12]}", subject=instance_id,
         requested_by="test-principal", authority="test-governance",
         decision="allow", reason="test recovery",
         issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
@@ -396,7 +396,8 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
         "SELECT 1 FROM states WHERE state_id=?",
         (proposed.state_id,),
     ).fetchone() is not None
-    assert verify_durable_graph(conn)[0] == 2
+    # Root creation, rejected transition, and authorized recovery receipt.
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_durable_graph_rejects_budget_snapshot_exceeding_total():
