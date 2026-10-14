@@ -35,7 +35,7 @@ class ProductionTrustContext:
             raise PermissionError("trusted authorization validity evidence is missing")
         return digest
 
-    def verify_commit(self, authorization: ProductionAuthorization, request: ExecutionCommitRequest, *, expected_evidence_digest: str | None = None) -> TrustedIssuerKey:
+    def verify_commit(self, authorization: ProductionAuthorization, request: ExecutionCommitRequest, *, expected_evidence_digest: str | None = None, expected_proposal_binding_digest: str) -> TrustedIssuerKey:
         now = self.trusted_clock()
         if not isinstance(now, int) or isinstance(now, bool):
             raise PermissionError("trusted clock did not return an integer timestamp")
@@ -55,4 +55,5 @@ class ProductionTrustContext:
             expected_evolution_identity=request.evolution_identity,
             expected_parent_state_digest=str(request.provenance.parent_state_digest),
             expected_request_provenance=request.request_provenance,
+            expected_proposal_binding_digest=expected_proposal_binding_digest,
         )
