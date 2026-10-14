@@ -109,5 +109,20 @@ def test_ed25519_verifier_rejects_modified_signature():
         )
 
 
+def test_ed25519_verifier_rejects_proposal_binding_for_different_proposal():
+    signing_key = SigningKey.generate()
+    authorization = signed_authorization(signing_key)
+    key = TrustedIssuerKey("owner-issuer", "v1", bytes(signing_key.verify_key))
+    with pytest.raises(PermissionError, match="proposal-binding mismatch"):
+        verify_production_authorization(
+            authorization, StaticKeyResolver(key), now=100,
+            expected_scope={"evolution.commit"}, expected_policy_version="policy-v1",
+            expected_evolution_identity="evolution-1",
+            expected_parent_state_digest="parent-digest",
+            expected_request_provenance="request-1",
+            expected_proposal_binding_digest="sha256:another-proposal-binding",
+        )
+
+
 def test_authorization_protocol_uses_canonical_gnosis_core_domain():
     assert DOMAIN == "gnosis-core:owner-authorization:v1"
