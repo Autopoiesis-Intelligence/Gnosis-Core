@@ -17,7 +17,7 @@ def test_caller_constructed_approval_cannot_grant_execution():
     # OwnerApproval is only a data object: matching caller-controlled strings
     # are not proof of owner authority. Until a trusted cryptographic verifier
     # is composed, issuance must fail closed.
-    with pytest.raises((PermissionError, NotImplementedError)):
+    with pytest.raises(PermissionError):
         issuer().issue(req(),request_provenance="p1",evolution_identity="e1")
 
 @pytest.mark.parametrize("field,value",[("authority_root","root-x"),("scope","other.scope"),("policy_version","policy-x")])
