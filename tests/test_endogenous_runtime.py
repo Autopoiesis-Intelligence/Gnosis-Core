@@ -194,6 +194,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
 
 def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
+    from gnosis.reflection.analyzer import RuleProposal
     from gnosis.reflection.endogenous import commit_endogenous_candidates
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
@@ -208,7 +209,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     instance = Instance.create_root("e9-instance", State(elements={"a": 1}))
     save_instance(conn, instance)
 
-    proposal1 = type("P", (), {"proposal_id":"p-e9-1","finding_id":"f-e9-1","rule_id":"r-e9-1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f-e9-1",)})()
+    proposal1 = RuleProposal(proposal_id="p-e9-1", finding_id="f-e9-1", target="r-e9-1", hypothesis="cycle-1", evidence_refs=("f-e9-1",), expected_effect="test", regression_risk="test", required_test="test", rule_id="r-e9-1")
     report1 = ReflectionReport(proposals=(proposal1,))
     report1_id = save_reflection_report(conn, report1, created_at="2026-10-14T00:00:03+00:00")
     cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
@@ -227,7 +228,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     restored = load_evolution_memory(conn, instance.instance_id)
     assert restored and restored[0].memory_id == memory1.memory_id
     reflection = reflect_with_history(restored_instance.engine, conn, instance_id=instance.instance_id)
-    proposal2 = type("P", (), {"proposal_id":"p-e9-2","finding_id":"f-e9-2","rule_id":"r-e9-2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f-e9-2",)})()
+    proposal2 = RuleProposal(proposal_id="p-e9-2", finding_id="f-e9-2", target="r-e9-2", hypothesis="cycle-2", evidence_refs=("f-e9-2",), expected_effect="test", regression_risk="test", required_test="test", rule_id="r-e9-2")
     report2 = ReflectionReport(proposals=(proposal2,))
     save_reflection_report(conn, report2, created_at="2026-10-14T00:00:04+00:00")
     cumulative2 = CumulativeReflectionReport(current=report2, history=reflection.history, recurring_unresolved=(), evolution_evidence=reflection.evolution_evidence)
@@ -244,7 +245,8 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.evolution.transaction import persist_evolution_transaction
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
-    from gnosis.storage import connect, save_instance, load_evolution_memory, save_reflection_report, append_evolution_memory, close
+    from gnosis.storage import connect, save_instance, load_evolution_memory, append_evolution_memory, close
+    from gnosis.reflection.persistence import save_reflection_report
     from gnosis.storage.repositories import _persist_transition
     from gnosis.instances.instance import Instance
     from gnosis.reflection.runtime import reflect_with_history
@@ -264,7 +266,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
             history = reflection.history
             memory_evidence = reflection.evolution_evidence
 
-        proposal = type("P", (), {"proposal_id":f"p-e9-full-{cycle}","finding_id":f"f-e9-full-{cycle}","rule_id":f"r-e9-full-{cycle}","current_version":1,"proposed_version":2,"hypothesis":f"cycle-{cycle}","evidence_refs":(f"f-e9-full-{cycle}",)})()
+        proposal = RuleProposal(proposal_id=f"p-e9-full-{cycle}", finding_id=f"f-e9-full-{cycle}", target=f"r-e9-full-{cycle}", hypothesis=f"cycle-{cycle}", evidence_refs=(f"f-e9-full-{cycle}",), expected_effect="test", regression_risk="test", required_test="test", rule_id=f"r-e9-full-{cycle}")
         report = ReflectionReport(proposals=(proposal,))
         report_id = save_reflection_report(conn, report, created_at=f"2026-10-14T00:00:0{cycle+4}+00:00")
         cumulative = CumulativeReflectionReport(current=report, history=history, recurring_unresolved=(), evolution_evidence=memory_evidence)
