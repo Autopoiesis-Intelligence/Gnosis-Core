@@ -10,6 +10,7 @@ from gnosis.reflection.authority import (
     ExecutionCommitResult,
     ExecutionReceipt,
     require_execution_candidate_binding,
+    require_execution_commit,
 )
 
 
@@ -17,6 +18,9 @@ class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+        # Reject malformed/unauthorized requests before touching the persistence adapter.
+        # The full trusted gate still runs inside the mutation transaction.
+        require_execution_commit(request)
         with transaction(conn):
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
