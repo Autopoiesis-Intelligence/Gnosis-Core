@@ -15,7 +15,7 @@ from typing import Protocol
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
-DOMAIN = "gnozis:owner-authorization:v1"
+DOMAIN = "gnosis-core:owner-authorization:v1"
 ALGORITHM = "Ed25519"
 SERIALIZATION_VERSION = 1
 ACTIVE = "active"
