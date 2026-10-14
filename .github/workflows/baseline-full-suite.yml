@@ -1,0 +1,28 @@
+name: Baseline Full Suite
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/baseline-full-suite.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: baseline (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package and dev dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Run full baseline test suite
+        run: python -m pytest -q
