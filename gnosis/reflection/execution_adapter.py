@@ -19,15 +19,18 @@ class SQLiteExecutionCommitAdapter:
         request: ExecutionCommitRequest, *, actor: str,
         production_authorization: ProductionAuthorization | None = None,
         trust_context: ProductionTrustContext | None = None,
+        expected_proposal_binding_digest: str | None = None,
     ) -> ExecutionCommitResult:
         if production_authorization is None or trust_context is None:
             raise PermissionError("signed production owner authorization is required")
+        if not expected_proposal_binding_digest:
+            raise PermissionError("approved proposal binding is required")
         validity = request.authorization_validity
         if validity is None:
             raise PermissionError("authorization validity is required")
         with transaction(conn):
             expected_evidence_digest = trust_context.resolve_validity_evidence_digest(validity.authorization_id)
-            trust_context.verify_commit(production_authorization, request, expected_evidence_digest=expected_evidence_digest)
+            trust_context.verify_commit(production_authorization, request, expected_evidence_digest=expected_evidence_digest, expected_proposal_binding_digest=expected_proposal_binding_digest)
             consume_authorization_nonce_in_transaction(
                 conn, production_authorization.nonce,
                 authorization_id=production_authorization.authorization_id, actor=actor,
