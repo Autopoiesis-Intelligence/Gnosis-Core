@@ -32,6 +32,7 @@ def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
     from gnosis.instances.instance import Instance
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.storage import append_evolution_memory, close, connect, load_evolution_memory, save_instance
+    from gnosis.storage.repositories import _persist_transition
 
     db = Path("/tmp/gnosis-e8b-restart.sqlite")
     if db.exists():
@@ -46,6 +47,7 @@ def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
         origin="memory-restart-test",
     )
     record = instance.engine.step_select((candidate,))
+    _persist_transition(conn, instance, candidate, record, actor="memory-restart-test")
     memory = append_evolution_memory(
         conn,
         instance_id=instance.instance_id,
