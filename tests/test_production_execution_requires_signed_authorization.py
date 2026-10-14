@@ -6,6 +6,7 @@ from nacl.signing import SigningKey
 
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 from gnosis.reflection.owner_authorization import (
+    DOMAIN,
     ProductionAuthorization,
     TrustedIssuerKey,
     canonical_authorization_bytes,
@@ -102,3 +103,7 @@ def test_ed25519_verifier_rejects_modified_signature():
             expected_parent_state_digest="parent-digest",
             expected_request_provenance="request-1",
         )
+
+
+def test_authorization_protocol_uses_canonical_gnosis_core_domain():
+    assert DOMAIN == "gnosis-core:owner-authorization:v1"
