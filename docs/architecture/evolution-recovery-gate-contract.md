@@ -21,6 +21,15 @@ The persisted schema was inspected at the current PR head:
 
 **Consequence:** the missing inputs are not just an omitted function argument. A trusted producer/source and an evolution-scoped authorization path must be identified or deliberately designed within the existing authority boundary. Do not reconstruct observations or state from digests, and do not add a boolean-to-authority adapter. Until those dependencies exist, the reflection gate must continue to fail closed when evolution provenance is present.
 
+## Existing signed execution boundary (repository inspection, 2026-10-15)
+
+The exact-head inspection also found a separate production-facing signed execution path:
+
+- `gnosis/reflection/owner_authorization.py` verifies Ed25519-signed `ProductionAuthorization` objects against externally provisioned `TrustedIssuerKey` material and checks time, scope, policy, evolution identity, parent-state digest, request provenance, and proposal binding.
+- `gnosis/reflection/production_trust_context.py` supplies the trusted key resolver, scope, policy version, clock, and validity-evidence resolver to that verification boundary. Its module contract explicitly says the protected production composition root has not yet been proven in this repository.
+- `gnosis/reflection/execution_adapter.py::SQLiteExecutionCommitAdapter.commit()` requires both signed production authorization and a `ProductionTrustContext`, verifies them before mutation, consumes nonce/authorization, checks candidate binding, persists the transition, and checks the resulting state.
+- This is an execution-commit boundary, not an evolution-recovery authorization contract. It does not make the original observations or proposed `State` durable replay inputs, and it does not establish that a protected production composition root actually constructs the trust dependencies. Do not treat the existence of these classes as proof that production authority is deployed or that recovery is authorized.
+
 ## Runtime dataflow finding (repository inspection, 2026-10-15)
 
 The exact-head source inspection traced the adjacent production-facing pieces:
@@ -29,9 +38,9 @@ The exact-head source inspection traced the adjacent production-facing pieces:
 - `gnosis/evolution/transaction.py::persist_evolution_transaction()` atomically stores provenance metadata and an audit record. Its `payload` is reduced to `payload_digest` by the audit-record builder; the original observations and proposed `State` are not made recoverable by this transaction.
 - Repository search located the provenance builder in the runtime adapter and persistence calls in the transaction/storage layer, but no production orchestration path connecting the runtime-built provenance and replay inputs to an authorized recovery request.
 - Repository-wide reference search found `evaluate_candidate_in_sandbox()` and `build_endogenous_provenance()` used in their definitions and tests, but no production caller of either helper. The restart/replay test explicitly retains the sandbox, candidate, observations, evaluation, and governance objects in memory and passes them to replay; that proves the test path, not that those inputs are available after a real process restart.
-- `gnosis/reflection/authority.py::issue_execution_authorization()` still raises `NotImplementedError` after checking approval identity bindings. It is not a usable trusted issuer and must not be bypassed to make recovery pass.
+- `gnosis/reflection/authority.py::issue_execution_authorization()` still raises `NotImplementedError` after checking approval identity bindings. It is not a usable issuer for `ExecutionAuthorization`. The separate signed `ProductionAuthorization` verifier/commit adapter does not implement evolution-recovery authorization and must not be repurposed implicitly.
 
-**Implementation consequence:** there are two separate missing links: durable, independently checkable replay inputs and a trusted authority path bound to the selected evolution identity. Adding a storage column alone would address neither authority nor independent trust. Wiring a caller-supplied boolean into the gate would only disguise the gap.
+**Implementation consequence:** the proven gaps are (1) durable, independently checkable replay inputs, (2) a trusted production composition root for the existing signed execution boundary, and (3) an evolution-recovery-specific authorization and orchestration path. These are distinct. Adding a storage column alone would not establish authority or independent trust. Wiring a caller-supplied boolean into the gate would only disguise the gap.
 
 ## Required integration contract
 
