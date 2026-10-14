@@ -439,7 +439,7 @@ def test_a54_rejected_transition_replay_is_idempotent():
     assert _recover(conn, instance.instance_id).engine.state.state_id == record.from_state_id
 
 
-def test_a55_conflicting_transition_replay_fails_closed():
+def test_a55_conflicting_transition_from_stale_head_fails_closed():
     conn, instance, record = _persisted_transition()
     conflicting = TransitionRecord(
         record.from_state_id,
@@ -450,7 +450,10 @@ def test_a55_conflicting_transition_replay_fails_closed():
         "conflict",
         record.test_rule_id,
     )
-    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+    # The conflicting record has a distinct content-derived transition ID.
+    # Since the accepted transition already advanced the canonical head, this
+    # request is rejected by the stale-head guard before any replay is written.
+    with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
 
 
