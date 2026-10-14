@@ -198,6 +198,8 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
         shadow_status=governance.shadow_status,
         invariant_status=governance.invariant_status,
         governance_decision=governance.decision,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(state.content_id),
     )
     assert replay.reproducible, replay.reasons
     incomplete = replay_complete(
@@ -342,6 +344,8 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
             shadow_status=governance.shadow_status,
             invariant_status=governance.invariant_status,
             governance_decision=governance.decision,
+            proposed_state_content_id=candidate.proposed_state.content_id,
+            candidate_binding_digest=candidate.binding_digest(parent_digest),
         )
         assert rr.reproducible, rr.reasons
 
