@@ -158,3 +158,15 @@ The 23 full-suite failures cluster in endogenous proposal/candidate binding, evo
 | Production readiness | Not proven |
 
 Decision: keep PR #198 Draft. Next, compare the 23 failing test identifiers against a fresh CI run on the PR base SHA, and inspect the real protected host boundary before attempting runtime claims. Do not broaden this security PR into unrelated persistence/endogenous-runtime repairs without an evidence-based dependency reason.
+
+
+## SEQ 1.42 — direct base-vs-PR failure-identifier comparison (2026-10-14)
+
+Fetched the actual job logs and compared failing test identifiers, rather than relying on the earlier PR-body summary.
+
+- Base diagnostic run [38536426878](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38536426878), baseline merge context based on base SHA `2a90f28ad75cc63ec3f66c3d9430fe16d95250d9`, Python 3.11: 931 passed / 33 failed / 2 errors.
+- PR code HEAD `4e5ab97ed4d7a5602569e7e465a73458c22b4a27`, full CI run [38556270933](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556270933), Python 3.11: 952 passed / 23 failed / 18 warnings.
+- Parsed failure identifiers: **23 PR failures; all 23 also occur in the baseline set; zero PR-only failing test identifiers**. Twelve baseline failure identifiers are absent from the PR failure set (nine authority-boundary tests, one adapter fail-closed test, and two rollback-fixture setup errors). This is comparative test evidence, not a green suite and not runtime proof.
+- New exact-head docs SHA `58683137080fbe37a881677c622e4909839077ea`: CI run [38556483956](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556483956) still reports 952 passed / 23 failed / 18 warnings on both Python 3.11 and 3.12; the docs-only change did not alter the failing-test set. Import Graph [38556483965](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556483965): PASS. Contract Database [38556477904](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38556477904): PASS. CodeQL was still in progress at the last poll. Dependency Review remains failed due to the known repository dependency-graph/configuration limitation.
+
+Decision: the current Draft branch has a favorable failure-set delta versus this recorded base run, but the suite is still red. Keep PR #198 Draft. Next work should not blindly fix the 23 inherited failures inside this security change; first inspect whether the actual protected host service exists and can supply trust anchors independently. If no such service exists, make the host-composition work an explicit product gate.
