@@ -99,3 +99,25 @@ Until a real host-service boundary is identified and its trust providers are rev
 - Canonical-main source inspection: confirmed the current wrapper calls `commit(..., actor=actor)` without the new signed authorization/context inputs.
 - Search for common application factory/API entrypoint patterns: no results returned by the bounded code search.
 - Status: **EXTERNAL CONTRACT SPECIFIED; PROTECTED HOST COMPOSITION NOT IMPLEMENTED OR PROVEN.**
+
+## SEQ 1.38 — bridge proposal-to-commit binding gap (2026-10-14)
+
+A fresh read of the PR branch at `security/signed-owner-auth-commit-boundary-2026-10-14` found a second, narrower integration gap in `gnosis/self_learning/execution.py`:
+
+- `execute_approved_core_proposal()` calls `bind_core_proposal(proposal, request)`, which validates that the proposal is marked `APPROVED`, that its `mutation_id` matches its own immutable bridge fields, and that the request has an evolution identity.
+- `bind_core_proposal()` returns a `BoundCoreExecution` containing the proposal ID, evolution identity, and a binding digest.
+- The returned binding is currently discarded by the caller. The binding digest is not passed to `SQLiteExecutionCommitAdapter.commit()`, and `ProductionAuthorization` does not carry an explicit bridge-proposal binding field.
+- The signed authorization does bind the commit request's evolution identity and provenance fields. However, the reviewed bridge does not establish that the particular approved `CoreMutationProposal` is the proposal represented by that signed commit request.
+
+**Status: IMPLEMENTED bridge validation; proposal-to-commit authorization binding NOT ESTABLISHED.** This is a code-path finding, not proof of an exploitable production route: the protected production composition root is still not established.
+
+### Required correction
+
+1. Define a canonical proposal-binding field in the signed authorization contract (or a rigorously equivalent signed request identity); it must cover `mutation_id`, `integration_id`, `version_id`, `target`, and `action`.
+2. Verify that binding against the exact approved proposal at the protected commit boundary, before nonce consumption or persistence.
+3. Fail closed when a signed authorization is paired with a different approved proposal, even if both proposals are individually valid and the request evolution identity is otherwise valid.
+4. Add adversarial tests for proposal A + authorization for proposal B, modified target/action/version, and the matching positive case. Test through the real bridge and adapter, not only a monkeypatched forwarding stub.
+5. Keep the signed schema change on the draft branch until the issuer/consumer contract and migration implications are explicit; do not infer that old signatures remain compatible.
+
+No production readiness or runtime execution claim follows from this finding. PR #198 remains Draft and must not be merged until this gap, protected trust composition, end-to-end tests, and exact-head CI are addressed.
+
