@@ -457,29 +457,34 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
         "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
+    last = conn.execute(
+        "SELECT sequence, event_hash FROM audit_events ORDER BY sequence DESC LIMIT 1"
+    ).fetchone()
+    duplicate_sequence = last[0] + 1
+    duplicate_prev_hash = last[1]
     conn.execute(
         "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             "duplicate-audit",
-            row[1] + 1,
+            duplicate_sequence,
             row[2],
             row[3],
             row[4],
             row[5],
             row[6],
             row[7],
-            row[8],
+            duplicate_prev_hash,
             _audit_hash({
                 "event_id": "duplicate-audit",
-                "sequence": row[1] + 1,
+                "sequence": duplicate_sequence,
                 "transition_id": row[2],
                 "actor": row[3],
                 "action": row[4],
                 "resource": row[5],
                 "result": row[6],
                 "timestamp": row[7],
-                "prev_hash": row[8],
+                "prev_hash": duplicate_prev_hash,
             }),
         ),
     )
