@@ -156,7 +156,7 @@ def commit_endogenous_candidates(
                 != engine.state.elements.get(relation.target)
         )
         if len(matching_ids) != 1:
-            raise ValueError("endogenous candidate must identify exactly one current reflection proposal")
+            raise ValueError("endogenous candidate is not bound to the supplied reflection proposal: must identify exactly one current proposal")
         proposal = proposals[matching_ids[0]]
         if not candidate_binds_proposal(candidate, proposal):
             raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
