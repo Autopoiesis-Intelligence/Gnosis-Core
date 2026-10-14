@@ -125,6 +125,28 @@ def test_endogenous_commit_requires_exact_proposal_binding():
     assert record.accepted
 
 
+def test_endogenous_commit_ignores_historical_proposal_relation():
+    from gnosis.core import Budget, Engine
+
+    engine = Engine(state=State(elements={"a": 1}), budget=Budget(total=3))
+    first_report = ReflectionReport(proposals=(proposal(1),))
+    first = generate_endogenous_candidates(engine.state, first_report)
+    assert commit_endogenous_candidates(engine, first_report, first.candidates).accepted
+
+    current_report = ReflectionReport(proposals=(proposal(2),))
+    current = generate_endogenous_candidates(engine.state, current_report)
+    targets = {
+        relation.target
+        for relation in current.candidates[0].proposed_state.relations
+        if relation.relation_type == "proposed_rule"
+    }
+    assert {"proposal:1", "proposal:2"} <= targets
+    record = commit_endogenous_candidates(engine, current_report, current.candidates)
+    assert record.accepted
+    assert "proposal:1" in engine.state.elements
+    assert "proposal:2" in engine.state.elements
+
+
 def test_endogenous_commit_rejects_substituted_proposal():
     import pytest
     from gnosis.core import Budget, Engine
