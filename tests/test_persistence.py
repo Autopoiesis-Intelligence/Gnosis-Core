@@ -454,7 +454,7 @@ def test_a55_conflicting_transition_replay_fails_closed():
 def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
     row = conn.execute(
-        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
+        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
     conn.execute(
@@ -469,7 +469,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
             row[5],
             row[6],
             row[7],
-            row[8],
+            row[9],
             _audit_hash({
                 "event_id": "duplicate-audit",
                 "sequence": row[1] + 1,
@@ -479,7 +479,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
                 "resource": row[5],
                 "result": row[6],
                 "timestamp": row[7],
-                "prev_hash": row[8],
+                "prev_hash": row[9],
             }),
         ),
     )
