@@ -4,7 +4,7 @@
 
 Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The older Gnosis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis. The product identity remains Gnosis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
+The older Gnosis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is Gnosis-Core, the protected engineering foundation and Module Factory. The product identity is Gnosis; the canonical engineering role is the reusable Core. It receives research-derived requirements only after they have been formalized and mapped to code. It receives research-derived requirements only after they have been formalized and mapped to code.
 
 ## Project relationship
 
@@ -12,8 +12,8 @@ Gnosis
         ↓ public evidence / opportunities
 Gnosis-Memory
         ↓ machine-readable research / mathematics / provenance
-Genesis
-        ├── Uroboros / Ψ-Core
+Gnosis-Core
+        ├── State and evolution engine
         ├── Module Factory
         └── governed specialized outputs
 
@@ -92,7 +92,7 @@ A connected AI product is a surface over the durable Gnosis context, not an alte
 
 Product identity: **Gnosis**.
 
-Protected engineering role: **Genesis — Core + Module Factory**.
+Protected engineering role: **Gnosis-Core — Core + Module Factory**.
 
 Research-memory role: **Gnosis-Memory**.
 
