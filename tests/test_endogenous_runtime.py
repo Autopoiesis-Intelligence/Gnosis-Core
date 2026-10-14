@@ -188,7 +188,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     result = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_id": provenance.parent_state_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "evaluation_status": provenance.evaluation_status, "shadow_status": provenance.shadow_status, "invariant_status": provenance.invariant_status, "governance_decision": provenance.governance_decision, "candidate_binding_digest": provenance.candidate_binding_digest, "proposed_state_content_id": provenance.proposed_state_content_id, "evaluator_identity_ref": provenance.evaluator_identity_ref, "evaluator_identity_version": provenance.evaluator_identity_version}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
     assert result.valid, result.reasons
     replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations, candidate=candidate, evaluation=evaluation, governance=governance)
-    assert replay.valid, replay.reasons
+    assert replay.reproducible, replay.reasons
     conn.close()
 
 
