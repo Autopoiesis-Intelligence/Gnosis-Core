@@ -31,7 +31,7 @@ def signed_authorization(signing_key):
         authority_scope=("evolution.commit",), policy_version="policy-v1",
         evolution_identity="evolution-1", parent_state_digest="parent-digest",
         request_provenance="request-1", valid_from=10, expires_at=200,
-        nonce="nonce-1", signature="",
+        nonce="nonce-1", proposal_binding_digest="sha256:proposal-binding-test", signature="",
     )
     authorization_id = unsigned.expected_authorization_id()
     to_sign = ProductionAuthorization(
@@ -40,7 +40,8 @@ def signed_authorization(signing_key):
         policy_version=unsigned.policy_version, evolution_identity=unsigned.evolution_identity,
         parent_state_digest=unsigned.parent_state_digest,
         request_provenance=unsigned.request_provenance, valid_from=unsigned.valid_from,
-        expires_at=unsigned.expires_at, nonce=unsigned.nonce, signature="",
+        expires_at=unsigned.expires_at, nonce=unsigned.nonce,
+        proposal_binding_digest=unsigned.proposal_binding_digest, signature="",
     )
     signature = base64.b64encode(signing_key.sign(to_sign.canonical_bytes()).signature).decode("ascii")
     return ProductionAuthorization(
@@ -49,7 +50,8 @@ def signed_authorization(signing_key):
         policy_version=to_sign.policy_version, evolution_identity=to_sign.evolution_identity,
         parent_state_digest=to_sign.parent_state_digest,
         request_provenance=to_sign.request_provenance, valid_from=to_sign.valid_from,
-        expires_at=to_sign.expires_at, nonce=to_sign.nonce, signature=signature,
+        expires_at=to_sign.expires_at, nonce=to_sign.nonce,
+        proposal_binding_digest=to_sign.proposal_binding_digest, signature=signature,
     )
 
 
@@ -84,6 +86,7 @@ def test_ed25519_verifier_accepts_valid_signature_and_exact_bindings():
         expected_evolution_identity="evolution-1",
         expected_parent_state_digest="parent-digest",
         expected_request_provenance="request-1",
+        expected_proposal_binding_digest="sha256:proposal-binding-test",
     )
     assert resolved == key
 
@@ -102,6 +105,7 @@ def test_ed25519_verifier_rejects_modified_signature():
             expected_evolution_identity="evolution-1",
             expected_parent_state_digest="parent-digest",
             expected_request_provenance="request-1",
+            expected_proposal_binding_digest="sha256:proposal-binding-test",
         )
 
 
