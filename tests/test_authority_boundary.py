@@ -186,6 +186,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state(real
         fixture.request, actor="test-owner",
         production_authorization=fixture.production_authorization,
         trust_context=fixture.trust_context,
+        expected_proposal_binding_digest=fixture.proposal_binding_digest,
     )
     persisted = load_instance(fixture.conn, fixture.instance.instance_id)
     assert result.resulting_state_id == fixture.candidate.proposed_state.state_id
@@ -255,6 +256,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution(re
             fixture.request, actor="test-owner",
             production_authorization=fixture.production_authorization,
             trust_context=fixture.trust_context,
+        expected_proposal_binding_digest=fixture.proposal_binding_digest,
         )
     assert load_instance(fixture.conn, fixture.instance.instance_id).engine.state.state_id == parent_state_id
     assert fixture.conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
@@ -301,6 +303,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding(real_commit
             forged_request, actor="test-owner",
             production_authorization=fixture.production_authorization,
             trust_context=fixture.trust_context,
+        expected_proposal_binding_digest=fixture.proposal_binding_digest,
         )
     assert load_instance(fixture.conn, fixture.instance.instance_id).engine.state.state_id == parent_state_id
     assert fixture.conn.execute("SELECT count(*) FROM transitions").fetchone()[0] == 0
