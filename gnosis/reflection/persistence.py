@@ -12,7 +12,7 @@ from .governance import GovernanceDecision
 from .invariant_delta import InvariantDelta
 from .shadow import ShadowEvaluation
 from .proposal_lineage import ProposalEvolution
-from gnosis.evolution.provenance import EvidenceProvenance, ProvenanceCrossCheck, crosscheck_provenance, provenance_id_for
+from gnosis.evolution.provenance import EvidenceProvenance, ProvenanceCrossCheck, canonical_digest, crosscheck_provenance, provenance_id_for
 from gnosis.evolution.audit import EvolutionAuditRecord, make_audit_record
 
 
@@ -105,7 +105,8 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
             proposed_state_content_id TEXT NOT NULL DEFAULT '',
             candidate_binding_digest TEXT NOT NULL DEFAULT '',
             evaluator_identity_ref TEXT NOT NULL DEFAULT '',
-            evaluator_identity_version TEXT NOT NULL DEFAULT ''
+            evaluator_identity_version TEXT NOT NULL DEFAULT '',
+            status_digest TEXT NOT NULL DEFAULT ''
         );
         CREATE INDEX IF NOT EXISTS idx_evolution_provenance_candidate
             ON evolution_provenance(candidate_id);
@@ -169,6 +170,10 @@ def ensure_reflection_schema(conn: sqlite3.Connection) -> None:
         pass
     try:
         conn.execute("ALTER TABLE evolution_provenance ADD COLUMN evaluator_identity_version TEXT NOT NULL DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE evolution_provenance ADD COLUMN status_digest TEXT NOT NULL DEFAULT ''")
     except sqlite3.OperationalError:
         pass
 
@@ -591,7 +596,7 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
         """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,
                   proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,
                   candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version,evaluation_status,shadow_status,invariant_status,
-                  governance_decision,status
+                  governance_decision,status,status_digest
            FROM evolution_provenance WHERE provenance_id=?""",
         (provenance_id,),
     ).fetchone()
@@ -603,16 +608,21 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
         provenance.evaluation_status, provenance.shadow_status, provenance.invariant_status,
         provenance.governance_decision, provenance.status,
     )
+    status_digest = canonical_digest({"status": provenance.status})
     if existing is not None:
-        if tuple(existing) != expected:
+        if tuple(existing[:-1]) != expected:
             raise RuntimeError("conflicting provenance replay")
+        # Empty digests identify legacy rows. Preserve them without pretending that
+        # their historical status has an independently verifiable integrity binding.
+        if existing[-1] and existing[-1] != status_digest:
+            raise RuntimeError("conflicting provenance status integrity binding")
         return provenance_id
 
     conn.execute(
         """INSERT INTO evolution_provenance
         (provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,
-         evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+         evaluation_status,shadow_status,invariant_status,governance_decision,status,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version,status_digest)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             provenance_id,
             provenance.execution_id,
@@ -631,6 +641,7 @@ def save_evolution_provenance(conn: sqlite3.Connection, provenance: Any) -> str:
             provenance.candidate_binding_digest,
             provenance.evaluator_identity_ref,
             provenance.evaluator_identity_version,
+            status_digest,
         ),
     )
     return provenance_id
@@ -640,7 +651,7 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
     ensure_reflection_schema(conn)
     row = conn.execute(
         """SELECT provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,proposed_state_digest,evidence_digest,evolution_identity,proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,evaluator_identity_version,
-                  evaluation_status,shadow_status,invariant_status,governance_decision,status
+                  evaluation_status,shadow_status,invariant_status,governance_decision,status,status_digest
            FROM evolution_provenance WHERE provenance_id=?""",
         (provenance_id,),
     ).fetchone()
@@ -654,9 +665,17 @@ def load_evolution_provenance(conn: sqlite3.Connection, provenance_id: str) -> d
         raise KeyError(provenance_id)
     keys = (
         "provenance_id","execution_id","candidate_id","parent_state_id","parent_state_digest","proposed_state_digest","evidence_digest","evolution_identity","proposed_state_content_id","candidate_binding_digest","evaluator_identity_ref","evaluator_identity_version",
-        "evaluation_status","shadow_status","invariant_status","governance_decision","status",
+        "evaluation_status","shadow_status","invariant_status","governance_decision","status","status_digest",
     )
-    return dict(zip(keys, row))
+    result = dict(zip(keys, row))
+    stored_status_digest = result["status_digest"]
+    if stored_status_digest:
+        if stored_status_digest != canonical_digest({"status": result["status"]}):
+            raise RuntimeError("stored provenance status integrity mismatch")
+        result["integrity_status"] = "verified"
+    else:
+        result["integrity_status"] = "legacy_unverified"
+    return result
 
 
 def list_evolution_provenance(
