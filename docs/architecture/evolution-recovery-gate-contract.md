@@ -93,3 +93,15 @@ Before implementation, the caller and API must explicitly bind all of the follow
 ## Evidence note
 
 This document records a design constraint, not an implementation claim. At the time of writing, the integration gap is observed in `gnosis/reflection/gate.py`, `gnosis/evolution/recovery.py`, `gnosis/reflection/endogenous_runtime.py`, `gnosis/evolution/transaction.py`, and `gnosis/reflection/authority.py`. No runtime or CI proof is implied by this document.
+
+
+## Production entry-point boundary (SEQ 1.67)
+
+Inspection of the package metadata and the only located CLI entry point narrows the previous composition-root finding:
+
+- `pyproject.toml` defines build metadata, dependencies, package discovery, and pytest settings, but no `[project.scripts]` or other installed application entry point.
+- `gnosis/context/cli.py` is a read-only context-snapshot command. It parses a checkout root and emits a snapshot; it does not initialize the execution trust context or perform Core commits.
+- `gnosis/self_learning/execution.py::execute_approved_core_proposal()` forwards `ProductionAuthorization` and `ProductionTrustContext` supplied by its caller. It does not resolve protected configuration or construct the dependencies.
+- `ProductionTrustContext` explicitly requires a key resolver, authority scope, policy version, trusted clock, and validity-evidence resolver. No protected owner-controlled source for these dependencies or application startup composition root was established by this inspection.
+
+**Decision:** do not add a nominal “production” factory around caller-provided resolvers, environment strings, or a boolean. Such a factory would not establish the missing trust boundary. Before implementation, the product must designate its real deployment entry point and protected configuration/secret source, then bind key rotation/revocation, policy, trusted time, and validity evidence there. Until that deployment boundary exists, the signed adapter correctly remains fail-closed and this capability is not production-wired.
