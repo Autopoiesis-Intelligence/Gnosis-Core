@@ -32,7 +32,7 @@ def root():
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
-        authorization_id="test-recovery",
+        authorization_id=f"test-recovery:{instance_id}:{digest[:12]}",
         subject=instance_id,
         requested_by="test-principal",
         authority="test-governance",
