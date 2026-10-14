@@ -9,7 +9,7 @@ class EvolutionEvidence:
     candidate_id: str
     transition_id: str
     outcome: str
-    evidence: tuple[str, ...]
+    evidence: tuple[str, ...] = ()
     state_id: str | None = None
 
 
