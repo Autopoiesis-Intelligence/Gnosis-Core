@@ -139,7 +139,7 @@ def test_decision_evidence_rejects_tampered_payload_after_restart(tmp_path):
             conn,
             evaluation_record_id=evaluation_id,
             governance_record_id=governance_id,
-            execution_id=sandbox.execution.execution_id,
+            execution_id=execution_id(candidate.candidate_id, candidate.parent_state_id, sandbox.execution.evidence_digest, sandbox.execution.parent_state_digest, sandbox.execution.proposed_state_digest),
             candidate_id=candidate.candidate_id,
             evidence_digest=sandbox.execution.evidence_digest,
         )
