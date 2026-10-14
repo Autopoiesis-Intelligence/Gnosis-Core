@@ -21,6 +21,17 @@ The persisted schema was inspected at the current PR head:
 
 **Consequence:** the missing inputs are not just an omitted function argument. A trusted producer/source and an evolution-scoped authorization path must be identified or deliberately designed within the existing authority boundary. Do not reconstruct observations or state from digests, and do not add a boolean-to-authority adapter. Until those dependencies exist, the reflection gate must continue to fail closed when evolution provenance is present.
 
+## Runtime dataflow finding (repository inspection, 2026-10-15)
+
+The exact-head source inspection traced the adjacent production-facing pieces:
+
+- `gnosis/reflection/endogenous_runtime.py::evaluate_candidate_in_sandbox()` receives sandbox execution observations and an evidence digest; `build_endogenous_provenance()` validates and builds `EvidenceProvenance` from those runtime objects. The module explicitly says it does not persist transitions or grant execution authority.
+- `gnosis/evolution/transaction.py::persist_evolution_transaction()` atomically stores provenance metadata and an audit record. Its `payload` is reduced to `payload_digest` by the audit-record builder; the original observations and proposed `State` are not made recoverable by this transaction.
+- Repository search located the provenance builder in the runtime adapter and persistence calls in the transaction/storage layer, but no production orchestration path connecting the runtime-built provenance and replay inputs to an authorized recovery request.
+- `gnosis/reflection/authority.py::issue_execution_authorization()` still raises `NotImplementedError` after checking approval identity bindings. It is not a usable trusted issuer and must not be bypassed to make recovery pass.
+
+**Implementation consequence:** there are two separate missing links: durable, independently checkable replay inputs and a trusted authority path bound to the selected evolution identity. Adding a storage column alone would address neither authority nor independent trust. Wiring a caller-supplied boolean into the gate would only disguise the gap.
+
 ## Required integration contract
 
 Before implementation, the caller and API must explicitly bind all of the following:
@@ -59,4 +70,4 @@ Before implementation, the caller and API must explicitly bind all of the follow
 
 ## Evidence note
 
-This document records a design constraint, not an implementation claim. At the time of writing, the integration gap is observed in `gnosis/reflection/gate.py` and `gnosis/evolution/recovery.py`. No runtime or CI proof is implied by this document.
+This document records a design constraint, not an implementation claim. At the time of writing, the integration gap is observed in `gnosis/reflection/gate.py`, `gnosis/evolution/recovery.py`, `gnosis/reflection/endogenous_runtime.py`, `gnosis/evolution/transaction.py`, and `gnosis/reflection/authority.py`. No runtime or CI proof is implied by this document.
