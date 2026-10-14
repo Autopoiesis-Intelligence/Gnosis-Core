@@ -7,8 +7,6 @@ from gnosis.reflection.authority import (
     ExecutionIntentSnapshot,
     require_execution_candidate_binding,
 )
-from gnosis.reflection.authorization_validity import AuthorizationValidity
-from gnosis.reflection.trusted_execution_gate import require_trusted_execution
 from registry.core_handoff import create_handoff
 
 
