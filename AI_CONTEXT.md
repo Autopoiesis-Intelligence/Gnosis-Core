@@ -5198,3 +5198,10 @@ Added contracts:
 - ARCHITECTURE_DECISION_AND_LICENSING_CONTRACT.md
 
 Current evidence from repository inspection: pyproject.toml exists and uses setuptools; public Core structure was not verified from a directory listing in this audit pass; LICENSE was not found at repository root through the file fetch; therefore licensing status remains UNVERIFIED/MISSING until inspected and decided. No claim is made that mypy --strict or a lockfile is currently present.
+
+
+## Current execution trust boundary — 2026-10-14
+
+The reviewed default-branch SHA `2a90f28ad75cc63ec3f66c3d9430fe16d95250d9` contains a self-referential validity check: the execution gate takes expected policy and evidence digest from the validity object it is checking. The mainline execution adapter and self-learning entry point do not wire the signed production trust context. PR #168 has a stronger signed path on a separate Draft branch, but trusted dependency provisioning and end-to-end reachability remain unproven.
+
+Do not hard-code issuer keys or policy, or let request-controlled inputs choose the trust context. First identify the protected deployment/composition boundary and trust-root owner. Follow `docs/architecture/CURRENT_EXECUTION_TRUST_BOUNDARY.md` for the bounded finding and acceptance sequence. This is source-level evidence, not runtime proof; recheck the exact main SHA before relying on it.
