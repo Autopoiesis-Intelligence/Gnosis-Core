@@ -105,3 +105,14 @@ Inspection of the package metadata and the only located CLI entry point narrows 
 - `ProductionTrustContext` explicitly requires a key resolver, authority scope, policy version, trusted clock, and validity-evidence resolver. No protected owner-controlled source for these dependencies or application startup composition root was established by this inspection.
 
 **Decision:** do not add a nominal “production” factory around caller-provided resolvers, environment strings, or a boolean. Such a factory would not establish the missing trust boundary. Before implementation, the product must designate its real deployment entry point and protected configuration/secret source, then bind key rotation/revocation, policy, trusted time, and validity evidence there. Until that deployment boundary exists, the signed adapter correctly remains fail-closed and this capability is not production-wired.
+
+
+## Existing GitHub Actions are not the production composition root (SEQ 1.68)
+
+The scheduled automation workflows were inspected at this exact branch head:
+
+- `.github/workflows/autonomous-watcher.yml` checks out `main`, reads PR/issue metadata with the GitHub token, and uploads a heartbeat artifact. Its permissions are read-only for contents, actions, pull requests, and issues.
+- `.github/workflows/autonomous-observer.yml` checks out `main`, installs the package, runs tests and the self-diagnostic corpus, and uploads artifacts. Its repository permission is `contents: read`.
+- Neither workflow invokes the signed execution adapter, supplies `ProductionTrustContext`, provisions trusted issuer keys, or performs production Core commits. They are observation/verification automation, not an owner-authority deployment boundary.
+
+**Decision:** existing scheduled Actions are useful for autonomous observation, but must not be reclassified as the trusted production runtime. No secrets or write permissions should be added to these workflows to paper over the missing application composition root. The next design input is a designated product deployment target and its protected owner-controlled configuration/secret source.
