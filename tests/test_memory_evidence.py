@@ -39,8 +39,15 @@ def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
     conn = connect(db)
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
-    candidate = instance.engine.generate_candidates()[0]
-    record = instance.engine.step_select((candidate,))
+    from gnosis.core.types import Candidate
+    from gnosis.storage.repositories import _persist_transition
+    candidate = Candidate(
+        parent_state_id=instance.engine.state.state_id,
+        proposed_state=instance.engine.state.with_elements({"memory-test": True}),
+        origin="test:memory-evidence",
+    )
+    record = instance.engine.step(candidate)
+    _persist_transition(conn, instance, candidate, record, actor="test-memory-evidence")
     memory = append_evolution_memory(
         conn,
         instance_id=instance.instance_id,
