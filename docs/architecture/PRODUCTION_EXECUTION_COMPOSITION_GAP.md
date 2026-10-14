@@ -68,3 +68,34 @@ Before any production commit path is enabled, the application must own a composi
 ## Decision
 
 Keep PR #198 Draft. The next task is to identify the actual application/service boundary that owns the execution request and trusted configuration. If this repository is only a reusable Core library and has no application service, record the external integration contract rather than pretending the library itself can establish production trust.
+
+
+## External integration contract — SEQ 1.22
+
+### Repository-boundary finding
+
+The reviewed canonical-main implementation of `gnosis/self_learning/execution.py::execute_approved_core_proposal` calls the adapter with only `request` and `actor`. PR #198 adds mandatory signed-authorization and trust-context parameters to the adapter, so this existing call path will fail closed until an authorized application integration is deliberately implemented. This is a compatibility/integration blocker, not a reason to weaken the adapter.
+
+A bounded search for application factories and API entrypoints did not identify a production service composition root in this repository. This is a bounded negative finding, not proof that no external service exists. The repository therefore cannot claim to provision owner authority on its own based on current evidence.
+
+### Required host-service interface
+
+An external host that wants to enable production commits must provide a single protected composition operation with the following semantics (names are illustrative; they are not an implemented API):
+
+1. At process/service startup, construct the execution capability from administrator-controlled configuration and protected trust providers. Request payloads must not supply or replace the key resolver, policy source, clock, evidence resolver, database connection policy, or commit adapter.
+2. Accept a commit request plus a signed owner authorization as untrusted inputs. Derive the exact evolution identity, parent-state digest, request provenance, scope, and policy expectation from canonical application state and independently controlled policy—not from the authorization itself.
+3. Resolve issuer key and revocation/rotation status from a protected source; resolve current time from an explicitly selected trusted clock; resolve the validity-evidence digest from durable independently controlled evidence.
+4. Verify signature, key status/validity, scope, policy, identity, parent digest, provenance, and authorization interval before any mutation.
+5. Consume authorization ID and nonce and persist the authorized Core transition atomically. If any step fails, roll back both consumption and state mutation. Concurrent duplicate requests must not both commit.
+6. Keep the capability out of user-facing serialization and reject request-level dependency overrides. Python object encapsulation alone is not proof against a hostile process with code execution; deployment access controls and configuration ownership must be documented.
+7. Test through the actual deployed service entrypoint, including denied requests and rollback/replay/concurrency cases, and retain exact commit SHA, CI run, and runtime evidence.
+
+### Integration decision
+
+Until a real host-service boundary is identified and its trust providers are reviewed, keep the adapter fail-closed and PR #198 Draft. Do not add a fake application factory, default public key, local-clock trust, or test-only production configuration to this library. If no host service exists yet, treat host composition as a separate product implementation gate—not as completed Core functionality.
+
+### SEQ 1.22 evidence
+
+- Canonical-main source inspection: confirmed the current wrapper calls `commit(..., actor=actor)` without the new signed authorization/context inputs.
+- Search for common application factory/API entrypoint patterns: no results returned by the bounded code search.
+- Status: **EXTERNAL CONTRACT SPECIFIED; PROTECTED HOST COMPOSITION NOT IMPLEMENTED OR PROVEN.**
