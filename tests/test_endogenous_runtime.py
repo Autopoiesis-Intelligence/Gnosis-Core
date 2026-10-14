@@ -194,7 +194,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     result = verify_persisted_chain(persisted_provenance, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
     assert result.valid, result.reasons
     replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
-    assert replay.valid, replay.reasons
+    assert replay.reproducible, replay.reasons
     conn.close()
 
 
@@ -314,7 +314,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         vr = verify_persisted_chain(persisted_provenance, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
         assert vr.valid, vr.reasons
         rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
-        assert rr.valid, rr.reasons
+        assert rr.reproducible, rr.reasons
 
         # Persist a real transition in the Core transition ledger. The
         # provenance audit digest above is deliberately not used as transition_id.
