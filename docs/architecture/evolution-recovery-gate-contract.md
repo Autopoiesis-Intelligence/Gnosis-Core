@@ -30,6 +30,12 @@ The exact-head inspection also found a separate production-facing signed executi
 - `gnosis/reflection/execution_adapter.py::SQLiteExecutionCommitAdapter.commit()` requires both signed production authorization and a `ProductionTrustContext`, verifies them before mutation, consumes nonce/authorization, checks candidate binding, persists the transition, and checks the resulting state.
 - This is an execution-commit boundary, not an evolution-recovery authorization contract. It does not make the original observations or proposed `State` durable replay inputs, and it does not establish that a protected production composition root actually constructs the trust dependencies. Do not treat the existence of these classes as proof that production authority is deployed or that recovery is authorized.
 
+## Authorization API mismatch (repository inspection, 2026-10-15)
+
+A further concrete gap is present in `gnosis/evolution/recovery.py::recover_evolution_audit()`: its `authorization_valid` and `authorization_revoked` inputs are plain booleans. The successful recovery unit test supplies `authorization_valid=True` directly. That proves only the function's synthetic branch behavior; it does not prove that a signed authorization was verified, that the caller is trusted, or that the authorization is bound to the selected provenance. The reflection gate currently calls the function without these inputs and therefore fails closed, but the lower-level API can be invoked with a caller assertion.
+
+**Required correction:** do not wire the reflection gate to these booleans. Before trusted recovery can be exposed, replace the boolean assertion with a verified, typed proof produced by the protected authority boundary, bound to the selected provenance identity and evidence scope. Reuse existing signed-owner verification primitives where appropriate, but do not treat a freely constructed data object or a boolean as authority. Until that integration exists, the gate remains fail-closed and positive unit-test coverage must not be reported as production authorization proof.
+
 ## Runtime dataflow finding (repository inspection, 2026-10-15)
 
 The exact-head source inspection traced the adjacent production-facing pieces:
