@@ -63,6 +63,7 @@ class ProductionAuthorization:
     valid_from: int
     expires_at: int
     nonce: str
+    proposal_binding_digest: str
     signature: str
 
     def payload(self) -> dict[str, object]:
@@ -75,6 +76,7 @@ class ProductionAuthorization:
             "parent_state_digest": self.parent_state_digest,
             "request_provenance": self.request_provenance, "valid_from": self.valid_from,
             "expires_at": self.expires_at, "nonce": self.nonce,
+            "proposal_binding_digest": self.proposal_binding_digest,
         }
 
     def identity_payload(self) -> dict[str, object]:
@@ -113,13 +115,14 @@ def verify_production_authorization(
     expected_evolution_identity: str,
     expected_parent_state_digest: str,
     expected_request_provenance: str,
+    expected_proposal_binding_digest: str,
 ) -> TrustedIssuerKey:
     """Verify signature and request bindings; replay consumption is separate."""
-    if not expected_scope or not all((expected_policy_version, expected_evolution_identity, expected_parent_state_digest, expected_request_provenance)):
+    if not expected_scope or not all((expected_policy_version, expected_evolution_identity, expected_parent_state_digest, expected_request_provenance, expected_proposal_binding_digest)):
         raise PermissionError("trusted execution binding is incomplete")
     if not authorization.authorization_id or not authorization.issuer_id or not authorization.key_version:
         raise PermissionError("authorization identity is missing")
-    if not all((authorization.policy_version, authorization.evolution_identity, authorization.parent_state_digest, authorization.request_provenance, authorization.nonce, authorization.authority_scope)):
+    if not all((authorization.policy_version, authorization.evolution_identity, authorization.parent_state_digest, authorization.request_provenance, authorization.nonce, authorization.authority_scope, authorization.proposal_binding_digest)):
         raise PermissionError("authorization binding is incomplete")
     if tuple(sorted(set(authorization.authority_scope))) != authorization.authority_scope:
         raise PermissionError("authorization scope is not canonical")
@@ -137,6 +140,8 @@ def verify_production_authorization(
         raise PermissionError("authorization parent-state mismatch")
     if authorization.request_provenance != expected_request_provenance:
         raise PermissionError("authorization request-provenance mismatch")
+    if authorization.proposal_binding_digest != expected_proposal_binding_digest:
+        raise PermissionError("authorization proposal-binding mismatch")
     key = resolver.resolve(authorization.issuer_id, authorization.key_version)
     if key is None or key.issuer_id != authorization.issuer_id or key.key_version != authorization.key_version:
         raise PermissionError("trusted issuer key not found or identity mismatch")
