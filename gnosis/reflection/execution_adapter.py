@@ -10,6 +10,7 @@ from gnosis.reflection.authority import (
     ExecutionCommitResult,
     ExecutionReceipt,
     require_execution_candidate_binding,
+    require_execution_authorization,
 )
 
 
@@ -17,6 +18,13 @@ class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+        # Reject missing/mismatched owner authorization before opening a storage transaction.
+        # The full trusted gate still runs inside the mutation transaction to prevent TOCTOU.
+        require_execution_authorization(
+            request.authorization,
+            request_provenance=request.request_provenance,
+            evolution_identity=request.evolution_identity,
+        )
         with transaction(conn):
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
