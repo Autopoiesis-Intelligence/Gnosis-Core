@@ -599,3 +599,41 @@ def test_evaluator_identity_survives_provenance_persistence(sqlite_conn):
     assert loaded["evaluator_identity_ref"] == "evaluator:test"
     assert loaded["evaluator_identity_version"] == "1"
     assert loaded["evolution_identity"] == provenance.evolution_identity
+
+
+def test_stored_provenance_crosscheck_rejects_legacy_status_integrity():
+    import sqlite3
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import (
+        crosscheck_stored_provenance,
+        ensure_reflection_schema,
+        save_evolution_provenance,
+    )
+
+    observations = {"legacy": "record"}
+    digest = canonical_digest(observations)
+    provenance = build_provenance(
+        candidate_id="candidate:legacy-crosscheck",
+        parent_state_id="state:parent",
+        parent_state_digest="parent-digest",
+        proposed_state_digest="proposed-digest",
+        observations=observations,
+        evidence_digest=digest,
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+    )
+    conn = sqlite3.connect(":memory:")
+    ensure_reflection_schema(conn)
+    provenance_id = save_evolution_provenance(conn, provenance)
+    conn.execute(
+        "UPDATE evolution_provenance SET status_digest='' WHERE provenance_id=?",
+        (provenance_id,),
+    )
+
+    result = crosscheck_stored_provenance(
+        conn, provenance_id, observations=observations
+    )
+    assert result.valid is False
+    assert "stored provenance status integrity is unverified" in result.reasons
