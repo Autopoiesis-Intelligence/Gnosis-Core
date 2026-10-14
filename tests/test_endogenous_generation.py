@@ -134,7 +134,9 @@ def test_endogenous_commit_ignores_historical_proposal_relation():
     assert commit_endogenous_candidates(engine, first_report, first.candidates).accepted
 
     current_report = ReflectionReport(proposals=(proposal(2),))
+    parent_state_id = engine.state.state_id
     current = generate_endogenous_candidates(engine.state, current_report)
+    assert engine.state.state_id == parent_state_id
     targets = {
         relation.target
         for relation in current.candidates[0].proposed_state.relations
