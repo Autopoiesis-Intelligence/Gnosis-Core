@@ -95,7 +95,7 @@ class _RealCommitFixture:
 
 
 @pytest.fixture
-def real_commit_fixture(request):
+def real_commit_fixture(pytest_request):
     """Construct one valid, ephemeral signed commit request for rollback tests."""
     from gnosis.core import Candidate, State
     from gnosis.evolution.provenance import build_provenance, canonical_digest
@@ -180,7 +180,7 @@ def real_commit_fixture(request):
         )
         fixture.production_authorization = signed
         fixture.trust_context = trust
-        request.addfinalizer(conn.close)
+        pytest_request.addfinalizer(conn.close)
         return fixture
     except Exception:
         conn.close()
