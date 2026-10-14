@@ -142,12 +142,22 @@ def commit_endogenous_candidates(
     """Commit endogenous candidates only after exact proposal provenance validation."""
     proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
     for candidate in candidates:
-        proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
-            None,
+        # A later state can retain relations from earlier accepted proposals.
+        # Bind this candidate only to a proposal node newly introduced or
+        # changed relative to its canonical parent state, never the first
+        # historical reflection relation.
+        matching_ids = tuple(
+            relation.target
+            for relation in candidate.proposed_state.relations
+            if relation.source == REFLECTION_NODE
+            and relation.relation_type == "proposed_rule"
+            and relation.target in proposals
+            and candidate.proposed_state.elements.get(relation.target)
+                != engine.state.elements.get(relation.target)
         )
-        proposal = proposals.get(proposal_id)
-        if proposal is None or not candidate_binds_proposal(candidate, proposal):
+        if len(matching_ids) != 1:
+            raise ValueError("endogenous candidate must identify exactly one current reflection proposal")
+        proposal = proposals[matching_ids[0]]
+        if not candidate_binds_proposal(candidate, proposal):
             raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
     return engine.step_select(candidates)
