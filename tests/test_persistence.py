@@ -253,7 +253,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
