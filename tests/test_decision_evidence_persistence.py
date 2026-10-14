@@ -196,3 +196,62 @@ def test_decision_evidence_rejects_tampered_governance_payload_after_restart(tmp
             evidence_digest=sandbox.execution.evidence_digest,
         )
     conn.close()
+
+
+
+@pytest.mark.parametrize(
+    ("binding", "expected_error"),
+    [
+        ("execution_id", "evaluation evidence binding mismatch"),
+        ("candidate_id", "evaluation evidence binding mismatch"),
+        ("evidence_digest", "evaluation evidence binding mismatch"),
+    ],
+)
+def test_decision_evidence_rejects_mismatched_external_binding(
+    tmp_path, binding, expected_error
+):
+    db = tmp_path / f"decision-binding-{binding}.sqlite"
+    state = State(elements={"a": 1})
+    candidate = _candidate(state)
+    sandbox = run_sandbox(state, candidate, _observe)
+    evidence_digest = sandbox.execution.evidence_digest
+    canonical_execution_id = execution_id(
+        candidate.candidate_id,
+        candidate.parent_state_id,
+        evidence_digest,
+        sandbox.execution.parent_state_digest,
+        sandbox.execution.proposed_state_digest,
+    )
+    evaluation = evaluate_observation(
+        sandbox.execution.observations,
+        evidence_digest=evidence_digest,
+        predicate="observations_present",
+    )
+    governance = GovernanceDecision(
+        "REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",)
+    )
+    conn = sqlite3.connect(db)
+    evaluation_id, governance_id = persist_decision_evidence(
+        conn,
+        execution_id=canonical_execution_id,
+        candidate_id=candidate.candidate_id,
+        evidence_digest=evidence_digest,
+        evaluation=evaluation,
+        governance=governance,
+    )
+    conn.commit()
+
+    requested = {
+        "execution_id": canonical_execution_id,
+        "candidate_id": candidate.candidate_id,
+        "evidence_digest": evidence_digest,
+    }
+    requested[binding] = "mismatched-" + requested[binding]
+    with pytest.raises(RuntimeError, match=expected_error):
+        load_decision_evidence(
+            conn,
+            evaluation_record_id=evaluation_id,
+            governance_record_id=governance_id,
+            **requested,
+        )
+    conn.close()
