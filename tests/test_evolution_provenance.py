@@ -463,6 +463,61 @@ def test_promotion_gate_rejects_stale_authorization_context():
     assert "authorization freshness is stale or mismatched" in gate.reasons
 
 
+def test_load_evolution_provenance_rejects_status_tamper_and_marks_legacy_rows(tmp_path):
+    import sqlite3
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.reflection.persistence import (
+        ensure_reflection_schema,
+        load_evolution_provenance,
+        save_evolution_provenance,
+    )
+
+    db = tmp_path / "provenance-status.sqlite"
+    observations = {"status": "integrity"}
+    provenance = build_provenance(
+        candidate_id="candidate:status-integrity",
+        parent_state_id="state:parent",
+        parent_state_digest="sha256:parent",
+        proposed_state_digest="sha256:proposed",
+        observations=observations,
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="REVIEW",
+    )
+    conn = sqlite3.connect(db)
+    ensure_reflection_schema(conn)
+    provenance_id = save_evolution_provenance(conn, provenance)
+    conn.commit()
+    assert load_evolution_provenance(conn, provenance_id)["integrity_status"] == "verified"
+
+    conn.execute(
+        "UPDATE evolution_provenance SET status=? WHERE provenance_id=?",
+        ("CONSUMED", provenance_id),
+    )
+    with pytest.raises(RuntimeError, match="stored provenance status integrity mismatch"):
+        load_evolution_provenance(conn, provenance_id)
+    conn.close()
+
+    # A pre-migration row has no status digest: expose it as unverified rather
+    # than silently claiming historical integrity or rewriting identity hashes.
+    legacy = sqlite3.connect(":memory:")
+    ensure_reflection_schema(legacy)
+    legacy.execute("INSERT INTO evolution_provenance "
+        "(provenance_id,execution_id,candidate_id,parent_state_id,parent_state_digest,"
+        "proposed_state_digest,evidence_digest,evaluation_status,shadow_status,"
+        "invariant_status,governance_decision,status,evolution_identity,"
+        "proposed_state_content_id,candidate_binding_digest,evaluator_identity_ref,"
+        "evaluator_identity_version,status_digest) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("legacy-id","exec","candidate","parent","parent-digest","proposed-digest",
+         "evidence","PASS","UNCHANGED","PRESERVED","REVIEW","RECORDED",
+         "","", "", "", "", ""))
+    assert load_evolution_provenance(legacy, "legacy-id")["integrity_status"] == "legacy_unverified"
+    legacy.close()
+
+
 def test_provenance_lifecycle_status_does_not_change_identity() -> None:
     from gnosis.evolution.provenance import canonical_digest
     observations = {"metric": 1}
