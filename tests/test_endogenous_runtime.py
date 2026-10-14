@@ -100,6 +100,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     proposal_targets = {r.target for r in gen2.candidates[0].proposed_state.relations if r.relation_type == "proposed_rule"}
     assert {"p1", "p2"} <= proposal_targets
     rec2 = commit_endogenous_candidates(instance.engine, cumulative2.current, gen2.candidates)
+    assert rec2.accepted
     _persist_transition(conn, instance, gen2.candidates[0], rec2, actor="e8c")
     mem2 = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=rec2.candidate_id, transition_id=rec2.transition_id, state_id=rec2.to_state_id, proposal_id=proposal2.proposal_id, proposal_report_id=report2_id, outcome="accepted", evidence=("cycle-2",))
     close(conn)
