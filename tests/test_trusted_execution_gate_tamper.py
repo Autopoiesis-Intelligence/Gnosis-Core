@@ -19,7 +19,7 @@ def test_validity_is_immutable(provenance):
 def test_tampered_policy_is_rejected_before_consumption(sqlite_conn, provenance):
     v=AuthorizationValidity("auth-t","policy-forged","ev-1")
     req=make_request(provenance,v)
-    with pytest.raises(PermissionError):
-        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
+    with pytest.raises(PermissionError,match="policy"):
+        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner",expected_policy_version="policy-1",expected_evidence_digest="ev-1")
     row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-t",)).fetchone()
     assert row is None
