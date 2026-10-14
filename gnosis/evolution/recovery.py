@@ -55,6 +55,17 @@ def recover_evolution_audit(
         observations=observations,
     )
     provenance_row = provenance_rows[0]
+    integrity_status = provenance_row.get("integrity_status", "legacy_unverified")
+    if integrity_status != "verified":
+        reason = (
+            "persisted provenance status integrity mismatch"
+            if integrity_status == "tampered"
+            else "persisted provenance status integrity is unverified"
+        )
+        return RecoveryReport(
+            len(records), False, False, provenance_row.get("evidence_digest"),
+            canonical_digest(observations), (reason,)
+        )
     expected_digest = provenance_row["evidence_digest"]
     actual_digest = canonical_digest(observations)
     persisted_identity = provenance_row.get("evolution_identity", "")
