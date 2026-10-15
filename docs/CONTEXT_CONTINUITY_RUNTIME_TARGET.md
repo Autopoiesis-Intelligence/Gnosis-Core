@@ -1,6 +1,8 @@
-# Gnozis-V2 — Context Continuity Runtime Target
+# Gnosis Core — Context Continuity Runtime Target
 
-Status: architecture target / no runtime implementation in this document.
+Status: ARCHITECTURE TARGET — DURABLE TASK CONTEXT REPOSITORY EXISTS; PRODUCT RUNTIME INTEGRATION IS NOT PROVEN.
+
+This document defines the intended cross-product continuation flow. It is not evidence that the flow is implemented. The durable TaskContext model/repository and scoped repository guard are separate implementation components; no production entry point, trusted identity binding, or end-to-end cross-terminal recovery is established by this target document.
 
 ## Goal
 
@@ -42,7 +44,7 @@ Conversation history is context assistance, not canonical project state.
 
 ## Minimal continuation response
 
-A future connector should be able to obtain at least:
+A connector implementation, once built and verified, should be able to obtain at least:
 
 ```text
 project
@@ -92,7 +94,7 @@ This target builds on the existing Context Continuity Contract and the user/task
 
 ## Next implementation decomposition
 
-Future implementation should be split into independently auditable phases:
+Remaining runtime work should be split into independently auditable phases. The durable TaskContext value model and repository now exist in source; their existence does not close the integration phases below:
 
 1. Task Envelope value model.
 2. Context Snapshot resolver.
