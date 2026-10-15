@@ -1,4 +1,4 @@
-# Gnozis-V2 — Canonical Context Continuity Contract
+# Gnosis — Canonical Context Continuity Contract
 
 ## Status
 
@@ -10,7 +10,7 @@ It does **not** implement authentication, authorization, Memory, routing, or Ψ-
 
 ## 1. Purpose
 
-Gnozis must preserve the canonical state of work independently of the AI terminal used to access it.
+Gnosis must preserve the canonical state of work independently of the AI terminal used to access it.
 
 A connected product is an interface to the project context, not the owner of that context.
 
@@ -96,6 +96,28 @@ closed
 
 The exact transition matrix belongs to the implementation task and must be explicit before code is accepted.
 
+
+### 4.1 Canonical task-state transition matrix
+
+A state may remain unchanged while other context fields are updated. When
+`current_task_state` changes, only the following transitions are permitted:
+
+| From | Permitted next states |
+|---|---|
+| `proposed` | `active`, `blocked`, `closed` |
+| `active` | `blocked`, `awaiting_review`, `corrective`, `verified`, `closed` |
+| `blocked` | `active`, `corrective`, `closed` |
+| `awaiting_review` | `active`, `blocked`, `corrective`, `verified`, `accepted` |
+| `corrective` | `active`, `blocked`, `awaiting_review`, `closed` |
+| `verified` | `active`, `corrective`, `accepted`, `closed` |
+| `accepted` | `corrective`, `closed` |
+| `closed` | no outgoing transitions |
+
+This is a workflow-state guard only. It does not prove verification, grant
+authority, or authorize external execution. Reopening accepted work requires
+an explicit transition to `corrective`; closed tasks are terminal.
+
+
 ## 5. Verification state
 
 Implementation and verification are separate dimensions.
@@ -116,6 +138,19 @@ An AI message saying `PASS` is never equivalent to independent verification.
 ## 6. Evidence references
 
 Context should reference evidence rather than silently copying unbounded external data.
+
+In the first Context implementation slice, `context_references` and
+`evidence_references` are **opaque metadata only**. Storing or reconstructing a
+reference does not fetch its target, verify its provenance, establish its scope,
+or attach the target content to the task. No resolver, connector ingestion, or
+scope authorization is implied by the presence of a reference. A consumer must
+not treat an opaque reference as verified evidence or permission to access data.
+
+Any later adapter that resolves a reference or attaches source content must be a
+separate bounded phase. Before use, it must establish source identity, provenance,
+task/user/organization scope, applicable data-class policy, and permission for
+the requested operation. If those checks cannot be established, it must fail
+closed rather than silently attach or consume the content.
 
 An evidence reference should eventually identify:
 
@@ -154,7 +189,11 @@ This prevents GitHub/Drive/AI access from becoming implicit architectural author
 
 ## 8. Data-source policy
 
-A context may reference connected sources, but every source must eventually pass these gates:
+A context may reference connected sources, but a stored reference is not a
+connection, source validation, data attachment, or permission to consume data.
+In the first implementation slice, the repository stores reference metadata only;
+it does not resolve or ingest the referenced content. Any future resolver must
+enforce the following gates before content is attached to a task:
 
 ```text
 connected
@@ -293,7 +332,9 @@ Minimum evidence:
 3. close/reopen recovery;
 4. terminal-independent reconstruction from durable context;
 5. proof that Core tables/state are untouched;
-6. proof that unscoped data cannot be silently attached to a task;
+6. proof that the Context repository does not resolve or ingest external
+   references, and that no referenced content is attached implicitly; any later
+   resolver must separately prove scope enforcement before that adapter is accepted;
 7. independent adversarial audit;
 8. corrective pass if findings remain;
 9. re-audit;
