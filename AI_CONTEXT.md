@@ -5,8 +5,15 @@
 This file is the operational handoff and research context for AI agents working on Gnozis Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
+
+## Canonical handoff authority (2026-10-12 reconciliation)
+
+For continuation state, read `docs/PROJECT_STATE.json` and `docs/PHASE_LEDGER.md` first. They are durable snapshots/contracts, not live pointers: fetch the current `main` HEAD at every new session and compare it with `canonical_head`. If the value differs or canonical documents conflict, report **RECONCILIATION REQUIRED** before implementation. Never infer current authority from a chat, old SHA, CI run on another commit, or a free-text next-action field.
+
+The active phase remains `CONTEXT-CONTINUITY ARCHITECTURE` / `DOCUMENTATION_AND_ARCHITECTURE` until a durable, explicit phase transition is recorded. Memory corrective implementation, Core semantic changes, Identity/authentication/authorization implementation, encryption, Internet Bridge, federation, and autonomous self-modification remain forbidden in this phase. No handoff sentence overrides `forbidden_scope`; access is not architectural authority. Independent reviewer status is `NOT_ASSIGNED` unless a genuinely independent reviewer is explicitly assigned.
+
 
 Rules:
 1. Repository code, tests and actual runtime/CI evidence outrank chat memory or this document.
@@ -5198,3 +5205,7 @@ Added contracts:
 - ARCHITECTURE_DECISION_AND_LICENSING_CONTRACT.md
 
 Current evidence from repository inspection: pyproject.toml exists and uses setuptools; public Core structure was not verified from a directory listing in this audit pass; LICENSE was not found at repository root through the file fetch; therefore licensing status remains UNVERIFIED/MISSING until inspected and decided. No claim is made that mypy --strict or a lockfile is currently present.
+
+## Full reflection and development mechanics — 2026-10-13
+
+The owner’s reusable project method is recorded in [docs/recovery/REFLECTION_XR_PRODUCT_MECHANICS_2026-10-13.md](docs/recovery/REFLECTION_XR_PRODUCT_MECHANICS_2026-10-13.md) and companion Notion page: https://app.notion.com/p/3f830957f2c081dbb5fac25d897522ee?pvs=204. It formalizes X/R as a target product model, automaton trigger/stop contracts, reverse-scaling + down-scaling, full-history reflection, dependency-ordered gap resolution, and strict evidence/governance limits. Treat it as design context, not implementation/runtime proof. Reconcile live refs and phase ledger before acting; PR #169 remains unmerged and this note does not authorize merge or out-of-phase implementation.

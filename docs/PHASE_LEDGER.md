@@ -15,7 +15,7 @@ Build the durable project-context layer that allows a newly connected AI product
 
 **Primary implementer:** ChatGPT
 
-**Independent reviewer:** Manus when available
+**Independent reviewer:** NOT ASSIGNED. ChatGPT may perform a bounded review under owner direction, but that is not independent verification.
 
 **Integration gate:** ChatGPT under explicit human project-owner authorization
 
@@ -121,16 +121,18 @@ A connected AI must not treat access to a resource as authority to change archit
 ## Next gate sequence
 
 ```text
-context-continuity documentation/state audit
+documentation/state reconciliation
         ↓
-Memory corrective pass
+fetch live main HEAD and compare the pinned project-state snapshot
         ↓
-independent Memory re-audit with real pytest
+inspect exact-head CI and record unresolved findings
         ↓
-ChatGPT integration gate
+owner selects a task inside the active phase
+        OR
+owner explicitly authorizes and records a formal phase transition
 ```
 
-No Memory corrective implementation is implied by this ledger entry.
+This sequence does not authorize Memory corrective implementation. Memory remains in `Forbidden scope` until the active phase is formally changed in durable project state and explicit owner authorization is recorded. A free-text next-action field cannot override the phase's forbidden scope. ChatGPT review is not independent verification; the independent reviewer remains `NOT ASSIGNED` unless explicitly assigned.
 
 ## Snapshot rule
 
