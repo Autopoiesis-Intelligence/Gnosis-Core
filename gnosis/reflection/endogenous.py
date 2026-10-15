@@ -1,5 +1,7 @@
 """Bounded endogenous candidate generation from canonical reflection proposals.
 
+from collections.abc import Mapping
+
 This module generates Core Candidates from evidence-backed RuleProposals. It does
 not activate rules, mutate an Engine, or bypass Core Test/Select. The generated
 state records the proposal as a relation in X/R, making the hypothesis itself a
@@ -98,7 +100,7 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
     if candidate.origin != "reflection:endogenous":
         return False
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
+    if not isinstance(node, Mapping):
         return False
     if node.get("kind") != "rule_proposal":
         return False
