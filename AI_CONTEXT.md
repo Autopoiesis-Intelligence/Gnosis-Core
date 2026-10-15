@@ -535,7 +535,7 @@ Progress percentages are directional analytical estimates only. They are not sof
 
 Do NOT frame the purpose of reverse-analysis as merely “saving time” or “being efficient”. The method is itself part of the research/product concept: an adaptive process for discovering and constructing better future states.
 
-## 20. NEXT REVERSE-ANALYSIS TARGET
+## 20. HISTORICAL NEXT REVERSE-ANALYSIS TARGET — E7.9.2 (NOT CURRENT TASK)
 
 ### E7.9.2 — Attack the Level Hypothesis
 
@@ -663,9 +663,9 @@ Rules:
 11. Every completed task must produce a concise analytical result and a NEXT task.
 12. The registry is a planning/control layer; it is not evidence of implementation.
 
-## 26. CONSTANT ANALYTICAL MESSAGE FORMAT
+## 26. HISTORICAL CONSTANT ANALYTICAL MESSAGE FORMAT (NOT CURRENT RESPONSE CONTRACT)
 
-Every substantial “Далее” reverse-analysis response must use this structure, in this order:
+Historical note: this format governed earlier reverse-analysis work only. It does not govern the current context-continuity phase or override the active phase ledger.
 
 ### [TASK-ID] — [TITLE]
 
@@ -711,7 +711,7 @@ At the end of substantial steps, provide the next task block using the CONSTANT 
 
 Do not add “time saved” or efficiency framing unless the user explicitly asks for it. The reverse-analysis method is itself part of the Gnozis research/product concept.
 
-## 27. ACTIVE TASK REGISTRY — E7.9 FRONTIER
+## 27. HISTORICAL TASK REGISTRY — E7.9 FRONTIER (NOT ACTIVE)
 
 ### TASK-ID: E7.9.2
 BLOCK: Level Hypothesis
