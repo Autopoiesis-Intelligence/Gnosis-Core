@@ -206,6 +206,38 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
     assert result.valid, result.reasons
     replay = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations, evaluation=evaluation, governance=governance, candidate=candidate)
     assert replay.reproducible, replay.reasons
+
+    # Complete replay must reject substitution of the candidate even when the
+    # caller reuses the original provenance, audit record, evaluation, and governance.
+    substituted_candidate = Candidate(
+        parent_state_id=candidate.parent_state_id,
+        proposed_state=candidate.proposed_state.with_elements({"replay-substitution": True}),
+        origin=candidate.origin,
+    )
+    substituted = replay_complete(
+        sandbox.execution,
+        provenance,
+        tx.audit_record,
+        observations=sandbox.execution.observations,
+        evaluation=evaluation,
+        governance=governance,
+        candidate=substituted_candidate,
+    )
+    assert not substituted.reproducible
+    assert "candidate identity differs from sandbox execution" in substituted.reasons
+    assert "candidate proposed state differs from sandbox execution" in substituted.reasons
+
+    missing_evaluation = replay_complete(
+        sandbox.execution,
+        provenance,
+        tx.audit_record,
+        observations=sandbox.execution.observations,
+        governance=governance,
+        candidate=candidate,
+    )
+    assert not missing_evaluation.reproducible
+    assert "candidate, evaluation or governance evidence missing" in missing_evaluation.reasons
+
     conn.close()
 
 
