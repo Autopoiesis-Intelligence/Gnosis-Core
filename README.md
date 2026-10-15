@@ -112,3 +112,5 @@ A specialized commercial core is not a second canonical Core. It is a bounded sp
 Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate Ψ-Core.
 
 The current partner-facing contract map is maintained in `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md` and refreshed by `scripts/update_partner_contract_block.py`. It is an index/briefing surface, not an authority or learning-proof artifact.
+
+<!-- Temporary CI-baseline trigger for exact main source SHA f71151b3000486d1350ce8b50454ead0d8197ca2; audit-only, do not merge. -->
