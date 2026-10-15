@@ -63,6 +63,8 @@ class ExecutionAuthorization:
     owner_approved: bool = False
     evolution_identity: str = ""
     approval_id: str = ""
+    policy_version: str = ""
+    validity_evidence_digest: str = ""
 
     @property
     def can_execute(self) -> bool:
@@ -163,6 +165,8 @@ def _canonical_evolution_identity(provenance: object) -> str:
         "proposed_state_digest": str(provenance.proposed_state_digest),
         "proposed_state_content_id": str(provenance.proposed_state_content_id),
         "candidate_binding_digest": str(provenance.candidate_binding_digest),
+        "evaluator_identity_ref": str(provenance.evaluator_identity_ref),
+        "evaluator_identity_version": str(provenance.evaluator_identity_version),
         "evidence_digest": str(provenance.evidence_digest),
         "evaluation_status": str(provenance.evaluation_status),
         "shadow_status": str(provenance.shadow_status),
