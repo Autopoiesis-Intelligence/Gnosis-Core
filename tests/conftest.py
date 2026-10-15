@@ -116,6 +116,8 @@ def real_commit_fixture():
             owner_approved=True,
             evolution_identity=provenance.evolution_identity,
             approval_id="real-commit-fixture-auth",
+            policy_version="fixture-policy-v1",
+            validity_evidence_digest="fixture-validity-evidence",
         )
         validity = AuthorizationValidity(
             authorization_id=authorization.approval_id,
