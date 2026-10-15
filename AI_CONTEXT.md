@@ -5,8 +5,10 @@
 This file is the operational handoff and research context for AI agents working on Gnozis Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
+
+**Current identity precedence (2026-10-15):** The repository and active phase are defined by live GitHub state and the current operational records: `docs/PROJECT_STATE.json`, `docs/PHASE_LEDGER.md`, `docs/CONTEXT_CONTINUITY_CONTRACT.md`, and `AGENT_ROLES.md`. The active implementation repository is `Autopoiesis-Intelligence/Gnosis-Core`; the verified Research Machine repository is `Autopoiesis-Intelligence/Gnosis`. Any older repository names, phase assignments, task numbers, or topology statements later in this long-form context are historical snapshots unless revalidated against current repository evidence. They do not override the active phase or current repository map.
 
 Rules:
 1. Repository code, tests and actual runtime/CI evidence outrank chat memory or this document.
@@ -33,7 +35,7 @@ Core mechanisms should be reusable across multiple future kernels and products. 
 
 ## 1. ARCHITECTURAL PURPOSE
 
-Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
+Gnozis is a governed recursive-evolution research and engineering system whose canonical state/evolution semantics remain controlled by Ψ-Core.
 
 A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
@@ -601,7 +603,7 @@ CI-green must be tied to an exact commit/run.
 
 ## 24. HANDOFF
 
-Current research handoff:
+Historical research handoff snapshot (preserved for provenance; not the current active task):
 - Ψ-Core remains the protected semantic/state-transition authority.
 - Gnozis-V2 is being reverse-engineered as an existing architectural specimen, not merely designed from philosophy downward.
 - The broader working product concept is an autopoietic environment-interaction machine that continuously transforms information, distinctions and organization under constraints.
@@ -4695,9 +4697,9 @@ Memory domains are separated into immutable Core K, governed learning workspace 
 External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> METADATA_VALIDATED -> SCOPE_DECLARED -> PROVENANCE_BASELINED -> SECURITY_AUDITED -> QUARANTINED -> ADMITTED -> ACTIVE_SOURCE. Admission is not trust or execution authority. PartnerIdentity is distinct from human/agent identity, repository name/URL and authority. Undeclared capabilities are denied by default; forks/renames do not silently inherit authority; revocation triggers impact analysis without erasing historical provenance.
 
 
-## Repository Role Baseline
+## Historical Repository Role Baseline (superseded)
 
-`Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
+The following paragraph records an earlier repository topology and is retained only for provenance. It is not the current repository map: `Gnozis-V2` was described as the canonical Core/source-of-truth repository, a future second repository was described as a **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**, and `Gnozis` was described as the legacy/research/archive line. Current repository identity and roles are defined by the current `README.md`, `docs/PROJECT_STATE.json`, `context/PROJECT_CONTEXT.json`, and the live GitHub repositories. Do not use this historical paragraph to resolve current links or task authority.
 
 
 ## E7.118 — First Proof Runtime Evidence Integrity & Artifact Sealing
