@@ -8,6 +8,8 @@ def test_memory_projects_to_read_only_reflection_evidence():
     assert out[0].memory_id == "m"
     assert out[0].outcome == "rejected"
     assert out[0].evidence == ("e1",)
+    assert out[0].state_id == "s"
+    assert out[0].proposal_id is None
 
 
 def test_memory_projection_is_bounded():
@@ -16,7 +18,7 @@ def test_memory_projection_is_bounded():
 
 
 def test_cumulative_reflection_reads_instance_scoped_evolution_memory():
-    from gnosis.core import State
+    from gnosis.core import Candidate, State
     from gnosis.instances.instance import Instance
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.storage import append_evolution_memory, connect, save_instance
@@ -39,8 +41,14 @@ def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
     conn = connect(db)
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
-    candidate = instance.engine.generate_candidates()[0]
-    record = instance.engine.step_select((candidate,))
+    candidate = Candidate(
+        instance.engine.state.state_id,
+        instance.engine.state.with_elements({"memory-evidence": True}),
+        "memory-evidence-test",
+    )
+    record = instance.engine.step(candidate)
+    from gnosis.storage.repositories import _persist_transition
+    _persist_transition(conn, instance, candidate, record, actor="u")
     memory = append_evolution_memory(
         conn,
         instance_id=instance.instance_id,
