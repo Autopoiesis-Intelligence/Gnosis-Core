@@ -2531,13 +2531,15 @@ Next: <single next action>
 Percentages are allowed only with an explicit reproducible denominator. Do not expand AI_CONTEXT into the research archive; store continuity in stable research IDs, task IDs, commits, tests, CI evidence and audit records.
 
 
-## 2026-09-21 RESTRUCTURING HANDOFF — RESEARCH MACHINE / CORE
+## HISTORICAL SNAPSHOT — 2026-09-21 RESTRUCTURING HANDOFF (SUPERSEDED)
+
+**Historical record only.** The following section preserves the plan and terminology recorded on 2026-09-21. It is not the current task queue, current repository-role authority, or current phase assignment. Use the canonical operational records at the beginning of this file, `docs/PHASE_LEDGER.md`, and `docs/PROJECT_STATE.json` for current work.
 
 The current engineering strategy is explicitly dual-track. The project is no longer required to complete an ever-expanding mathematical reverse-analysis before becoming operational. Established research results are now being materialized directly into repository architecture and working engineering tasks; reverse-analysis continues only where implementation exposes a concrete unresolved question or gap.
 
 ### Architectural target
 
-The correct historical/research layer name is **Gnozis Research Machine**, not Archive.
+At the time of this snapshot, the research layer was referred to as **Gnozis Research Machine**. Current repository identity is established by live GitHub state and the current operational records, not this historical wording.
 
 Conceptual separation:
 
@@ -2574,7 +2576,7 @@ Do not wait for completion of the entire E7.x mathematical program before implem
 
 During restructuring, existing material is classified before physical movement:
 
-- KEEP IN V2 / CORE
+- KEEP IN CORE (the old label “V2 / CORE” is historical)
 - MOVE TO RESEARCH MACHINE
 - REFERENCE FROM CORE
 - DUPLICATE
@@ -2614,13 +2616,13 @@ ACCEPTANCE: a reproducible repository map exists and each moved/retained area ha
 AUDIT: structural audit before declaring the boundary complete.
 NEXT: first controlled migration/extraction from the inventory, then Core cleanliness verification.
 
-### Working principle for this phase
+### Historical working principle (2026-09-21; not current phase authority)
 
 The repository is now treated as an engineering specimen. We use reverse-analysis to identify necessary boundaries, then immediately test those boundaries against actual code and materialize them. If a research result has no demonstrated implementation consequence, it remains in the Research Machine and does not force Core redesign.
 
-### Session recovery anchor
+### Historical session recovery anchor — superseded
 
-If this context must be reconstructed in a new session, resume from RM-CORE-R1, not from the beginning of E7.x. The immediate job is repository restructuring toward Gnozis Core + Gnozis Research Machine, using the existing AI Knowledge Interface and preserving the dual-track Research/Engineering workflow.
+The original recovery instruction pointed to `RM-CORE-R1`. That task belongs to the 2026-09-21 restructuring snapshot and is not the current permitted action. For a new session, read `docs/PROJECT_STATE.json`, `docs/PHASE_LEDGER.md`, and `docs/CONTEXT_CONTINUITY_CONTRACT.md`, fetch live `main`, reconcile exact SHAs, and continue only within the currently recorded phase and scope.
 
 ## 2026-09-23 EXTERNAL-WORLD ANALYTICAL BRANCH — RELATION STRUCTURE
 
