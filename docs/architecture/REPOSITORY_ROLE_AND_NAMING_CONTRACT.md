@@ -1,55 +1,56 @@
 # Repository Role and Naming Contract
 
-## Canonical repository
+Status: CURRENT ROLE CONTRACT — documentation only.
 
-**Gnozis-V2** is the canonical Gnozis Core repository.
+## Canonical identities and repositories
 
-It is the source of truth for executable Core behavior, protected invariants, governed transitions and accepted implementation.
+- **Gnozis** is the public project/product brand.
+- `Autopoiesis-Intelligence/Gnosis-Core` is the canonical repository for executable Core behavior, protected invariants, governed transitions, persistence, and accepted implementation.
+- `Autopoiesis-Intelligence/Gnosis-Genesis` is the protected factory/orchestration and commercial workspace. It may prepare candidates and call explicit Core interfaces, but it is not a second canonical state authority.
+- `Autopoiesis-Intelligence/Gnosis` is the public product/evidence surface; publication does not grant execution authority.
+- `Gnosis-Memory`, `Gnosis-Research`, and `Gnosis-Knowledge` are research/context inputs. Their exact contracts and operational integrations must be established separately.
+- `Gnosis-Exchange` and `Gnosis-SDK` must not be assigned authority or production capabilities merely from their names; use their accepted repository contracts to determine exact scope.
 
-## Temporary self-learning archive
+This table records intended roles. It does not prove that every repository has a working implementation or an operational integration.
 
-A separate second repository is reserved for the temporary self-learning archive.
+## Permitted responsibility direction
 
-Its role is NOT to be a second Core.
+```text
+Research / Memory / Knowledge / partner inputs
+                 |
+                 v
+       evidence and proposals
+                 |
+                 v
+ Gnosis-Genesis: candidate preparation/orchestration
+                 |
+                 | explicit, governed Core request
+                 v
+ Gnosis-Core: verification and canonical state transition
+                 |
+                 v
+       accepted Core state
+                 |
+                 v
+ public publication of approved, shareable results
+```
 
-It stores and organizes:
-- theoretical material;
-- mathematical/formal derivations;
-- evidence and counterexamples;
-- research context;
-- agent/partner contributions;
-- provenance and learning lineage;
-- machine-readable learning material;
-- experimental/self-optimization knowledge.
+The diagram expresses intended trust direction, not evidence of a deployed end-to-end pipeline.
 
-Its contents are inputs to governed learning, not canonical executable authority.
+## Authority and evidence rules
 
-## Direction of trust
+- Research findings, external model output, connector access, a proposal, a passing test, an approval statement, or an audit receipt do not independently authorize a Core mutation.
+- Only the protected Core authorization and governance path may admit canonical state changes.
+- Authorization must be bound to the exact operation and evolution provenance and independently verified; plain-string equality is not cryptographic owner authentication.
+- Persistence and append-only audit records provide durable/tamper-evident records but do not establish that an authorization was truthful.
+- Missing, incomplete, stale, revoked, or inconsistent authority must fail closed.
+- Core must not depend on Genesis, research repositories, external AI, connectors, or commercial services as implicit authority sources.
+- Public repositories may contain only material intended for public access. Secrets, private partner data, signing keys, and private configuration must remain within their authorized trust boundaries.
 
-Self-learning archive -> quarantine/workspace -> verification -> governance -> Gnozis-V2 Core.
+## Historical identifiers
 
-Never:
+Names such as `Gnozis-V2` and old owner/repository paths may appear in historical records, migration evidence, protocol identifiers, or source provenance. Preserve them when needed to identify historical artifacts or compatibility-sensitive interfaces. Do not use them as current canonical repository pointers, and do not perform blind global replacements. Namespace, schema, or protocol renames require a separate compatibility and migration review.
 
-Self-learning archive -> direct Core mutation.
+## Acceptance boundary
 
-## Naming rule
-
-Until the second repository receives an explicit final name, documentation MUST refer to it descriptively as:
-
-**Temporary Self-Learning Archive**
-
-or
-
-**Self-Learning Research & Learning Archive**
-
-and MUST NOT call it Core, canonical Core, production Core, or a second Gnozis Core.
-
-The historical `Gnozis` repository remains the legacy/research/archive line and is distinct from both the canonical `Gnozis-V2` Core and the future Temporary Self-Learning Archive.
-
-## Partner repositories
-
-Partner repositories are external sources. They are not the Temporary Self-Learning Archive and are not Core.
-
-PartnerRepository -> Temporary Self-Learning Archive -> governed learning -> Gnozis-V2 Core.
-
-Status: CONTRACT / NAMING BASELINE.
+This document defines intended repository roles and trust boundaries only. It does not prove a production composition root, trusted owner issuer, key provisioning, trusted-time source, revocation provider, or end-to-end runtime. Those capabilities require separate source-level, exact-SHA CI, and runtime evidence.
