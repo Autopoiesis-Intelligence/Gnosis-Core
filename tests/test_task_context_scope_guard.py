@@ -55,10 +55,9 @@ def test_scoped_repository_rejects_scope_mutation_and_wrong_scope_creation():
         with pytest.raises(ValueError, match="scope fields cannot be changed"):
             scoped.update_context("ctx-a", 0, {"organization_scope": "org-b"})
 
+        other_user = ScopedTaskContextRepository(base, user_scope="user-b")
         with pytest.raises(ContextNotFound):
-            scoped.get_context("ctx-a").__class__ and ScopedTaskContextRepository(
-                base, user_scope="user-b"
-            ).get_context("ctx-a")
+            other_user.get_context("ctx-a")
 
         with pytest.raises(ContextNotFound):
             scoped.create_context(_context("ctx-wrong", "user-b"))
