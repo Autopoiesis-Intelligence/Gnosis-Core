@@ -31,15 +31,18 @@ Do not delete these records merely because they are stale; preserve provenance a
 
 ## 1. REPOSITORY ROLE
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+The canonical engineering repository is `Autopoiesis-Intelligence/Gnosis-Core`. It is the source of truth for executable Core behavior, protected invariants, governed transitions and accepted implementation.
 
-The Core is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
+The verified Research Machine repository is `Autopoiesis-Intelligence/Gnosis`. It preserves machine-readable research records and supporting evidence. Research records may inform engineering work but do not grant Core authority.
 
-The intended product lineage is:
+These repository roles are distinct:
+- `Gnosis-Core`: canonical implementation and execution authority.
+- `Gnosis`: Research Machine / research evidence source.
+- `Gnozis`: public project name, not a substitute for the exact GitHub repository name.
 
-Research Library → Canonical Gnozis Core → Specialized Research Kernel → User / Commercial Version
+Do not assume a separate temporary self-learning archive exists. That concept is historical unless a distinct repository and its accepted role are verified against live GitHub state.
 
-Core mechanisms should be reusable across multiple future kernels and products. Domain-specific functionality should normally remain above Core. Research language may be broad and descriptive; it becomes an engineering requirement only through an explicit research-to-engineering translation and evidence gate.
+Core mechanisms may support future specialized kernels and user/commercial products. Domain-specific functionality should normally remain above Core. Research material becomes an engineering requirement only through explicit research-to-engineering translation and an evidence gate.
 
 ## 1. ARCHITECTURAL PURPOSE
 
@@ -316,16 +319,17 @@ Implementation
 
 The existence of a meaningful architectural pattern does not by itself prove a philosophical interpretation. It does justify investigating the pattern.
 
-## 13. GNOSIS AS PHENOMENON VS GNOZIS AS IMPLEMENTATION
+## 13. CURRENT PROJECT NAMING AND CLAIM BOUNDARY
 
-Preserve this distinction:
+Use exact names according to their roles:
+- **Gnozis**: public project name.
+- **Gnosis-Core**: canonical implementation repository.
+- **Gnosis**: verified Research Machine repository.
+- **Gnosis and Genesis**: the intended paired names where those distinct project lines are discussed; do not substitute the obsolete spelling “Genezis”.
 
-Gnozis is an engineering implementation for studying knowledge formation, evidence, model revision and constrained evolution.
+A repository or product name does not establish a scientific, philosophical, consciousness, or subjective-experience claim. Describe capabilities only when they are operationally defined and supported by implementation and verification evidence.
 
-Do not make metaphysical, consciousness or subjective-experience claims from the existence of the architecture.
-
-Instead investigate observable/derivable properties such as:
-- self-model;
+Relevant engineering properties may include:
 - uncertainty recognition;
 - contradiction/tension recognition;
 - internal model revision;
@@ -333,8 +337,8 @@ Instead investigate observable/derivable properties such as:
 - self-correction;
 - generation of new distinctions;
 - preservation of identity through transformation;
-- interaction with environment;
-- ability to reorganize under constraints.
+- interaction with the environment;
+- constrained reorganization.
 
 ## 14. CURRENT ARCHITECTURAL IMPLICATION — NOT IMPLEMENTATION AUTHORIZATION
 
