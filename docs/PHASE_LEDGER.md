@@ -118,19 +118,16 @@ Google Drive, GitHub, or another connected product is a project resource/interfa
 
 A connected AI must not treat access to a resource as authority to change architecture.
 
-## Next gate sequence
+## Next permitted gate
 
-```text
-context-continuity documentation/state audit
-        ↓
-Memory corrective pass
-        ↓
-independent Memory re-audit with real pytest
-        ↓
-ChatGPT integration gate
-```
+Continue only within the active `CONTEXT-CONTINUITY ARCHITECTURE` phase:
 
-No Memory corrective implementation is implied by this ledger entry.
+1. Reconcile operational handoff documents and machine-readable snapshots.
+2. Validate JSON syntax, duplicate-key absence, required existing fields/types, canonical links, and consistency with this phase's allowed/forbidden scope.
+3. Record exact patch-head SHA and available CI/runtime evidence.
+4. Keep acceptance `NOT_ACCEPTED` until the explicitly required acceptance gate is recorded.
+
+Memory corrective implementation and Memory re-audit are outside this phase's permitted scope. They require a separately recorded, owner-approved phase transition before they can become a next action. The independent reviewer remains `NOT_ASSIGNED`; ChatGPT's integration gate is not independent verification.
 
 ## Snapshot rule
 
