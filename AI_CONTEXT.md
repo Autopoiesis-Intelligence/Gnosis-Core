@@ -626,9 +626,11 @@ Historical research handoff snapshot (preserved for provenance; not the current 
 - E7.9.2 is the next analytical target.
 - Repository code/tests/CI remain authoritative over this document.
 
-## 25. CONSTANT TASK REGISTRY FORMAT
+## 25. HISTORICAL TASK REGISTRY FORMAT REFERENCE
 
-All future reverse-analysis work is organized as a task registry. Each task block is self-contained.
+**Historical record only:** the task entries and their `READY`, `ACTIVE`, or `NEXT` labels in Sections 25–26 are not the current task queue and do not authorize execution. Use `docs/PHASE_LEDGER.md`, `docs/PROJECT_STATE.json`, and the current owner-approved scope to identify the next permitted action. Preserve these entries for provenance; do not execute them solely because of their recorded status.
+
+The following format is retained as a historical reference for reverse-analysis records. Each task block is self-contained.
 
 Use exactly these fields:
 
@@ -2584,11 +2586,13 @@ During restructuring, existing material is classified before physical movement:
 
 Do not perform blind bulk migration. Preserve provenance, status, uncertainty, rejected/failed material and source baselines.
 
-### Important correction
+### Historical correction note — not a current repository assignment
 
-A temporary archive/ foundation was created in Gnozis-V2 during the transition before this naming/model was fully restored. It is not the final architectural target. Do not continue populating it as a separate product subsystem. First reconcile it with the intended Gnozis Research Machine model and existing docs/AI_KNOWLEDGE_INTERFACE.md contract.
+An earlier transition note claimed that a temporary archive/foundation had been created in the then-named `Gnozis-V2` repository. This statement is preserved as historical context and does not establish that a separate archive repository currently exists. Current repository roles are defined by the live GitHub repositories and the canonical operational records at the top of this file.
 
-### Current restructuring phase
+### Historical restructuring-phase snapshot — superseded
+
+The task below records a previous restructuring plan. Its `ACTIVE` label is historical and does not authorize work in the current CONTEXT-CONTINUITY ARCHITECTURE phase.
 
 TASK-ID: RM-CORE-R1
 BLOCK: Research Machine / Core Boundary and Repository Inventory
