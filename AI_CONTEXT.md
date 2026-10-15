@@ -18,7 +18,7 @@ Rules:
 5. Preserve rejected, failed, quarantined and insufficient-evidence outcomes as historical data.
 6. Never weaken an invariant or evidence gate merely to make tests green.
 7. Preserve the distinction between mathematical/research hypotheses and implementation facts.
-8. The task-list and analytical-message format in Sections 25–26 are CONSTANTS for this research workflow unless explicitly revised by a later architectural decision.
+8. Sections 25–26 preserve a historical reporting-format reference only. They do not define the active task, phase, or implementation authorization; those come from the current operational records.
 9. Research descriptions may be maximally expressive. Descriptive/philosophical language is not itself a defect; it becomes engineering input only through explicit pattern extraction, definition change, formalization, falsifiable consequence, gap identification, implementation and evidence.
 
 ## 0.1 CURRENT OPERATIONAL BOUNDARY
