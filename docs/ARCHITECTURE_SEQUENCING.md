@@ -1,4 +1,4 @@
-# Gnozis Core — Architecture Implementation Sequencing
+# Gnosis Core — Architecture Implementation Sequencing
 
 ## Status
 
@@ -13,9 +13,9 @@ The project is currently a single-owner, single-account, single-canonical-reposi
 ```text
 ONE OWNER
    ↓
-Gnozis-V2
+Gnosis
    ├── durable project/task continuity
-   ├── Ψ-Core
+   ├── Gnosis Core
    ├── persistence
    ├── audit/provenance
    └── controlled self-reflection foundation
@@ -51,7 +51,7 @@ Real tests
 Independent audit
 ```
 
-Track A must not implement authentication, authorization, encryption, external connectors, routing execution, Memory acceptance, or Ψ-Core changes.
+Track A must not implement authentication, authorization, encryption, external connectors, routing execution, Memory acceptance, or Gnosis Core changes.
 
 ### Track B — Core Self-Reflection
 
@@ -85,7 +85,7 @@ Track B must not implement unrestricted self-modification, autonomous rule activ
 The tracks are complementary but independently bounded.
 
 ```text
-                 Gnozis-V2
+                 Gnosis
                      │
           ┌──────────┴──────────┐
           ↓                     ↓
@@ -152,7 +152,7 @@ This future orchestration layer must use explicit contracts. It must not bypass 
 
 Multi-user cooperation is intentionally deferred.
 
-When eventually introduced, it must be an additional authorization/identity/trust layer around the existing contracts rather than a rewrite of Ψ-Core or the single-owner continuity model.
+When eventually introduced, it must be an additional authorization/identity/trust layer around the existing contracts rather than a rewrite of Gnosis Core or the single-owner continuity model.
 
 The future target is:
 

@@ -1,20 +1,52 @@
 ## Repository role
 
-**GENESIS = protected engineering foundation + Module Factory.**
+**Canonical repository: `Autopoiesis-Intelligence/Gnosis-Core` — engineering Core and architecture/runtime contracts.**
 
-Gnosis is the public research/evidence/opportunity surface. Gnosis-Memory is the machine-readable research, mathematics, provenance and context layer. Genesis contains the protected Core/Uroboros boundary and the governed factory for specialized modules and products.
+The public `Gnosis` repository describes itself as the product/evidence surface. `Gnosis-Memory` currently contains research and project-context documents, but its canonical source-of-truth scope is unresolved; its `AI_CONTEXT.md` is byte-identical to the copy in `Gnosis` at the refs inspected on 2026-10-13. See `docs/REPOSITORY_MAP.md`. Other repositories have bounded or unresolved roles; do not infer authority or dependencies from names alone.
 
-The repository must not be treated as a public research archive or as a second research-memory authority.
+Historical references to Genesis/Genezis or earlier repository owners are retained where useful for provenance, but they are not the current canonical repository identity.
 
 # STATUS — GNOSIS CORE
 
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
+## Latest exact-HEAD CI observation (2026-10-13; PR #173)
+
+- Observed branch HEAD: `63dd92fa4d10394d0a5f50b25ccfc8afb1b9e187`; base `main` at PR observation: `78f84f6c6ac771478525b547ba467aa773e626b7`.
+- Python 3.12 test job: **FAIL** — 33 failed, 931 passed, 2 errors. [Run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38445639313). The log shows failures in endogenous proposal binding, evolution-memory API compatibility, persisted-chain verification, persistence/audit replay, recovery authorization arguments, reflection-gate arguments, and execution-adapter interface expectations.
+- Python 3.11 job: **CANCELLED**; its log records the test step as failed before cancellation. Do not count this job as a pass.
+- A comparable scheduled full-regression run exists on the exact PR base SHA `78f84f6c6ac771478525b547ba467aa773e626b7`: [base run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38442736828) reports **33 failed, 931 passed, 2 errors** (18 warnings), matching the PR run's aggregate counts. The failures therefore are not newly introduced solely by the documentation PR at the aggregate-count level. Individual test identities have not yet been compared exhaustively, so per-test regression attribution remains UNRESOLVED. Earlier SHA `2adddfb8ca5acca220df08b3d5995472ff8cc857` also had the same aggregate counts.
+- Dependency Review: **FAIL** — [run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38445639493). The check has previously reported that dependency review is unsupported while the repository dependency graph is disabled; verify the current run annotation before treating the cause as unchanged. This is a settings/configuration blocker, not evidence by itself of a vulnerable dependency.
+- Import Graph: **PASS**. CodeQL parent run reports success, while child Python/Actions checks were still in progress at the last check; recheck before marking both child checks complete.
+- Overall CI on this exact HEAD is **NOT PASSING**. Do not attribute the test failures to documentation edits without a controlled same-base comparison.
+- This is a time-bounded CI observation, not a runtime or release-readiness claim. Recheck checks against the latest branch HEAD after any further commit.
+
+
+## Latest documentation-branch CI observation (2026-10-13)
+
+- Commit whose CI was inspected: `47788cdd67785988db4dc771c6ca01c2d51d6dba` (PR #173; this was the branch HEAD at the time of inspection).
+- Import graph check: PASS — [run](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441621955).
+- CodeQL checks: PASS — [CodeQL](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/runs/115449685017), [Python/Actions CodeQL workflow](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632319).
+- Python 3.11 test job: FAIL — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632279/job/115449408367).
+- Python 3.12 test job: CANCELLED — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632279/job/115449407898). A cancelled job is not a pass and is not evidence that the Python 3.12 suite failed.
+- Dependency Review: FAIL — [job](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38441632294/job/115449408913). The previously observed blocker is the repository dependency-graph setting; confirm the current annotation before treating the cause as unchanged.
+- Overall CI is **not passing** on this SHA. These runs validate only this exact documentation branch commit. Do not infer that the branding changes caused the test failures; compare exact failing test identifiers against the same-base SHA before assigning regression status.
+- This entry records the observed CI for the commit above, not the newer commit that adds this ledger. The ledger update triggers its own CI; inspect the new exact HEAD before assigning current CI status. This is an observation ledger, not a readiness claim.
+
+## CI baseline and branding-PR verification (2026-10-13)
+
+- Base-branch CI run [#38409516906](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38409516906), SHA `2adddfb8ca5acca220df08b3d5995472ff8cc857`: **33 failed, 931 passed, 2 errors**.
+- Branding PR #173 CI run [#38429535018](https://github.com/Autopoiesis-Intelligence/Gnosis-Core/actions/runs/38429535018), SHA `c3338318215db32f27fc1c148af00969267ebea4`: **33 failed, 931 passed, 2 errors**. The extracted failing/error test identifiers match the base run exactly (35 entries; no base-only or PR-only entries). The PR's changes at that point were documentation-only, so this evidence supports classifying those test failures as pre-existing, not regressions from the branding changes.
+- The current `main` SHA `78f84f6c6ac771478525b547ba467aa773e626b7` differs from that test baseline only in `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md`; no source or test files changed between those refs.
+- Dependency Review run #1109 failed because GitHub Dependency Review is unsupported while the repository's dependency graph is disabled. This is a repository security-settings blocker, not a test-suite result. Do not silently weaken or skip the security check; resolve the repository setting separately.
+- These results apply to the cited SHAs only. The later documentation commits in this PR still require their own exact-HEAD CI before being considered CI-proven.
+
 ## Current repository baseline
-- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `d10de2a32b7c1daeec3678dd127e8542afead8ef` (current audited main); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` is stale.
+- Canonical `main` HEAD observed during repository-state reconciliation on 2026-10-13: `78f84f6c6ac771478525b547ba467aa773e626b7` (observation time: 2026-10-13T16:00:05Z). This records the observed ref only; it does not establish a passing test/CI result for this SHA.
 
 - Repository: `Autopoiesis-Intelligence/Gnosis-Core`
 - Branch: `main`
+- Independent reviewer: NOT ASSIGNED. ChatGPT is the active auditor but cannot count its own review as independent verification.
 - Reflection foundation is implemented outside `gnosis/core` and remains non-mutating.
 - Persistence is present for reflection reports and is still awaiting end-to-end verification.
 - `AI_CONTEXT.md` is the operational handoff context.
@@ -94,7 +126,7 @@ Goal: another authorized terminal reconstructs durable task context without depe
 Current operational layer:
 
 ```text
-L0 Ψ-Core
+L0 Gnosis Core
     ↓
 L1 Observation / Evidence
     ↓
@@ -107,7 +139,7 @@ L3 Shadow / Verification / Governance
 L4 Future Endogenous Evolution
 ```
 
-Reflection remains outside `gnosis/core`. No AI model belongs inside Ψ-Core. A `RuleProposal` is not a Core transition and cannot activate itself.
+Reflection remains outside `gnosis/core`. No AI model belongs inside Gnosis Core. A `RuleProposal` is not a Core transition and cannot activate itself.
 
 ## Reflection roadmap
 
@@ -351,7 +383,7 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E5.29 — Partner Repository Agency / Knowledge Federation:** DESIGNED / NOT_IMPLEMENTED. Added governed contract for attaching a separately audited partner repository plus an isolated adjacent knowledge DB. The partner source is an external evidence/learning surface, not a second Core or authority root. Required path: Partner Repository -> Partner DB -> Provenance/Audit -> Quarantine -> Evidence -> Candidate -> Core Verification -> Governed Evolution. Initial agency levels: READ_RESEARCH, SUBMIT_EVIDENCE, SUBMIT_CANDIDATE, SUBMIT_TEST, REQUEST_REVIEW, PROPOSE_CHANGE, EXECUTION_AUTHORITY. Direct PartnerData -> CanonicalState is forbidden. AI_CONTEXT commit: 0ae71cc2; architecture contract commit: 4bf60ba1.
 - This creates the planned partnership extension without enabling automatic model training, code execution, credentials or production authority. Exact runtime/CI evidence is not claimed.
 
-- **E5.30 — Agent Identity, Participation Intake and Contract Debate:** DESIGNED / TEMPLATE IMPLEMENTED; runtime identity/discussion infrastructure NOT_IMPLEMENTED. Added `docs/partners/PARTNER_AGENT_PARTICIPATION_TEMPLATE.md` (`fa403db2`). The template captures proposed identity, role, participation intent, evidence/provenance, requested agency, contract challenges/proposals, debate protocol, dataset metadata, audit declarations and machine identity material. The machine-processing section is reserved for Gnosis.
+- **E5.30 — Agent Identity, Participation Intake and Contract Debate:** DESIGNED / TEMPLATE IMPLEMENTED; runtime identity/discussion infrastructure NOT_IMPLEMENTED. Added `docs/partners/PARTNER_AGENT_PARTICIPATION_TEMPLATE.md` (`fa403db2`). The template captures proposed identity, role, participation intent, evidence/provenance, requested agency, contract challenges/proposals, debate protocol, dataset metadata, audit declarations and machine identity material. The machine-processing section is reserved for Gnozis.
 - E5.30 boundary: `Identity != Trust != Authority`; `Discussion != Authorization`; agent consensus is not proof; PartnerData has no direct path to CanonicalState. AI_CONTEXT `162bb527`; architecture contract `ff884aba`.
 - Partnership extension remains non-production: no credentials, execution authority, automatic model training or automatic code execution are enabled by the template itself.
 - Overall contract progress remains ~50%; E5.29 remains DESIGNED / NOT_IMPLEMENTED, while E5.30 template artifact is now implemented.
@@ -405,7 +437,7 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 - **E7.22 — Partner Repository Admission & Identity:** DESIGNED / NOT_IMPLEMENTED. Added `docs/architecture/PARTNER_REPOSITORY_ADMISSION_IDENTITY_CONTRACT.md` (`98782bc1`). Defines controlled partner admission, immutable PartnerIdentity, declared scope, baseline provenance, quarantine, revocation and no-authority-inheritance rules.
 - **P0 self-learning integrated proof:** remains ~20%. E7.22 architectural coverage ~40%, verification coverage ~5%.
 
-- **Historical repository-role record:** `Gnozis-V2` was previously described as the canonical Core/source of truth. The planned second repository was described as a **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**. These names record an earlier topology and do not define the current repository map. The historical `Gnozis` repository was described as legacy/research/archive.
+- **Repository role baseline:** `Gnozis-V2` = canonical Core/source of truth. Future second repository = **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**, holding theory, mathematics, evidence, context and machine-readable self-optimization material; it is not a second Core. Historical `Gnozis` remains legacy/research/archive.
 - Added `docs/architecture/REPOSITORY_ROLE_AND_NAMING_CONTRACT.md` (`85cccebf`).
 
 
@@ -493,7 +525,7 @@ Before modifying anything, report repository/branch/HEAD, implementation state, 
 
 - **Partner Contract Block correction:** the partner contract generator is explicitly a continuously refreshed partner-facing current contract map, not a proof-of-learning artifact. Added `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md`, generator `scripts/update_partner_contract_block.py`, and hourly/manual refresh workflow. The generated block is an index-only surface; Registry and individual contract artifacts remain authoritative.
 
-- **Partner model correction / product description:** Main Gnosis Core is the common minimal foundation. Self-Learning supports two partnership paths: Core-initiated governed development proposals and partner-initiated specialization from a project repository/specification into a bounded commercial specialized core. Partner-private data remains inside its trust boundary; only explicitly shareable, validated, generalizable evidence may return to common learning. The current partner contract block is an index/briefing surface, not learning proof or authority.
+- **Partner model correction / product description:** Main Gnozis Core is the common minimal foundation. Self-Learning supports two partnership paths: Core-initiated governed development proposals and partner-initiated specialization from a project repository/specification into a bounded commercial specialized core. Partner-private data remains inside its trust boundary; only explicitly shareable, validated, generalizable evidence may return to common learning. The current partner contract block is an index/briefing surface, not learning proof or authority.
 - **E7.50 — Self-Learning Evidence Replay / Reconstruction:** IMPLEMENTED / UNVERIFIED. Added deterministic reconstruction and integrity checking of ledger sequences, including subject-mixing and broken-chain detection. Replay reconstructs evidence only and cannot repair, authorize, execute or mutate history.
 
 - **E7.51 — Learning Flow Integrity / Complete Contract Lifecycle:** IMPLEMENTED / UNVERIFIED. Added an end-to-end verifier for the required DATABASE → FINDING → PROPOSAL → VALIDATION → GOVERNANCE → EXECUTION_PLAN → RECEIPT sequence. Missing stages, subject mixing, chain corruption and ordering violations fail explicitly; no history repair or execution is performed.
@@ -1801,7 +1833,7 @@ A later commit inherits no verification claim from an earlier commit until the a
 
 ## R1 adversarial finding — corrected at source — 2026-09-24
 
-- A prior independent audit artifact (`GNOSIS_V2_AUDIT_2026-09-17.md`) was located in the project Library. It is genuinely independent of the current self-audit, but it targets an older source state and therefore cannot certify current R1.
+- A prior independent audit artifact (`GNOZIS_V2_AUDIT_2026-09-17.md`) was located in the project Library. It is genuinely independent of the current self-audit, but it targets an older source state and therefore cannot certify current R1.
 - The audit's concrete finding was rechecked against current `main`: `InvariantDelta.status` still classified an empty `ShadowEvaluation.cases` as `PRESERVED`.
 - This is a real fail-open evidence defect: no evaluation cases must not imply invariant preservation.
 - Corrective production change: `gnosis/reflection/invariant_delta.py` now returns `INSUFFICIENT_EVIDENCE` for empty evaluation cases.

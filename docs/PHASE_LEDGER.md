@@ -1,6 +1,8 @@
-# Gnozis Core — Phase Ledger
+# Gnosis-Core — Phase Ledger
 
 This ledger is the durable continuation record for substantive project phases.
+
+**Canonical naming:** product = Gnosis; engineering Core repository = Autopoiesis-Intelligence/Gnosis-Core. Older spellings in historical records are provenance only, not current identities.
 
 It exists so a replacement AI can continue from repository evidence rather than conversation history.
 
@@ -10,12 +12,14 @@ It exists so a replacement AI can continue from repository evidence rather than 
 
 **Status:** DOCUMENTATION_AND_ARCHITECTURE
 
+**Live main baseline observed for this reconciliation (2026-10-13):** `78f84f6c6ac771478525b547ba467aa773e626b7` at 2026-10-13T16:00:05Z. This is a point-in-time ref observation; recheck before future continuation. It is not CI/runtime evidence.
+
 **Objective:**
 Build the durable project-context layer that allows a newly connected AI product to recover the real project state, distinguish implementation from verification and acceptance, and continue bounded work without depending on a previous conversation.
 
 **Primary implementer:** ChatGPT
 
-**Independent reviewer:** Manus when available
+**Independent reviewer:** NOT ASSIGNED; ChatGPT performs the current audit, but self-review is not independent verification.
 
 **Integration gate:** ChatGPT under explicit human project-owner authorization
 

@@ -1,8 +1,8 @@
-# Gnozis-V2 — Multi-Agent Core-Building Strategy
+# Gnosis — Multi-Agent Core-Building Strategy
 
 ## Purpose
 
-Gnozis is developed as a real, continuously tested system rather than as a design that is completed in isolation before runtime work begins.
+Gnosis is developed as a real, continuously tested system rather than as a design that is completed in isolation before runtime work begins.
 
 The project uses the user's available AI systems and connected data surfaces as part of the engineering environment. Their observations, implementations, tests, failures, and independent audits become evidence for the next iteration of the system.
 
@@ -38,7 +38,7 @@ The system is therefore not treated as a static specification followed by a one-
 
 ## User-centered architecture direction
 
-The development target is broader than a multi-agent coding workflow. Gnozis is being shaped as a **user-owned continuity architecture**.
+The development target is broader than a multi-agent coding workflow. Gnosis is being shaped as a **user-owned continuity architecture**.
 
 The fundamental product property is:
 
@@ -79,7 +79,7 @@ A user may start a task in one AI terminal, receive a notification through anoth
 The terminal is not the context. The connector is not the context. The chat transcript is not the context.
 
 ```text
-canonical Gnozis context
+canonical Gnosis context
         ≠
 terminal-local context
         ≠
@@ -124,7 +124,7 @@ not from a profession-specific replacement for Ψ-Core.
 
 ### Organization / CRM mode
 
-Gnozis should also be usable by a company as a shared intelligence/continuity layer around existing work systems such as CRM and work chat.
+Gnosis should also be usable by a company as a shared intelligence/continuity layer around existing work systems such as CRM and work chat.
 
 For example:
 
@@ -151,7 +151,7 @@ OUTPUT-ROUTING POLICY
         └── Personal channel: denied
 ```
 
-Organization-level policy remains authoritative within the organization's scope. User-controlled personal sources must not become implicitly visible to an organization merely because the user connected them to Gnozis.
+Organization-level policy remains authoritative within the organization's scope. User-controlled personal sources must not become implicitly visible to an organization merely because the user connected them to Gnosis.
 
 This is an architectural target, not a claim of existing CRM integration.
 
@@ -254,7 +254,7 @@ The user remains the human authority for the project direction and authorization
 
 AI agents can propose, implement, test, challenge, and report. They do not acquire architectural authority merely because they have repository or cloud-storage access.
 
-This distinction is essential as Gnozis moves toward multi-agent operation and eventual self-improvement.
+This distinction is essential as Gnosis moves toward multi-agent operation and eventual self-improvement.
 
 ## Safe write model
 
@@ -350,7 +350,7 @@ No connector should write a second state model into Ψ-Core. No AI terminal shou
 
 ## Multi-agent formation direction
 
-The long-term objective is not merely to use several AI assistants around Gnozis. Gnozis itself is intended to become capable of operating with multiple agents and user-owned copies in a connected network.
+The long-term objective is not merely to use several AI assistants around Gnosis. Gnosis itself is intended to become capable of operating with multiple agents and user-owned copies in a connected network.
 
 The development workflow therefore serves as an early engineering experiment for that future architecture:
 
@@ -359,7 +359,7 @@ Human
   ↕
 AI agents
   ↕
-Gnozis instances / copies
+Gnosis instances / copies
   ↕
 shared protocols, evidence and trust boundaries
 ```
@@ -374,7 +374,7 @@ Until capability, identity, authorization, auditability, rollback, and proof/inv
 
 ## Current practical workflow
 
-For the current Gnozis-V2 work:
+For the current Gnosis work:
 
 - Claude performs the main implementation task;
 - Manus independently attacks and verifies the resulting artifact;
@@ -397,7 +397,7 @@ Neither documentation nor an AI report may convert an unverified implementation 
 
 ## Relationship to future autonomous evolution
 
-This strategy is also a controlled precursor to Gnozis self-improvement. Before Gnozis is allowed to modify itself, the project must establish explicit mechanisms for:
+This strategy is also a controlled precursor to Gnosis self-improvement. Before Gnosis is allowed to modify itself, the project must establish explicit mechanisms for:
 
 - identity and capabilities;
 - authorization;

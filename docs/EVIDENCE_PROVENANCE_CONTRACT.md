@@ -1,10 +1,10 @@
-# Gnozis-V2 — Evidence and Provenance Contract
+# Gnosis — Evidence and Provenance Contract
 
 ## Status
 
 `ARCHITECTURE CONTRACT — IMPLEMENTATION NOT YET ACCEPTED`
 
-Gnozis must be able to reconstruct not only the current answer, but why that answer is considered current. Evidence and provenance provide the bridge between connected-world observations and durable task continuity.
+Gnosis must be able to reconstruct not only the current answer, but why that answer is considered current. Evidence and provenance provide the bridge between connected-world observations and durable task continuity.
 
 ## 1. Logical evidence model
 
@@ -134,7 +134,7 @@ This contract is informed by Research Machine record `C-0004` for the distinctio
 
 ```yaml
 research_ref:
-  repository: Mikhail-Kucheriavyi-23/Gnozis
+  repository: Mikhail-Kucheriavyi-23/Gnosis
   record_id: C-0004
   source_commit: 7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c
   relation: TEST_RATIONALE

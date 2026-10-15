@@ -1,8 +1,8 @@
-# Gnozis Core — AI Handoff & Continuation Protocol
+# Gnosis-Core — AI Handoff & Continuation Protocol
 
 ## Purpose
 
-This document defines the canonical mechanism for attaching a new AI system to Gnozis Core at any project stage without relying on conversation history, a previous agent's memory, or undocumented assumptions.
+This document defines the canonical mechanism for attaching a new AI system to Gnosis-Core at any project stage without relying on conversation history, a previous agent's memory, or undocumented assumptions.
 
 The repository is the durable project state. An AI session is replaceable.
 
@@ -148,7 +148,7 @@ No connected AI may infer permission to modify unrelated files from having write
 
 ## Runtime feedback
 
-Gnozis is intentionally built while being exercised by connected AI systems and real runtime tests.
+Gnosis is intentionally built while being exercised by connected AI systems and real runtime tests.
 
 Runtime observations may produce:
 

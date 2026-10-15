@@ -1,12 +1,29 @@
-# Gnozis — AI Context
+# Gnosis-Core — AI Context
+
+## Canonical identity and precedence (2026-10-13)
+
+- Canonical product spelling: **Gnosis**.
+- This repository is **Gnosis-Core** (Autopoiesis-Intelligence/Gnosis-Core). The public product/evidence repository is **Gnosis** (Autopoiesis-Intelligence/Gnosis).
+- Gnozis, Gnozis-V2, and Genezis are legacy spellings or historical labels, not current repository identities. Do not use them as current names.
+- This accumulated file contains older research notes and historical architectural labels. Preserve them only when discussing historical evidence; do not treat them as current architecture without corroboration from current source, accepted contracts, and exact-SHA CI/runtime evidence.
+- Current repository identity and operating status are governed by README.md, STATUS.md, context/PROJECT_CONTEXT.json, docs/CONTRACT_REGISTRY.md, and docs/REPOSITORY_MAP.md. If an older section conflicts with those sources, reconcile the conflict instead of assuming the older section is current.
 
 ## 0. PURPOSE / OPERATING RULE
 
-This file is the operational handoff and research context for AI agents working on Gnozis Core.
+This file is the operational handoff and accumulated research context for AI agents working on Gnosis-Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
+
+## Current operational overlay — 2026-10-13
+
+- Canonical repository identity: `Autopoiesis-Intelligence/Gnosis-Core`; current default branch: `main`.
+- Live `main` HEAD observed for this reconciliation: `78f84f6c6ac771478525b547ba467aa773e626b7` (observed 2026-10-13). Recheck the live ref before relying on this pin in a later session.
+- ChatGPT is the active working assistant. Claude, Gemini, and Manus are not active agents in the current workflow.
+- ChatGPT reviewing its own implementation is **not independent review**. Mark independent review as NOT ASSIGNED unless a separate reviewer actually performs it.
+- Older repository names and agent assignments elsewhere in this file are historical context unless explicitly reconfirmed by a current phase/task. Do not erase useful history or treat historical assignments as current instructions.
+- These operational pointers do not upgrade implementation, runtime, persistence, audit, or CI status. Exact source and exact-head evidence remain mandatory.
 
 Rules:
 1. Repository code, tests and actual runtime/CI evidence outrank chat memory or this document.
@@ -21,29 +38,29 @@ Rules:
 
 ## 1. REPOSITORY ROLE
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+Gnosis-Core is the canonical engineering foundation of Gnosis. Gnosis is the public product/evidence repository. Research and context material also exists in Gnosis-Memory and Gnosis-Research; their exact source-of-truth roles remain bounded by the current repository map and must not be inferred beyond observed contents.
 
 The Core is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
 
 The intended product lineage is:
 
-Research Library → Canonical Gnozis Core → Specialized Research Kernel → User / Commercial Version
+Gnosis (public product/evidence surface) → Gnosis-Core (engineering foundation) → specialized research kernels and user/commercial versions (planned; not implied to be implemented)
 
 Core mechanisms should be reusable across multiple future kernels and products. Domain-specific functionality should normally remain above Core. Research language may be broad and descriptive; it becomes an engineering requirement only through an explicit research-to-engineering translation and evidence gate.
 
 ## 1. ARCHITECTURAL PURPOSE
 
-Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
+Gnosis-Core is the engineering foundation for research into recursive evolution. No autonomy or runtime maturity should be inferred from a product description alone; canonical state/evolution semantics are defined by Core contracts; implementation and runtime status must be verified independently.
 
-A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
+The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
 Canonical evolution remains CLOSED until the complete evidence, sandbox, governance, security, quarantine and recovery chain is independently verified.
 
 ## 2. NON-NEGOTIABLE PRINCIPLES
 
-- Ψ-Core is the authoritative source of state/evolution semantics.
+- Gnosis Core is the authoritative source of state/evolution semantics.
 - No second state model may silently diverge from Core.
-- No AI model belongs inside Ψ-Core.
+- No AI model belongs inside Gnosis Core.
 - External data is untrusted by default.
 - External evidence may generate candidates/challenges but does not directly authorize Core mutation.
 - Missing evidence remains UNKNOWN / INSUFFICIENT_EVIDENCE.
@@ -133,7 +150,7 @@ Preserve all of the following:
 
 A self-consistent internal history can still be wrong about the external world.
 
-For empirical claims, Gnozis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
+For empirical claims, Gnosis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
 
 Conceptual path:
 
@@ -272,7 +289,7 @@ Metaphysical interpretations, consciousness claims and panpsychist frameworks ar
 
 A key methodological change:
 
-Gnozis Core should be treated as an existing architectural specimen from which hidden structure can be reverse-engineered.
+Gnosis-Core should be treated as the current engineering repository; claims about its implemented structure must be grounded in the current source and tests.
 
 We are not starting with an empty philosophical concept and forcing it into code.
 
@@ -306,11 +323,11 @@ Implementation
 
 The existence of a meaningful architectural pattern does not by itself prove a philosophical interpretation. It does justify investigating the pattern.
 
-## 13. GNOSIS AS PHENOMENON VS GNOZIS AS IMPLEMENTATION
+## 13. GNOSIS AS PHENOMENON VS IMPLEMENTATION
 
 Preserve this distinction:
 
-Gnozis is an engineering implementation for studying knowledge formation, evidence, model revision and constrained evolution.
+Gnosis-Core is an engineering implementation for studying knowledge formation, evidence, model revision and constrained evolution.
 
 Do not make metaphysical, consciousness or subjective-experience claims from the existence of the architecture.
 
@@ -328,11 +345,11 @@ Instead investigate observable/derivable properties such as:
 
 ## 14. CURRENT ARCHITECTURAL IMPLICATION — NOT IMPLEMENTATION AUTHORIZATION
 
-The current research does NOT justify redesigning Ψ-Core.
+The current research does NOT justify redesigning Gnosis Core.
 
 The leading interpretation is:
 
-Ψ-Core remains the protected semantic/state-transition authority.
+Gnosis Core remains the protected semantic/state-transition authority.
 
 Higher analytical/experimental layers may organize:
 - environmental observations;
@@ -556,7 +573,7 @@ Do not:
 - treat selector output as canonical authority;
 - create a parallel governance system if existing reflection/governance can be reused;
 - reopen verified persistence gates without regression evidence;
-- convert the philosophical level/gnozis hypotheses directly into Core architecture.
+- convert philosophical level/Gnosis hypotheses directly into Core architecture.
 
 ## 22. COMPLETION EVIDENCE FORMAT
 
@@ -602,8 +619,8 @@ CI-green must be tied to an exact commit/run.
 ## 24. HANDOFF
 
 Current research handoff:
-- Ψ-Core remains the protected semantic/state-transition authority.
-- Gnozis-V2 is being reverse-engineered as an existing architectural specimen, not merely designed from philosophy downward.
+- Gnosis Core remains the protected semantic/state-transition authority.
+- Gnosis-Core is examined from current source and runtime evidence, not treated as an assumed architectural specimen.
 - The broader working product concept is an autopoietic environment-interaction machine that continuously transforms information, distinctions and organization under constraints.
 - “Gnosis” is a candidate descriptive name for an emergent organizational/epistemic phenomenon, not a claim of consciousness.
 - Panpsychism is a philosophical comparison context, not a proven premise.
@@ -693,7 +710,7 @@ One of:
 
 At the end of substantial steps, provide the next task block using the CONSTANT TASK REGISTRY FORMAT.
 
-Do not add “time saved” or efficiency framing unless the user explicitly asks for it. The reverse-analysis method is itself part of the Gnozis research/product concept.
+Do not add “time saved” or efficiency framing unless the user explicitly asks for it. The reverse-analysis method is itself part of the Gnosis research/product concept.
 
 ## 27. ACTIVE TASK REGISTRY — E7.9 FRONTIER
 
@@ -953,7 +970,7 @@ Exploitation ↔ Exploration.
 
 This is itself a new candidate tension for the next cycle.
 
-The stronger working interpretation of Gnozis is now:
+The stronger working interpretation of Gnosis is now:
 
 A machine that changes the way it interacts with its environment in response to discovered limits of its own resolution.
 
@@ -1019,7 +1036,7 @@ The research question has shifted from “how many layers does the system have?�
 
 “What organizational process causes a system to create, activate, reorganize, compress and reuse levels of resolution in response to environmental tension while remaining epistemically and operationally bounded?”
 
-The strongest current hypothesis is that Gnozis is better modeled as a dynamic ecology of resolution structures than as a fixed hierarchy of processing layers.
+The strongest current hypothesis is that Gnosis is better modeled as a dynamic ecology of resolution structures than as a fixed hierarchy of processing layers.
 
 This hypothesis remains subject to counterexample-driven analysis.
 
@@ -1097,7 +1114,7 @@ Current chain:
 Environment → observation → distinction → tension/limitation → multiple resolution paths → verification → relational/structural reorganization → changed resolution capacity → new observation.
 
 Current strong hypothesis:
-Gnozis can be studied as a machine that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
+Gnosis can be studied as a machine that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
 
 The research must remain counterexample-driven. Do not infer consciousness, sentience, or metaphysical panpsychism from the architecture. Panpsychism may be used as a philosophical comparison lens, while the engineering object remains observable organization, information provenance, verification, and causal reorganization.
 
@@ -1234,7 +1251,7 @@ toward:
 environment-coupled and potentially co-evolutionary organization.
 
 Current strongest working formulation:
-Gnozis may be studied as a system that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
+Gnosis may be studied as a system that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
 
 This remains a research hypothesis. It is not proof of consciousness, sentience, panpsychism, or universal intelligence.
 
@@ -1521,7 +1538,7 @@ State, Representation, Strategy, Constraint, Governance.
 
 However, this recurrence is a hypothesis to be tested, not an architectural law.
 
-The current Gnozis interpretation remains:
+The current Gnosis interpretation remains:
 a machine that changes the organization by which it interacts with its environment in response to discovered limits of its own resolution.
 
 This remains a research/architectural hypothesis. It is not proof of consciousness, sentience, panpsychism, or universal intelligence.
@@ -1780,8 +1797,8 @@ Biological examples must remain analogical unless a precise mapping is demonstra
 
 Do not infer:
 
-Biodiversity = Gnozis population
-Life = Gnozis
+Biodiversity = Gnosis population
+Life = Gnosis
 Evolution = software optimization
 Gnosis = consciousness
 Panpsychism = architecture.
@@ -2076,7 +2093,7 @@ This remains a research hypothesis until mapped to actual V2 behavior.
 
 ### E7.9.56 — Tension as a Driver Without a Global Objective
 
-If Gnozis is not given a universal objective such as MaximizeKnowledge or MaximizePossibility, a candidate source of directional movement is unresolved tension/insufficiency.
+If Gnosis is not given a universal objective such as MaximizeKnowledge or MaximizePossibility, a candidate source of directional movement is unresolved tension/insufficiency.
 
 Working cycle:
 
@@ -2497,7 +2514,7 @@ Do not implement a new subsystem merely because an older audit document describe
 
 ## 2026-09-21 CONTINUITY ARCHITECTURE
 
-The Research Library is the machine-readable knowledge layer; Gnozis Core remains the minimal execution/verification layer. Research may inform Core only through an explicit knowledge interface and engineering admission path. Conversation history is non-canonical.
+Gnosis and the research repositories are knowledge/evidence sources; Gnosis-Core remains the engineering and verification layer. Research may inform Core only through an explicit knowledge interface and engineering admission path. Conversation history is non-canonical.
 
 Canonical interface: `docs/AI_KNOWLEDGE_INTERFACE.md`.
 
@@ -2521,16 +2538,16 @@ The current engineering strategy is explicitly dual-track. The project is no lon
 
 ### Architectural target
 
-The correct historical/research layer name is **Gnozis Research Machine**, not Archive.
+The research layer is distributed across Gnosis, Gnosis-Memory, and Gnosis-Research according to observed repository contents; no single repository is presumed to own all research without an accepted contract.
 
 Conceptual separation:
 
-Gnozis Research Machine
+Gnosis research layer
 → machine-readable research / knowledge / evidence / provenance
 → explicit knowledge interface
-→ Gnozis Core
+→ Gnosis-Core
 
-Gnozis Core
+Gnosis-Core
 → canonical engineering implementation
 → Ψ-state / transitions / invariants / verification / persistence / governance / protected execution boundaries
 
@@ -2538,7 +2555,7 @@ Research Machine is not a second Core and is not an authority source. Historical
 
 ### Purpose of restructuring
 
-The restructuring is itself product/engineering work. Its purpose is to move Gnozis from a research-heavy repository state toward a clean, working, auditable Core without losing the accumulated research history.
+The restructuring is itself product/engineering work. Its purpose is to move Gnosis from a research-heavy repository state toward a clean, working, auditable Core without losing the accumulated research history.
 
 The working translation loop is:
 
@@ -2572,7 +2589,7 @@ Do not perform blind bulk migration. Preserve provenance, status, uncertainty, r
 
 ### Important correction
 
-A temporary archive/ foundation was created in Gnozis-V2 during the transition before this naming/model was fully restored. It is not the final architectural target. Do not continue populating it as a separate product subsystem. First reconcile it with the intended Gnozis Research Machine model and existing docs/AI_KNOWLEDGE_INTERFACE.md contract.
+A temporary archive/foundation was created in Gnosis-Core during the transition. Older notes used the legacy label Gnozis-V2 for this repository; that label is historical, not a separate current product. It is not the final architectural target. Do not continue populating it as a separate product subsystem. First reconcile it with the intended Gnosis research layer model and existing docs/AI_KNOWLEDGE_INTERFACE.md contract.
 
 ### Current restructuring phase
 
@@ -2602,7 +2619,7 @@ The repository is now treated as an engineering specimen. We use reverse-analysi
 
 ### Session recovery anchor
 
-If this context must be reconstructed in a new session, resume from RM-CORE-R1, not from the beginning of E7.x. The immediate job is repository restructuring toward Gnozis Core + Gnozis Research Machine, using the existing AI Knowledge Interface and preserving the dual-track Research/Engineering workflow.
+If this context must be reconstructed in a new session, resume from RM-CORE-R1, not from the beginning of E7.x. The immediate job is repository restructuring toward Gnosis-Core + Gnosis research layer, using the existing AI Knowledge Interface and preserving the dual-track Research/Engineering workflow.
 
 ## 2026-09-23 EXTERNAL-WORLD ANALYTICAL BRANCH — RELATION STRUCTURE
 
@@ -2673,7 +2690,7 @@ and:
 `Correlation ≠ Causation`
 `Potential Improvement ≠ Demonstrated Improvement`
 
-An external-world pattern may generate a research hypothesis or a bounded improvement candidate, but it does not receive automatic authority over Gnozis Core.
+An external-world pattern may generate a research hypothesis or a bounded improvement candidate, but it does not receive automatic authority over Gnosis-Core.
 
 ### Relation-first improvement model
 
@@ -4697,7 +4714,7 @@ External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> MET
 
 ## Repository Role Baseline
 
-`Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
+`Gnosis-Core` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnosis` remains the legacy/research/archive line.
 
 
 ## E7.118 — First Proof Runtime Evidence Integrity & Artifact Sealing
@@ -5133,7 +5150,7 @@ The contract is currently DESIGNED / NOT_IMPLEMENTED. Runtime ingestion, validat
 
 - **E7.49 implemented:** Self-Learning evidence now has an append-only hash-linked ledger substrate with GENESIS root, previous-event linkage, tamper detection and deterministic chain digest. It stores metadata/digests only and remains evidence-only; it does not authorize, execute, mutate contracts or Core.
 
-- **Partner architecture clarified:** Gnozis Core remains the common minimal foundation. The completed Self-Learning direction must support both (1) Core-initiated identification of commercially relevant development opportunities and governed partner-contract proposals, and (2) partner-initiated specialization from a partner project repository/specification into a bounded commercial specialized core. Specialized cores are not second authority roots. Private partner/user data remains bounded; only explicitly shareable, validated and generalizable evidence may feed common Self-Learning.
+- **Partner architecture clarified:** Gnosis-Core remains the common minimal foundation. The completed Self-Learning direction must support both (1) Core-initiated identification of commercially relevant development opportunities and governed partner-contract proposals, and (2) partner-initiated specialization from a partner project repository/specification into a bounded commercial specialized core. Specialized cores are not second authority roots. Private partner/user data remains bounded; only explicitly shareable, validated and generalizable evidence may feed common Self-Learning.
 - **E7.50 implemented:** evidence ledger sequences can be deterministically replayed and structurally validated. Replay detects broken chain, missing genesis linkage and subject mixing and never repairs or executes history.
 
 

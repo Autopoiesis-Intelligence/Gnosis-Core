@@ -1,10 +1,10 @@
-# Gnozis-V2 — User Context & Result Routing Model
+# Gnosis — User Context & Result Routing Model
 
 Status: architecture target; implementation must be introduced through explicit bounded phases.
 
 ## Purpose
 
-Gnozis is intended to operate as a user-controlled analytical core that can be reached through many connected products. The same user may create, continue, inspect, or delegate work from different AI terminals, mobile applications, work chats, CRM systems, or specialist tools.
+Gnosis is intended to operate as a user-controlled analytical core that can be reached through many connected products. The same user may create, continue, inspect, or delegate work from different AI terminals, mobile applications, work chats, CRM systems, or specialist tools.
 
 The connected product is an interface, not the canonical context owner.
 
@@ -61,7 +61,7 @@ A product may render the same result differently for different users, but render
 
 ## Routing example
 
-An organization could connect a work-chat bot to Gnozis. A user could configure in a mobile client that:
+An organization could connect a work-chat bot to Gnosis. A user could configure in a mobile client that:
 
 ```text
 incoming task/result
@@ -120,7 +120,7 @@ Capability layer
 Evidence layer
     = what actually happened and how it was verified
 
-Gnozis Core
+Gnosis Core
     = canonical evolution / analytical semantics
 ```
 
@@ -128,7 +128,7 @@ No connector should become a hidden second Core.
 
 ## Security boundary
 
-Possessing access to GitHub, Google Drive, a chat application, or another connected service is not equivalent to authorization over Gnozis data or operations.
+Possessing access to GitHub, Google Drive, a chat application, or another connected service is not equivalent to authorization over Gnosis data or operations.
 
 Future implementation must explicitly resolve:
 
@@ -144,7 +144,7 @@ actor identity
 
 ## Architectural rule
 
-The system should be useful before full autonomy exists. A user may already connect multiple tools and use Gnozis as a common context/evidence layer while the stronger identity, authorization, federation, encryption, and autonomous-agent mechanisms are implemented and independently verified in later phases.
+The system should be useful before full autonomy exists. A user may already connect multiple tools and use Gnosis as a common context/evidence layer while the stronger identity, authorization, federation, encryption, and autonomous-agent mechanisms are implemented and independently verified in later phases.
 
 ## Implementation consequence
 

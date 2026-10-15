@@ -269,7 +269,7 @@ Fork(G_i) → G_j
 
 Instance:
 
-работающий независимый экземпляр Gnozis.
+работающий независимый экземпляр Gnosis.
 
 Clone не означает общую память.
 
@@ -337,7 +337,7 @@ Action
 
 14. ТИПЫ АГЕНТОВ
 
-Поддержать: Human Agent, Ψ Agent, Gnozis Agent, External Agent.
+Поддержать: Human Agent, Ψ Agent, Gnosis Agent, External Agent.
 
 Все используют общий Agent Protocol, но имеют разные capabilities.
 
@@ -346,7 +346,7 @@ Action
 15. USER AS AGENT
 
 Пользователь является Human Agent. Один пользователь может иметь
-несколько Agent, несколько Gnozis Instances, разные permissions, разные
+несколько Agent, несколько Gnosis Instances, разные permissions, разные
 memory scopes. Не считать всех пользователей одним глобальным субъектом.
 
 ---
@@ -384,7 +384,7 @@ Action → Audit.
 
 19. USER-OWNED GNOSIS COPIES
 
-Пользователь может создать собственную копию/экземпляр Gnozis со своим
+Пользователь может создать собственную копию/экземпляр Gnosis со своим
 Core/State/Memory/Identity/Lineage/Capabilities. Ownership не должен
 давать возможность обходить Protected Core invariants.
 
@@ -444,7 +444,7 @@ identity, signatures, key rotation, revocation.
 
 27. END-TO-END SECURITY
 
-User↔Gnozis, Gnozis↔Gnozis, Agent↔Agent — защищённые каналы:
+User↔Gnosis, Gnosis↔Gnosis, Agent↔Agent — защищённые каналы:
 authentication, confidentiality, integrity, replay protection, revocation.
 
 ---
@@ -473,7 +473,7 @@ Candidate → Test → Verification → Commit. Никогда: Internet → Cor
 
 31. EXTERNAL AI
 
-External Agents, не часть Core. Gnozis Agent ↔ Bridge ↔ External Agent.
+External Agents, не часть Core. Gnosis Agent ↔ Bridge ↔ External Agent.
 Не привязывать архитектуру к конкретному AI provider.
 
 ---
@@ -622,7 +622,7 @@ PHASE 3 — Instance: Clone/Fork/Instance/Lineage, доказать изоляц
 PHASE 4 — Memory: persistent memory, integrity, recovery, encryption
 boundary.
 
-PHASE 5 — Agent Layer: Human/Ψ/Gnozis/External Agent, Identity,
+PHASE 5 — Agent Layer: Human/Ψ/Gnosis/External Agent, Identity,
 Capabilities, Communication, Lifecycle.
 
 PHASE 6 — Agent Formation: Instance→Candidate→Verification→Agent, не
@@ -631,8 +631,8 @@ PHASE 6 — Agent Formation: Instance→Candidate→Verification→Agent, не
 PHASE 7 — Federation: G1↔G2, authentication, encryption, capability
 negotiation, trust, revocation, audit.
 
-PHASE 8 — Bridge: безопасный внешний интерфейс, User↔Gnozis,
-Gnozis↔External Agent, Gnozis↔World.
+PHASE 8 — Bridge: безопасный внешний интерфейс, User↔Gnosis,
+Gnosis↔External Agent, Gnosis↔World.
 
 PHASE 9 — Evolution (только после Phase 0-8): mutation, selection,
 endogenous evolution, population, replication, environmental model.
@@ -644,10 +644,10 @@ verification, evolutionary experiments, multi-agent experiments.
 
 49. FIRST VERTICAL SLICE
 
-1. Create Gnozis Instance. 2. Generate identity. 3. Create State Ψ=(X,R).
+1. Create Gnosis Instance. 2. Generate identity. 3. Create State Ψ=(X,R).
 4. Create Candidate. 5. Test Candidate. 6. Verify invariants. 7. Commit
 State'. 8. Record Audit Event. 9. Clone Instance. 10. Preserve lineage.
-11. Create Human Agent. 12. Create Gnozis Agent Candidate. 13. Verify
+11. Create Human Agent. 12. Create Gnosis Agent Candidate. 13. Verify
 Agent Formation. 14. Establish secure Agent communication. 15. Execute one
 bounded action. 16. Store result in Memory. 17. Stop at budget boundary.
 18. Reproduce entire sequence from logs. После этого остановиться и
@@ -685,7 +685,7 @@ CI result.
 
 ---
 
-53. FINAL RULE FOR CLAUDE
+53. FINAL ENGINEERING RULE
 
 Не пытаться сразу построить AGI. Не пытаться сразу реализовать полную
 автономную эволюцию. Не симулировать доказательства. Не скрывать

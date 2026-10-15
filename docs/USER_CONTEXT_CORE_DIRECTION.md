@@ -1,4 +1,4 @@
-# Gnozis-V2 — User Context / Core Integration Direction
+# Gnosis — User Context / Core Integration Direction
 
 ## Status
 
@@ -8,7 +8,7 @@ This document translates the user-centered architecture into repository-facing a
 
 ## 1. Problem being solved
 
-A user may work with Gnozis through many terminals and products:
+A user may work with Gnosis through many terminals and products:
 
 - AI assistants;
 - mobile applications;
@@ -17,11 +17,11 @@ A user may work with Gnozis through many terminals and products:
 - work chat;
 - CRM/ticket systems;
 - research and data tools;
-- future Gnozis-native agents.
+- future Gnosis-native agents.
 
 The user must be able to switch terminals without losing the real state of a task.
 
-The canonical continuity therefore belongs to the Gnozis project/user context, not to a particular AI conversation.
+The canonical continuity therefore belongs to the Gnosis project/user context, not to a particular AI conversation.
 
 ## 2. Target logical architecture
 
@@ -281,4 +281,4 @@ The system should be able to answer, from canonical durable context:
 
 > What is happening, what is actually known, what evidence supports it, which data may be used, where the result may go, and what can be done next?
 
-That is the repository-facing architectural direction for the user-centered Gnozis model.
+That is the repository-facing architectural direction for the user-centered Gnosis model.
