@@ -15,7 +15,7 @@ Build the durable project-context layer that allows a newly connected AI product
 
 **Primary implementer:** ChatGPT
 
-**Independent reviewer:** Manus when available
+**Independent reviewer:** NOT_ASSIGNED
 
 **Integration gate:** ChatGPT under explicit human project-owner authorization
 
