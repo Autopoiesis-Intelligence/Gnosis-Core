@@ -46,7 +46,7 @@ or
 
 and MUST NOT call it Core, canonical Core, production Core, or a second Gnozis Core.
 
-The `Autopoiesis-Intelligence/Gnosis` Research repository remains the legacy/research/archive line and is distinct from both the canonical `Gnosis-Core` and the future Temporary Self-Learning Archive.
+The `Autopoiesis-Intelligence/Gnosis` repository is the verified Research Machine source. It is distinct from the canonical `Gnosis-Core`; references to a future Temporary Self-Learning Archive are historical until a current repository and accepted role are independently verified.
 
 ## Partner repositories
 
