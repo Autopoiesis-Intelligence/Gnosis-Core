@@ -1,13 +1,13 @@
 """Bounded endogenous candidate generation from canonical reflection proposals.
 
-from collections.abc import Mapping
-
 This module generates Core Candidates from evidence-backed RuleProposals. It does
 not activate rules, mutate an Engine, or bypass Core Test/Select. The generated
 state records the proposal as a relation in X/R, making the hypothesis itself a
 bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
+
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Sequence
 from gnosis.core.evolution import Engine
