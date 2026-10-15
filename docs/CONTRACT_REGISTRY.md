@@ -3,7 +3,7 @@
 Status: ACTIVE ARCHITECTURAL REGISTRY
 Date: 2026-09-25
 
-This registry is the orchestration index for the current Gnosis repository architecture. It does not replace implementation contracts or runtime evidence. A contract becomes VERIFIED only when its required implementation, tests, CI/runtime evidence and acceptance conditions are present on the relevant canonical revision.
+This registry is the orchestration index for the current Gnosis repository architecture. It does not replace implementation contracts or runtime evidence. A contract becomes VERIFIED only when its required implementation, tests, CI/runtime evidence and acceptance conditions are present on the relevant canonical revision. The portfolio statuses below are recorded implementation-status claims from the existing registry, not current acceptance results. As of 2026-10-15, the exact base revision has 33 test failures and 2 errors in the observed CI run; therefore none of the listed IMPLEMENTED labels should be read as current CI/runtime proof.
 
 ## Repository topology
 
@@ -36,7 +36,7 @@ This registry is the orchestration index for the current Gnosis repository archi
 
 ## Contract portfolio
 
-| ID | Contract | Initial status | Primary repository |
+| ID | Contract | Recorded implementation status (not current acceptance) | Primary repository |
 |---|---|---|---|
 | C0 | Ψ-Core state/evolution | IMPLEMENTED / REVERIFY | Gnosis-Core |
 | C1 | Persistence integrity | IMPLEMENTED / REVERIFY | Gnosis-Core |
