@@ -1,4 +1,4 @@
-# Gnozis-V2 — Evidence and Provenance Contract
+# Gnosis-Core — Evidence and Provenance Contract
 
 ## Status
 
@@ -88,7 +88,7 @@ An AI-generated analysis may become evidence of what an AI reported or computed.
 For example:
 
 ```text
-Claude report
+External AI report
     ↓
 AI-produced evidence
     ↓
