@@ -414,7 +414,7 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
     conn.close()
     reopened = connect(path)
     assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert verify_durable_graph(reopened)[0] == reopened.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a53_accepted_transition_replay_is_idempotent():

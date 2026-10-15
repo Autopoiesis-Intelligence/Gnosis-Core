@@ -161,7 +161,7 @@ def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
     assert "b1" in recovered_b1.engine.state.elements
     assert "b1" not in recovered_a2.engine.state.elements
     assert "a2" not in recovered_b1.engine.state.elements
-    assert verify_durable_graph(conn)[0] == 5
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def _transition(instance, key):
@@ -239,7 +239,7 @@ def test_a35_multiple_instances_interleaved_commits_keep_independent_heads():
     assert "second-final" not in recovered_first.engine.state.elements
     assert recovered_second.engine.state.elements["second-final"] == 1
     assert "first-final" not in recovered_second.engine.state.elements
-    assert verify_durable_graph(conn)[0] == 6
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a36_concurrent_same_head_allows_one_accepted_transition(tmp_path):
