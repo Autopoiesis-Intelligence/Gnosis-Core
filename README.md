@@ -4,18 +4,18 @@
 
 Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The public Gnosis repository is the product and evidence surface. Gnosis-Core is the canonical authority-bearing runtime and the source of truth for accepted Core behavior. Gnosis-Genesis is a separate protected factory/orchestration and commercial layer that may prepare candidates and call explicit Core interfaces, but is not a second canonical state authority. Gnosis-Core must not depend on Gnosis-Genesis. This repository boundary is an architectural contract; it does not by itself prove that an end-to-end factory pipeline is operational.
+The public Gnosis repository is the product and evidence surface. Gnosis-Core is the canonical authority-bearing runtime and the source of truth for accepted Core behavior. Gnosis-Genesis is a separate protected factory/orchestration and commercial layer that may prepare candidates and call explicit Core interfaces, but is not a second canonical state authority. Gnosis-Core must not depend on Gnosis-Genesis. This repository boundary is an architectural contract; it does not by itself prove that an end-to-end factory pipeline is operational. The diagram below describes permitted responsibility and request direction, not a claim that the public Gnosis repository is an operational router, grants authority, or that every interface is deployed.
 
 ## Project relationship
 
 Gnosis-Memory / Gnosis-Research / Gnosis-Knowledge
         ↓ evidence and proposals
 Gnosis public product / evidence surface
-        ↓ selected requests through explicit interfaces
-Gnosis-Genesis
+        ↓ user-authorized requests, where supported by an explicit interface
+Gnosis-Genesis (factory/orchestration; not a canonical authority)
         ↓ candidate / evidence / governed request
-Gnosis-Core
-        ↓ verification and canonical state transitions
+Gnosis-Core (canonical verification and state-transition authority)
+        ↓ accepted transition, only through the protected Core path
 accepted Core state
 
 ## Core rule
