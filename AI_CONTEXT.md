@@ -21,6 +21,14 @@ Rules:
 8. The task-list and analytical-message format in Sections 25–26 are CONSTANTS for this research workflow unless explicitly revised by a later architectural decision.
 9. Research descriptions may be maximally expressive. Descriptive/philosophical language is not itself a defect; it becomes engineering input only through explicit pattern extraction, definition change, formalization, falsifiable consequence, gap identification, implementation and evidence.
 
+## 0.1 CURRENT OPERATIONAL BOUNDARY
+
+The active execution phase is defined by `docs/PHASE_LEDGER.md` and the matching machine-readable state in `docs/PROJECT_STATE.json` and `context/PROJECT_CONTEXT.json`. At this handoff, the permitted work is limited to CONTEXT-CONTINUITY ARCHITECTURE documentation/state reconciliation.
+
+The long-form research notes and task registries below preserve historical analysis and prior plans. They are not an active task queue, implementation authorization, or evidence of current runtime status. A task or phase appearing in an older section becomes actionable only after it is revalidated against the current phase ledger, exact repository state, and explicit owner-approved scope. Do not execute an older task merely because it is labelled “current”, “active”, or “next” inside a historical snapshot.
+
+Do not delete these records merely because they are stale; preserve provenance and clarify their status. Current repository identity and task authority come from live GitHub state and the canonical operational records, not from the age or length of a context section.
+
 ## 1. REPOSITORY ROLE
 
 Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
