@@ -1,7 +1,7 @@
 # R1.5 — Research → Engineering Reference Pilot
 
 Status: PILOT CONTRACT
-Purpose: demonstrate one real, provenance-preserving reference from Core-side engineering documentation to the canonical Gnozis Research Machine.
+Purpose: demonstrate one real, provenance-preserving reference from Core-side engineering documentation to the canonical Research Machine repository.
 
 ## Pilot source
 
@@ -66,7 +66,7 @@ This is the exact commit used by the pilot reference. The current branch HEAD is
 
 R1.5.1: COMPLETE.
 
-The remaining R1.5 acceptance step is a navigation/reference audit: verify that a reviewer can resolve the Research Machine record from the pinned repository + record ID + source commit without requiring duplicated research content in V2.
+The remaining R1.5 acceptance step is a navigation/reference audit: verify that a reviewer can resolve the Research Machine record from the pinned repository + record ID + source commit without requiring duplicated research content in Gnosis-Core.
 
 
 ## R1.5.2 navigation/reference audit
@@ -93,4 +93,4 @@ R1.5 pilot: COMPLETE.
 
 ## R1.7 pilot integration result
 
-The reference was attached to the real V2 `EVIDENCE_PROVENANCE_CONTRACT.md`. No runtime code, Core state model, or task repository semantics were changed. The first operational bridge therefore exists as document-level provenance metadata.
+The reference was attached to the real Gnosis-Core `docs/EVIDENCE_PROVENANCE_CONTRACT.md`. No runtime code, Core state model, or task repository semantics were changed. The first operational bridge therefore exists as document-level provenance metadata.
