@@ -6,7 +6,7 @@ This document defines the intended cross-product continuation flow. It is not ev
 
 ## Goal
 
-A user must be able to enter Gnozis through any connected product and continue work from durable project state without reconstructing the project manually from a previous conversation.
+A user must be able to enter Gnosis through any connected product and continue work from durable project state without reconstructing the project manually from a previous conversation.
 
 ## Canonical recovery sequence
 
@@ -91,6 +91,10 @@ The terminal can continue the task without requiring the original chat transcrip
 ## Relationship to existing contracts
 
 This target builds on the existing Context Continuity Contract and the user/task/capability contracts. It is intentionally a runtime target rather than an implementation mandate.
+
+## Open model-boundary finding
+
+The source tree also contains `gnosis/domain/task_context/model.py`, whose `TaskContext` represents a bounded execution envelope (`tenant_id`, `actor_id`, `scope_id`, reflection budget, and policy bindings). `gnosis/context/model.py` represents durable project/task continuation state (`user_scope`, objective, evidence references, verification state, and revision). These are not interchangeable types. Before runtime integration, trace consumers of both models and document or implement an explicit adapter; do not silently unify their fields or treat either model's scope fields as authenticated identity.
 
 ## Next implementation decomposition
 
