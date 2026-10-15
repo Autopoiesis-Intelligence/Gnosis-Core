@@ -16,7 +16,7 @@ No repository may be treated as the archive until its live identity, visibility,
 
 ## Direction of trust
 
-Self-learning archive -> quarantine/workspace -> verification -> governance -> Gnosis-Core.
+If a separate archive is explicitly approved in a future phase: archive -> quarantine/workspace -> verification -> governance -> Gnosis-Core.
 
 Never:
 
@@ -40,6 +40,6 @@ The `Autopoiesis-Intelligence/Gnosis` repository is the verified Research Machin
 
 Partner repositories are external sources. They are not the Temporary Self-Learning Archive and are not Core.
 
-PartnerRepository -> Temporary Self-Learning Archive -> governed learning -> Gnosis-Core.
+Future flow, only if a separate archive is explicitly approved: PartnerRepository -> approved archive -> governed learning -> Gnosis-Core.
 
 Status: CONTRACT / NAMING BASELINE.
