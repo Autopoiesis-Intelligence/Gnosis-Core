@@ -8,6 +8,8 @@ The project uses the user's available AI systems and connected data surfaces as 
 
 This document records the operating strategy as of 2026-09-17.
 
+> **Current-role precedence (2026-10-15):** This document contains historical workflow descriptions. For current assignments and authority boundaries, use `AGENT_ROLES.md` together with `docs/PHASE_LEDGER.md`. In the active `CONTEXT-CONTINUITY ARCHITECTURE` phase, ChatGPT is the primary implementer; the independent reviewer is `NOT_ASSIGNED`. ChatGPT's integration gate is not independent verification. References below to Claude, Manus, or other agents describe the historical operating model and do not assign them current work.
+
 ## Core principle
 
 > **Build the core, test the core through real use, audit every meaningful change, and let verified interaction between independent AI agents inform the next engineering iteration.**
@@ -173,7 +175,7 @@ Connection alone does not imply permission to use every available source for eve
 
 Likewise, producing a result does not imply permission to deliver that result to every connected terminal or system.
 
-## Multi-agent operating model
+## Historical multi-agent operating model (superseded for current assignments)
 
 ### ChatGPT
 
@@ -372,7 +374,7 @@ Connected AI agents must not be treated as autonomous project owners merely beca
 
 Until capability, identity, authorization, auditability, rollback, and proof/invariant mechanisms are implemented and independently verified, autonomous modification of the canonical architecture remains outside the default authority model.
 
-## Current practical workflow
+## Historical practical workflow (superseded for current assignments)
 
 For the current Gnozis-V2 work:
 
