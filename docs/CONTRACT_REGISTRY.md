@@ -9,17 +9,15 @@ This registry is the orchestration index for the current Gnosis repository archi
 
 | Repository | Role | Authority |
 |---|---|---|
-| Gnosis | Public research/evidence/opportunity surface | Public presentation only |
-| Gnosis-Memory | Machine-readable research, mathematics, provenance and context | No Core mutation authority |
-| Mnemosyne | Knowledge / relations / evidence graph | No Core mutation authority |
-| Hermes | Discoveries / signals / observation intake | No Core mutation authority |
-| Thoth | Research / experiments / evidence | No Core mutation authority |
-| Athena | Solutions / solution workflows | No Core mutation authority |
-| Hephaestus | Modules / products / marketplace outputs | No Core mutation authority |
-| Prometheus | Opportunities / market pipeline | No Core mutation authority |
-| Daedalus | CLI / MCP / API / SDK interface boundary | Capability-scoped access only |
-| Genesis | Protected Core + Module Factory | Governed engineering authority |
-| Uroboros | Core evolutionary mechanism | Bounded by Genesis trust/governance contracts |
+| Gnosis | Public product and evidence surface | Public presentation of selected, appropriate results; no Core authority |
+| Gnosis-Core | Canonical authority-bearing runtime | Sole authority for accepted canonical state transitions |
+| Gnosis-Genesis | Protected module factory and orchestration layer | May propose candidates and call explicit Core contracts; no independent canonical state authority |
+| Gnosis-Memory | Research, mathematics, provenance and context | Evidence/input only; no Core mutation authority |
+| Gnosis-Research | Research and diagnostic evidence workspace | No Core mutation authority |
+| Gnosis-Knowledge | Knowledge-related workspace; detailed scope remains unresolved | No implicit Core mutation authority |
+| Gnosis-Exchange | Detailed role not yet accepted | Unassigned; no authority inferred from name |
+| Gnosis-SDK | Interface/SDK boundary | Capability-scoped access only |
+
 
 ## Execution order
 
@@ -41,14 +39,14 @@ This registry is the orchestration index for the current Gnosis repository archi
 | ID | Contract | Initial status | Primary repository |
 |---|---|---|---|
 | C0 | Ψ-Core state/evolution | IMPLEMENTED / REVERIFY | Genesis / Uroboros |
-| C1 | Persistence integrity | IMPLEMENTED / REVERIFY | Genesis |
-| C2 | Recovery / replay | PARTIAL / REVERIFY | Genesis |
-| C3 | Audit / provenance | IMPLEMENTED / REVERIFY | Genesis |
-| C4 | E7 lifecycle integrity | IMPLEMENTED / CONSOLIDATE | Genesis |
-| C5 | Core mutation boundary | IMPLEMENTED CANDIDATE / AUDIT | Genesis |
-| C6 | Core integration boundary | IMPLEMENTED CANDIDATE / AUDIT | Genesis |
-| C7 | Reflection evidence | IMPLEMENTED / UNVERIFIED | Genesis |
-| C8 | Governance / activation / rollback | MISSING | Genesis |
+| C1 | Persistence integrity | IMPLEMENTED / REVERIFY | Gnosis-Core |
+| C2 | Recovery / replay | PARTIAL / REVERIFY | Gnosis-Core |
+| C3 | Audit / provenance | IMPLEMENTED / REVERIFY | Gnosis-Core |
+| C4 | E7 lifecycle integrity | IMPLEMENTED / CONSOLIDATE | Gnosis-Core |
+| C5 | Core mutation boundary | IMPLEMENTED CANDIDATE / AUDIT | Gnosis-Core |
+| C6 | Core integration boundary | IMPLEMENTED CANDIDATE / AUDIT | Gnosis-Core |
+| C7 | Reflection evidence | IMPLEMENTED / UNVERIFIED | Gnosis-Core |
+| C8 | Governance / activation / rollback | MISSING | Gnosis-Core |
 | C9 | Research-Memory contract | PLANNED | Gnosis-Memory |
 | C10 | Mathematical corpus | PLANNED | Gnosis-Memory |
 | C11 | Knowledge graph contract | PLANNED | Mnemosyne |
@@ -59,7 +57,7 @@ This registry is the orchestration index for the current Gnosis repository archi
 | C16 | Opportunity/market contract | PLANNED | Prometheus |
 | C17 | Interface/capability contract | PLANNED | Daedalus |
 | C18 | Public Gnosis surface contract | PLANNED | Gnosis |
-| C19 | Module Factory contract | PLANNED / bounded | Genesis |
+| C19 | Module Factory contract | PLANNED / bounded | Gnosis-Genesis |
 
 ## Evidence rule
 
@@ -69,4 +67,4 @@ No registry entry may be promoted to VERIFIED solely because documentation or te
 
 ## Current gate
 
-The active engineering gate is the Genesis/Genezis P0 runtime and trust-boundary verification. New repository implementation is contract-first and must not bypass the current Core acceptance gates.
+The active engineering gate is Gnosis-Core P0 runtime and trust-boundary verification. Gnosis-Genesis factory integration remains separately unproven. New repository implementation is contract-first and must not bypass current Core acceptance gates.
