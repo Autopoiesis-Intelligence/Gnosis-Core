@@ -4,18 +4,19 @@
 
 Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The older Gnosis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis. The product identity remains Gnosis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
+The public Gnosis repository is the product and evidence surface. Gnosis-Core is the canonical authority-bearing runtime and the source of truth for accepted Core behavior. Gnosis-Genesis is a separate protected factory/orchestration and commercial layer that may prepare candidates and call explicit Core interfaces, but is not a second canonical state authority. Gnosis-Core must not depend on Gnosis-Genesis. This repository boundary is an architectural contract; it does not by itself prove that an end-to-end factory pipeline is operational. The diagram below describes permitted responsibility and request direction, not a claim that the public Gnosis repository is an operational router, grants authority, or that every interface is deployed.
 
 ## Project relationship
 
-Gnosis
-        ↓ public evidence / opportunities
-Gnosis-Memory
-        ↓ machine-readable research / mathematics / provenance
-Genesis
-        ├── Uroboros / Ψ-Core
-        ├── Module Factory
-        └── governed specialized outputs
+Gnosis-Memory / Gnosis-Research / Gnosis-Knowledge
+        ↓ evidence and proposals
+Gnosis public product / evidence surface
+        ↓ user-authorized requests, where supported by an explicit interface
+Gnosis-Genesis (factory/orchestration; not a canonical authority)
+        ↓ candidate / evidence / governed request
+Gnosis-Core (canonical verification and state-transition authority)
+        ↓ accepted transition, only through the protected Core path
+accepted Core state
 
 ## Core rule
 
@@ -92,7 +93,9 @@ A connected AI product is a surface over the durable Gnosis context, not an alte
 
 Product identity: **Gnosis**.
 
-Protected engineering role: **Genesis — Core + Module Factory**.
+Protected Core runtime: **Gnosis-Core**.
+
+Protected factory/orchestration layer: **Gnosis-Genesis**.
 
 Research-memory role: **Gnosis-Memory**.
 
