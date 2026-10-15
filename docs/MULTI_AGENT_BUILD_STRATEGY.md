@@ -1,4 +1,4 @@
-# Gnozis-V2 — Multi-Agent Core-Building Strategy
+# Gnosis Core — Multi-Agent Build Strategy
 
 ## Purpose
 
@@ -175,51 +175,6 @@ Connection alone does not imply permission to use every available source for eve
 
 Likewise, producing a result does not imply permission to deliver that result to every connected terminal or system.
 
-## Historical multi-agent operating model (superseded for current assignments)
-
-### ChatGPT
-
-Architecture, integration and final gate:
-
-- maintains Ψ-Core invariants and architectural boundaries;
-- defines bounded phases and acceptance criteria;
-- decides which findings require correction;
-- reconciles evidence from multiple AI systems;
-- accepts, rejects, or returns a phase for correction;
-- keeps the project context synchronized.
-
-### Claude
-
-Primary implementation engineer for large bounded tasks unless explicitly reassigned:
-
-- implements the assigned phase;
-- writes tests and technical documentation;
-- performs local/runtime validation available in its environment;
-- reports implementation and limitations without overstating verification;
-- does not silently expand the architecture beyond the task.
-
-### Manus
-
-Independent engineer and adversarial reviewer:
-
-- reviews the actual artifact rather than accepting implementation reports as proof;
-- executes independent tests where possible;
-- searches for boundary violations, hidden coupling, incomplete invariants, and unsupported claims;
-- may perform explicitly assigned corrective work;
-- does not grant final acceptance.
-
-### Gemini and other connected AI systems
-
-Any additional AI system with authorized access to project resources may participate as:
-
-- implementation contributor when explicitly assigned;
-- independent auditor;
-- source of alternative designs or counterexamples;
-- runtime observer;
-- research input for the next iteration.
-
-Its findings are evidence, not authority. The same source-of-truth rules apply to every agent.
-
 ## Connected resources
 
 AI systems may be connected to project resources such as:
@@ -373,20 +328,6 @@ This diagram describes a development direction, not an assertion that federation
 Connected AI agents must not be treated as autonomous project owners merely because they can access GitHub or Google Drive.
 
 Until capability, identity, authorization, auditability, rollback, and proof/invariant mechanisms are implemented and independently verified, autonomous modification of the canonical architecture remains outside the default authority model.
-
-## Historical practical workflow (superseded for current assignments)
-
-For the current Gnozis-V2 work:
-
-- Claude performs the main implementation task;
-- Manus independently attacks and verifies the resulting artifact;
-- Claude performs corrective passes when Manus identifies defects;
-- Manus re-audits corrective work;
-- ChatGPT performs the final integration gate;
-- verified findings are written into project documentation;
-- the next task is then defined from the verified state.
-
-Additional connected AI systems can participate without changing this evidence hierarchy.
 
 ## Status rule
 
