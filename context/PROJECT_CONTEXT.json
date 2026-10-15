@@ -117,15 +117,15 @@
   "repository_role": "CANONICAL_CORE_FOUNDATION",
   "research_source_repository": "Autopoiesis-Intelligence/Gnosis",
   "product_lineage": [
-    "Research Library",
-    "Canonical Gnozis Core",
+    "Research Machine / research evidence source: Autopoiesis-Intelligence/Gnosis",
+    "Canonical engineering Core: Autopoiesis-Intelligence/Gnosis-Core",
     "Specialized Research Kernel",
-    "User / Commercial Version"
+    "User / Commercial Product"
   ],
   "notes": [
-    "Older Gnozis is the public research/information library.",
-    "Core is the engineering Core foundation, not merely an archive replacement.",
-    "Research findings enter Core only through formalization, engineering mapping and evidence.",
+    "The verified Research Machine source is Autopoiesis-Intelligence/Gnosis; it is distinct from the canonical Core repository.",
+    "Gnosis-Core is the canonical engineering Core foundation. Research records do not confer Core authority.",
+    "Research findings enter Core only through formalization, engineering mapping, bounded authorization, and evidence.",
     "PHIL-001 establishes a machine-readable philosophical research track for comparative spiritual/high-writings study; it is not an engineering or Core-authority task.",
     "PHIL-002 defines the provenance-first machine-readable corpus schema; source claims, interpretations, formal hypotheses and Gnozis mappings remain explicitly separated.",
     "PHIL-003 defines a controlled heterogeneous comparison matrix with explicit disanalogies and negative cases to reduce abstraction-induced similarity.",
@@ -134,7 +134,8 @@
     "PHIL-005 establishes adversarial-first analysis: candidate patterns must be attacked with counterexamples, negative cases, alternative explanations and abstraction-sensitivity tests before promotion.",
     "PHIL-006 defines the formalization-to-Gnozis migration gate. The philosophical track now has a complete research-contract stack; domain-independent module extraction is the next architectural phase.",
     "2026-09-23 contract execution checkpoint: canonical main verified at e9e56b610e10911d3a197a539df1840acbbd00ca; prior b97a3058 snapshot was stale by 721 commits. Contract progress remains approximate and must not be inferred from documentation alone.",
-    "Snapshot provenance: snapshot_of_canonical_source_head records the main HEAD observed when this snapshot was prepared (87591db35c6b4dc51f3aa0098dec8409b793109c); it is a point-in-time source reference, not a live pointer. Fetch live main and reconcile SHA deltas before acting. This record does not establish that all implementation, verification, or acceptance claims in this document remain current."
+    "Snapshot provenance: snapshot_of_canonical_source_head records the main HEAD observed when this snapshot was prepared (87591db35c6b4dc51f3aa0098dec8409b793109c); it is a point-in-time source reference, not a live pointer. Fetch live main and reconcile SHA deltas before acting. This record does not establish that all implementation, verification, or acceptance claims in this document remain current.",
+    "Historical research-track entries in this file preserve their original context; they are not the active task queue. The active phase and next permitted action are defined by docs/PROJECT_STATE.json and docs/PHASE_LEDGER.md."
   ],
   "research_tracks": {
     "philosophical_research": {
