@@ -38,7 +38,7 @@ This registry is the orchestration index for the current Gnosis repository archi
 
 | ID | Contract | Initial status | Primary repository |
 |---|---|---|---|
-| C0 | Ψ-Core state/evolution | IMPLEMENTED / REVERIFY | Genesis / Uroboros |
+| C0 | Ψ-Core state/evolution | IMPLEMENTED / REVERIFY | Gnosis-Core |
 | C1 | Persistence integrity | IMPLEMENTED / REVERIFY | Gnosis-Core |
 | C2 | Recovery / replay | PARTIAL / REVERIFY | Gnosis-Core |
 | C3 | Audit / provenance | IMPLEMENTED / REVERIFY | Gnosis-Core |
@@ -49,13 +49,13 @@ This registry is the orchestration index for the current Gnosis repository archi
 | C8 | Governance / activation / rollback | MISSING | Gnosis-Core |
 | C9 | Research-Memory contract | PLANNED | Gnosis-Memory |
 | C10 | Mathematical corpus | PLANNED | Gnosis-Memory |
-| C11 | Knowledge graph contract | PLANNED | Mnemosyne |
-| C12 | Discovery/signal contract | PLANNED | Hermes |
-| C13 | Research/evidence contract | PLANNED | Thoth |
-| C14 | Solution contract | PLANNED | Athena |
-| C15 | Module/product contract | PLANNED | Hephaestus |
-| C16 | Opportunity/market contract | PLANNED | Prometheus |
-| C17 | Interface/capability contract | PLANNED | Daedalus |
+| C11 | Knowledge graph contract | PLANNED | Gnosis-Knowledge (scope unresolved) |
+| C12 | Discovery/signal contract | PLANNED | UNASSIGNED — repository mapping unresolved |
+| C13 | Research/evidence contract | PLANNED | Gnosis-Research |
+| C14 | Solution contract | PLANNED | UNASSIGNED — repository mapping unresolved |
+| C15 | Module/product contract | PLANNED | UNASSIGNED — repository mapping unresolved |
+| C16 | Opportunity/market contract | PLANNED | UNASSIGNED — repository mapping unresolved |
+| C17 | Interface/capability contract | PLANNED | Gnosis-SDK |
 | C18 | Public Gnosis surface contract | PLANNED | Gnosis |
 | C19 | Module Factory contract | PLANNED / bounded | Gnosis-Genesis |
 
