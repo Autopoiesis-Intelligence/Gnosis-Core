@@ -1,12 +1,12 @@
 # Research Machine Reference Contract — R1.4
 
 Status: CONTRACT / ACTIVE
-Scope: Gnozis-V2 references to the canonical Gnozis Research Machine
+Scope: Gnosis-Core references to the canonical Research Machine repository
 Authority: non-authoritative reference only
 
 ## Purpose
 
-Provide the smallest stable mechanism for Gnozis-V2 to point to a Research Machine record without copying its semantics into Core or granting the research record authority.
+Provide the smallest stable mechanism for Gnosis-Core to reference a Research Machine record without copying its semantics into Core or granting the research record authority.
 
 ## Minimal reference
 
