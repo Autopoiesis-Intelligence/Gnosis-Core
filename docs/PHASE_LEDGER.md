@@ -86,6 +86,20 @@ conversation history
 
 Conversation history is not a canonical project-state source.
 
+## Acceptance gate: explicit exit criteria
+
+Acceptance is **BLOCKED** while the independent reviewer is `NOT_ASSIGNED`. This is a deliberate hold, not permission to treat the ChatGPT integration gate as independent review.
+
+Before this phase can be marked accepted, the project record must contain all of the following for the exact patch-head SHA:
+
+1. **Implementation identity:** exact repository, branch, patch-head SHA, and the relevant change set.
+2. **Verification evidence:** completed CI/runtime results tied to that SHA, including failures and cancelled checks; a successful documentation parse alone is insufficient.
+3. **Independent review:** a reviewer explicitly assigned through the project owner's authorized process, with a recorded review result and unresolved findings. The implementer cannot self-label this evidence independent.
+4. **Integration gate:** the result of the ChatGPT integration gate, recorded separately from independent review and under explicit human project-owner authorization.
+5. **Decision record:** an explicit acceptance decision with the evidence references and any remaining limitations. If any required item is missing, contradictory, or unverified, acceptance remains `NOT_ACCEPTED`.
+
+Assigning a reviewer, authorizing a phase transition, and accepting the result are separate decisions. None is implied by a mergeable PR, a passing subset of checks, or the completion of implementation work.
+
 ## Transition rule
 
 A phase may move from implementation to verification only when the implementation artifact is available at a reproducible repository state or verifiable external artifact.
