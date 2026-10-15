@@ -8,26 +8,32 @@ The repository is the durable project state. An AI session is replaceable.
 
 ## Canonical entry point
 
-A newly connected AI must treat these files as the minimum recovery set:
+A newly connected AI must first read these canonical state and phase records:
 
-1. `AI_CONTEXT.md` — operational architecture and current phase context.
-2. `STATUS.md` — implementation/verification status matrix.
-3. `docs/AI_HANDOFF_PROTOCOL.md` — this continuation protocol.
-4. `docs/MULTI_AGENT_BUILD_STRATEGY.md` — governance and evidence model.
-5. `AGENT_ROLES.md` — role and authority boundaries.
+1. `docs/PROJECT_STATE.json` — machine-readable project state and pinned observation.
+2. `docs/PHASE_LEDGER.md` — active phase, allowed scope, forbidden scope, and gates.
+3. `docs/CONTEXT_CONTINUITY_CONTRACT.md` — snapshot freshness and reconciliation rules.
 
-After these, read only the specifications, source files and tests relevant to the assigned task.
+Then read the operational handoff set:
+
+4. `docs/AI_HANDOFF_PROTOCOL.md` — this continuation protocol.
+5. `AI_CONTEXT.md` — architecture and operating context.
+6. `STATUS.md` — status claims, treated as snapshots until verified.
+7. `docs/MULTI_AGENT_BUILD_STRATEGY.md` — governance and evidence model.
+8. `AGENT_ROLES.md` — role and authority boundaries.
+
+Fetch the live `main` HEAD and compare it with every pinned snapshot before relying on snapshot claims. If the live HEAD differs, or operational records conflict, report `RECONCILIATION REQUIRED`; inspect and record the exact delta before any deliberate snapshot refresh. Never silently rewrite a pinned SHA or infer missing evidence. After reconciliation, read only the specifications, source files and tests relevant to the assigned task.
 
 ## Recovery sequence
 
 ```text
-READ AI_CONTEXT
+READ PROJECT_STATE + PHASE_LEDGER + CONTINUITY CONTRACT
     ↓
-READ STATUS
+FETCH LIVE MAIN HEAD
     ↓
-READ HANDOFF PROTOCOL + GOVERNANCE
+COMPARE PINNED SNAPSHOTS; RECONCILE DELTAS
     ↓
-READ CURRENT HEAD
+READ HANDOFF + AI_CONTEXT + STATUS + GOVERNANCE
     ↓
 IDENTIFY ACTIVE PHASE
     ↓
@@ -163,11 +169,14 @@ Runtime observations do **not** silently become canonical architecture. A new in
 
 A replacement AI may continue an existing phase only after establishing:
 
-1. the exact current HEAD;
-2. the active phase and its scope;
-3. the latest independent verification state;
-4. unresolved findings;
-5. the next permitted action.
+1. the exact live `main` HEAD and the timestamped/pinned SHA in each operational snapshot;
+2. any exact SHA delta and whether the state documents need a deliberate refresh;
+3. the active phase and its allowed/forbidden scope;
+4. the latest independently verified commit (or `UNKNOWN/UNVERIFIED`);
+5. unresolved findings;
+6. the next permitted action.
+
+A SHA mismatch is a reconciliation signal, not an instruction to refresh automatically. JSON parsing or a successful document fetch does not prove runtime continuity.
 
 If a previous agent stopped midway, continue from the last durable repository artifact and test evidence. Do not recreate work from memory and do not assume that an unfinished report means the code was completed.
 
