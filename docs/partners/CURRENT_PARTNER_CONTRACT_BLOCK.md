@@ -3,8 +3,8 @@
 > GENERATED FILE — update with scripts/update_partner_contract_block.py.
 > This block is the current machine-readable partner contract index. It is not an authority root and does not grant access or execution rights.
 
-- Generated at (UTC): 2026-10-14T23:55:29.709303+00:00
-- Source revision: 854f733bc75c29a7ec153dca6d9d9f08abad859c
+- Generated at (UTC): 2026-10-15T04:40:58.319098+00:00
+- Source revision: 41eb19a8e148116a6b9d422d0b398a9826c530b3
 - Contract index digest: sha256:6f5918e7f5534f79e2fc8857dde038ee245185e7669a0bf2d92dc3238b110d46
 - Authority: index_only
 - Provenance: partner-contract-current-block
