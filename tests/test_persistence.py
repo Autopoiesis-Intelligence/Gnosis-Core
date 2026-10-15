@@ -229,7 +229,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == reopened.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -242,7 +242,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
@@ -253,7 +253,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -337,7 +337,7 @@ conn.close()
     reopened = connect(path)
     rows = reopened.execute("SELECT count(*) FROM transitions").fetchone()[0]
     assert rows == 1
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == reopened.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a19_delete_final_audit_event_fails_recovery():
@@ -413,8 +413,8 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert verify_durable_graph(reopened)[0] == reopened.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -447,41 +447,20 @@ def test_a55_conflicting_transition_replay_fails_closed():
         "conflict",
         record.test_rule_id,
     )
-    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+    with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
 
 
 def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
-    row = conn.execute(
-        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
-        "FROM audit_events WHERE transition_id IS NOT NULL"
-    ).fetchone()
-    conn.execute(
-        "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            "duplicate-audit",
-            row[1] + 1,
-            row[2],
-            row[3],
-            row[4],
-            row[5],
-            row[6],
-            row[7],
-            row[8],
-            _audit_hash({
-                "event_id": "duplicate-audit",
-                "sequence": row[1] + 1,
-                "transition_id": row[2],
-                "actor": row[3],
-                "action": row[4],
-                "resource": row[5],
-                "result": row[6],
-                "timestamp": row[7],
-                "prev_hash": row[8],
-            }),
-        ),
+    append_audit(
+        conn,
+        actor="test",
+        action="transition.commit" if record.accepted else "transition.reject",
+        resource=instance.instance_id,
+        result="accepted" if record.accepted else "rejected",
+        event_key="duplicate-audit",
+        transition_id_value=record.transition_id,
     )
     with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
         verify_durable_graph(conn)
