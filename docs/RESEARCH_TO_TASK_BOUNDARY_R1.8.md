@@ -1,4 +1,4 @@
-# Gnozis-V2 — Research Machine → Engineering Task Boundary R1.8
+# Gnosis-Core — Research Machine → Engineering Task Boundary R1.8
 
 Status: CONTRACT / ACTIVE
 Scope: provenance-to-task handoff; no automatic task creation or Core authority
