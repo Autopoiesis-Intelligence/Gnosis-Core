@@ -44,6 +44,7 @@ def replay_complete(
     observations: Mapping[str, Any],
     evaluation: Any | None = None,
     governance: Any | None = None,
+    candidate: Any | None = None,
 ) -> ReplayResult:
     """Fail closed unless candidate, states, evidence, evaluation, governance, provenance and audit agree."""
     reasons: list[str] = []
@@ -61,9 +62,15 @@ def replay_complete(
         execution.proposed_state_digest,
     )
     if provenance is not None:
-        if evaluation is None or governance is None:
-            reasons.append("evaluation or governance evidence missing")
+        if evaluation is None or governance is None or candidate is None:
+            reasons.append("candidate, evaluation or governance evidence missing")
         else:
+            if candidate.candidate_id != execution.candidate_id:
+                reasons.append("candidate identity differs from sandbox execution")
+            if candidate.parent_state_id != execution.parent_state_id:
+                reasons.append("candidate parent differs from sandbox execution")
+            if candidate.proposed_state.content_id != execution.proposed_state_digest:
+                reasons.append("candidate proposed state differs from sandbox execution")
             evaluator = evaluation.evaluator_identity
             check = crosscheck_provenance(
                 provenance=provenance,
@@ -78,6 +85,8 @@ def replay_complete(
                 shadow_status=governance.shadow_status,
                 invariant_status=governance.invariant_status,
                 governance_decision=governance.decision,
+                proposed_state_content_id=candidate.proposed_state.content_id,
+                candidate_binding_digest=candidate.binding_digest(execution.parent_state_digest),
                 evaluator_identity_ref=evaluator.implementation_ref,
                 evaluator_identity_version=evaluator.implementation_version,
             )
