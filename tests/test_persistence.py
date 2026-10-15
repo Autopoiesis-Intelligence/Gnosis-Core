@@ -447,7 +447,9 @@ def test_a55_conflicting_transition_replay_fails_closed():
         "conflict",
         record.test_rule_id,
     )
-    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+    # The changed record has a different transition identity, so the canonical
+    # head guard rejects it as stale before it can be mistaken for a replay.
+    with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
 
 
@@ -457,30 +459,34 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
         "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
+    last = conn.execute(
+        "SELECT sequence, event_hash FROM audit_events ORDER BY sequence DESC LIMIT 1"
+    ).fetchone()
+    event = {
+        "event_id": "duplicate-audit",
+        "sequence": last[0] + 1,
+        "transition_id": row[2],
+        "actor": row[3],
+        "action": row[4],
+        "resource": row[5],
+        "result": row[6],
+        "timestamp": row[7],
+        "prev_hash": last[1],
+    }
     conn.execute(
         "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
-            "duplicate-audit",
-            row[1] + 1,
-            row[2],
-            row[3],
-            row[4],
-            row[5],
-            row[6],
-            row[7],
-            row[8],
-            _audit_hash({
-                "event_id": "duplicate-audit",
-                "sequence": row[1] + 1,
-                "transition_id": row[2],
-                "actor": row[3],
-                "action": row[4],
-                "resource": row[5],
-                "result": row[6],
-                "timestamp": row[7],
-                "prev_hash": row[8],
-            }),
+            event["event_id"],
+            event["sequence"],
+            event["transition_id"],
+            event["actor"],
+            event["action"],
+            event["resource"],
+            event["result"],
+            event["timestamp"],
+            event["prev_hash"],
+            _audit_hash(event),
         ),
     )
     with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
