@@ -63,3 +63,23 @@ def test_scoped_repository_rejects_scope_mutation_and_wrong_scope_creation():
             scoped.create_context(_context("ctx-wrong", "user-b"))
     finally:
         close(conn)
+
+
+def test_scoped_repository_denies_cross_scope_update_and_reconstruction():
+    conn = connect()
+    try:
+        base = TaskContextRepository(conn)
+        base.create_context(_context("private-a", "user-a"))
+        scoped = ScopedTaskContextRepository(base, user_scope="user-b")
+
+        with pytest.raises(ContextNotFound):
+            scoped.update_context("private-a", 0, {"objective": "unauthorized change"})
+
+        with pytest.raises(ContextNotFound):
+            scoped.reconstruct_context("private-a")
+
+        stored = base.get_context("private-a")
+        assert stored.objective == "scope boundary"
+        assert stored.revision == 0
+    finally:
+        close(conn)
