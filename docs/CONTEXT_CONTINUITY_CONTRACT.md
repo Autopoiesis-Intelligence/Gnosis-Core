@@ -81,14 +81,14 @@ A newly connected product follows:
 4. If different, report `RECONCILIATION REQUIRED`, record the exact pinned SHA, live SHA, observation time, and affected claims, then inspect conflicting canonical sources before acting.
 5. Refresh a snapshot only as a deliberate documented state update after reconciliation; never overwrite a pinned SHA silently or assume the new SHA verifies the claims in the snapshot.
 6. If the source delta or required evidence cannot be resolved, mark affected fields `UNKNOWN` or `UNVERIFIED` and do not perform work that depends on them.
-5. Determine implementation / verification / acceptance separately.
-6. Determine active phase and task.
-7. Check allowed and forbidden scope.
-8. Read only relevant source, tests and contracts.
-9. Produce a baseline report.
-10. Execute only the bounded task that is authorized.
-11. Record reproducible evidence.
-12. Leave durable state sufficient for the next product to continue.
+7. Determine implementation / verification / acceptance separately.
+8. Determine active phase and task.
+9. Check allowed and forbidden scope.
+10. Read only relevant source, tests and contracts.
+11. Produce a baseline report.
+12. Execute only the bounded task that is authorized.
+13. Record reproducible evidence.
+14. Leave durable state sufficient for the next product to continue.
 ```
 
 If any required field is unavailable, the product must mark it `UNKNOWN` or `UNVERIFIED`.
