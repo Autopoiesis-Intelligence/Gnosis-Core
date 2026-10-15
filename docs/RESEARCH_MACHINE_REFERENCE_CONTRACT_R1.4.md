@@ -14,7 +14,7 @@ A Core-side reference consists of:
 
 ```yaml
 research_ref:
-  repository: Mikhail-Kucheriavyi-23/Gnozis
+  repository: Autopoiesis-Intelligence/Gnosis
   record_id: C-0004
   source_commit: <exact source commit>
   relation: DERIVED_REQUIREMENT
@@ -76,7 +76,7 @@ Do not create a parallel ResearchRecord state model inside `gnosis/core/`.
 
 ```yaml
 research_ref:
-  repository: Mikhail-Kucheriavyi-23/Gnozis
+  repository: Autopoiesis-Intelligence/Gnosis
   record_id: C-0184
   source_commit: 0717671589facc8ca51e3943c11a1a405f5e
   relation: TEST_RATIONALE
