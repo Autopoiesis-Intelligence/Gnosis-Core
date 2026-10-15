@@ -1,7 +1,7 @@
 import pytest
 from dataclasses import replace
 
-from gnosis.core import Budget, Engine, State
+from gnosis.core import Budget, Candidate, Engine, State
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
 from gnosis.reflection.endogenous_runtime import generate_from_cumulative_reflection
 from gnosis.reflection.runtime import CumulativeReflectionReport
