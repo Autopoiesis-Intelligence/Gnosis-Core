@@ -4,7 +4,8 @@ A caller-constructed authorization must not be treated as trusted issuer proof.
 This test is expected to fail until the trusted issuer boundary is implemented.
 Do not weaken the assertion to match current behavior.
 """
-from dataclasses import replace
+from dataclasses import asdict
+from types import SimpleNamespace
 
 import pytest
 
@@ -21,18 +22,20 @@ from gnosis.reflection.trusted_execution_gate import require_trusted_execution
 def test_main_rejects_caller_constructed_authorization_before_consumption(
     sqlite_conn, provenance
 ):
-    # The fixture's evolution identity may be synthetic/non-canonical. Make the
-    # request internally canonical so rejection cannot be explained by malformed
-    # provenance instead of the missing trusted-issuer boundary.
-    provenance = replace(
-        provenance,
-        evolution_identity=_canonical_evolution_identity(provenance),
+    # Isolate the missing issuer-authentication boundary from the current
+    # mismatch between EvidenceProvenance.evolution_identity and the gate's
+    # independently recomputed canonical identity.
+    canonical_identity = _canonical_evolution_identity(provenance)
+    provenance_for_gate = SimpleNamespace(
+        **asdict(provenance),
+        provenance_id=provenance.provenance_id,
+        evolution_identity=canonical_identity,
     )
     authorization_id = "forged-main-baseline"
     authorization = ExecutionAuthorization(
-        request_provenance=provenance.provenance_id,
+        request_provenance=provenance_for_gate.provenance_id,
         owner_approved=True,
-        evolution_identity=provenance.evolution_identity,
+        evolution_identity=canonical_identity,
         approval_id=authorization_id,
     )
     validity = AuthorizationValidity(
@@ -43,10 +46,10 @@ def test_main_rejects_caller_constructed_authorization_before_consumption(
     )
     request = ExecutionCommitRequest(
         authorization=authorization,
-        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
-        request_provenance=provenance.provenance_id,
-        evolution_identity=provenance.evolution_identity,
-        provenance=provenance,
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance_for_gate),
+        request_provenance=provenance_for_gate.provenance_id,
+        evolution_identity=canonical_identity,
+        provenance=provenance_for_gate,
         authorization_validity=validity,
     )
 
