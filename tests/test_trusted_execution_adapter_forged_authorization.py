@@ -4,6 +4,8 @@ The test records whether the adapter rejects the request and inspects durable
 state/audit after the call. It fails closed as a regression test, while its
 failure message preserves evidence if the forged request was committed.
 """
+import pytest
+
 from gnosis.storage import StorageCorruptionError, load_state
 
 
@@ -14,7 +16,7 @@ def test_forged_authorization_cannot_commit_or_persist(real_commit_fixture):
     proposed_state_id = fixture.candidate.proposed_state.state_id
     authorization_id = request.authorization_validity.authorization_id
 
-    with __import__("pytest").raises(StorageCorruptionError, match="state not found"):
+    with pytest.raises(StorageCorruptionError, match="state not found"):
         load_state(conn, proposed_state_id)
 
     rejected = False
