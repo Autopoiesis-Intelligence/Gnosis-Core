@@ -4,12 +4,15 @@ A caller-constructed authorization must not be treated as trusted issuer proof.
 This test is expected to fail until the trusted issuer boundary is implemented.
 Do not weaken the assertion to match current behavior.
 """
+from dataclasses import replace
+
 import pytest
 
 from gnosis.reflection.authority import (
     ExecutionAuthorization,
     ExecutionCommitRequest,
     ExecutionIntentSnapshot,
+    _canonical_evolution_identity,
 )
 from gnosis.reflection.authorization_validity import AuthorizationValidity
 from gnosis.reflection.trusted_execution_gate import require_trusted_execution
@@ -18,6 +21,13 @@ from gnosis.reflection.trusted_execution_gate import require_trusted_execution
 def test_main_rejects_caller_constructed_authorization_before_consumption(
     sqlite_conn, provenance
 ):
+    # The fixture's evolution identity may be synthetic/non-canonical. Make the
+    # request internally canonical so rejection cannot be explained by malformed
+    # provenance instead of the missing trusted-issuer boundary.
+    provenance = replace(
+        provenance,
+        evolution_identity=_canonical_evolution_identity(provenance),
+    )
     authorization_id = "forged-main-baseline"
     authorization = ExecutionAuthorization(
         request_provenance=provenance.provenance_id,
