@@ -6,6 +6,8 @@ state records the proposal as a relation in X/R, making the hypothesis itself a
 bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
+
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Sequence
 from gnosis.core.evolution import Engine
@@ -98,7 +100,7 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
     if candidate.origin != "reflection:endogenous":
         return False
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
+    if not isinstance(node, Mapping):
         return False
     if node.get("kind") != "rule_proposal":
         return False
@@ -127,12 +129,19 @@ def commit_endogenous_candidates(
     """Commit endogenous candidates only after exact proposal provenance validation."""
     proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
     for candidate in candidates:
-        proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
-            None,
+        if candidate.parent_state_id != engine.state.state_id:
+            raise ValueError("endogenous candidate parent is stale")
+        # Existing reflection relations remain in State across cycles. Bind this
+        # candidate to the newly appended proposal relation, not the first historical
+        # relation in the accumulated graph.
+        new_relations = candidate.proposed_state.relations[len(engine.state.relations):]
+        proposal_relations = tuple(
+            relation for relation in new_relations
+            if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"
         )
-        proposal = proposals.get(proposal_id)
+        if len(proposal_relations) != 1:
+            raise ValueError("endogenous candidate must add exactly one proposal relation")
+        proposal = proposals.get(proposal_relations[0].target)
         if proposal is None or not candidate_binds_proposal(candidate, proposal):
             raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
     return engine.step_select(candidates)

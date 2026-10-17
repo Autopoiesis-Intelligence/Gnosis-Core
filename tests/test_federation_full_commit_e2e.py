@@ -12,17 +12,18 @@ def build_request():
     env=admit_federation_evidence(h,{"observation":"value"})
     p=build_core_provenance(env,parent_state_id="p1",parent_state_digest="pd",proposed_state_digest="qd",proposed_state_content_id="content",candidate_binding_digest="binding",evaluation_status="PASS",shadow_status="PASS",invariant_status="PASS",governance_decision="ALLOW")
     v=AuthorizationValidity("auth-e2e","policy-1","ev-1")
-    a=ExecutionAuthorization(request_provenance=p.provenance_id,owner_approved=True,evolution_identity=p.evolution_identity,approval_id=v.authorization_id)
+    a=ExecutionAuthorization(request_provenance=p.provenance_id,owner_approved=True,evolution_identity=p.evolution_identity,approval_id=v.authorization_id,policy_version="policy-1",validity_evidence_digest="ev-1")
     req=ExecutionCommitRequest(a,ExecutionIntentSnapshot.from_provenance(p),p.provenance_id,p.evolution_identity,p,v)
     return req,p
 
 
-def test_federation_e2e_reaches_trusted_gate(sqlite_conn):
+def test_federation_e2e_rejects_tampered_intent_before_consumption(sqlite_conn):
+    from dataclasses import replace
     req,p=build_request()
-    # The authority gate is reached only after Federation admission and canonical provenance.
-    # A deliberately incomplete execution record must still fail closed before mutation.
-    with pytest.raises(Exception):
-        require_trusted_execution(req,conn=sqlite_conn,actor="trusted-owner")
+    # Federation evidence must remain bound to the exact immutable intent snapshot.
+    tampered = replace(req, intent_snapshot=replace(req.intent_snapshot, candidate_binding_digest="tampered"))
+    with pytest.raises(PermissionError, match="intent snapshot"):
+        require_trusted_execution(tampered,conn=sqlite_conn,actor="trusted-owner")
     row=sqlite_conn.execute("SELECT event_hash FROM audit_events WHERE event_id=?",("execution-authorization:auth-e2e",)).fetchone()
     assert row is None
 
