@@ -46,3 +46,93 @@ def persisted_transition():
     record = instance.engine.step(candidate)
     _persist_transition(conn, instance, candidate, record, actor="test")
     return conn, instance, record
+
+
+
+@pytest.fixture
+def real_commit_fixture():
+    """Build a real SQLite execution path for rollback/failure-injection tests.
+
+    The mutable wrapper is test-only: production ExecutionCommitRequest remains
+    frozen. It carries the adapter's existing failure_injection test hook without
+    adding a production field or changing authorization behavior.
+    """
+    from types import SimpleNamespace
+
+    from gnosis.core import Candidate, State
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
+    from gnosis.instances.instance import Instance
+    from gnosis.reflection.authority import (
+        ExecutionAuthorization,
+        ExecutionCommitRequest,
+        ExecutionIntentSnapshot,
+    )
+    from gnosis.reflection.authorization_validity import AuthorizationValidity
+    from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
+    from gnosis.storage import connect, save_instance
+
+    conn = connect()
+    instance = Instance.create_root("rollback-test-owner", State(elements={"seed": 1}))
+    save_instance(conn, instance)
+    parent_state = instance.engine.state
+    candidate = Candidate(
+        parent_state.state_id,
+        parent_state.with_elements({"result": "candidate"}),
+        "real-commit-failure-injection",
+    )
+    record = instance.engine.step(candidate)
+    observations = {"fixture": "real-commit-failure-injection"}
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=parent_state.state_id,
+        parent_state_digest=parent_state.state_id,
+        proposed_state_digest=candidate.proposed_state.state_id,
+        observations=observations,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(parent_state.state_id),
+        evidence_digest=canonical_digest(observations),
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+    )
+    authorization = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+        approval_id="approval-real-commit-fixture",
+    )
+    request = ExecutionCommitRequest(
+        authorization=authorization,
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        provenance=provenance,
+        authorization_validity=AuthorizationValidity(
+            authorization_id=authorization.approval_id,
+            policy_version="test-policy-v1",
+            validity_evidence_digest="test-evidence-v1",
+        ),
+    )
+    # ExecutionCommitRequest is frozen; keep the injection knob test-only.
+    mutable_request = SimpleNamespace(
+        authorization=request.authorization,
+        intent_snapshot=request.intent_snapshot,
+        request_provenance=request.request_provenance,
+        evolution_identity=request.evolution_identity,
+        provenance=request.provenance,
+        authorization_validity=request.authorization_validity,
+        failure_injection=None,
+    )
+
+    class RealCommitFixture:
+        adapter = SQLiteExecutionCommitAdapter()
+
+        def __iter__(self):
+            return iter((conn, instance, candidate, record, mutable_request))
+
+    fixture = RealCommitFixture()
+    try:
+        yield fixture
+    finally:
+        conn.close()
