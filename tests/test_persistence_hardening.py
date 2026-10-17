@@ -193,9 +193,12 @@ def test_a31_fork_creation_failure_rolls_back_child(monkeypatch):
     def fail_audit(*args, **kwargs):
         raise RuntimeError("injected fork audit failure")
 
-    monkeypatch.setattr("gnosis.storage.repositories.append_audit", fail_audit)
-    with pytest.raises(RuntimeError, match="injected fork audit failure"):
-        save_instance(conn, child)
+    # Limit fault injection to the operation under test. Recovery itself writes
+    # audit evidence and must run with the real append_audit implementation.
+    with monkeypatch.context() as injected:
+        injected.setattr("gnosis.storage.repositories.append_audit", fail_audit)
+        with pytest.raises(RuntimeError, match="injected fork audit failure"):
+            save_instance(conn, child)
     assert conn.execute("SELECT 1 FROM instances WHERE instance_id=?", (child.instance_id,)).fetchone() is None
     assert _authorized_recover(conn, parent.instance_id).instance_id == parent.instance_id
 
@@ -396,7 +399,7 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
         "SELECT 1 FROM states WHERE state_id=?",
         (proposed.state_id,),
     ).fetchone() is not None
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3  # create + rejected transition + recovery audit
 
 
 def test_durable_graph_rejects_budget_snapshot_exceeding_total():
