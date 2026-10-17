@@ -1,9 +1,8 @@
 """Fail-closed trusted owner-authority issuance contract.
 
-The issuer is deliberately a pure boundary: it accepts an explicit root,
-scope, policy and exact evolution binding, and emits an immutable
-ExecutionAuthorization only when all bindings are exact. No clock, global
-state, external selector or automatic approval is introduced here.
+This issuer validates request bindings but does not verify cryptographic owner
+proof. It therefore never grants executable authorization. Production issuance
+must be integrated through a trusted verifier and protected composition root.
 """
 from __future__ import annotations
 
@@ -45,9 +44,10 @@ class TrustedOwnerIssuer:
             raise PermissionError("owner approval does not match provenance")
         if approval.evolution_identity != evolution_identity:
             raise PermissionError("owner approval does not match evolution")
-        return ExecutionAuthorization(
-            request_provenance=request_provenance,
-            owner_approved=True,
-            evolution_identity=evolution_identity,
-            approval_id=approval.approval_id,
+
+        # OwnerApproval is a caller-constructible data object, not proof of
+        # authority. Until a trusted cryptographic verifier is composed here,
+        # matching strings must never produce owner_approved=True.
+        raise PermissionError(
+            "cryptographic owner proof is not verified; authorization issuance is disabled"
         )

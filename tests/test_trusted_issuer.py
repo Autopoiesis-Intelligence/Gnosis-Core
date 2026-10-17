@@ -13,10 +13,13 @@ def issuer():
     return TrustedOwnerIssuer("root-1","evolution.commit","policy-1")
 
 
-def test_exact_approval_is_issued():
-    auth=issuer().issue(req(),request_provenance="p1",evolution_identity="e1")
-    assert auth.can_execute is True
-    assert auth.approval_id == "a1"
+def test_caller_constructed_approval_cannot_grant_execution():
+    # OwnerApproval is only a data object: matching caller-controlled strings
+    # are not proof of owner authority. Until a trusted cryptographic verifier
+    # is composed, issuance must fail closed.
+    with pytest.raises(PermissionError, match="cryptographic owner proof is not verified"):
+        issuer().issue(req(),request_provenance="p1",evolution_identity="e1")
+
 
 @pytest.mark.parametrize("field,value",[("authority_root","root-x"),("scope","other.scope"),("policy_version","policy-x")])
 def test_root_scope_policy_mismatch_fails_closed(field,value):
