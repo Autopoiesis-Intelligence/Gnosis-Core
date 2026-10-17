@@ -39,7 +39,7 @@ jobs:
           } > autonomous-watcher-heartbeat.json
 
       - name: Publish heartbeat
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: autonomous-watcher-${{ github.run_id }}
           path: autonomous-watcher-heartbeat.json

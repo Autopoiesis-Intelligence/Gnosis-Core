@@ -16,7 +16,7 @@ jobs:
           E7_RUN_ID: e7-113-${{ github.run_id }}
         run: python -m gnosis.self_learning.e7_113_execute_bounded_proof
       - name: Upload proof evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e7-113-proof-evidence
           path: proof-run-evidence.json

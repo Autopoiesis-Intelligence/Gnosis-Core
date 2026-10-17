@@ -31,7 +31,7 @@ jobs:
       - name: Generate persisted Core history and diagnose it
         run: python diagnostic_corpus/generate.py
       - name: Upload self-diagnostic artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: self-diagnostic-${{ matrix.python-version }}
           path: diagnostic_corpus/SELF-DIAGNOSTIC-0001/diagnostic.json
