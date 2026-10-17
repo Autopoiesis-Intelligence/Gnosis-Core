@@ -16,11 +16,14 @@ def require_trusted_execution(
     *,
     conn: object,
     actor: str,
+    trusted_policy_version: str | None = None,
+    trusted_evidence_digest: str | None = None,
 ) -> None:
-    """Validate request-bound authorization, consume it once, then run canonical Core gate.
+    """Validate against independent trust anchors, then consume authorization once.
 
-    The caller must invoke this inside the same transaction that performs the
-    eventual mutation. This function itself never mutates Core state.
+    Trusted values must come from deployment-controlled configuration or a
+    verifier, never from request data or AuthorizationValidity itself. Missing
+    anchors fail closed. Call inside the same transaction as the mutation.
     """
     validity = request.authorization_validity
     if not isinstance(validity, AuthorizationValidity):
@@ -29,9 +32,13 @@ def require_trusted_execution(
         raise PermissionError("authorization validity identity mismatch")
     if validity.policy_version == "":
         raise PermissionError("authorization policy is missing")
+    if validity.revoked:
+        raise PermissionError("authorization is revoked")
+    if not trusted_policy_version or not trusted_evidence_digest:
+        raise PermissionError("independent trusted execution policy is not configured")
     validity.require_valid(
-        expected_policy_version=validity.policy_version,
-        expected_evidence_digest=validity.validity_evidence_digest,
+        expected_policy_version=trusted_policy_version,
+        expected_evidence_digest=trusted_evidence_digest,
     )
     require_execution_commit(request)
     consume_authorization_in_transaction(
