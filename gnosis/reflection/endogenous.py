@@ -6,6 +6,7 @@ state records the proposal as a relation in X/R, making the hypothesis itself a
 bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Sequence
 from gnosis.core.evolution import Engine
@@ -98,7 +99,7 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
     if candidate.origin != "reflection:endogenous":
         return False
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
+    if not isinstance(node, Mapping):
         return False
     if node.get("kind") != "rule_proposal":
         return False
@@ -125,14 +126,15 @@ def commit_endogenous_candidates(
     candidates: Sequence[Candidate],
 ) -> object:
     """Commit endogenous candidates only after exact proposal provenance validation."""
-    proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
+    proposals = tuple(report.proposals)
     for candidate in candidates:
-        proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
-            None,
+        # Parent states retain prior proposal relations. Do not select the first
+        # relation in the accumulated state: bind this candidate against exactly
+        # one proposal in the supplied current report.
+        matches = tuple(
+            proposal for proposal in proposals
+            if candidate_binds_proposal(candidate, proposal)
         )
-        proposal = proposals.get(proposal_id)
-        if proposal is None or not candidate_binds_proposal(candidate, proposal):
-            raise ValueError("endogenous candidate is not bound to the supplied reflection proposal")
+        if len(matches) != 1:
+            raise ValueError("endogenous candidate is not bound to exactly one supplied reflection proposal")
     return engine.step_select(candidates)

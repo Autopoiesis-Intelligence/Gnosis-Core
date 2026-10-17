@@ -32,7 +32,7 @@ def root():
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
-        authorization_id="test-recovery",
+        authorization_id=f"test-recovery:{instance_id}:{digest[:12]}",
         subject=instance_id,
         requested_by="test-principal",
         authority="test-governance",
@@ -229,7 +229,8 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    # Root creation, rejected transition, and the authorized recovery receipt.
+    assert verify_durable_graph(reopened)[0] == 3
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -242,7 +243,8 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    # Root creation, rejected no-op evidence, and the authorized recovery receipt.
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
@@ -253,7 +255,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -413,8 +415,9 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    # The failed transition rolled back; root creation and recovery receipt remain.
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -436,7 +439,7 @@ def test_a54_rejected_transition_replay_is_idempotent():
     assert _recover(conn, instance.instance_id).engine.state.state_id == record.from_state_id
 
 
-def test_a55_conflicting_transition_replay_fails_closed():
+def test_a55_conflicting_transition_from_stale_head_fails_closed():
     conn, instance, record = _persisted_transition()
     conflicting = TransitionRecord(
         record.from_state_id,
@@ -447,14 +450,17 @@ def test_a55_conflicting_transition_replay_fails_closed():
         "conflict",
         record.test_rule_id,
     )
-    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+    # The conflicting record has a distinct content-derived transition ID.
+    # Since the accepted transition already advanced the canonical head, this
+    # request is rejected by the stale-head guard before any replay is written.
+    with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
 
 
 def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
     row = conn.execute(
-        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
+        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
     conn.execute(
@@ -469,7 +475,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
             row[5],
             row[6],
             row[7],
-            row[8],
+            row[9],
             _audit_hash({
                 "event_id": "duplicate-audit",
                 "sequence": row[1] + 1,
@@ -479,7 +485,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
                 "resource": row[5],
                 "result": row[6],
                 "timestamp": row[7],
-                "prev_hash": row[8],
+                "prev_hash": row[9],
             }),
         ),
     )
@@ -551,11 +557,12 @@ def test_authorized_recovery_does_not_change_core_state_and_is_audited():
     instance = root()
     save_instance(conn, instance)
     before = load_instance(conn, instance.instance_id).engine.state.state_id
+    authorization_id = f"test-recovery:{instance.instance_id}:{recovery_evidence_digest(conn, instance.instance_id)[:12]}"
     recovered = _recover(conn, instance.instance_id)
     after = load_instance(conn, instance.instance_id).engine.state.state_id
     assert recovered.engine.state.state_id == before == after
     row = conn.execute(
         "SELECT action,actor,result FROM audit_events WHERE event_id=?",
-        ("recovery:test-recovery",),
+        (f"recovery:{authorization_id}",),
     ).fetchone()
     assert tuple(row) == ("recovery.execute", "test-principal", "accepted")

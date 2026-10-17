@@ -65,6 +65,10 @@ def run_reflection_gate(engine: Any, conn: Any, instance_id: str, *, authorizati
             evolution_report = recover_evolution_audit(conn)
             if not evolution_report.chain_valid or not evolution_report.replay_valid:
                 reasons.append("evolution provenance/audit recovery failed")
+                reasons.extend(
+                    f"evolution recovery: {reason}"
+                    for reason in evolution_report.reasons
+                )
     except Exception as exc:
         reasons.append(f"evolution provenance/audit recovery failed: {type(exc).__name__}")
 

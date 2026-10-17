@@ -150,3 +150,77 @@ def test_recovery_rejects_revoked_or_missing_authorization():
     )
     assert not report.replay_valid
     assert "recovery authorization was revoked" in report.reasons
+
+
+def test_complete_replay_uses_independent_candidate_evaluation_and_governance():
+    from gnosis.evolution.audit import make_audit_record
+    from gnosis.evolution.evaluator import evaluate_observation
+    from gnosis.evolution.provenance import build_provenance
+    from gnosis.reflection.governance import GovernanceDecision
+
+    state = State(elements={"a": 1})
+    candidate = _candidate(state)
+    sandbox = run_sandbox(state, candidate, _observer)
+    evaluation = evaluate_observation(
+        sandbox.execution.observations,
+        evidence_digest=sandbox.execution.evidence_digest,
+        predicate="observations_present",
+    )
+    governance = GovernanceDecision(
+        "REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",)
+    )
+    provenance = build_provenance(
+        candidate_id=candidate.candidate_id,
+        parent_state_id=candidate.parent_state_id,
+        parent_state_digest=sandbox.execution.parent_state_digest,
+        proposed_state_digest=sandbox.execution.proposed_state_digest,
+        proposed_state_content_id=candidate.proposed_state.content_id,
+        candidate_binding_digest=candidate.binding_digest(sandbox.execution.parent_state_digest),
+        observations=sandbox.execution.observations,
+        evidence_digest=sandbox.execution.evidence_digest,
+        evaluation_status=evaluation.status,
+        shadow_status=governance.shadow_status,
+        invariant_status=governance.invariant_status,
+        governance_decision=governance.decision,
+        evaluator_identity_ref=evaluation.evaluator_identity.implementation_ref,
+        evaluator_identity_version=evaluation.evaluator_identity.implementation_version,
+    )
+    audit = make_audit_record(
+        sequence=0,
+        event_type="PROVENANCE",
+        candidate_id=provenance.candidate_id,
+        execution_id=provenance.execution_id,
+        provenance_id=provenance.provenance_id,
+        parent_state_digest=provenance.parent_state_digest,
+        proposed_state_digest=provenance.proposed_state_digest,
+        evidence_digest=provenance.evidence_digest,
+        payload={"status": "RECORDED"},
+    )
+
+    replay = replay_complete(
+        sandbox.execution,
+        provenance,
+        audit,
+        observations=sandbox.execution.observations,
+        candidate=candidate,
+        evaluation=evaluation,
+        governance=governance,
+    )
+    assert replay.reproducible, replay.reasons
+
+    changed_evaluation = evaluate_observation(
+        sandbox.execution.observations,
+        evidence_digest=sandbox.execution.evidence_digest,
+        predicate="unsupported-predicate",
+    )
+    rejected = replay_complete(
+        sandbox.execution,
+        provenance,
+        audit,
+        observations=sandbox.execution.observations,
+        candidate=candidate,
+        evaluation=changed_evaluation,
+        governance=governance,
+    )
+    assert not rejected.reproducible
+    assert "evaluation_status mismatch" in rejected.reasons
