@@ -10,6 +10,7 @@ from gnosis.reflection.authority import (
     ExecutionCommitResult,
     ExecutionReceipt,
     require_execution_candidate_binding,
+    require_execution_commit,
 )
 
 
@@ -17,6 +18,9 @@ class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
     def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+        # Reject invalid requests before touching the transaction boundary.
+        # Keep the gate's in-transaction validation as the mutation-boundary check.
+        require_execution_commit(request)
         with transaction(conn):
             require_trusted_execution(request, conn=conn, actor=actor)
             require_execution_candidate_binding(request, candidate, record)
@@ -28,4 +32,3 @@ class SQLiteExecutionCommitAdapter:
                 raise PermissionError("persisted resulting state does not match authorized evolution")
             receipt = ExecutionReceipt.after_commit(request, resulting)
             return ExecutionCommitResult(receipt=receipt, resulting_state_id=resulting.state_id)
-
