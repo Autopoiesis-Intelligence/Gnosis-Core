@@ -540,3 +540,59 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+def test_canonical_evolution_identity_matches_provenance_property_with_evaluator_identity():
+    from gnosis.reflection.authority import _canonical_evolution_identity
+
+    observations = {"result": "ok"}
+    evidence = canonical_digest(observations)
+    provenance = build_provenance(
+        candidate_id="candidate-evaluator",
+        parent_state_id="parent",
+        parent_state_digest="parent-digest",
+        proposed_state_digest="proposed-digest",
+        observations=observations,
+        proposed_state_content_id="content",
+        candidate_binding_digest="binding",
+        evidence_digest=evidence,
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+        evaluator_identity_ref="evaluator:trusted-test",
+        evaluator_identity_version="v1",
+    )
+
+    assert _canonical_evolution_identity(provenance) == provenance.evolution_identity
+
+
+def test_canonical_evolution_identity_binds_evaluator_identity_fields():
+    from gnosis.reflection.authority import _canonical_evolution_identity
+
+    observations = {"result": "ok"}
+    evidence = canonical_digest(observations)
+    provenance = build_provenance(
+        candidate_id="candidate-evaluator",
+        parent_state_id="parent",
+        parent_state_digest="parent-digest",
+        proposed_state_digest="proposed-digest",
+        observations=observations,
+        proposed_state_content_id="content",
+        candidate_binding_digest="binding",
+        evidence_digest=evidence,
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+        evaluator_identity_ref="evaluator:one",
+        evaluator_identity_version="v1",
+    )
+    changed = type(provenance)(
+        **{
+            **provenance.__dict__,
+            "evaluator_identity_ref": "evaluator:two",
+        }
+    )
+
+    assert changed.evolution_identity != provenance.evolution_identity
+    assert _canonical_evolution_identity(changed) == changed.evolution_identity
