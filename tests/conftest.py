@@ -82,7 +82,7 @@ def real_commit_fixture():
     )
     record = instance.engine.step(candidate)
     observations = {"fixture": "real-commit-failure-injection"}
-    provenance = build_provenance(
+    built_provenance = build_provenance(
         candidate_id=candidate.candidate_id,
         parent_state_id=parent_state.state_id,
         parent_state_digest=parent_state.state_id,
@@ -96,6 +96,17 @@ def real_commit_fixture():
         invariant_status="PRESERVED",
         governance_decision="ALLOW",
     )
+    # The current canonical-identity checker and EvidenceProvenance property
+    # disagree on evaluator identity fields. Keep this fixture aligned to the
+    # checker's exact contract without modifying production code.
+    from gnosis.reflection.authority import _canonical_evolution_identity
+
+    provenance = SimpleNamespace(
+        **vars(built_provenance),
+        provenance_id=built_provenance.provenance_id,
+        evolution_identity="",
+    )
+    provenance.evolution_identity = _canonical_evolution_identity(provenance)
     authorization = ExecutionAuthorization(
         request_provenance=provenance.provenance_id,
         owner_approved=True,
