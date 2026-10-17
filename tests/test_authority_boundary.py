@@ -276,7 +276,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-cross-candidate"
     )
     request = ExecutionCommitRequest(
         auth,
@@ -361,12 +361,13 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-forged-provenance"
         ),
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity("approval-forged-provenance", "policy-1", "ev-1"),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -477,14 +478,16 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         invariant_status="PRESERVED",
         governance_decision="ALLOW",
     )
+    stale_auth = ExecutionAuthorization(
+        provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-stale-head"
+    )
     request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
+        stale_auth,
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity("approval-stale-head", "policy-1", "ev-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
