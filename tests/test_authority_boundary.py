@@ -205,7 +205,7 @@ def test_sqlite_execution_commit_adapter_persists_and_receipts_actual_state():
     auth = ExecutionAuthorization(provenance.provenance_id, True, provenance.evolution_identity)
     snapshot = ExecutionIntentSnapshot.from_provenance(provenance)
     request = _make_execution_commit_request(provenance)
-    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1")
+    result = SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1")
     assert result.resulting_state_id == proposed.state_id
     assert result.receipt.resulting_state_digest == proposed.state_id
     conn.close()
@@ -226,7 +226,7 @@ def test_sqlite_execution_commit_adapter_rejects_before_mutation():
         SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, ExecutionCommitRequest(
             ExecutionAuthorization("bad", False, "bad"),
             ExecutionIntentSnapshot("", "", "", "", "", "", ""),
-            "bad", "bad", object()), actor="user-1")
+            "bad", "bad", object()), actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == initial_state_id
     conn.close()
 
@@ -276,7 +276,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-1"
     )
     request = ExecutionCommitRequest(
         auth,
@@ -301,7 +301,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
 
     with pytest.raises(PermissionError, match="candidate"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_b, record_b, request, actor="user-1"
+            conn, instance, candidate_b, record_b, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1"
         )
 
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
@@ -357,16 +357,19 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_id=provenance_a.provenance_id,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
         candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        evaluator_identity_ref=provenance_a.evaluator_identity_ref,
+        evaluator_identity_version=provenance_a.evaluator_identity_version,
         evolution_identity=provenance_a.evolution_identity,
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-1"
         ),
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity("approval-1", "policy-1", "ev-1"),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -379,7 +382,7 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
 
     with pytest.raises(PermissionError, match="canonical"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_b, record_b, request, actor="user-1"
+            conn, instance, candidate_b, record_b, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1"
         )
 
     assert load_instance(conn, instance.instance_id).engine.state.state_id == parent_state_id
@@ -479,12 +482,13 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     request = ExecutionCommitRequest(
         ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
+            provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-a"
         ),
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity("approval-a", "policy-1", "ev-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
@@ -511,7 +515,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     SQLiteExecutionCommitAdapter().commit(
         conn, instance, candidate_b, record_b,
         _make_execution_commit_request(provenance_b),
-        actor="user-1",
+        actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1",
     )
     advanced_head = load_instance(conn, instance.instance_id).engine.state.state_id
     assert advanced_head == candidate_b.proposed_state.state_id
@@ -527,7 +531,7 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
     )
     with pytest.raises(ValueError, match="stale instance head"):
         SQLiteExecutionCommitAdapter().commit(
-            conn, instance, candidate_a, record_a, request, actor="user-1"
+            conn, instance, candidate_a, record_a, request, actor="user-1", trusted_policy_version="policy-1", trusted_evidence_digest="ev-1"
         )
 
     current = load_instance(conn, instance.instance_id)
@@ -540,3 +544,19 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         (record_a.transition_id,),
     ).fetchone()[0] == 0
     conn.close()
+
+
+
+def test_canonical_evolution_identity_binds_evaluator_identity_fields():
+    from gnosis.reflection.authority import _canonical_evolution_identity
+
+    provenance = _snapshot_provenance()
+    provenance = type(provenance)(
+        **{
+            **provenance.__dict__,
+            "evaluator_identity_ref": "evaluator:test-suite",
+            "evaluator_identity_version": "v1",
+        }
+    )
+
+    assert _canonical_evolution_identity(provenance) == provenance.evolution_identity

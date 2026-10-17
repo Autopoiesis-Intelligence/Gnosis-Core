@@ -16,9 +16,19 @@ from gnosis.reflection.authority import (
 class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
-    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+    def commit(
+        self, conn: object, instance: object, candidate: object, record: object,
+        request: ExecutionCommitRequest, *, actor: str,
+        trusted_policy_version: str | None = None,
+        trusted_evidence_digest: str | None = None,
+    ) -> ExecutionCommitResult:
+        """Commit only with independently provisioned trust anchors; missing values deny."""
         with transaction(conn):
-            require_trusted_execution(request, conn=conn, actor=actor)
+            require_trusted_execution(
+                request, conn=conn, actor=actor,
+                trusted_policy_version=trusted_policy_version,
+                trusted_evidence_digest=trusted_evidence_digest,
+            )
             require_execution_candidate_binding(request, candidate, record)
             if str(request.provenance.evolution_identity) != request.evolution_identity:
                 raise PermissionError("execution commit identity mismatch")
