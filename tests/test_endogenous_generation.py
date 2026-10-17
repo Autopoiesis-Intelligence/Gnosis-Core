@@ -1,4 +1,4 @@
-from gnosis.core.types import State
+from gnosis.core.types import Candidate, Relation, State
 from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
 from gnosis.reflection.endogenous import MAX_ENDOGENOUS_CANDIDATES, candidate_binds_proposal, commit_endogenous_candidates, generate_endogenous_candidates
 
@@ -113,6 +113,29 @@ def test_endogenous_candidate_rejects_proposal_substitution():
     generation = generate_endogenous_candidates(state, report)
     assert candidate_binds_proposal(generation.candidates[0], report.proposals[0])
     assert not candidate_binds_proposal(generation.candidates[0], report.proposals[1])
+
+
+def test_endogenous_candidate_rejects_relation_value_substitution():
+    state = State(elements={"a": 1})
+    report = ReflectionReport(proposals=(proposal(1),))
+    candidate = generate_endogenous_candidates(state, report).candidates[0]
+    relation = candidate.proposed_state.relations[0]
+    changed_value = dict(relation.value)
+    changed_value["hypothesis"] = "substituted hypothesis"
+    changed_relation = Relation(
+        source=relation.source,
+        target=relation.target,
+        relation_type=relation.relation_type,
+        value=changed_value,
+    )
+    changed_state = candidate.proposed_state.with_relations((changed_relation,))
+    changed_candidate = Candidate(
+        parent_state_id=candidate.parent_state_id,
+        proposed_state=changed_state,
+        origin=candidate.origin,
+        seed=candidate.seed,
+    )
+    assert not candidate_binds_proposal(changed_candidate, report.proposals[0])
 
 
 def test_endogenous_commit_requires_exact_proposal_binding():

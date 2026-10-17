@@ -6,6 +6,7 @@ state records the proposal as a relation in X/R, making the hypothesis itself a
 bounded endogenous state transition rather than an external callback.
 """
 from __future__ import annotations
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Sequence
 from gnosis.core.evolution import Engine
@@ -98,7 +99,7 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
     if candidate.origin != "reflection:endogenous":
         return False
     node = candidate.proposed_state.elements.get(proposal.proposal_id)
-    if not isinstance(node, dict):
+    if not isinstance(node, Mapping):
         return False
     if node.get("kind") != "rule_proposal":
         return False
@@ -116,7 +117,21 @@ def candidate_binds_proposal(candidate: Candidate, proposal: RuleProposal) -> bo
         relation for relation in candidate.proposed_state.relations
         if relation.source == REFLECTION_NODE and relation.target == proposal.proposal_id
     )
-    return len(relations) == 1 and relations[0].relation_type == "proposed_rule"
+    if len(relations) != 1 or relations[0].relation_type != "proposed_rule":
+        return False
+    relation_value = relations[0].value
+    if not isinstance(relation_value, Mapping):
+        return False
+    expected_relation_value = {
+        "finding_id": proposal.finding_id,
+        "rule_id": proposal.rule_id,
+        "current_version": proposal.current_version,
+        "proposed_version": proposal.proposed_version,
+        "hypothesis": proposal.hypothesis,
+        "evidence_refs": tuple(proposal.evidence_refs),
+        "historical_memory_outcomes": tuple(node.get("historical_memory_outcomes", ())),
+    }
+    return dict(relation_value) == expected_relation_value
 
 
 def commit_endogenous_candidates(
