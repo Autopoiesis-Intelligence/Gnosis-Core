@@ -32,7 +32,7 @@ def root():
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
-        authorization_id="test-recovery",
+        authorization_id=f"test-recovery:{instance_id}",
         subject=instance_id,
         requested_by="test-principal",
         authority="test-governance",
@@ -229,7 +229,9 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    # Root creation + rejected transition + authorized recovery execution.
+    assert verify_durable_graph(reopened)[0] == 3
+    assert reopened.execute("SELECT count(*) FROM audit_events WHERE action='recovery.execute'").fetchone()[0] == 1
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -242,7 +244,9 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    # Root creation + rejected no-op transition + authorized recovery execution.
+    assert verify_durable_graph(conn)[0] == 3
+    assert conn.execute("SELECT count(*) FROM audit_events WHERE action='recovery.execute'").fetchone()[0] == 1
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
@@ -253,7 +257,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -413,8 +417,8 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -436,7 +440,7 @@ def test_a54_rejected_transition_replay_is_idempotent():
     assert _recover(conn, instance.instance_id).engine.state.state_id == record.from_state_id
 
 
-def test_a55_conflicting_transition_replay_fails_closed():
+def test_a55_distinct_transition_replay_from_stale_head_fails_closed():
     conn, instance, record = _persisted_transition()
     conflicting = TransitionRecord(
         record.from_state_id,
@@ -447,7 +451,7 @@ def test_a55_conflicting_transition_replay_fails_closed():
         "conflict",
         record.test_rule_id,
     )
-    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+    with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
 
 
@@ -457,30 +461,36 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
         "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
+    # Keep the forged duplicate inside a valid audit hash chain so graph
+    # verification reaches the duplicate-transition semantic check.
+    previous_hash = conn.execute(
+        "SELECT event_hash FROM audit_events WHERE sequence=?", (row[1],)
+    ).fetchone()[0]
+    duplicate_event = {
+        "event_id": "duplicate-audit",
+        "sequence": row[1] + 1,
+        "transition_id": row[2],
+        "actor": row[3],
+        "action": row[4],
+        "resource": row[5],
+        "result": row[6],
+        "timestamp": row[7],
+        "prev_hash": previous_hash,
+    }
     conn.execute(
         "INSERT INTO audit_events(event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
-            "duplicate-audit",
-            row[1] + 1,
-            row[2],
-            row[3],
-            row[4],
-            row[5],
-            row[6],
-            row[7],
-            row[8],
-            _audit_hash({
-                "event_id": "duplicate-audit",
-                "sequence": row[1] + 1,
-                "transition_id": row[2],
-                "actor": row[3],
-                "action": row[4],
-                "resource": row[5],
-                "result": row[6],
-                "timestamp": row[7],
-                "prev_hash": row[8],
-            }),
+            duplicate_event["event_id"],
+            duplicate_event["sequence"],
+            duplicate_event["transition_id"],
+            duplicate_event["actor"],
+            duplicate_event["action"],
+            duplicate_event["resource"],
+            duplicate_event["result"],
+            duplicate_event["timestamp"],
+            duplicate_event["prev_hash"],
+            _audit_hash(duplicate_event),
         ),
     )
     with pytest.raises(StorageCorruptionError, match="ambiguous transition audit evidence"):
@@ -556,6 +566,6 @@ def test_authorized_recovery_does_not_change_core_state_and_is_audited():
     assert recovered.engine.state.state_id == before == after
     row = conn.execute(
         "SELECT action,actor,result FROM audit_events WHERE event_id=?",
-        ("recovery:test-recovery",),
+        (f"recovery:test-recovery:{instance.instance_id}",),
     ).fetchone()
     assert tuple(row) == ("recovery.execute", "test-principal", "accepted")
