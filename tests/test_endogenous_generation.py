@@ -101,9 +101,14 @@ def test_memory_history_changes_hypothesis_context_deterministically():
 
 
 def test_endogenous_candidate_binds_exact_proposal():
+    from collections.abc import Mapping
+
     state = State(elements={"a": 1})
     report = ReflectionReport(proposals=(proposal(1),))
     candidate = generate_endogenous_candidates(state, report).candidates[0]
+    node = candidate.proposed_state.elements["proposal:1"]
+    assert isinstance(node, Mapping)
+    assert not isinstance(node, dict)
     assert candidate_binds_proposal(candidate, report.proposals[0])
 
 
