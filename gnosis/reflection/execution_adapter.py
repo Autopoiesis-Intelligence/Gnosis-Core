@@ -16,9 +16,32 @@ from gnosis.reflection.authority import (
 class SQLiteExecutionCommitAdapter:
     """Narrow persistence adapter: authorization is checked before durable mutation."""
 
-    def commit(self, conn: object, instance: object, candidate: object, record: object, request: ExecutionCommitRequest, *, actor: str) -> ExecutionCommitResult:
+    def commit(
+        self,
+        conn: object,
+        instance: object,
+        candidate: object,
+        record: object,
+        request: ExecutionCommitRequest,
+        *,
+        actor: str,
+        trusted_policy_version: str | None = None,
+        trusted_evidence_digest: str | None = None,
+    ) -> ExecutionCommitResult:
+        """Commit only when independently provisioned trust anchors are supplied.
+
+        Omitting either trust anchor deliberately denies execution. Production
+        composition must source these values from trusted configuration or a
+        verified authorization boundary, not from request-controlled fields.
+        """
         with transaction(conn):
-            require_trusted_execution(request, conn=conn, actor=actor)
+            require_trusted_execution(
+                request,
+                conn=conn,
+                actor=actor,
+                trusted_policy_version=trusted_policy_version,
+                trusted_evidence_digest=trusted_evidence_digest,
+            )
             require_execution_candidate_binding(request, candidate, record)
             if str(request.provenance.evolution_identity) != request.evolution_identity:
                 raise PermissionError("execution commit identity mismatch")
@@ -28,4 +51,3 @@ class SQLiteExecutionCommitAdapter:
                 raise PermissionError("persisted resulting state does not match authorized evolution")
             receipt = ExecutionReceipt.after_commit(request, resulting)
             return ExecutionCommitResult(receipt=receipt, resulting_state_id=resulting.state_id)
-
