@@ -68,7 +68,7 @@ def test_federation_e2e_reaches_trusted_commit_boundary_atomically(sqlite_conn):
         reason="incomplete",
     )
 
-    with pytest.raises(PermissionError, match="transition result does not match authorized evolution"):
+    with pytest.raises(PermissionError, match="transition record result does not match authorized evolution"):
         SQLiteExecutionCommitAdapter().commit(
             sqlite_conn,
             instance,
