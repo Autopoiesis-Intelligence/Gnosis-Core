@@ -17,10 +17,18 @@ def require_trusted_execution(
     conn: object,
     actor: str,
 ) -> None:
-    """Validate request-bound authorization, consume it once, then run canonical Core gate.
+    """Validate request-bound fields and fail closed until trusted issuance exists.
 
     The caller must invoke this inside the same transaction that performs the
     eventual mutation. This function itself never mutates Core state.
+
+    SECURITY CONTAINMENT:
+    The current production path has no independently verifiable issuer proof
+    or protected trust-root provider. Caller-constructed ExecutionAuthorization
+    and AuthorizationValidity objects are not evidence of owner authority.
+    Therefore a structurally valid request is rejected before Core admission
+    or authorization consumption. Remove this block only when an independently
+    configured verifier is integrated and its trust source is proven.
     """
     validity = request.authorization_validity
     if not isinstance(validity, AuthorizationValidity):
@@ -33,6 +41,14 @@ def require_trusted_execution(
         expected_policy_version=validity.policy_version,
         expected_evidence_digest=validity.validity_evidence_digest,
     )
+
+    # Fail closed: comparing fields from the same caller-controlled request
+    # does not prove issuer authority. No consumption event may be written.
+    raise PermissionError(
+        "trusted owner-authority verifier is not configured; execution blocked"
+    )
+
+    # Intentionally unreachable until the production verifier is implemented.
     require_execution_commit(request)
     consume_authorization_in_transaction(
         conn,
