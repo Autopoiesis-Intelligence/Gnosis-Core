@@ -229,7 +229,7 @@ def test_a08_rejected_candidate_survives_close_reopen_without_head_advance(tmp_p
     reopened = connect(path)
     recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id == original
-    assert verify_durable_graph(reopened)[0] == 2
+    assert verify_durable_graph(reopened)[0] == 3
 
 
 def test_a28_noop_transition_remains_valid_on_persistence_path():
@@ -242,7 +242,7 @@ def test_a28_noop_transition_remains_valid_on_persistence_path():
     assert record.accepted is False
     _persist_transition(conn, instance, candidate, record, actor="u")
     assert _recover(conn, instance.instance_id).engine.state.state_id == instance.engine.state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == 3
 
 
 def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
@@ -253,7 +253,7 @@ def test_a29_rejected_candidate_cannot_become_head_after_close_reopen(tmp_path):
     proposed_id = candidate.proposed_state.state_id
     conn.close()
     reopened = connect(path)
-    recovered = recover_instance(reopened, instance.instance_id)
+    recovered = _recover(reopened, instance.instance_id)
     assert recovered.engine.state.state_id != proposed_id
     assert recovered.engine.state.state_id == instance.engine.state.state_id
 
@@ -413,8 +413,8 @@ def test_a48_rollback_reopen_restores_prior_chain(tmp_path):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_transition")
     conn.close()
     reopened = connect(path)
-    assert recover_instance(reopened, instance.instance_id).engine.state.state_id == original_state_id
-    assert verify_durable_graph(reopened)[0] == 1
+    assert _recover(reopened, instance.instance_id).engine.state.state_id == original_state_id
+    assert verify_durable_graph(reopened)[0] == 2
 
 
 def test_a53_accepted_transition_replay_is_idempotent():
@@ -436,7 +436,7 @@ def test_a54_rejected_transition_replay_is_idempotent():
     assert _recover(conn, instance.instance_id).engine.state.state_id == record.from_state_id
 
 
-def test_a55_conflicting_transition_replay_fails_closed():
+def test_a55_stale_transition_replay_fails_closed():
     conn, instance, record = _persisted_transition()
     conflicting = TransitionRecord(
         record.from_state_id,
@@ -447,14 +447,14 @@ def test_a55_conflicting_transition_replay_fails_closed():
         "conflict",
         record.test_rule_id,
     )
-    with pytest.raises(StorageCorruptionError, match="conflicting transition replay"):
+    with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, load_candidate(conn, record.candidate_id), conflicting, actor="test")
 
 
 def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verification():
     conn, instance, record = _persisted_transition()
     row = conn.execute(
-        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash "
+        "SELECT event_id, sequence, transition_id, actor, action, resource, result, timestamp, prev_hash, event_hash "
         "FROM audit_events WHERE transition_id IS NOT NULL"
     ).fetchone()
     conn.execute(
@@ -469,7 +469,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
             row[5],
             row[6],
             row[7],
-            row[8],
+            row[9],
             _audit_hash({
                 "event_id": "duplicate-audit",
                 "sequence": row[1] + 1,
@@ -479,7 +479,7 @@ def test_a52_duplicate_transition_audit_evidence_fails_durable_graph_verificatio
                 "resource": row[5],
                 "result": row[6],
                 "timestamp": row[7],
-                "prev_hash": row[8],
+                "prev_hash": row[9],
             }),
         ),
     )
