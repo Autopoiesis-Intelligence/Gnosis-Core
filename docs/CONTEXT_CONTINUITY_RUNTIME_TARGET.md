@@ -1,10 +1,12 @@
-# Gnozis-V2 — Context Continuity Runtime Target
+# Gnosis Core — Context Continuity Runtime Target
 
-Status: architecture target / no runtime implementation in this document.
+Status: ARCHITECTURE TARGET — DURABLE TASK CONTEXT REPOSITORY EXISTS; PRODUCT RUNTIME INTEGRATION IS NOT PROVEN.
+
+This document defines the intended cross-product continuation flow. It is not evidence that the flow is implemented. The durable TaskContext model/repository and scoped repository guard are separate implementation components; no production entry point, trusted identity binding, or end-to-end cross-terminal recovery is established by this target document.
 
 ## Goal
 
-A user must be able to enter Gnozis through any connected product and continue work from durable project state without reconstructing the project manually from a previous conversation.
+A user must be able to enter Gnosis through any connected product and continue work from durable project state without reconstructing the project manually from a previous conversation.
 
 ## Canonical recovery sequence
 
@@ -42,7 +44,7 @@ Conversation history is context assistance, not canonical project state.
 
 ## Minimal continuation response
 
-A future connector should be able to obtain at least:
+A connector implementation, once built and verified, should be able to obtain at least:
 
 ```text
 project
@@ -90,9 +92,13 @@ The terminal can continue the task without requiring the original chat transcrip
 
 This target builds on the existing Context Continuity Contract and the user/task/capability contracts. It is intentionally a runtime target rather than an implementation mandate.
 
+## Open model-boundary finding
+
+The source tree also contains `gnosis/domain/task_context/model.py`, whose `TaskContext` represents a bounded execution envelope (`tenant_id`, `actor_id`, `scope_id`, reflection budget, and policy bindings). `gnosis/context/model.py` represents durable project/task continuation state (`user_scope`, objective, evidence references, verification state, and revision). These are not interchangeable types. Before runtime integration, trace consumers of both models and document or implement an explicit adapter; do not silently unify their fields or treat either model's scope fields as authenticated identity.
+
 ## Next implementation decomposition
 
-Future implementation should be split into independently auditable phases:
+Remaining runtime work should be split into independently auditable phases. The durable TaskContext value model and repository now exist in source; their existence does not close the integration phases below:
 
 1. Task Envelope value model.
 2. Context Snapshot resolver.
