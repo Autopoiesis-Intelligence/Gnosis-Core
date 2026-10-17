@@ -115,6 +115,40 @@ def test_execution_commit_gate_requires_all_boundaries():
     require_execution_commit(request)
 
 
+def test_execution_commit_identity_includes_evaluator_identity_fields():
+    observations = {"result": "ok"}
+    evidence_digest = canonical_digest(observations)
+    provenance = build_provenance(
+        candidate_id="candidate-evaluator-bound",
+        parent_state_id="parent-1",
+        parent_state_digest="parent-digest",
+        proposed_state_digest=canonical_digest({"state": "new"}),
+        observations=observations,
+        proposed_state_content_id="content-1",
+        candidate_binding_digest="binding-1",
+        evidence_digest=evidence_digest,
+        evaluation_status="PASS",
+        shadow_status="UNCHANGED",
+        invariant_status="PRESERVED",
+        governance_decision="ALLOW",
+        evaluator_identity_ref="evaluator:trusted",
+        evaluator_identity_version="v1",
+    )
+    auth = ExecutionAuthorization(
+        request_provenance=provenance.provenance_id,
+        owner_approved=True,
+        evolution_identity=provenance.evolution_identity,
+    )
+    request = ExecutionCommitRequest(
+        authorization=auth,
+        intent_snapshot=ExecutionIntentSnapshot.from_provenance(provenance),
+        request_provenance=provenance.provenance_id,
+        evolution_identity=provenance.evolution_identity,
+        provenance=provenance,
+    )
+    require_execution_commit(request)
+
+
 def test_execution_commit_gate_rejects_cross_bound_evolution():
     provenance = _snapshot_provenance()
     auth = ExecutionAuthorization(request_provenance=provenance.provenance_id, evolution_identity="wrong", owner_approved=True)
@@ -276,7 +310,7 @@ def test_sqlite_execution_commit_adapter_rejects_cross_candidate_substitution() 
         governance_decision="ALLOW",
     )
     auth = ExecutionAuthorization(
-        provenance.provenance_id, True, provenance.evolution_identity
+        provenance.provenance_id, True, provenance.evolution_identity, "approval-cross-candidate"
     )
     request = ExecutionCommitRequest(
         auth,
@@ -357,16 +391,20 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         provenance_id=provenance_a.provenance_id,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
         candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
+        evaluator_identity_ref=provenance_a.evaluator_identity_ref,
+        evaluator_identity_version=provenance_a.evaluator_identity_version,
         evolution_identity=provenance_a.evolution_identity,
     )
+    forged_auth = ExecutionAuthorization(
+        provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-forged"
+    )
     request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
+        forged_auth,
         ExecutionIntentSnapshot.from_provenance(forged),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         forged,
+        AuthorizationValidity(forged_auth.approval_id, "policy-1", "ev-1"),
     )
     record_b = TransitionRecord(
         from_state_id=parent_state_id,
@@ -477,14 +515,16 @@ def test_execution_commit_rejects_authorized_request_after_canonical_head_advanc
         invariant_status="PRESERVED",
         governance_decision="ALLOW",
     )
+    stale_auth = ExecutionAuthorization(
+        provenance_a.provenance_id, True, provenance_a.evolution_identity, "approval-stale-head"
+    )
     request = ExecutionCommitRequest(
-        ExecutionAuthorization(
-            provenance_a.provenance_id, True, provenance_a.evolution_identity
-        ),
+        stale_auth,
         ExecutionIntentSnapshot.from_provenance(provenance_a),
         provenance_a.provenance_id,
         provenance_a.evolution_identity,
         provenance_a,
+        AuthorizationValidity(stale_auth.approval_id, "policy-1", "ev-1"),
     )
 
     # Another valid transition advances the canonical instance head after authorization.
