@@ -1,17 +1,17 @@
 ## Repository role
 
-**GENESIS = protected engineering foundation + Module Factory.**
+**Repository role: Gnosis Core engineering implementation.**
 
-Gnosis is the public research/evidence/opportunity surface. Gnosis-Memory is the machine-readable research, mathematics, provenance and context layer. Genesis contains the protected Core/Uroboros boundary and the governed factory for specialized modules and products.
+Gnosis is the public research/evidence surface. Gnosis-Memory is the intended machine-readable research, provenance and context layer; its operational scope must be confirmed from current repository and runtime evidence. This repository contains the Core implementation. A separate protected deployment, production boundary, or module-factory role is not established by this status document alone and must be verified from current implementation and deployment evidence.
 
-The repository must not be treated as a public research archive or as a second research-memory authority.
+The repository should not be treated as a second research-memory authority. Status labels below describe the recorded engineering assessment; they are not a substitute for current SHA-specific CI, runtime, persistence, or audit evidence.
 
 # STATUS — GNOSIS CORE
 
 Legend: IMPLEMENTED / PARTIAL / THEORETICAL / MISSING / BLOCKED / UNVERIFIED / DOCUMENTED
 
 ## Current repository baseline
-- Canonical `main` source head verified during the 2026-09-23 contract checkpoint: `d10de2a32b7c1daeec3678dd127e8542afead8ef` (current audited main); prior pinned source snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` is stale.
+- Historical source snapshot recorded at the 2026-09-23 contract checkpoint: `d10de2a32b7c1daeec3678dd127e8542afead8ef`; prior snapshot `b97a3058233b6e47dea342f73bfd5606dc1e5cd8` is also historical. Neither SHA is evidence of the current `main` head or current CI status. Reconcile this section against the live repository and current verification runs before using it as a release baseline.
 
 - Repository: `Autopoiesis-Intelligence/Gnosis-Core`
 - Branch: `main`

@@ -1,21 +1,22 @@
-# GNOSIS CORE — Engineering Foundation
+# Gnosis Core — Engineering Foundation
 
 ## Canonical engineering base for Gnosis research kernels and user products
 
 Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
 
-The older Gnosis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis. The product identity remains Gnosis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
+The public Gnosis repository contains research materials, evidence and experimental implementations. This repository contains the Gnosis Core engineering implementation. Its production deployment status, private access boundary, and any separate module-factory role must be established from current repository and deployment evidence; documentation alone does not establish them. Research-derived requirements enter Core work only after they have been formalized and mapped to code.
 
 ## Project relationship
 
-Gnosis
-        ↓ public evidence / opportunities
-Gnosis-Memory
-        ↓ machine-readable research / mathematics / provenance
-Genesis
-        ├── Uroboros / Ψ-Core
-        ├── Module Factory
-        └── governed specialized outputs
+Gnosis public surfaces
+        ↓ evidence / opportunities
+Gnosis-Memory (intended research/context layer)
+        ↓ formalized requirements and provenance
+Gnosis Core
+        ↓ governed, verified interfaces
+Specialized kernels and product surfaces
+
+Note: this is a target relationship, not proof that every layer or integration is currently deployed.
 
 ## Core rule
 
@@ -51,7 +52,7 @@ Domain-specific behavior normally belongs above Core in a specialized kernel or 
 
 ## What does not enter Core automatically
 
-Research-only hypotheses, domain-specific user features, philosophical interpretations, experimental mechanisms without a demonstrated Core requirement, an AI/LLM inside Ψ-Core, and autonomous rule activation without the required governance boundary.
+Research-only hypotheses, domain-specific user features, philosophical interpretations, experimental mechanisms without a demonstrated Core requirement, an AI/LLM inside trusted Core transition path, and autonomous rule activation without the required governance boundary.
 
 ## Verification principle
 
@@ -92,11 +93,11 @@ A connected AI product is a surface over the durable Gnosis context, not an alte
 
 Product identity: **Gnosis**.
 
-Protected engineering role: **Genesis — Core + Module Factory**.
+Engineering role: **Gnosis Core**. Any separate module-factory role remains unverified until supported by current implementation and deployment evidence.
 
 Research-memory role: **Gnosis-Memory**.
 
-The historical `Gnozis-V2` naming is retired from product documentation. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
+Legacy product-facing names are retired. Historical references may remain in provenance records where they identify an older repository state, but must not be used as the current product identity.
 
 ## Partnership and specialized commercial cores
 
@@ -109,6 +110,6 @@ A specialized commercial core is not a second canonical Core. It is a bounded sp
 
 `Gnosis-Core + partner project specification + authorized learning/evidence -> specialized commercial core`
 
-Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate Ψ-Core.
+Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate trusted Core transition path.
 
 The current partner-facing contract map is maintained in `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md` and refreshed by `scripts/update_partner_contract_block.py`. It is an index/briefing surface, not an authority or learning-proof artifact.
