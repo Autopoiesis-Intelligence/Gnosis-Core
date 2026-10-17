@@ -2,20 +2,21 @@
 
 ## Canonical engineering base for Gnosis research kernels and user products
 
-Gnosis-Core is the canonical engineering foundation of the Gnosis project: a protected, testable computational base from which specialized research kernels and commercial user versions can later be assembled.
+Gnosis-Core is the engineering foundation of the Gnosis project: a testable computational base from which specialized research kernels and commercial user versions may later be assembled. This repository is currently public on GitHub; documentation must not describe the repository itself as private or protected.
 
-The older Gnosis repository is the project's Research Library. It contains historical research, reverse-analysis, mathematical models and experimental Python implementations. This repository is the protected engineering foundation currently operated as Genesis. The product identity remains Gnosis; the canonical engineering role is the protected Core/Module Factory. It receives research-derived requirements only after they have been formalized and mapped to code.
+`Gnosis` is the public product and evidence surface; `Gnosis-Memory` is the research/context surface. `Gnosis-Genesis` is a separate private repository with a declared factory/orchestration role. Its existence and privacy do not by themselves prove an operational end-to-end factory or grant authority to change Core. Research-derived requirements enter engineering only after they have been formalized and mapped to code.
 
 ## Project relationship
 
 Gnosis
-        ↓ public evidence / opportunities
+        ↓ public product / evidence
 Gnosis-Memory
-        ↓ machine-readable research / mathematics / provenance
-Genesis
-        ├── Uroboros / Ψ-Core
-        ├── Module Factory
-        └── governed specialized outputs
+        ↓ research / context / provenance
+Gnosis-Core
+        ↓ reviewed requirements and contracts
+Gnosis-Genesis
+        ↓ candidate modules / proposals
+independent verification and governed release
 
 ## Core rule
 
@@ -23,7 +24,7 @@ Genesis
 
 ## Current engineering foundation
 
-The Core source currently contains the protected Ψ=(X,R) state/evolution model, recursive immutability mechanisms and invariants, Candidate/Test/Verify/Authorize/Commit semantics, deterministic selection where applicable, budgets and stop conditions, instances/forks/lineage, SQLite persistence and durable provenance, append-only audit events, reflection/counterexamples/RuleProposal lineage/shadow evaluation, and boundaries preventing reflection from directly activating Core changes.
+The Core source currently contains the Ψ=(X,R) state/evolution model, recursive immutability mechanisms and invariants, Candidate/Test/Verify/Authorize/Commit semantics, deterministic selection where applicable, budgets and stop conditions, instances/forks/lineage, SQLite persistence and durable provenance, append-only audit events, reflection/counterexamples/RuleProposal lineage/shadow evaluation, and boundaries preventing reflection from directly activating Core changes.
 
 These statements describe repository capabilities present in source; they are not, by themselves, claims of fresh runtime/CI verification. Exact acceptance status is governed by STATUS.md, current source/tests, and reproducible evidence.
 
@@ -51,7 +52,7 @@ Domain-specific behavior normally belongs above Core in a specialized kernel or 
 
 ## What does not enter Core automatically
 
-Research-only hypotheses, domain-specific user features, philosophical interpretations, experimental mechanisms without a demonstrated Core requirement, an AI/LLM inside Ψ-Core, and autonomous rule activation without the required governance boundary.
+Research-only hypotheses, domain-specific user features, philosophical interpretations, experimental mechanisms without a demonstrated Core requirement, an AI/LLM inside the trusted Core runtime, and autonomous rule activation without the required governance boundary.
 
 ## Verification principle
 
@@ -92,7 +93,7 @@ A connected AI product is a surface over the durable Gnosis context, not an alte
 
 Product identity: **Gnosis**.
 
-Protected engineering role: **Genesis — Core + Module Factory**.
+Separate private workspace: **Gnosis-Genesis — declared factory/orchestration role; operational capabilities require current implementation, CI and runtime evidence**.
 
 Research-memory role: **Gnosis-Memory**.
 
@@ -109,6 +110,6 @@ A specialized commercial core is not a second canonical Core. It is a bounded sp
 
 `Gnosis-Core + partner project specification + authorized learning/evidence -> specialized commercial core`
 
-Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate Ψ-Core.
+Partner-private data remains within the agreed trust boundary. Only explicitly shareable, validated and generalizable evidence may be eligible for integration back into common Self-Learning. A partner repository, learning database or generated contract block never becomes a second authority root and cannot directly mutate trusted Core state.
 
 The current partner-facing contract map is maintained in `docs/partners/CURRENT_PARTNER_CONTRACT_BLOCK.md` and refreshed by `scripts/update_partner_contract_block.py`. It is an index/briefing surface, not an authority or learning-proof artifact.
