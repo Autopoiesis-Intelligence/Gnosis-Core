@@ -1,9 +1,9 @@
 {
-  "schema": "gnozis.project-context/v5",
-  "context_id": "gnozis-core-canonical-project",
-  "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
+  "schema": "gnosis.project-context/v6",
+  "context_id": "gnosis-core-canonical-project",
+  "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "branch": "main",
-  "snapshot_of_canonical_source_head": "722e3df0639b21155733ec9850ae1402dd62bc59",
+  "snapshot_of_canonical_source_head": "2a90f28ad75cc63ec3f66c3d9430fe16d95250d9",
   "current_operating_scope": "SINGLE OWNER / SINGLE ACCOUNT / SINGLE CANONICAL PROJECT",
   "implementation_state": {
     "psi_core": "IMPLEMENTED",
@@ -66,9 +66,9 @@
     "R6 endogenous rule generation",
     "R7 cooperative self-reflection network - future multi-user strategy"
   ],
-  "primary_implementer": "Claude when explicitly assigned",
-  "independent_reviewer": "Manus when available",
-  "integration_gate": "ChatGPT under project-owner authorization",
+  "primary_implementer": "ChatGPT under explicit project-owner authorization; all changes must be committed through reviewed repository workflows",
+  "independent_reviewer": "ChatGPT using exact repository and CI evidence; independent external audit only when explicitly requested",
+  "integration_gate": "Project owner authorization plus exact-head tests/CI and evidence reconciliation",
   "forbidden_scope": [
     "autonomous rule activation",
     "direct self-modification",
@@ -116,14 +116,15 @@
   ],
   "rule": "Conversation history is non-canonical. Current source, reproducible tests/CI, accepted contracts and independent audit evidence outrank AI reports. Reflection may propose and evolve evidence-linked hypotheses, but has no activation authority over canonical Core.",
   "repository_role": "CANONICAL_CORE_FOUNDATION",
-  "research_source_repository": "Mikhail-Kucheriavyi-23/Gnozis",
+  "research_source_repository": "Autopoiesis-Intelligence/Gnosis",
   "product_lineage": [
     "Research Library",
-    "Canonical Gnozis Core",
+    "Gnosis-Core",
     "Specialized Research Kernel",
     "User / Commercial Version"
   ],
   "notes": [
+    "Operational context reconciled on 2026-10-14. Canonical repository is Autopoiesis-Intelligence/Gnosis-Core; prior snapshot and historical claims are not current verification evidence.",
     "Older Gnozis is the public research/information library.",
     "Core is the engineering Core foundation, not merely an archive replacement.",
     "Research findings enter Core only through formalization, engineering mapping and evidence.",
@@ -164,5 +165,16 @@
       "evidence_rule": "Only exact commit + exact test command + result + persisted evidence may promote status to VERIFIED"
     },
     "repository_sync": "E7.15 added as verification gate for E7.10-E7.14"
+  },
+  "current_execution_trust_boundary": {
+    "status": "BLOCKED / NOT PROVEN INTEGRATED",
+    "reviewed_main_sha": "2a90f28ad75cc63ec3f66c3d9430fe16d95250d9",
+    "reviewed_at": "2026-10-14",
+    "finding": "Mainline validity checks compare policy and evidence digest against values taken from the same validity record; current adapter and self-learning entry point do not wire the signed production trust context.",
+    "production_trust_root": "UNRESOLVED",
+    "production_composition_root": "NOT PROVEN",
+    "end_to_end_execution": "BLOCKED",
+    "canonical_document": "docs/architecture/CURRENT_EXECUTION_TRUST_BOUNDARY.md",
+    "rule": "Do not hard-code trust roots or accept trust dependencies from request-controlled inputs. Recheck exact main SHA before relying on this snapshot."
   }
 }

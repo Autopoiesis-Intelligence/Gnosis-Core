@@ -1,11 +1,11 @@
-# Gnozis — AI Context
+# Gnosis — AI Context
 
 ## 0. PURPOSE / OPERATING RULE
 
-This file is the operational handoff and research context for AI agents working on Gnozis Core.
+This file is the operational handoff and engineering context for AI agents working on Gnosis Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
 
 Rules:
@@ -21,19 +21,19 @@ Rules:
 
 ## 1. REPOSITORY ROLE
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+Gnosis-Core is the canonical engineering foundation of the Gnosis project. The separate Gnosis research repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
 
 The Core is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
 
 The intended product lineage is:
 
-Research Library → Canonical Gnozis Core → Specialized Research Kernel → User / Commercial Version
+Research Library → Gnosis-Core → Specialized Research Kernel → User / Commercial Version
 
 Core mechanisms should be reusable across multiple future kernels and products. Domain-specific functionality should normally remain above Core. Research language may be broad and descriptive; it becomes an engineering requirement only through an explicit research-to-engineering translation and evidence gate.
 
 ## 1. ARCHITECTURAL PURPOSE
 
-Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
+Gnosis-Core is an engineering foundation for evidence-based, governed evolution research whose canonical state/evolution semantics remain controlled by Ψ-Core.
 
 A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
@@ -133,7 +133,7 @@ Preserve all of the following:
 
 A self-consistent internal history can still be wrong about the external world.
 
-For empirical claims, Gnozis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
+For empirical claims, Gnosis requires a reality-coupling path through which information can enter that is not generated solely by the current internal model.
 
 Conceptual path:
 
@@ -5198,3 +5198,10 @@ Added contracts:
 - ARCHITECTURE_DECISION_AND_LICENSING_CONTRACT.md
 
 Current evidence from repository inspection: pyproject.toml exists and uses setuptools; public Core structure was not verified from a directory listing in this audit pass; LICENSE was not found at repository root through the file fetch; therefore licensing status remains UNVERIFIED/MISSING until inspected and decided. No claim is made that mypy --strict or a lockfile is currently present.
+
+
+## Current execution trust boundary — 2026-10-14
+
+The reviewed default-branch SHA `2a90f28ad75cc63ec3f66c3d9430fe16d95250d9` contains a self-referential validity check: the execution gate takes expected policy and evidence digest from the validity object it is checking. The mainline execution adapter and self-learning entry point do not wire the signed production trust context. PR #168 has a stronger signed path on a separate Draft branch, but trusted dependency provisioning and end-to-end reachability remain unproven.
+
+Do not hard-code issuer keys or policy, or let request-controlled inputs choose the trust context. First identify the protected deployment/composition boundary and trust-root owner. Follow `docs/architecture/CURRENT_EXECUTION_TRUST_BOUNDARY.md` for the bounded finding and acceptance sequence. This is source-level evidence, not runtime proof; recheck the exact main SHA before relying on it.
