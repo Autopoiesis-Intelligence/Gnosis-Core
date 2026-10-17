@@ -1,12 +1,15 @@
 {
   "schema": "gnozis-project-state/v1",
-  "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
+  "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "canonical_branch": "main",
-  "canonical_head": "7d40a9c91fd2e69736305141a71b62aeebb99461",
+  "canonical_head": "87591db35c6b4dc51f3aa0098dec8409b793109c",
   "context_sources": [
+    "docs/PROJECT_STATE.json",
+    "docs/PHASE_LEDGER.md",
+    "docs/CONTEXT_CONTINUITY_CONTRACT.md",
+    "docs/AI_HANDOFF_PROTOCOL.md",
     "AI_CONTEXT.md",
     "STATUS.md",
-    "docs/AI_HANDOFF_PROTOCOL.md",
     "docs/MULTI_AGENT_BUILD_STRATEGY.md",
     "AGENT_ROLES.md"
   ],
@@ -43,7 +46,7 @@
     "name": "context-continuity architecture",
     "status": "DOCUMENTATION_AND_ARCHITECTURE",
     "primary_implementer": "ChatGPT",
-    "independent_reviewer": "Manus when available",
+    "independent_reviewer": "NOT_ASSIGNED",
     "integration_gate": "ChatGPT under human owner authorization",
     "allowed_scope": [
       "context recovery contracts",
@@ -62,7 +65,7 @@
       "autonomous self-modification"
     ]
   },
-  "next_permitted_action": "Independent read-only audit of the context-continuity documentation/state layer, then proceed to the already approved Memory corrective pass.",
+  "next_permitted_action": "Continue the bounded CONTEXT-CONTINUITY ARCHITECTURE documentation/state reconciliation; validate snapshot freshness, existing schema fields, and phase-scope consistency. Do not begin Memory corrective implementation unless a separate owner-approved phase transition is recorded.",
   "evidence_rule": "Current repository source and reproducible tests outrank AI reports or conversation history.",
-  "staleness_rule": "This file records a pinned snapshot. A new session must verify canonical_head against the live repository before relying on it."
+  "staleness_rule": "Point-in-time observation: canonical_head records the main HEAD observed when this snapshot was prepared (87591db35c6b4dc51f3aa0098dec8409b793109c). It is not a live pointer and will normally become stale when main advances. Every session must fetch live main, compare exact SHAs, and reconcile conflicts before acting; do not silently refresh this field. Missing test/CI/acceptance evidence remains UNKNOWN or UNVERIFIED."
 }

@@ -1,4 +1,4 @@
-# Gnozis-V2 — Evidence and Provenance Contract
+# Gnosis-Core — Evidence and Provenance Contract
 
 ## Status
 
@@ -88,7 +88,7 @@ An AI-generated analysis may become evidence of what an AI reported or computed.
 For example:
 
 ```text
-Claude report
+External AI report
     ↓
 AI-produced evidence
     ↓
@@ -134,7 +134,7 @@ This contract is informed by Research Machine record `C-0004` for the distinctio
 
 ```yaml
 research_ref:
-  repository: Mikhail-Kucheriavyi-23/Gnozis
+  repository: Autopoiesis-Intelligence/Gnosis
   record_id: C-0004
   source_commit: 7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c
   relation: TEST_RATIONALE

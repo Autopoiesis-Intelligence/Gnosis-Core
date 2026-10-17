@@ -1,32 +1,22 @@
 # Repository Role and Naming Contract
 
+**Current identity (2026-10-15):** The canonical Core repository is `Autopoiesis-Intelligence/Gnosis-Core`. The Research Machine repository is `Autopoiesis-Intelligence/Gnosis`. Repository role and authority must be resolved from current repository state, not obsolete owner/repository names or historical project snapshots.
+
 ## Canonical repository
 
-**Gnozis-V2** is the canonical Gnozis Core repository.
+**Gnosis-Core** is the canonical Gnozis Core repository.
 
 It is the source of truth for executable Core behavior, protected invariants, governed transitions and accepted implementation.
 
-## Temporary self-learning archive
+## Historical archive concept (not an active repository assignment)
 
-A separate second repository is reserved for the temporary self-learning archive.
+Older project plans described a separate temporary self-learning archive. That plan is historical context, not proof that a second repository currently exists or has been assigned this role.
 
-Its role is NOT to be a second Core.
-
-It stores and organizes:
-- theoretical material;
-- mathematical/formal derivations;
-- evidence and counterexamples;
-- research context;
-- agent/partner contributions;
-- provenance and learning lineage;
-- machine-readable learning material;
-- experimental/self-optimization knowledge.
-
-Its contents are inputs to governed learning, not canonical executable authority.
+No repository may be treated as the archive until its live identity, visibility, ownership, contents, and accepted role are checked against current GitHub state and explicitly recorded. Archive contents, if any, are inputs to governed learning and are not canonical executable authority.
 
 ## Direction of trust
 
-Self-learning archive -> quarantine/workspace -> verification -> governance -> Gnozis-V2 Core.
+If a separate archive is explicitly approved in a future phase: archive -> quarantine/workspace -> verification -> governance -> Gnosis-Core.
 
 Never:
 
@@ -34,7 +24,7 @@ Self-learning archive -> direct Core mutation.
 
 ## Naming rule
 
-Until the second repository receives an explicit final name, documentation MUST refer to it descriptively as:
+If a future archive repository is explicitly approved, documentation should refer to it descriptively until its final name is approved:
 
 **Temporary Self-Learning Archive**
 
@@ -42,14 +32,14 @@ or
 
 **Self-Learning Research & Learning Archive**
 
-and MUST NOT call it Core, canonical Core, production Core, or a second Gnozis Core.
+and must not call it Core, canonical Core, production Core, or a second Core.
 
-The historical `Gnozis` repository remains the legacy/research/archive line and is distinct from both the canonical `Gnozis-V2` Core and the future Temporary Self-Learning Archive.
+The `Autopoiesis-Intelligence/Gnosis` repository is the verified Research Machine source. It is distinct from the canonical `Gnosis-Core`; references to a future Temporary Self-Learning Archive are historical until a current repository and accepted role are independently verified.
 
 ## Partner repositories
 
 Partner repositories are external sources. They are not the Temporary Self-Learning Archive and are not Core.
 
-PartnerRepository -> Temporary Self-Learning Archive -> governed learning -> Gnozis-V2 Core.
+Future flow, only if a separate archive is explicitly approved: PartnerRepository -> approved archive -> governed learning -> Gnosis-Core.
 
 Status: CONTRACT / NAMING BASELINE.

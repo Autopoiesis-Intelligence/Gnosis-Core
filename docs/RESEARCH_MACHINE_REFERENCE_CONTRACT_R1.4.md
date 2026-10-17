@@ -1,12 +1,12 @@
 # Research Machine Reference Contract — R1.4
 
 Status: CONTRACT / ACTIVE
-Scope: Gnozis-V2 references to the canonical Gnozis Research Machine
+Scope: Gnosis-Core references to the canonical Research Machine repository
 Authority: non-authoritative reference only
 
 ## Purpose
 
-Provide the smallest stable mechanism for Gnozis-V2 to point to a Research Machine record without copying its semantics into Core or granting the research record authority.
+Provide the smallest stable mechanism for Gnosis-Core to reference a Research Machine record without copying its semantics into Core or granting the research record authority.
 
 ## Minimal reference
 
@@ -14,7 +14,7 @@ A Core-side reference consists of:
 
 ```yaml
 research_ref:
-  repository: Mikhail-Kucheriavyi-23/Gnozis
+  repository: Autopoiesis-Intelligence/Gnosis
   record_id: C-0004
   source_commit: <exact source commit>
   relation: DERIVED_REQUIREMENT
@@ -76,7 +76,7 @@ Do not create a parallel ResearchRecord state model inside `gnosis/core/`.
 
 ```yaml
 research_ref:
-  repository: Mikhail-Kucheriavyi-23/Gnozis
+  repository: Autopoiesis-Intelligence/Gnosis
   record_id: C-0184
   source_commit: 0717671589facc8ca51e3943c11a1a405f5e
   relation: TEST_RATIONALE

@@ -48,7 +48,7 @@ evidence_references
 staleness_rule
 ```
 
-`canonical_head` is the authoritative source revision. A consumer must compare it with the live repository before acting.
+`canonical_head` is the source revision observed when the snapshot was prepared; it is a point-in-time pin, not a live pointer. A consumer must fetch the live repository HEAD and compare exact SHAs before acting. A mismatch means the snapshot may be stale; it does not by itself prove that every snapshot claim is wrong or authorize automatic refresh. Record the observed SHA and observation context when deliberately updating a snapshot.
 
 ## 3. Task Envelope
 
@@ -78,18 +78,22 @@ A newly connected product follows:
 1. Read canonical context sources.
 2. Read live repository HEAD.
 3. Compare snapshot canonical_head with live HEAD.
-4. If different, refresh the snapshot before acting.
-5. Determine implementation / verification / acceptance separately.
-6. Determine active phase and task.
-7. Check allowed and forbidden scope.
-8. Read only relevant source, tests and contracts.
-9. Produce a baseline report.
-10. Execute only the bounded task that is authorized.
-11. Record reproducible evidence.
-12. Leave durable state sufficient for the next product to continue.
+4. If different, report `RECONCILIATION REQUIRED`, record the exact pinned SHA, live SHA, observation time, and affected claims, then inspect conflicting canonical sources before acting.
+5. Refresh a snapshot only as a deliberate documented state update after reconciliation; never overwrite a pinned SHA silently or assume the new SHA verifies the claims in the snapshot.
+6. If the source delta or required evidence cannot be resolved, mark affected fields `UNKNOWN` or `UNVERIFIED` and do not perform work that depends on them.
+7. Determine implementation / verification / acceptance separately.
+8. Determine active phase and task.
+9. Check allowed and forbidden scope.
+10. Read only relevant source, tests and contracts.
+11. Produce a baseline report.
+12. Execute only the bounded task that is authorized.
+13. Record reproducible evidence.
+14. Leave durable state sufficient for the next product to continue.
 ```
 
 If any required field is unavailable, the product must mark it `UNKNOWN` or `UNVERIFIED`.
+
+The current JSON state files retain their existing schema versions and field names. Map portable snapshot concepts to existing fields only where semantics are clear. Do not add or reinterpret schema fields without consumer-compatibility evidence. In particular, `canonical_head` and `snapshot_of_canonical_source_head` are separate existing fields; do not assume they are interchangeable solely because both contain a SHA. JSON parsing validates syntax only and does not prove runtime continuity, verification, or acceptance.
 
 ## 5. Resource model
 

@@ -5,8 +5,10 @@
 This file is the operational handoff and research context for AI agents working on Gnozis Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
+
+**Current identity precedence (2026-10-15):** The repository and active phase are defined by live GitHub state and the current operational records: `docs/PROJECT_STATE.json`, `docs/PHASE_LEDGER.md`, `docs/CONTEXT_CONTINUITY_CONTRACT.md`, and `AGENT_ROLES.md`. The active implementation repository is `Autopoiesis-Intelligence/Gnosis-Core`; the verified Research Machine repository is `Autopoiesis-Intelligence/Gnosis`. Any older repository names, phase assignments, task numbers, or topology statements later in this long-form context are historical snapshots unless revalidated against current repository evidence. They do not override the active phase or current repository map.
 
 Rules:
 1. Repository code, tests and actual runtime/CI evidence outrank chat memory or this document.
@@ -16,24 +18,35 @@ Rules:
 5. Preserve rejected, failed, quarantined and insufficient-evidence outcomes as historical data.
 6. Never weaken an invariant or evidence gate merely to make tests green.
 7. Preserve the distinction between mathematical/research hypotheses and implementation facts.
-8. The task-list and analytical-message format in Sections 25–26 are CONSTANTS for this research workflow unless explicitly revised by a later architectural decision.
+8. Sections 25–26 preserve a historical reporting-format reference only. They do not define the active task, phase, or implementation authorization; those come from the current operational records.
 9. Research descriptions may be maximally expressive. Descriptive/philosophical language is not itself a defect; it becomes engineering input only through explicit pattern extraction, definition change, formalization, falsifiable consequence, gap identification, implementation and evidence.
+
+## 0.1 CURRENT OPERATIONAL BOUNDARY
+
+The active execution phase is defined by `docs/PHASE_LEDGER.md` and the matching machine-readable state in `docs/PROJECT_STATE.json` and `context/PROJECT_CONTEXT.json`. At this handoff, the permitted work is limited to CONTEXT-CONTINUITY ARCHITECTURE documentation/state reconciliation.
+
+The long-form research notes and task registries below preserve historical analysis and prior plans. They are not an active task queue, implementation authorization, or evidence of current runtime status. A task or phase appearing in an older section becomes actionable only after it is revalidated against the current phase ledger, exact repository state, and explicit owner-approved scope. Do not execute an older task merely because it is labelled “current”, “active”, or “next” inside a historical snapshot.
+
+Do not delete these records merely because they are stale; preserve provenance and clarify their status. Current repository identity and task authority come from live GitHub state and the canonical operational records, not from the age or length of a context section.
 
 ## 1. REPOSITORY ROLE
 
-Gnozis Core is the canonical engineering foundation of the Gnozis project. The older Gnozis repository is the Research Library: it preserves discovered principles, reverse-analysis, mathematical models and experimental Python implementations for researchers and enthusiasts.
+The canonical engineering repository is `Autopoiesis-Intelligence/Gnosis-Core`. It is the source of truth for executable Core behavior, protected invariants, governed transitions and accepted implementation.
 
-The Core is therefore not merely a replacement archive and not simply a refactor of the old repository. It is the engineering base that receives research-derived requirements after they have been formalized and mapped to real code.
+The verified Research Machine repository is `Autopoiesis-Intelligence/Gnosis`. It preserves machine-readable research records and supporting evidence. Research records may inform engineering work but do not grant Core authority.
 
-The intended product lineage is:
+These repository roles are distinct:
+- `Gnosis-Core`: canonical implementation and execution authority.
+- `Gnosis`: Research Machine / research evidence source.
+- `Gnozis`: public project name, not a substitute for the exact GitHub repository name.
 
-Research Library → Canonical Gnozis Core → Specialized Research Kernel → User / Commercial Version
+Do not assume a separate temporary self-learning archive exists. That concept is historical unless a distinct repository and its accepted role are verified against live GitHub state.
 
-Core mechanisms should be reusable across multiple future kernels and products. Domain-specific functionality should normally remain above Core. Research language may be broad and descriptive; it becomes an engineering requirement only through an explicit research-to-engineering translation and evidence gate.
+Core mechanisms may support future specialized kernels and user/commercial products. Domain-specific functionality should normally remain above Core. Research material becomes an engineering requirement only through explicit research-to-engineering translation and an evidence gate.
 
 ## 1. ARCHITECTURAL PURPOSE
 
-Gnozis-V2 is an autonomous recursive evolution research system whose canonical state/evolution semantics remain controlled by Ψ-Core.
+Gnozis is a governed recursive-evolution research and engineering system whose canonical state/evolution semantics remain controlled by Ψ-Core.
 
 A broader The reverse-analysis program studies whether the implemented architecture can support iterative information processing, evidence-based model revision, constrained state evolution and environment interaction. These are engineering research questions, not claims about consciousness or metaphysical properties.
 
@@ -306,16 +319,17 @@ Implementation
 
 The existence of a meaningful architectural pattern does not by itself prove a philosophical interpretation. It does justify investigating the pattern.
 
-## 13. GNOSIS AS PHENOMENON VS GNOZIS AS IMPLEMENTATION
+## 13. CURRENT PROJECT NAMING AND CLAIM BOUNDARY
 
-Preserve this distinction:
+Use exact names according to their roles:
+- **Gnozis**: public project name.
+- **Gnosis-Core**: canonical implementation repository.
+- **Gnosis**: verified Research Machine repository.
+- **Gnosis and Genesis**: the intended paired names where those distinct project lines are discussed; do not substitute the obsolete spelling “Genezis”.
 
-Gnozis is an engineering implementation for studying knowledge formation, evidence, model revision and constrained evolution.
+A repository or product name does not establish a scientific, philosophical, consciousness, or subjective-experience claim. Describe capabilities only when they are operationally defined and supported by implementation and verification evidence.
 
-Do not make metaphysical, consciousness or subjective-experience claims from the existence of the architecture.
-
-Instead investigate observable/derivable properties such as:
-- self-model;
+Relevant engineering properties may include:
 - uncertainty recognition;
 - contradiction/tension recognition;
 - internal model revision;
@@ -323,8 +337,8 @@ Instead investigate observable/derivable properties such as:
 - self-correction;
 - generation of new distinctions;
 - preservation of identity through transformation;
-- interaction with environment;
-- ability to reorganize under constraints.
+- interaction with the environment;
+- constrained reorganization.
 
 ## 14. CURRENT ARCHITECTURAL IMPLICATION — NOT IMPLEMENTATION AUTHORIZATION
 
@@ -521,7 +535,7 @@ Progress percentages are directional analytical estimates only. They are not sof
 
 Do NOT frame the purpose of reverse-analysis as merely “saving time” or “being efficient”. The method is itself part of the research/product concept: an adaptive process for discovering and constructing better future states.
 
-## 20. NEXT REVERSE-ANALYSIS TARGET
+## 20. HISTORICAL NEXT REVERSE-ANALYSIS TARGET — E7.9.2 (NOT CURRENT TASK)
 
 ### E7.9.2 — Attack the Level Hypothesis
 
@@ -601,7 +615,7 @@ CI-green must be tied to an exact commit/run.
 
 ## 24. HANDOFF
 
-Current research handoff:
+Historical research handoff snapshot (preserved for provenance; not the current active task):
 - Ψ-Core remains the protected semantic/state-transition authority.
 - Gnozis-V2 is being reverse-engineered as an existing architectural specimen, not merely designed from philosophy downward.
 - The broader working product concept is an autopoietic environment-interaction machine that continuously transforms information, distinctions and organization under constraints.
@@ -612,9 +626,11 @@ Current research handoff:
 - E7.9.2 is the next analytical target.
 - Repository code/tests/CI remain authoritative over this document.
 
-## 25. CONSTANT TASK REGISTRY FORMAT
+## 25. HISTORICAL TASK REGISTRY FORMAT REFERENCE
 
-All future reverse-analysis work is organized as a task registry. Each task block is self-contained.
+**Historical record only:** the task entries and their `READY`, `ACTIVE`, or `NEXT` labels in Sections 25–26 are not the current task queue and do not authorize execution. Use `docs/PHASE_LEDGER.md`, `docs/PROJECT_STATE.json`, and the current owner-approved scope to identify the next permitted action. Preserve these entries for provenance; do not execute them solely because of their recorded status.
+
+The following format is retained as a historical reference for reverse-analysis records. Each task block is self-contained.
 
 Use exactly these fields:
 
@@ -647,9 +663,9 @@ Rules:
 11. Every completed task must produce a concise analytical result and a NEXT task.
 12. The registry is a planning/control layer; it is not evidence of implementation.
 
-## 26. CONSTANT ANALYTICAL MESSAGE FORMAT
+## 26. HISTORICAL CONSTANT ANALYTICAL MESSAGE FORMAT (NOT CURRENT RESPONSE CONTRACT)
 
-Every substantial “Далее” reverse-analysis response must use this structure, in this order:
+Historical note: this format governed earlier reverse-analysis work only. It does not govern the current context-continuity phase or override the active phase ledger.
 
 ### [TASK-ID] — [TITLE]
 
@@ -695,7 +711,7 @@ At the end of substantial steps, provide the next task block using the CONSTANT 
 
 Do not add “time saved” or efficiency framing unless the user explicitly asks for it. The reverse-analysis method is itself part of the Gnozis research/product concept.
 
-## 27. ACTIVE TASK REGISTRY — E7.9 FRONTIER
+## 27. HISTORICAL TASK REGISTRY — E7.9 FRONTIER (NOT ACTIVE)
 
 ### TASK-ID: E7.9.2
 BLOCK: Level Hypothesis
@@ -2515,13 +2531,15 @@ Next: <single next action>
 Percentages are allowed only with an explicit reproducible denominator. Do not expand AI_CONTEXT into the research archive; store continuity in stable research IDs, task IDs, commits, tests, CI evidence and audit records.
 
 
-## 2026-09-21 RESTRUCTURING HANDOFF — RESEARCH MACHINE / CORE
+## HISTORICAL SNAPSHOT — 2026-09-21 RESTRUCTURING HANDOFF (SUPERSEDED)
+
+**Historical record only.** The following section preserves the plan and terminology recorded on 2026-09-21. It is not the current task queue, current repository-role authority, or current phase assignment. Use the canonical operational records at the beginning of this file, `docs/PHASE_LEDGER.md`, and `docs/PROJECT_STATE.json` for current work.
 
 The current engineering strategy is explicitly dual-track. The project is no longer required to complete an ever-expanding mathematical reverse-analysis before becoming operational. Established research results are now being materialized directly into repository architecture and working engineering tasks; reverse-analysis continues only where implementation exposes a concrete unresolved question or gap.
 
 ### Architectural target
 
-The correct historical/research layer name is **Gnozis Research Machine**, not Archive.
+At the time of this snapshot, the research layer was referred to as **Gnozis Research Machine**. Current repository identity is established by live GitHub state and the current operational records, not this historical wording.
 
 Conceptual separation:
 
@@ -2558,7 +2576,7 @@ Do not wait for completion of the entire E7.x mathematical program before implem
 
 During restructuring, existing material is classified before physical movement:
 
-- KEEP IN V2 / CORE
+- KEEP IN CORE (the old label “V2 / CORE” is historical)
 - MOVE TO RESEARCH MACHINE
 - REFERENCE FROM CORE
 - DUPLICATE
@@ -2570,11 +2588,13 @@ During restructuring, existing material is classified before physical movement:
 
 Do not perform blind bulk migration. Preserve provenance, status, uncertainty, rejected/failed material and source baselines.
 
-### Important correction
+### Historical correction note — not a current repository assignment
 
-A temporary archive/ foundation was created in Gnozis-V2 during the transition before this naming/model was fully restored. It is not the final architectural target. Do not continue populating it as a separate product subsystem. First reconcile it with the intended Gnozis Research Machine model and existing docs/AI_KNOWLEDGE_INTERFACE.md contract.
+An earlier transition note claimed that a temporary archive/foundation had been created in the then-named `Gnozis-V2` repository. This statement is preserved as historical context and does not establish that a separate archive repository currently exists. Current repository roles are defined by the live GitHub repositories and the canonical operational records at the top of this file.
 
-### Current restructuring phase
+### Historical restructuring-phase snapshot — superseded
+
+The task below records a previous restructuring plan. Its `ACTIVE` label is historical and does not authorize work in the current CONTEXT-CONTINUITY ARCHITECTURE phase.
 
 TASK-ID: RM-CORE-R1
 BLOCK: Research Machine / Core Boundary and Repository Inventory
@@ -2596,13 +2616,13 @@ ACCEPTANCE: a reproducible repository map exists and each moved/retained area ha
 AUDIT: structural audit before declaring the boundary complete.
 NEXT: first controlled migration/extraction from the inventory, then Core cleanliness verification.
 
-### Working principle for this phase
+### Historical working principle (2026-09-21; not current phase authority)
 
 The repository is now treated as an engineering specimen. We use reverse-analysis to identify necessary boundaries, then immediately test those boundaries against actual code and materialize them. If a research result has no demonstrated implementation consequence, it remains in the Research Machine and does not force Core redesign.
 
-### Session recovery anchor
+### Historical session recovery anchor — superseded
 
-If this context must be reconstructed in a new session, resume from RM-CORE-R1, not from the beginning of E7.x. The immediate job is repository restructuring toward Gnozis Core + Gnozis Research Machine, using the existing AI Knowledge Interface and preserving the dual-track Research/Engineering workflow.
+The original recovery instruction pointed to `RM-CORE-R1`. That task belongs to the 2026-09-21 restructuring snapshot and is not the current permitted action. For a new session, read `docs/PROJECT_STATE.json`, `docs/PHASE_LEDGER.md`, and `docs/CONTEXT_CONTINUITY_CONTRACT.md`, fetch live `main`, reconcile exact SHAs, and continue only within the currently recorded phase and scope.
 
 ## 2026-09-23 EXTERNAL-WORLD ANALYTICAL BRANCH — RELATION STRUCTURE
 
@@ -4695,9 +4715,9 @@ Memory domains are separated into immutable Core K, governed learning workspace 
 External partner repositories enter through PROPOSED -> IDENTITY_ASSIGNED -> METADATA_VALIDATED -> SCOPE_DECLARED -> PROVENANCE_BASELINED -> SECURITY_AUDITED -> QUARANTINED -> ADMITTED -> ACTIVE_SOURCE. Admission is not trust or execution authority. PartnerIdentity is distinct from human/agent identity, repository name/URL and authority. Undeclared capabilities are denied by default; forks/renames do not silently inherit authority; revocation triggers impact analysis without erasing historical provenance.
 
 
-## Repository Role Baseline
+## Historical Repository Role Baseline (superseded)
 
-`Gnozis-V2` is the canonical Core/source-of-truth repository. The future second repository is the **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**: a machine-readable repository for theory, mathematics, evidence, counterexamples, research context, partner/agent contributions, provenance and self-optimization material. It is not a second Core and cannot directly mutate Core. Partner repositories are external sources distinct from the temporary archive. Historical `Gnozis` remains the legacy/research/archive line.
+The following paragraph records an earlier repository topology and is retained only for provenance. It is not the current repository map: `Gnozis-V2` was described as the canonical Core/source-of-truth repository, a future second repository was described as a **Temporary Self-Learning Archive / Self-Learning Research & Learning Archive**, and `Gnozis` was described as the legacy/research/archive line. Current repository identity and roles are defined by the current `README.md`, `docs/PROJECT_STATE.json`, `context/PROJECT_CONTEXT.json`, and the live GitHub repositories. Do not use this historical paragraph to resolve current links or task authority.
 
 
 ## E7.118 — First Proof Runtime Evidence Integrity & Artifact Sealing
