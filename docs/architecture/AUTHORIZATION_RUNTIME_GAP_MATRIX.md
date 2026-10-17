@@ -48,3 +48,51 @@ Do not modify production runtime until blockers 1–4 are grounded in an explici
 - PERSISTED: consumption/audit infrastructure exists, but forged-authorization acceptance shows it is not sufficient proof of authority.
 - AUDITED: defect analysis exists; remediation has not been audited.
 - CI_PROVEN: no remediation SHA exists to prove.
+
+
+## SEQ 121 — minimal verifier boundary proposal
+
+This section narrows implementation shape without choosing the still-unapproved real-world trust root or crypto provider.
+
+### Proposed internal interface
+
+- `AuthorizationProof`: immutable signed artifact containing a canonical payload and signature; no `owner_approved` boolean is accepted as proof.
+- `TrustedKeyProvider`: configured inside the protected execution boundary. It resolves `(issuer_id, key_version)` to verification material plus authoritative status. Request objects cannot inject or replace this provider.
+- `AuthorizationVerifier`: pure verification boundary receiving the proof and exact expected execution context, while obtaining keys, time and revocation state only through trusted dependencies configured outside the request.
+- `VerifiedAuthorization`: verifier-produced result bound to the proof digest and exact context. It must not be constructible by request callers as a trusted capability; use module-private construction or a gate-owned opaque token pattern appropriate to the codebase.
+- `require_trusted_execution`: invokes verification before `consume_authorization_in_transaction`. The commit adapter continues to own one transaction covering verification-dependent acceptance, consumption, candidate binding, and state persistence.
+
+### Required verification order
+
+1. Reject malformed/missing proof and unsupported protocol/algorithm.
+2. Resolve issuer and exact key version through the configured trusted provider; reject unknown, disabled, expired or revoked key.
+3. Verify domain-separated canonical payload signature.
+4. Compare every signed claim against independently computed expected values: scope/action/audience, policy version and evidence digest, request provenance, evolution identity, parent state ID/digest, intent snapshot digest, validity window, authorization ID and nonce.
+5. Check trusted time, authorization expiry/not-before, revocation and replay/consumption state.
+6. Only after all checks succeed, proceed through existing Core invariants and atomic consumption/commit.
+
+No consumption audit event may be appended on any rejection. Any exception after a tentative consumption write must roll back with the adapter transaction.
+
+### Security tests required before integration is considered
+
+- Direct construction of legacy `ExecutionAuthorization(owner_approved=True)` is rejected by the trusted gate.
+- Caller-supplied `AuthorizationValidity` cannot substitute for independently verified claims.
+- Invalid signature, malformed/non-canonical payload, wrong domain, unknown issuer/key version, unsupported algorithm, disabled/revoked key, not-yet-valid and expired proof are rejected.
+- Wrong scope/action/audience/policy/evidence/provenance/evolution/parent/intent is rejected.
+- Same authorization replay and cross-evolution replay are rejected.
+- Every rejection asserts: no `execution.authorization.consume` event, no transition, no state mutation, and unchanged valid audit chain.
+- Successful proof commits once; duplicate delivery is denied or handled only by an explicitly specified idempotency contract.
+- Failure injection between consumption and persistence proves transaction rollback leaves the original durable graph intact.
+
+### Explicit non-decisions
+
+This proposal does not decide owner identity, signing-key custody, root distribution, algorithm/provider, trusted clock, revocation authority or delegation governance. Those must be supplied by an authoritative project decision/configuration contract. No generated default key, request-provided trust root, or test-only HMAC promotion is allowed.
+
+### Acceptance sequence
+
+1. Record the missing trust-governance decisions explicitly.
+2. Implement provider/verifier on a separate branch only after those decisions are authoritative.
+3. Add tests above before wiring verifier into the production gate.
+4. Run exact-head CI; inspect the resulting run and failure counts.
+5. Re-run the forged-authorization diagnostic against the candidate fix and verify both rejection and zero persisted side effects.
+6. Independent audit; only then consider merging.
