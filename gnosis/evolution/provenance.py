@@ -15,6 +15,27 @@ def canonical_digest(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def canonical_evolution_identity(provenance: Any) -> str:
+    """Return the canonical identity for one complete evolution provenance."""
+    return "evolution:" + canonical_digest({
+        "candidate_id": provenance.candidate_id,
+        "execution_id": provenance.execution_id,
+        "parent_state_id": provenance.parent_state_id,
+        "parent_state_digest": provenance.parent_state_digest,
+        "proposed_state_digest": provenance.proposed_state_digest,
+        "proposed_state_content_id": provenance.proposed_state_content_id,
+        "candidate_binding_digest": provenance.candidate_binding_digest,
+        "evaluator_identity_ref": provenance.evaluator_identity_ref,
+        "evaluator_identity_version": provenance.evaluator_identity_version,
+        "evidence_digest": provenance.evidence_digest,
+        "evaluation_status": provenance.evaluation_status,
+        "shadow_status": provenance.shadow_status,
+        "invariant_status": provenance.invariant_status,
+        "governance_decision": provenance.governance_decision,
+        "provenance_id": provenance.provenance_id,
+    })
+
+
 def provenance_id_for(*, execution_id: str, candidate_id: str, parent_state_id: str, parent_state_digest: str, proposed_state_digest: str, evidence_digest: str, evaluation_status: str, shadow_status: str, invariant_status: str, governance_decision: str, status: str = "RECORDED", proposed_state_content_id: str = "", candidate_binding_digest: str = "", evaluator_identity_ref: str = "", evaluator_identity_version: str = "") -> str:
     return "provenance:" + canonical_digest({
         "execution_id": execution_id,
@@ -55,23 +76,7 @@ class EvidenceProvenance:
     @property
     def evolution_identity(self) -> str:
         """Canonical identity for the complete persisted evolution unit."""
-        return "evolution:" + canonical_digest({
-            "candidate_id": self.candidate_id,
-            "execution_id": self.execution_id,
-            "parent_state_id": self.parent_state_id,
-            "parent_state_digest": self.parent_state_digest,
-            "proposed_state_digest": self.proposed_state_digest,
-            "proposed_state_content_id": self.proposed_state_content_id,
-            "candidate_binding_digest": self.candidate_binding_digest,
-            "evaluator_identity_ref": self.evaluator_identity_ref,
-            "evaluator_identity_version": self.evaluator_identity_version,
-            "evidence_digest": self.evidence_digest,
-            "evaluation_status": self.evaluation_status,
-            "shadow_status": self.shadow_status,
-            "invariant_status": self.invariant_status,
-            "governance_decision": self.governance_decision,
-            "provenance_id": self.provenance_id,
-        })
+        return canonical_evolution_identity(self)
 
     @property
     def provenance_id(self) -> str:
