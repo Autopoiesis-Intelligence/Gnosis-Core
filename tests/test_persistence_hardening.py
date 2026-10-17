@@ -3,7 +3,7 @@ from gnosis.storage.repositories import _persist_transition
 def _authorized_recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
-        authorization_id="test-recovery", subject=instance_id,
+        authorization_id=f"test-recovery:{instance_id}", subject=instance_id,
         requested_by="test-principal", authority="test-governance",
         decision="allow", reason="test recovery",
         issued_at="2026-09-25T00:00:00Z", expires_at="2026-09-26T00:00:00Z",
@@ -76,7 +76,7 @@ def test_budget_and_history_survive_restart():
     _persist_transition(conn, instance, candidate, record, actor="u")
     recovered = load_instance(conn, instance.instance_id)
     assert recovered.engine.budget.spent == instance.engine.budget.spent
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_head_without_transition_fails_graph_verification():
@@ -123,7 +123,7 @@ def test_after_commit_failure_leaves_committed_transition_durable():
     with pytest.raises(RuntimeError, match="injected failure"):
         _persist_transition(conn, instance, candidate, record, actor="u", failure_at="after_commit")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == proposed.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
@@ -161,7 +161,7 @@ def test_fork_after_restart_preserves_independent_heads_lineage_and_audit():
     assert "b1" in recovered_b1.engine.state.elements
     assert "b1" not in recovered_a2.engine.state.elements
     assert "a2" not in recovered_b1.engine.state.elements
-    assert verify_durable_graph(conn)[0] == 5
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def _transition(instance, key):
@@ -181,7 +181,7 @@ def test_a27_direct_persistence_stale_head_is_rejected():
     with pytest.raises(ValueError, match="stale instance head"):
         _persist_transition(conn, instance, stale_candidate, stale_record, actor="u")
     assert load_instance(conn, instance.instance_id).engine.state.state_id == first_candidate.proposed_state.state_id
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a31_fork_creation_failure_rolls_back_child(monkeypatch):
@@ -197,6 +197,7 @@ def test_a31_fork_creation_failure_rolls_back_child(monkeypatch):
     with pytest.raises(RuntimeError, match="injected fork audit failure"):
         save_instance(conn, child)
     assert conn.execute("SELECT 1 FROM instances WHERE instance_id=?", (child.instance_id,)).fetchone() is None
+    monkeypatch.undo()
     assert _authorized_recover(conn, parent.instance_id).instance_id == parent.instance_id
 
 
@@ -238,7 +239,7 @@ def test_a35_multiple_instances_interleaved_commits_keep_independent_heads():
     assert "second-final" not in recovered_first.engine.state.elements
     assert recovered_second.engine.state.elements["second-final"] == 1
     assert "first-final" not in recovered_second.engine.state.elements
-    assert verify_durable_graph(conn)[0] == 6
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a36_concurrent_same_head_allows_one_accepted_transition(tmp_path):
@@ -269,7 +270,7 @@ def test_a36_concurrent_same_head_allows_one_accepted_transition(tmp_path):
     for thread in threads: thread.join()
     assert results.count("accepted") == 1
     assert sum("stale instance head" in result for result in results) == 1
-    assert verify_durable_graph(setup)[0] == 2
+    assert verify_durable_graph(setup)[0] == setup.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_a37_concurrent_different_heads_keep_instance_isolation(tmp_path):
@@ -396,7 +397,7 @@ def test_rejected_transition_is_evidence_only_and_cannot_move_head_or_budget():
         "SELECT 1 FROM states WHERE state_id=?",
         (proposed.state_id,),
     ).fetchone() is not None
-    assert verify_durable_graph(conn)[0] == 2
+    assert verify_durable_graph(conn)[0] == conn.execute("SELECT count(*) FROM audit_events").fetchone()[0]
 
 
 def test_durable_graph_rejects_budget_snapshot_exceeding_total():

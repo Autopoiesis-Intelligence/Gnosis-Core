@@ -42,8 +42,11 @@ def replay_complete(
     audit_record: Any | None,
     *,
     observations: Mapping[str, Any],
+    evaluation: Any | None = None,
+    governance: Any | None = None,
+    candidate: Any | None = None,
 ) -> ReplayResult:
-    """Fail closed unless candidate, states, evidence, provenance and audit are all present and consistent."""
+    """Fail closed unless candidate, states, evidence, evaluation, governance, provenance and audit agree."""
     reasons: list[str] = []
     if provenance is None:
         reasons.append("provenance missing")
@@ -51,24 +54,43 @@ def replay_complete(
         reasons.append("audit record missing")
     evidence = replay_evidence(execution, observations)
     reasons.extend(evidence.reasons)
+    canonical_execution_id = execution_id(
+        execution.candidate_id,
+        execution.parent_state_id,
+        execution.evidence_digest,
+        execution.parent_state_digest,
+        execution.proposed_state_digest,
+    )
     if provenance is not None:
-        check = crosscheck_provenance(
-            provenance=provenance,
-            candidate_id=execution.candidate_id,
-            parent_state_id=execution.parent_state_id,
-            parent_state_digest=execution.parent_state_digest,
-            proposed_state_digest=execution.proposed_state_digest,
-            observations=observations,
-            evidence_digest=execution.evidence_digest,
-            execution_id_value=execution.execution_id,
-            evaluation_status=execution.evaluation_status,
-            shadow_status=execution.shadow_status,
-            invariant_status=execution.invariant_status,
-            governance_decision=execution.governance_decision,
-            evaluator_identity_ref=provenance.evaluator_identity_ref,
-            evaluator_identity_version=provenance.evaluator_identity_version,
-        )
-        reasons.extend(check.reasons)
+        if evaluation is None or governance is None or candidate is None:
+            reasons.append("candidate, evaluation or governance evidence missing")
+        else:
+            if candidate.candidate_id != execution.candidate_id:
+                reasons.append("candidate identity differs from sandbox execution")
+            if candidate.parent_state_id != execution.parent_state_id:
+                reasons.append("candidate parent differs from sandbox execution")
+            if candidate.proposed_state.content_id != execution.proposed_state_digest:
+                reasons.append("candidate proposed state differs from sandbox execution")
+            evaluator = evaluation.evaluator_identity
+            check = crosscheck_provenance(
+                provenance=provenance,
+                candidate_id=execution.candidate_id,
+                parent_state_id=execution.parent_state_id,
+                parent_state_digest=execution.parent_state_digest,
+                proposed_state_digest=execution.proposed_state_digest,
+                observations=observations,
+                evidence_digest=execution.evidence_digest,
+                execution_id_value=canonical_execution_id,
+                evaluation_status=evaluation.status,
+                shadow_status=governance.shadow_status,
+                invariant_status=governance.invariant_status,
+                governance_decision=governance.decision,
+                proposed_state_content_id=candidate.proposed_state.content_id,
+                candidate_binding_digest=candidate.binding_digest(execution.parent_state_digest),
+                evaluator_identity_ref=evaluator.implementation_ref,
+                evaluator_identity_version=evaluator.implementation_version,
+            )
+            reasons.extend(check.reasons)
     if audit_record is not None:
         if audit_record.candidate_id != execution.candidate_id:
             reasons.append("audit candidate mismatch")
@@ -77,7 +99,7 @@ def replay_complete(
         for field in ("parent_state_digest", "proposed_state_digest", "evidence_digest"):
             if getattr(audit_record, field, None) != getattr(execution, field, None):
                 reasons.append(f"audit {field} mismatch")
-        if audit_record.execution_id != getattr(execution, "execution_id", execution.candidate_id):
+        if audit_record.execution_id != canonical_execution_id:
             reasons.append("audit execution mismatch")
         if provenance is not None:
             link = crosscheck_provenance_audit(provenance, audit_record)
