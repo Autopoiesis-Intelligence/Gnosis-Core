@@ -250,3 +250,15 @@ For each task update, record:
 - Prior proven regression remains: `test_a55_conflicting_transition_replay_fails_closed` passed in CI run `39094324936`.
 - Not proven: this new fixture correction, full suite, trusted policy tamper rejection, production-authorized execution, or autonomous end-to-end self-evolution.
 - Next: poll CI for exact HEAD `67996fb35bf0a008edfe22cd859ce50175b40cc1`; inspect the targeted `test_a31` result and remaining failures. Keep PR #249/#250 open and unmerged.
+
+
+### SEQ 162 — Exact-head CI for scoped fork-failure injection
+
+- Last checked: 2026-10-18.
+- PR #249 source HEAD: `67996fb35bf0a008edfe22cd859ce50175b40cc1`; CI run `39094426358` checked out merge commit `c65870c8b05a884e2d8af1024c03e2e4ebbbd014`.
+- Python 3.12: **FAIL — 17 failed / 950 passed / 0 errors / 18 warnings**. Python 3.11 job was marked cancelled, although its test step reported failure. Import Graph run `39094426238`: PASS. CodeQL run `39094426257`: in progress at this check. Dependency Review run `39094426251`: FAIL.
+- Target `tests/test_persistence_hardening.py::test_a31_fork_creation_failure_rolls_back_child` is absent from the failure summary, so the scoped monkeypatch correction appears effective in the Python 3.12 run. This is narrow test evidence only.
+- Current failure set still includes the critical `test_tampered_policy_is_rejected_before_consumption` (**DID NOT RAISE PermissionError**), authority check-order/stale-head failures, federation gate, memory API mismatch, persistence/recovery/audit replay defects, reflection-gate required arguments, and execution-adapter test contract mismatch.
+- Proven: Python 3.12 run outcome/counts, Import Graph PASS, and target `test_a31` no longer listed as failing in that run.
+- Not proven: Python 3.11 green, full CI, independent trusted-owner authorization, tamper rejection, production-authorized execution, or autonomous end-to-end self-evolution.
+- Next: keep PR #249/#250 Draft and unmerged; investigate one non-authority failure using its exact traceback. Do not alter the trusted gate until an independently authorized policy/evidence source exists.
