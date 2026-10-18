@@ -129,8 +129,13 @@ def commit_endogenous_candidates(
     proposals = {proposal.proposal_id: proposal for proposal in report.proposals}
     for candidate in candidates:
         proposal_id = next(
-            (relation.target for relation in candidate.proposed_state.relations
-             if relation.source == REFLECTION_NODE and relation.relation_type == "proposed_rule"),
+            (
+                relation.target
+                for relation in candidate.proposed_state.relations
+                if relation.source == REFLECTION_NODE
+                and relation.relation_type == "proposed_rule"
+                and relation.target in proposals
+            ),
             None,
         )
         proposal = proposals.get(proposal_id)
