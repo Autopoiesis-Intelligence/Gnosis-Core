@@ -285,3 +285,13 @@ For each task update, record:
 - Exact-head workflow lookup for `a2da1aefa5e084a50caafd07f05c1e6cfb039062` has not yet been checked; this commit is IMPLEMENTED, not CI_PROVEN.
 - Critical security failure remains: `test_tampered_policy_is_rejected_before_consumption` reports DID NOT RAISE PermissionError. Other failures include authority check ordering/stale-head, federation trusted-gate expectation, Engine API mismatch, duplicate audit evidence ordering, conflicting audit replay across instances, rejected-transition audit count, reflection gate call contract, and execution-adapter contract.
 - Next: poll exact-head CI; if the two recovery tests pass, address the repeated `conflicting audit replay` across distinct instance operations by tracing audit event-key construction and uniqueness contract. Do not weaken trusted policy validation.
+
+
+### SEQ 165 — Make recovery authorization identifiers unique per instance
+
+- Last checked: 2026-10-18.
+- Inspection of the current test helpers found both `tests/test_persistence.py::_recover` and `tests/test_persistence_hardening.py::_authorized_recover` reuse the literal authorization ID `test-recovery` for every instance. Production recovery audit event keys are `recovery:{authorization_id}`; therefore independent test instances collide on the same audit event ID and fail with `conflicting audit replay`.
+- Test-only corrections now derive the fixture authorization ID from the instance ID in both helpers. The matching assertion for the recovery event key in `test_persistence.py` was updated accordingly. No production audit-key format or recovery behavior changed.
+- Commits: `aa0d501d239e60e8599d9592f70510c589598bd3` (`tests/test_persistence.py`), `87ccbed793efae56f89c5256778ba8697f682c4b` (`tests/test_persistence_hardening.py`).
+- CI run `39094604910` for the prior commit `a2da1aefa5e084a50caafd07f05c1e6cfb039062` was still running at the last poll. Its results do not validate these later commits.
+- Hypothesis grounded in code path; new edits are IMPLEMENTED, not CI_PROVEN. Next: poll exact latest PR head and inspect targeted test outcomes. Preserve the production fail-closed collision check.
