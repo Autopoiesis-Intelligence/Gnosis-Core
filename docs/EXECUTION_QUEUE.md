@@ -226,3 +226,16 @@ For each task update, record:
 - Regression target already exists in the branch; CI for new SHA `942a4ab178cce6c596600d76f7e977a6512de7f5` has not appeared in workflow-run lookup at this check. This change is IMPLEMENTED but NOT CI_PROVEN; do not claim the test passes until the exact-head run confirms it.
 - Security scope: this only improves classification of a persistence replay conflict; it does not resolve the independent trusted-owner issuer gap. Production-authorized execution and autonomous end-to-end self-evolution remain unproven.
 - Next: poll exact-head CI; if the targeted test fails, inspect its exact traceback before modifying the patch. Keep PR #249/#250 open and unmerged while CI is red.
+
+
+### SEQ 160 — Exact-head CI result for transition replay fix
+
+- Exact PR #249 source HEAD: `942a4ab178cce6c596600d76f7e977a6512de7f5`; Actions checked out merge commit `eceea80cb145d7c1ee6d2ee0edf90a8acc34f4a4` for PR #249.
+- CI run `39094324936`, Python 3.11: **FAIL**, 18 failed / 949 passed / 0 errors / 18 warnings; Python 3.12 was cancelled after 3.11 failed.
+- Targeted regression `tests/test_persistence.py::test_a55_conflicting_transition_replay_fails_closed`: **PASS**. The change in commit `942a4ab178cce6c596600d76f7e977a6512de7f5` is now CI-proven for this targeted test.
+- Failure count reduced from 19 to 18 compared with previous run `39094145116`; this does not make the full suite green.
+- Remaining critical failure confirmed: `tests/test_trusted_execution_gate_tamper.py::test_tampered_policy_is_rejected_before_consumption` still **FAILS** (expected PermissionError not raised). Do not suppress or weaken this test.
+- Other failures still include forged provenance identity binding (expected canonical mismatch, got authorization validity identity mismatch), stale-head authorization test (authorization already consumed), federation end-to-end gate, Engine.generate_candidates API mismatch, persistence count/recovery authorization contracts, audit chain/replay issues, reflection gate required arguments, and execution adapter fixture contract. Full exact list is in CI run `39094324936`.
+- Proven: the specific conflicting replay regression passes in CI; 949 tests passed on Python 3.11; Import Graph run `39094324903` PASS.
+- Not proven: full CI, CodeQL completion at this check, independent trusted-owner issuance, tamper rejection, or production-authorized autonomous execution. Dependency Review run `39094324883` remains FAIL.
+- Next SEQ 161: address a non-authority persistence defect with a focused regression; do not change the trust gate absent an independently authorized policy source. Keep PR #249 and #250 open/Draft/unmerged.
