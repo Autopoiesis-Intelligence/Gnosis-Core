@@ -337,3 +337,16 @@ For each task update, record:
 - Not yet proven: either corrected reflection test passes on the new SHA; full CI; independent trusted-owner issuance/policy evidence; tamper rejection; production-authorized execution; autonomous end-to-end self-evolution.
 - Rejected direction: do not weaken trusted policy validation or make the tamper test pass by relaxing the gate.
 - Next SEQ: poll CI for exact new HEAD `0aa01356d1b19fc36fc16ce8caaa4abf08f76989`; inspect remaining failures from that run. Keep PR #249 and PR #250 Draft/unmerged.
+
+
+
+### SEQ 170 — Make unauthorized-execution regression reach the authorization gate
+
+- CI run `39094943961` checked PR #249 merge commit `6eaf6accf42aff9046663d8551ece3f8caec1bb1`, which includes source commit `0aa01356d1b19fc36fc16ce8caaa4abf08f76989`.
+- Result: Python 3.11 **FAIL — 6 failed, 961 passed, 18 warnings**; Python 3.12 test step also failed and was cancelled by the workflow. The two reflection-gate argument errors are no longer in the failure list, but their independent green result is not isolated.
+- Remaining failures include the execution-boundary regression using `conn=object()`. The adapter opens a transaction before validating the authorization, so the malformed test double raised `AttributeError` before the intended fail-closed authorization assertion.
+- Test-only fix committed on PR #249 branch: `9d945d70ed174532b64889af299abf3d95baced2`. It uses a real in-memory SQLite connection and asserts no audit events were written when unauthorized execution is rejected. Production execution code unchanged.
+- Proven: prior CI failure and exact new test commit. Not yet proven: the revised test passes; all tests pass; tampered policy rejection; independent trusted owner/policy authority; autonomous end-to-end self-evolution.
+- Other failures to investigate from run `39094943961`: canonical provenance test fails earlier on authorization-validity identity mismatch; stale-head request reports consumed authorization; federation trusted-gate expectation does not raise; duplicate transition audit test hits audit sequence/link mismatch before ambiguity classification; critical tampered-policy test does not raise.
+- Do not weaken the trusted execution gate. Keep PR #249 and PR #250 Draft/unmerged.
+- Next SEQ: fetch CI for exact source HEAD `9d945d70ed174532b64889af299abf3d95baced2`, then correct the next failure only from the new logs.
