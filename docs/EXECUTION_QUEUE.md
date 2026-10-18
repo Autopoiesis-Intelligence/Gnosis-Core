@@ -350,3 +350,16 @@ For each task update, record:
 - Other failures to investigate from run `39094943961`: canonical provenance test fails earlier on authorization-validity identity mismatch; stale-head request reports consumed authorization; federation trusted-gate expectation does not raise; duplicate transition audit test hits audit sequence/link mismatch before ambiguity classification; critical tampered-policy test does not raise.
 - Do not weaken the trusted execution gate. Keep PR #249 and PR #250 Draft/unmerged.
 - Next SEQ: fetch CI for exact source HEAD `9d945d70ed174532b64889af299abf3d95baced2`, then correct the next failure only from the new logs.
+
+### SEQ 171 — Correct regression fixtures without weakening production gates
+
+- Latest observed CI before these edits: run `39095046105` for source commit `9d945d70ed174532b64889af299abf3d95baced2`; Python 3.11 and 3.12 both **FAIL — 5 failed, 962 passed, 18 warnings**.
+- Test-only changes on PR #249 branch:
+  - `c32d33c10ecb22b3dce474c10b62fc322a1327b8`: align forged-provenance fixture's authorization approval ID with its validity record; give the stale-head test's two executions distinct authorization IDs so one execution does not consume the other's test authorization.
+  - `14140795119bbc156746e99d8f9bbe4cb2531aea`: construct duplicate transition audit evidence with the actual latest chain hash and next sequence, so the test reaches durable-graph ambiguity validation rather than failing earlier on a malformed audit chain.
+- Production code unchanged. The trusted execution gate and persistence verifier were not weakened.
+- Proven: exact prior CI result and exact test-file commits.
+- Not yet proven: these three tests now pass; full CI; federation trusted-gate rejection; policy-tamper rejection; independent trusted owner/policy authority; autonomous end-to-end self-evolution.
+- Critical blockers unchanged: `test_federation_e2e_reaches_trusted_gate` does not raise, and `test_tampered_policy_is_rejected_before_consumption` does not raise `PermissionError`. Do not rewrite these tests to pass by asserting a false guarantee or relaxing the gate.
+- Next SEQ: fetch workflow runs for exact latest source HEAD `14140795119bbc156746e99d8f9bbe4cb2531aea`; inspect whether only the two known trust-boundary failures remain. Keep PR #249 and PR #250 Draft/unmerged.
+
