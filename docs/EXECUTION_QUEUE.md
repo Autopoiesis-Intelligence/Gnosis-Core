@@ -524,3 +524,21 @@ For each task update, record:
 - Next safe work item: design a test-only verifier contract and isolation tests, while continuing non-security persistence/replay fixes independently. Production trust closure requires explicit root/key provisioning, signature verification, revocation/rotation semantics and architectural authorization.
 - Proven: existing repository status and tests explicitly mark production issuer/key lifecycle unimplemented; current issuer helper is not authenticated root provisioning.
 - Not proven: production trusted issuer, cryptographic authority, autonomous execution, or CI pass for latest queue commit.
+
+
+### SEQ 187 — Refresh exact-head CI and rank non-security regression clusters
+
+- Latest queue commit before this entry: `024e1ff8f6f7cd92463facee825566df469137de`. Fresh workflow lookup returned CI run `39097288305` FAIL, CodeQL `39097288303` PASS, Import Graph `39097288333` PASS, Dependency Review `39097288318` FAIL. CI run job `117586257291` (Python 3.11) reports 33 failed, 931 passed, 18 warnings, 2 errors; Python 3.12 was cancelled after failure. These are real CI results for the queue commit snapshot, not synthetic/local claims.
+- Failure clusters extracted from the CI log:
+  1. Authorization/provenance contract drift: canonical identity rejection, missing authorization validity/ID, fail-closed issuer expectations. Do not fix by weakening gate or returning an authorization from the unimplemented production issuer.
+  2. Endogenous proposal binding regression: `candidate_binds_proposal` false for generated candidates; exact proposal substitution rejected/commit fails. Investigate immutable mapping normalization and canonical proposal payload shape.
+  3. Persisted evolution replay schema/API mismatch: verifier expects `parent_state_id` while persisted chain lacks it; `EvolutionEvidence(state_id=...)` callers do not match the current dataclass API.
+  4. Storage/recovery compatibility: rejected/no-op transition tests expect graph counts that differ from actual graph; old callers omit required `RecoveryAuthorization`; audit replay conflicts for forks and interleaved instances.
+  5. Runtime API drift: callers expect `Engine.generate_candidates`; reflection gate callers omit required authorization/time; execution-boundary tests pass an object without the required `execute` interface.
+  6. Failure-injection tests error on the real commit path.
+- Priority recommendation: first isolate and repair one bounded non-security cluster per commit, beginning with the persisted evolution replay contract (compare `gnosis/evolution/chain_verifier.py`, `gnosis/reflection/persistence.py`, `gnosis/evolution/provenance.py`, and `tests/test_endogenous_runtime.py`). It is a bounded contract mismatch and does not require changing the database schema if the intended canonical field mapping can be resolved from current model contracts. If the correct mapping cannot be proved, stop and document the ambiguity rather than adding fallback aliases blindly.
+- Secondary candidate: rejected-transition/head-count tests in `tests/test_persistence.py`; inspect durable graph invariants before altering implementation. Do not change tests merely to match implementation.
+- Queue itself still remains documentation only: no runtime consumer has been identified, so writing a task here does not execute it automatically.
+- Proven: exact-head CI status and failure summary from run `39097288305`; CodeQL and Import Graph PASS; Dependency Review FAIL.
+- Not proven: any fix, green CI, automatic queue consumption, or production self-evolution.
+- Next SEQ: inspect the persisted evolution model/serializer/verifier contract and propose a minimal source-level correction without schema migration; run targeted tests and exact-head CI only after the change is made.
