@@ -305,3 +305,13 @@ For each task update, record:
 - Test-only correction constructs an explicit non-no-op `Candidate`, advances it through `Engine.step()`, and persists the resulting canonical transition via `_persist_transition()` before appending evolution memory. This aligns the test with the current Engine and storage contracts; it does not add a candidate generator or prove autonomous candidate discovery.
 - Status: IMPLEMENTED, CI pending. Exact new-head workflow result not yet checked. Keep PR #249 Draft/unmerged.
 - Still blocked/not proven: independent trusted-owner policy/evidence and tamper rejection; full CI; production-authorized execution; autonomous end-to-end self-evolution. Do not weaken the gate.
+
+
+### SEQ 167 — Correct local import in memory restart regression
+
+- Exact source commit: `49e0046dbd9f6a8361ddade988de9bf273e8e435` on PR #249 branch.
+- CI run `39094749193`, source HEAD `806d154b883c1fbb3e93e640e11652cbb9ecd380`: Python 3.12 **FAIL**, 12 failed / 955 passed / 18 warnings; Python 3.11 job cancelled after test failure. CodeQL PASS, Import Graph PASS, Dependency Review FAIL.
+- SEQ166 replaced nonexistent `Engine.generate_candidates()`, but the import edit landed in a different test function. CI exposed `NameError: Candidate is not defined` at the targeted memory-restart test. This is a test wiring error introduced during SEQ166, not evidence of a production defect.
+- Correction imports `Candidate` inside `test_evolution_memory_survives_database_restart_and_returns_to_reflection`. This exact new commit has not yet been run through CI.
+- Status: IMPLEMENTED, CI pending. PR #249 remains Draft/unmerged.
+- Still blocked: independent trusted-owner policy/evidence; policy-tamper rejection; full CI; production-authorized execution; autonomous end-to-end self-evolution. Do not weaken the trusted gate.
