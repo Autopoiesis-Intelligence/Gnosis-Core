@@ -344,6 +344,8 @@ def test_execution_commit_rejects_forged_provenance_identity_binding() -> None:
         shadow_status=provenance_a.shadow_status,
         invariant_status=provenance_a.invariant_status,
         governance_decision=provenance_a.governance_decision,
+        evaluator_identity_ref=provenance_a.evaluator_identity_ref,
+        evaluator_identity_version=provenance_a.evaluator_identity_version,
         provenance_id=provenance_a.provenance_id,
         proposed_state_content_id=candidate_b.proposed_state.content_id,
         candidate_binding_digest=candidate_b.binding_digest(parent_state_id),
