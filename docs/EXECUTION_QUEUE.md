@@ -295,3 +295,13 @@ For each task update, record:
 - Commits: `aa0d501d239e60e8599d9592f70510c589598bd3` (`tests/test_persistence.py`), `87ccbed793efae56f89c5256778ba8697f682c4b` (`tests/test_persistence_hardening.py`).
 - CI run `39094604910` for the prior commit `a2da1aefa5e084a50caafd07f05c1e6cfb039062` was still running at the last poll. Its results do not validate these later commits.
 - Hypothesis grounded in code path; new edits are IMPLEMENTED, not CI_PROVEN. Next: poll exact latest PR head and inspect targeted test outcomes. Preserve the production fail-closed collision check.
+
+
+### SEQ 166 — Replace stale Engine API usage in memory restart test
+
+- Exact source commits: `8d3b3946293ba59e6b5e5ad2a44ec843abc32517` and `806d154b883c1fbb3e93e640e11652cbb9ecd380`, on PR #249 branch.
+- Latest confirmed prior CI run `39094652045` failed on both Python versions with **12 failed, 955 passed, 18 warnings** per job. The recovery-helper changes from SEQ 164–165 are no longer listed among failures; the targeted recovery assertions therefore no longer appear to fail in that run.
+- One remaining non-authority failure was `tests/test_memory_evidence.py::test_evolution_memory_survives_database_restart_and_returns_to_reflection`: it called nonexistent `Engine.generate_candidates()`. Source inspection confirms `Engine` exposes `step(candidate)` and `run(generate_fn, ...)`, not `generate_candidates()`.
+- Test-only correction constructs an explicit non-no-op `Candidate`, advances it through `Engine.step()`, and persists the resulting canonical transition via `_persist_transition()` before appending evolution memory. This aligns the test with the current Engine and storage contracts; it does not add a candidate generator or prove autonomous candidate discovery.
+- Status: IMPLEMENTED, CI pending. Exact new-head workflow result not yet checked. Keep PR #249 Draft/unmerged.
+- Still blocked/not proven: independent trusted-owner policy/evidence and tamper rejection; full CI; production-authorized execution; autonomous end-to-end self-evolution. Do not weaken the gate.
