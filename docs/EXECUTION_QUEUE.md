@@ -239,3 +239,14 @@ For each task update, record:
 - Proven: the specific conflicting replay regression passes in CI; 949 tests passed on Python 3.11; Import Graph run `39094324903` PASS.
 - Not proven: full CI, CodeQL completion at this check, independent trusted-owner issuance, tamper rejection, or production-authorized autonomous execution. Dependency Review run `39094324883` remains FAIL.
 - Next SEQ 161: address a non-authority persistence defect with a focused regression; do not change the trust gate absent an independently authorized policy source. Keep PR #249 and #250 open/Draft/unmerged.
+
+
+### SEQ 161 — Scope fork-creation failure injection
+
+- PR #249 new HEAD: `67996fb35bf0a008edfe22cd859ce50175b40cc1`; PR remains open/Draft/unmerged.
+- CI run `39094324936` exposed a test-fixture defect in `test_a31_fork_creation_failure_rolls_back_child`: the monkeypatched `append_audit` remained active after the intended child-creation failure and then broke the subsequent authorized recovery assertion. The failure was not evidence that rollback itself failed.
+- Test-only fix: scope the injected `append_audit` replacement with `monkeypatch.context()`, so it is restored before the recovery check. Production code and authorization behavior unchanged.
+- Exact-head CI lookup for `67996fb35bf0a008edfe22cd859ce50175b40cc1` returned no workflow runs at this check. This fix is IMPLEMENTED, not yet CI_PROVEN.
+- Prior proven regression remains: `test_a55_conflicting_transition_replay_fails_closed` passed in CI run `39094324936`.
+- Not proven: this new fixture correction, full suite, trusted policy tamper rejection, production-authorized execution, or autonomous end-to-end self-evolution.
+- Next: poll CI for exact HEAD `67996fb35bf0a008edfe22cd859ce50175b40cc1`; inspect the targeted `test_a31` result and remaining failures. Keep PR #249/#250 open and unmerged.
