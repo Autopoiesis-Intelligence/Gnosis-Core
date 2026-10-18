@@ -209,7 +209,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     db = tmp_path / "e9.sqlite"
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
-    proposal1 = type("P", (), {"proposal_id":"p-e9-1","finding_id":"f-e9-1","rule_id":"r-e9-1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f-e9-1",)})()
+    proposal1 = RuleProposal(proposal_id="p-e9-1", finding_id="f-e9-1", target="r-e9-1", hypothesis="cycle-1", evidence_refs=("f-e9-1",), expected_effect="bounded improvement", regression_risk="low", required_test="e9-cycle-1", rule_id="r-e9-1", current_version=1, proposed_version=2)
     report1 = ReflectionReport(proposals=(proposal1,))
     cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
     candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
@@ -248,7 +248,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     conn = connect(db); ensure_reflection_schema(conn)
     previous = None
     for cycle in (1, 2):
-        proposal = type("P", (), {"proposal_id":f"p-e9-full-{cycle}","finding_id":f"f-e9-full-{cycle}","rule_id":f"r-e9-full-{cycle}","current_version":1,"proposed_version":2,"hypothesis":f"cycle-{cycle}","evidence_refs":(f"f-e9-full-{cycle}",)})()
+        proposal = RuleProposal(proposal_id=f"p-e9-full-{cycle}", finding_id=f"f-e9-full-{cycle}", target=f"r-e9-full-{cycle}", hypothesis=f"cycle-{cycle}", evidence_refs=(f"f-e9-full-{cycle}",), expected_effect="bounded improvement", regression_risk="low", required_test=f"e9-cycle-{cycle}", rule_id=f"r-e9-full-{cycle}", current_version=1, proposed_version=2)
         evidence = () if previous is None else (previous.provenance_id, previous.evidence_digest)
         report = ReflectionReport(proposals=(proposal,))
         report_id = save_reflection_report(conn, report, created_at=f"2026-10-18T00:02:0{cycle}Z")
