@@ -363,3 +363,15 @@ For each task update, record:
 - Critical blockers unchanged: `test_federation_e2e_reaches_trusted_gate` does not raise, and `test_tampered_policy_is_rejected_before_consumption` does not raise `PermissionError`. Do not rewrite these tests to pass by asserting a false guarantee or relaxing the gate.
 - Next SEQ: fetch workflow runs for exact latest source HEAD `14140795119bbc156746e99d8f9bbe4cb2531aea`; inspect whether only the two known trust-boundary failures remain. Keep PR #249 and PR #250 Draft/unmerged.
 
+### SEQ 172 — Fix incomplete forged-provenance test double
+
+- CI run `39095171079` for source commit `14140795119bbc156746e99d8f9bbe4cb2531aea` completed with **3 failed, 964 passed, 18 warnings** on both Python 3.11 and 3.12; the 3.12 job was marked cancelled after the test step failed.
+- Failure triage:
+  - `test_execution_commit_rejects_forged_provenance_identity_binding` failed before its intended assertion because its `SimpleNamespace` omitted `evaluator_identity_ref` and `evaluator_identity_version`, which canonical identity recomputation requires.
+  - `test_federation_e2e_reaches_trusted_gate`: expected exception did not occur.
+  - `test_tampered_policy_is_rejected_before_consumption`: expected `PermissionError` did not occur; security-critical and unresolved.
+- Test-only fixture correction committed as `3e3fba135b202353932082b4cc7b1b2799fcdb1f`, adding the evaluator identity fields from the original provenance to the forged fixture. Production code unchanged.
+- Proven: exact prior CI counts and the fixture defect from logs. Not yet proven: the corrected test passes, all CI, policy tamper rejection, federation fail-closed behavior, independent trusted owner/policy authority, or autonomous end-to-end self-evolution.
+- Rejected direction: do not make federation/tamper tests green by changing their expectations or weakening trusted execution validation.
+- Next SEQ: poll CI for exact source HEAD `3e3fba135b202353932082b4cc7b1b2799fcdb1f`; continue only from its logs. PR #249 and PR #250 remain Draft/unmerged.
+
