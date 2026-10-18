@@ -387,3 +387,13 @@ For each task update, record:
 - No production code changed in this SEQ. Proven: exact CI result and source-level cause. Not proven: a working trusted policy/issuer integration, all-CI PASS, or autonomous end-to-end self-evolution.
 - Next SEQ: define a minimal explicit trusted-policy context contract and its authority source before wiring it into the adapter. Until such a source exists, authority-sensitive execution must not be represented as trusted or end-to-end complete. Keep PR #249 and #250 Draft/unmerged.
 
+
+### SEQ 176 — Reconcile trusted issuer configuration and authority provenance
+
+- Reconciled current PR snapshots on 2026-10-18: PR #249 remains open/Draft with head `f398c0df464692c5dcd78b2e7b1d28b9cdc3d70e`; PR #250 remains open/Draft with queue head `4ef9055fec2cd3a8a245ea188733e5b5cd5251bf`. Do not substitute older source SHA `3e3fba135b202353932082b4cc7b1b2799fcdb1f` for current PR head.
+- Re-read source contracts on `work/self-evolution-unblock-identity`: `TrustedOwnerIssuer` compares caller-supplied `authority_root`, `scope`, `policy_version`, and `evidence_digest`, but does not authenticate how those values were provisioned. Its only discovered instantiations remain tests; no production composition root was found in this pass.
+- `OwnerApproval` remains a data object described as opaque external evidence. No production approval producer/factory was identified in the inspected source/search results. `issue_execution_authorization()` remains explicitly fail-closed with `NotImplementedError` in the architecture contract.
+- Code search for `TrustedIssuerKeyResolver` and `Ed25519` on the repository default branch returned no matches. This is a limited search result, not proof that no cryptographic primitive exists anywhere in non-default branches or dependencies. No cryptographic/root-of-trust integration is claimed.
+- Decision: no runtime, schema, migration, gate, or authorization changes. A production issuer cannot be safely wired until a governed external owner-approval producer and authenticated root/key provisioning boundary are specified. Do not treat freely supplied configuration strings as a root of trust; do not construct a fake `OwnerApproval` or loosen the two known security tests.
+- Proven: current PR head/queue snapshots and the inspected source contracts. Not proven: production owner approval issuance, trusted-root provisioning, cryptographic issuer integration, policy-tamper rejection, federation fail-closed behavior, green CI, or autonomous end-to-end self-evolution.
+- Next SEQ: trace the exact current CI for PR #249 head `f398c0df464692c5dcd78b2e7b1d28b9cdc3d70e` and reconcile its failure set before making any production change. Keep PR #249 and PR #250 Draft/unmerged.
