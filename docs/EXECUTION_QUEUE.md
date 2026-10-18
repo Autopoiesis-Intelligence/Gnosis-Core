@@ -50,7 +50,7 @@ Make the Self-Learning / Self-Evolution path execute a real, bounded learning cy
 
 ### GNOSIS-SELF-003 — Demonstrate a bounded end-to-end learning cycle in an isolated runtime
 - **Priority:** P0
-- **Status:** READY
+- **Status:** IN_PROGRESS
 - **Objective:** Make one reproducible Self-Learning / Self-Evolution cycle actually run through candidate → test → select → evolve → verify, using only an explicitly isolated test/sandbox authority boundary where production authorization is unavailable.
 - **Dependencies:** GNOSIS-SELF-001; relevant root causes from GNOSIS-SELF-002.
 - **Acceptance criteria:**
@@ -59,7 +59,8 @@ Make the Self-Learning / Self-Evolution path execute a real, bounded learning cy
   3. A no-op candidate cannot be counted as evolution.
   4. The test distinguishes successful sandbox execution from production-authorized execution.
   5. A second run can inspect/reconstruct the persisted result; evidence is not inferred from an in-memory object alone.
-- **Evidence:** Not yet demonstrated. Existing unit/synthetic passes do not satisfy this task.
+- **Evidence:** PR #249 now contains focused fixes on branch head `f398c0df464692c5dcd78b2e7b1d28b9cdc3d70e`: canonical evolution identity parity, immutable `Mapping` acceptance for proposal binding, and preservation of `state_id` in durable-memory projection. Regression coverage added for identity parity and projected state identity. These are implementation changes, not end-to-end runtime proof. Previous CI run `39091313289` on earlier head `ad30ce086bf5bdc008130ec34f74e31f9c1ec29b` failed on both Python versions; exact-head CI for `f398c0d` pending.
+- **Next action:** Review exact-head CI, then fix the smallest remaining memory/replay defect and execute the bounded cycle through persistence/restart.
 - **Notes:** Do not bypass the trusted-owner gate or claim production commit authority. If the current code cannot run the cycle, fix the narrowest real blocker and retain a regression test.
 
 ### GNOSIS-SELF-004 — Repair durable state, provenance, recovery, and replay defects
@@ -73,7 +74,7 @@ Make the Self-Learning / Self-Evolution path execute a real, bounded learning cy
   3. Recovery/replay checks verify subject binding and provenance, not just structural shape.
   4. A fresh process can read persisted state and verify the expected linkage.
   5. Runtime evidence and CI evidence are recorded separately.
-- **Evidence:** Historical audit notes only; current reproduction pending.
+- **Evidence:** CI run `39091313289` (previous PR head) reproduced chain-verifier failure `malformed persisted chain: 'parent_state_id'`, missing proposal provenance scope in memory writes, and recovery/audit replay failures. Exact-head rerun pending. No schema or migration changes authorized.
 
 ### GNOSIS-SELF-005 — Resolve production execution-authority provenance gap
 - **Priority:** P1
