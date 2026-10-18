@@ -72,25 +72,60 @@ from gnosis.self_learning.bridge import CoreMutationProposal
 from gnosis.reflection.authority import ExecutionCommitRequest, ExecutionCommitResult
 from gnosis.reflection.execution_adapter import SQLiteExecutionCommitAdapter
 
+
 @_dataclass(frozen=True)
 class BoundCoreExecution:
     proposal_id: str
     evolution_identity: str
     binding_digest: str
 
+
 def bind_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest) -> BoundCoreExecution:
     if proposal.status != "APPROVED":
         raise PermissionError("Core mutation proposal is not approved")
-    canonical_proposal={"integration_id":proposal.integration_id,"version_id":proposal.version_id,"target":proposal.target,"action":proposal.action}
-    expected="sha256:"+hashlib.sha256(json.dumps(canonical_proposal,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    canonical_proposal = {
+        "integration_id": proposal.integration_id,
+        "version_id": proposal.version_id,
+        "target": proposal.target,
+        "action": proposal.action,
+    }
+    expected = "sha256:" + hashlib.sha256(
+        json.dumps(canonical_proposal, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
     if proposal.mutation_id != expected:
         raise ValueError("proposal identity does not match immutable bridge fields")
     if not request.evolution_identity:
         raise ValueError("execution evolution identity is required")
-    canonical={"mutation_id":proposal.mutation_id,"integration_id":proposal.integration_id,"version_id":proposal.version_id,"evolution_identity":request.evolution_identity}
-    binding="sha256:"+hashlib.sha256(json.dumps(canonical,sort_keys=True,separators=(",",":")).encode()).hexdigest()
-    return BoundCoreExecution(proposal.mutation_id,request.evolution_identity,binding)
+    canonical = {
+        "mutation_id": proposal.mutation_id,
+        "integration_id": proposal.integration_id,
+        "version_id": proposal.version_id,
+        "evolution_identity": request.evolution_identity,
+    }
+    binding = "sha256:" + hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    return BoundCoreExecution(proposal.mutation_id, request.evolution_identity, binding)
 
-def execute_approved_core_proposal(proposal: CoreMutationProposal, request: ExecutionCommitRequest, conn: object, instance: object, candidate: object, record: object, *, actor: str) -> ExecutionCommitResult:
+
+def execute_approved_core_proposal(
+    proposal: CoreMutationProposal,
+    request: ExecutionCommitRequest,
+    conn: object,
+    instance: object,
+    candidate: object,
+    record: object,
+    *,
+    actor: str,
+) -> ExecutionCommitResult:
     bind_core_proposal(proposal, request)
-    return SQLiteExecutionCommitAdapter().commit(conn, instance, candidate, record, request, actor=actor)
+
+    # Reject an explicitly unapproved request before the adapter touches the
+    # connection. The commit adapter remains responsible for the full,
+    # authoritative provenance/freshness validation before any mutation.
+    if not request.authorization.can_execute:
+        raise PermissionError("execution authorization does not match evolution")
+
+    return SQLiteExecutionCommitAdapter().commit(
+        conn, instance, candidate, record, request, actor=actor
+    )
