@@ -375,3 +375,15 @@ For each task update, record:
 - Rejected direction: do not make federation/tamper tests green by changing their expectations or weakening trusted execution validation.
 - Next SEQ: poll CI for exact source HEAD `3e3fba135b202353932082b4cc7b1b2799fcdb1f`; continue only from its logs. PR #249 and PR #250 remain Draft/unmerged.
 
+### SEQ 173 — Confirm trusted-policy root-cause from CI and source
+
+- CI run `39096029114` for source commit `3e3fba135b202353932082b4cc7b1b2799fcdb1f`: Python 3.11 **2 failed, 965 passed, 18 warnings**; Python 3.12 test step failed/cancelled after failure.
+- Both remaining failures reproduced:
+  1. `tests/test_federation_full_commit_e2e.py::test_federation_e2e_reaches_trusted_gate`: expected fail-closed exception did not occur.
+  2. `tests/test_trusted_execution_gate_tamper.py::test_tampered_policy_is_rejected_before_consumption`: expected `PermissionError` did not occur.
+- Source-confirmed root cause in `gnosis/reflection/trusted_execution_gate.py`: gate calls `validity.require_valid(expected_policy_version=validity.policy_version, expected_evidence_digest=validity.validity_evidence_digest)`. The expected values are copied from the submitted object being validated; this is self-validation, not independent trust validation.
+- `docs/architecture/TRANSACTION_CONTRACT.md` explicitly says the trusted owner-authority issuer remains unimplemented and runtime must fail closed rather than manufacture authorization. `issue_execution_authorization()` raises `NotImplementedError`; test-created `ExecutionAuthorization(owner_approved=True)` is not proof of real owner authority.
+- Scope check: production gate is invoked through `gnosis/reflection/execution_adapter.py`; no independent trusted policy context is currently passed to it. Merely changing the test expectation, hardcoding a policy version/digest, or deriving expected values from submitted validity is rejected.
+- No production code changed in this SEQ. Proven: exact CI result and source-level cause. Not proven: a working trusted policy/issuer integration, all-CI PASS, or autonomous end-to-end self-evolution.
+- Next SEQ: define a minimal explicit trusted-policy context contract and its authority source before wiring it into the adapter. Until such a source exists, authority-sensitive execution must not be represented as trusted or end-to-end complete. Keep PR #249 and #250 Draft/unmerged.
+
