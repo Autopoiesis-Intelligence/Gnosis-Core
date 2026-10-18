@@ -58,7 +58,7 @@ def real_commit_fixture():
     from types import SimpleNamespace
 
     from gnosis.core import Candidate, State
-    from gnosis.evolution.provenance import build_provenance
+    from gnosis.evolution.provenance import build_provenance, canonical_digest
     from gnosis.reflection.authority import (
         ExecutionAuthorization,
         ExecutionCommitRequest,
@@ -85,6 +85,7 @@ def real_commit_fixture():
         parent_state_digest=parent_state.state_id,
         proposed_state_digest=candidate.proposed_state.state_id,
         observations=observations,
+        evidence_digest=canonical_digest(observations),
         proposed_state_content_id=candidate.proposed_state.content_id,
         candidate_binding_digest=candidate.binding_digest(parent_state.state_id),
         evaluation_status="PASS",
