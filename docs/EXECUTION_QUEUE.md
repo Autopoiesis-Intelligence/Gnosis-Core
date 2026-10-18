@@ -216,3 +216,13 @@ For each task update, record:
 - Proven: exact-head CI outcome, Import Graph and CodeQL results, one-failure reduction, and the self-referential validation defect by source inspection.
 - Not proven: independent trusted-owner issuance, policy/tamper rejection, full CI, production-authorized execution, or an autonomous end-to-end learning cycle.
 - Next SEQ 159: inspect repository policy/configuration and documented authority contracts for an already-approved independent policy source. If none exists, preserve GNOSIS-SELF-005 as BLOCKED and proceed only on a separate non-authority defect with a focused regression test. Keep PR #249/#250 open and unmerged.
+
+
+### SEQ 159 — Conflicting transition replay classification
+
+- PR #249 remains open/Draft/unmerged; its last confirmed prior HEAD was `8a30246be87f267681ef7a4046e86bf8fe6e0600`. New source commit: `942a4ab178cce6c596600d76f7e977a6512de7f5`.
+- Inspected `gnosis/storage/repositories.py::_persist_transition_in_transaction` and existing regression `test_a55_conflicting_transition_replay_fails_closed`. The implementation previously looked up only the full `transition_id`; a conflicting record with the same instance/candidate/from/to but different outcome/reasons has a different digest, so it bypassed the conflict check and reached the stale-head check, producing the wrong failure classification.
+- Change on PR #249: before the stale-head guard, look for an existing transition with the same instance, candidate, from-state, and to-state. If its transition ID/outcome/reasons/test rule differ from the attempted record, fail closed with `StorageCorruptionError("conflicting transition replay")`. Exact same transition still follows the existing idempotent replay path. No schema, migration, authorization, or trust-gate changes.
+- Regression target already exists in the branch; CI for new SHA `942a4ab178cce6c596600d76f7e977a6512de7f5` has not appeared in workflow-run lookup at this check. This change is IMPLEMENTED but NOT CI_PROVEN; do not claim the test passes until the exact-head run confirms it.
+- Security scope: this only improves classification of a persistence replay conflict; it does not resolve the independent trusted-owner issuer gap. Production-authorized execution and autonomous end-to-end self-evolution remain unproven.
+- Next: poll exact-head CI; if the targeted test fails, inspect its exact traceback before modifying the patch. Keep PR #249/#250 open and unmerged while CI is red.
