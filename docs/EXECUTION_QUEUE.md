@@ -262,3 +262,14 @@ For each task update, record:
 - Proven: Python 3.12 run outcome/counts, Import Graph PASS, and target `test_a31` no longer listed as failing in that run.
 - Not proven: Python 3.11 green, full CI, independent trusted-owner authorization, tamper rejection, production-authorized execution, or autonomous end-to-end self-evolution.
 - Next: keep PR #249/#250 Draft and unmerged; investigate one non-authority failure using its exact traceback. Do not alter the trusted gate until an independently authorized policy/evidence source exists.
+
+
+### SEQ 163 — Reconcile recovery audit-count assertions (CI pending)
+
+- Last checked: 2026-10-18.
+- PR #249 commit `107951aa30535fb11d071ff393bf1d0a70f92774` updates only `tests/test_persistence.py` assertions for rejected-transition recovery.
+- Root cause from current implementation and test path: `_recover()` calls `recover_instance()`, which appends a `recovery.execute` audit event after validating recovery authorization. The durable chain therefore contains three events: instance creation, rejected transition, and authorized recovery. The two assertions expected two events despite invoking recovery.
+- Test-only correction changes the expected audit-chain count from 2 to 3 in `test_a08_rejected_candidate_survives_close_reopen_without_head_advance` and `test_a28_noop_transition_remains_valid_on_persistence_path`. No production persistence, recovery authorization, schema, or audit behavior changed.
+- Exact-head workflow lookup for `107951aa30535fb11d071ff393bf1d0a70f92774` returned no runs at this check. This correction is IMPLEMENTED, not CI_PROVEN.
+- Not addressed: critical trusted policy tamper failure, authority-boundary failures, audit replay collisions, stale API contracts, and other persistence defects.
+- Next: poll CI for this exact SHA; confirm these two targeted tests pass, then take the next failure from the exact log. Keep PR #249/#250 Draft and unmerged.
