@@ -32,7 +32,7 @@ def root():
 def _recover(conn, instance_id):
     digest = recovery_evidence_digest(conn, instance_id)
     authorization = RecoveryAuthorization(
-        authorization_id="test-recovery",
+        authorization_id=f"test-recovery:{instance_id}",
         subject=instance_id,
         requested_by="test-principal",
         authority="test-governance",
@@ -556,6 +556,6 @@ def test_authorized_recovery_does_not_change_core_state_and_is_audited():
     assert recovered.engine.state.state_id == before == after
     row = conn.execute(
         "SELECT action,actor,result FROM audit_events WHERE event_id=?",
-        ("recovery:test-recovery",),
+        (f"recovery:test-recovery:{instance.instance_id}",),
     ).fetchone()
     assert tuple(row) == ("recovery.execute", "test-principal", "accepted")
