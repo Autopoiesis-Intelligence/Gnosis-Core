@@ -324,3 +324,16 @@ For each task update, record:
 - Three persistence-hardening assertions expected counts before accounting for `_authorized_recover()` appending a durable recovery audit event. Adjusted expected graph counts: fork/restart scenario 5→7, interleaved instances 6→8, rejected transition recovery 2→3. These are test expectation changes only; production persistence/audit logic was not modified.
 - Status: IMPLEMENTED, awaiting CI on the newest branch head. These assertions must remain consistent with actual graph-verifier semantics; revert or revise if exact CI evidence contradicts the audit-count explanation.
 - Security blocker remains unchanged: independent trusted policy/issuer absent and policy-tamper test still fails. PR #249 stays Draft/unmerged.
+
+
+
+### SEQ 169 — Restore explicit authorization arguments in reflection-gate tests
+
+- Exact PR #249 source HEAD before this change: `7bc4144e774cbe3522cc42e540c17abfd0b59947`.
+- CI run `39094850710` completed on that source head: Python 3.11 **FAIL — 8 failed, 959 passed, 18 warnings**; Python 3.12 **cancelled** after its test step failed. The two reflection-gate tests failed at the call boundary because the current API requires keyword-only `authorization` and `now`; their assertions never ran.
+- Test-only correction committed as `0aa01356d1b19fc36fc16ce8caaa4abf08f76989`: both tests now pass an explicit test recovery authorization and fixed test timestamp, consistent with the existing successful reflection-gate test. No production gate or authorization behavior changed.
+- Other failures from run `39094850710` remain: forged provenance error-order/message; stale-head request reports already-consumed authorization; federation trusted-gate expectation; duplicate transition audit error classification; execution-boundary fixture reaches `object.execute`; critical policy-tamper test still does not raise `PermissionError`.
+- Proven: the exact failure set and counts on prior HEAD; source edit and commit SHA for the two outdated test calls.
+- Not yet proven: either corrected reflection test passes on the new SHA; full CI; independent trusted-owner issuance/policy evidence; tamper rejection; production-authorized execution; autonomous end-to-end self-evolution.
+- Rejected direction: do not weaken trusted policy validation or make the tamper test pass by relaxing the gate.
+- Next SEQ: poll CI for exact new HEAD `0aa01356d1b19fc36fc16ce8caaa4abf08f76989`; inspect remaining failures from that run. Keep PR #249 and PR #250 Draft/unmerged.
