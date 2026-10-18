@@ -17,7 +17,7 @@ def test_memory_projection_is_bounded():
 
 
 def test_cumulative_reflection_reads_instance_scoped_evolution_memory():
-    from gnosis.core import State
+    from gnosis.core import Candidate, State
     from gnosis.instances.instance import Instance
     from gnosis.reflection.runtime import reflect_with_history
     from gnosis.storage import append_evolution_memory, connect, save_instance
@@ -41,7 +41,7 @@ def test_evolution_memory_survives_database_restart_and_returns_to_reflection():
     conn = connect(db)
     instance = Instance.create_root("u", State(elements={"a": 1}))
     save_instance(conn, instance)
-    candidate = __import__("gnosis.core", fromlist=["Candidate"]).Candidate(
+    candidate = Candidate(
         instance.engine.state.state_id,
         instance.engine.state.with_elements({"b": 2}),
         "memory-restart-test",
