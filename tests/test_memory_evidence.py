@@ -8,6 +8,7 @@ def test_memory_projects_to_read_only_reflection_evidence():
     assert out[0].memory_id == "m"
     assert out[0].outcome == "rejected"
     assert out[0].evidence == ("e1",)
+    assert out[0].state_id == "s"
 
 
 def test_memory_projection_is_bounded():
