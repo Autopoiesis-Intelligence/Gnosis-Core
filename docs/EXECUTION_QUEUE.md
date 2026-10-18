@@ -185,3 +185,11 @@ For each task update, record:
 - The fixture docstring explicitly states this is a test-only directly constructed authorization; it does NOT prove or implement the missing production trusted-owner issuer.
 - Not yet proven: rollback assertions, fixture compatibility with `record.transition_id`, and overall CI. Wait for Actions on the new exact HEAD before further changes.
 - Next SEQ 156: inspect CI for commit `b4a1bbc6d12197748ca9906ad1e76a8983e2dcf7`; if rollback tests run, use their exact failures to decide whether the fixture or production transaction path is defective. Keep PR #249 draft/unmerged.
+
+
+### SEQ 156 — Rollback fixture first CI result
+- CI run `39094008655` for commit `b4a1bbc6d12197748ca9906ad1e76a8983e2dcf7`: Python 3.11 FAIL; Python 3.12 cancelled. Result: 20 failed, 945 passed, 2 errors; coverage 90%.
+- The new fixture is discovered and both rollback tests execute, but both stop during setup because `build_provenance()` requires `evidence_digest`. This is a fixture construction defect, not evidence of a production adapter defect.
+- Corrected the fixture to pass `canonical_digest(observations)` in commit `fa468eb5ae75da7ae1c7e9e27f6f4efbb985b4e1`.
+- The other 20 failures are unchanged in this run and remain unclassified/failing as listed in SEQ 154; do not treat the overall test suite as passing.
+- Next: inspect CI for exact HEAD `fa468eb5ae75da7ae1c7e9e27f6f4efbb985b4e1`, confirm both rollback tests reach assertions, then isolate the next security-sensitive failure. PR #249 stays draft/unmerged.
