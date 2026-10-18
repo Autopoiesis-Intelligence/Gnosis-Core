@@ -228,9 +228,9 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     memory1 = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=candidate1.candidate_id, transition_id=transition1.transition_id, state_id=transition1.to_state_id, proposal_id=proposal1.proposal_id, proposal_report_id=report1_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
     conn.close()
     conn = connect(db)
-    restored = load_evolution_memory(conn, "e9-instance")
+    restored = load_evolution_memory(conn, instance.instance_id)
     assert restored and restored[0].memory_id == memory1.memory_id
-    reflection = reflect_with_history(engine, conn, instance_id="e9-instance")
+    reflection = reflect_with_history(engine, conn, instance_id=instance.instance_id)
     assert any(item.memory_id == memory1.memory_id for item in reflection.evolution_evidence)
     proposal2 = type("P", (), {"proposal_id":"p-e9-2","finding_id":"f-e9-2","rule_id":"r-e9-2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f-e9-2",)})()
     cumulative2 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal2,)), history=reflection.history, recurring_unresolved=(), evolution_evidence=reflection.evolution_evidence)
