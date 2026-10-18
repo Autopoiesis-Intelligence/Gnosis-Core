@@ -607,3 +607,13 @@ For each task update, record:
 - **PR decision:** keep PR #249 and PR #250 Draft/unmerged. Queue is a persistent task ledger, not an executable consumer.
 - **Proven:** exact CI run IDs, counts from retrieved logs, PR branch/base comparison, replay API mismatch, current failure clusters. **Not proven:** green CI, persisted end-to-end evolution cycle, production authorization, automatic queue consumption.
 - **Next SEQ:** inspect the replay/sandbox/provenance source contracts and implement at most one narrow fix with a focused regression test; refresh exact-head CI immediately afterward.
+
+
+## SEQ194 — Stop on branch-ref / commit-SHA mismatch
+
+- **Reconciliation finding:** reading `gnosis/evolution/replay.py` by branch ref `work/self-evolution-unblock-identity` returned blob `06557a9e22d8b513c74799770c7e92ecf47817c2`, where replay recomputes execution identity from sandbox identity fields and takes evaluation/governance metadata from persisted provenance. Reading the same path at the previously recorded exact commit `63779be3d8c381039fa656134990e85ddab76003` returned blob `aada1d647c30a332573c71c9f03bb94d3f3b3db2`, which still accesses absent `execution.execution_id` and status fields. The sandbox blob at that exact SHA is `07b425e8e559711acb22794d01d4ef318371ef45` and its `SandboxExecution` dataclass contains none of those fields.
+- **Consequence:** current branch-ref content and the last exact commit/CI evidence are not reconciled. Do not call the branch-ref fix current-head code, and do not use CI run `39092933211` as proof of the branch-ref content. The connector's compare result does not expose a usable head SHA, while PR #249 search returns stale body evidence; this is an evidence-source limitation, not permission to guess.
+- **Safe decision:** no source edit or merge based on ambiguous head identity. Obtain a canonical current PR head SHA and run CI for that exact SHA, then inspect source files by that SHA. Keep PR #249 Draft/unmerged and preserve fail-closed authorization.
+- **Queue update:** this note was added to the documentation-only queue branch. Update commit to be checked: `2dd546d52c098ab102e08df2ba26668b337903af`. Its CI `39098047652` was in progress at the time of the latest lookup; Import Graph `39098047621` PASS, CodeQL `39098047582` in progress, Dependency Review `39098047645` FAIL.
+- **Proven:** source blob mismatch between branch ref and recorded SHA; exact source contract at `63779be...`; workflow state at queue update commit. **Not proven:** current PR head SHA, CI for current branch-ref source, replay fix merged or CI-proven.
+- **Next SEQ:** resolve canonical PR #249 head identity before making source changes. Then fix one replay/provenance defect with a focused test and exact-head CI.
