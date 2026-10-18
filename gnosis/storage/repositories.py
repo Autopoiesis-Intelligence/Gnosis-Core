@@ -234,6 +234,23 @@ def _persist_transition_in_transaction(conn: sqlite3.Connection,instance: Instan
         expected_head=record.to_state_id if record.accepted else record.from_state_id
         if db.engine.state.state_id!=expected_head: raise ValueError("replayed transition has inconsistent canonical head")
         return
+    # A semantically conflicting record may hash to a different transition_id.
+    # Detect it before the stale-head guard so conflicting replay cannot be
+    # misclassified as an unrelated stale write.
+    same_operation = conn.execute(
+        "SELECT transition_id,accepted,reasons,test_rule_id FROM transitions "
+        "WHERE instance_id=? AND candidate_id=? AND from_state_id=? AND to_state_id=?",
+        (instance.instance_id, record.candidate_id, record.from_state_id, record.to_state_id),
+    ).fetchone()
+    if same_operation is not None:
+        expected_semantics = (
+            tid,
+            int(record.accepted),
+            canonical_json(record.test_result.reasons),
+            record.test_rule_id,
+        )
+        if tuple(same_operation) != expected_semantics:
+            raise StorageCorruptionError("conflicting transition replay")
     if db.engine.state.state_id!=record.from_state_id: raise ValueError("stale instance head")
     save_candidate(conn,candidate); inject("after_candidate")
     conn.execute("INSERT INTO transitions(transition_id,instance_id,candidate_id,from_state_id,to_state_id,accepted,reasons,test_rule_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(tid,instance.instance_id,record.candidate_id,record.from_state_id,record.to_state_id,int(record.accepted),canonical_json(record.test_result.reasons),record.test_rule_id,utc_now())); inject("after_transition")
