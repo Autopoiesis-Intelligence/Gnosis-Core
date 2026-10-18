@@ -139,3 +139,9 @@ For each task update, record:
 - Test-only commits on PR #249 branch: `ce8bb959e8274be4c5b5a9e5b40c418cbc2b55e4` (serializable `RuleProposal`) and `63c6153a01892967b7b3a298047c655925205d98` (E9 report IDs). Exact-head workflow runs were not visible immediately after the last commit; these changes are not CI-proven.
 - E9 memory calls still use `tx.audit_record.record_digest` as `transition_id` and `candidate.parent_state_id` as `state_id`; these remain inconsistent with the canonical transition/state contract. Next repair requires constructing real canonical transitions and binding memory to `transition.to_state_id`, not weakening storage validation.
 - PR #249 remains open/unmerged. Do not claim autonomous evolution runtime is operational.
+
+### SEQ 148 — E9 typed proposal fixtures
+- Exact-head CI run `39093395114` for `63c6153a01892967b7b3a298047c655925205d98`: Python 3.11 failed, Python 3.12 cancelled; coverage 5,791 statements / 593 missed / 90%. Three endogenous-runtime failures remained: one proposal-binding mismatch and two `TypeError: Object of type P is not JSON serializable` errors.
+- Follow-up commit `f216913742d98ba2accc0ef21b47d22c75b5edd8` replaces dynamically-created proposal objects in both E9 persisted scenarios with typed `RuleProposal` values. This addresses JSON serialization shape, but has not yet been verified by CI.
+- E9 canonical transition/state mismatch remains. Next check CI for exact HEAD `f216913742d98ba2accc0ef21b47d22c75b5edd8`, then diagnose proposal-binding mismatch in the two-cycle scenario. Do not relax `candidate_binds_proposal`, storage validation, or authority boundaries to force tests green.
+- PR #249 remains open and unmerged; autonomous self-evolution runtime is not proven.
