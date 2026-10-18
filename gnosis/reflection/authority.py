@@ -168,6 +168,8 @@ def _canonical_evolution_identity(provenance: object) -> str:
         "shadow_status": str(provenance.shadow_status),
         "invariant_status": str(provenance.invariant_status),
         "governance_decision": str(provenance.governance_decision),
+        "evaluator_identity_ref": str(provenance.evaluator_identity_ref),
+        "evaluator_identity_version": str(provenance.evaluator_identity_version),
         "provenance_id": str(provenance.provenance_id),
     })
 
