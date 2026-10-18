@@ -74,7 +74,7 @@ Make the Self-Learning / Self-Evolution path execute a real, bounded learning cy
   3. Recovery/replay checks verify subject binding and provenance, not just structural shape.
   4. A fresh process can read persisted state and verify the expected linkage.
   5. Runtime evidence and CI evidence are recorded separately.
-- **Evidence:** CI run `39091313289` (previous PR head) reproduced chain-verifier failure `malformed persisted chain: 'parent_state_id'`, missing proposal provenance scope in memory writes, and recovery/audit replay failures. Exact-head rerun pending. No schema or migration changes authorized.
+- **Evidence:** Exact-head CI run `39092565603` on `7055712b6736ca81721302da699000dde4dda8a6` still reproduces `malformed persisted chain: 'parent_state_id'` (`tests/test_endogenous_runtime.py`), `proposal provenance scope is required`, and persistence/recovery/replay failures (`recover_instance()` missing required `authorization`, `conflicting audit replay`, and rejected/no-op transition count mismatches). Prior run `39091313289` showed the same main cluster. No schema or migration changes authorized.
 
 ### GNOSIS-SELF-005 — Resolve production execution-authority provenance gap
 - **Priority:** P1
@@ -86,8 +86,8 @@ Make the Self-Learning / Self-Evolution path execute a real, bounded learning cy
   2. Issuer identity, key version, scope, policy version, evolution identity, parent-state digest, request provenance, validity window, nonce, and signature are bound and verified.
   3. The production composition root supplies the trust source; a disconnected verifier is not enough.
   4. Tampered policy, stale parent state, replayed nonce, expiry, and wrong scope are rejected in regression and integration tests.
-- **Evidence:** Historical source audit found `issue_execution_authorization()` unimplemented and self-referential trust expectations; refresh against current source.
-- **Blocker:** Trust-root provisioning/owner-authority contract has not been established in current evidence.
+- **Evidence (source audit 2026-10-18):** `gnosis/reflection/trusted_execution_gate.py::require_trusted_execution` calls `validity.require_valid(expected_policy_version=validity.policy_version, expected_evidence_digest=validity.validity_evidence_digest)`. Both expected values are read from the same `AuthorizationValidity` object being validated, so this check cannot detect a forged policy/evidence value. Regression `tests/test_trusted_execution_gate_tamper.py::test_tampered_policy_is_rejected_before_consumption` constructs `AuthorizationValidity("auth-t", "policy-forged", "ev-1")` and expects rejection, but exact-head CI run `39092565603` reports `DID NOT RAISE PermissionError`. `gnosis/reflection/authority.py::issue_execution_authorization` still raises `NotImplementedError("trusted owner-authority issuer is not implemented")`; no independent expected policy/evidence source is supplied by this gate. The defect is confirmed by source inspection and a failing exact-head test; no runtime exploit test was performed.
+- **Blocker:** Independent trust source and owner-authority contract/provisioned material are not established. Do not patch by hard-coding expected digests or by treating fields on the submitted object as independent authority. Resolve the authorized contract first, then pass independently sourced expected policy/evidence into validation and retain tamper/replay/expiry tests.
 
 ### GNOSIS-SELF-006 — Add a runtime consumer for this queue
 - **Priority:** P2
