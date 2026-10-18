@@ -273,3 +273,15 @@ For each task update, record:
 - Exact-head workflow lookup for `107951aa30535fb11d071ff393bf1d0a70f92774` returned no runs at this check. This correction is IMPLEMENTED, not CI_PROVEN.
 - Not addressed: critical trusted policy tamper failure, authority-boundary failures, audit replay collisions, stale API contracts, and other persistence defects.
 - Next: poll CI for this exact SHA; confirm these two targeted tests pass, then take the next failure from the exact log. Keep PR #249/#250 Draft and unmerged.
+
+
+### SEQ 164 — Authorized recovery test contracts (CI pending)
+
+- Last checked: 2026-10-18.
+- Exact PR #249 source HEAD before this change: `107951aa30535fb11d071ff393bf1d0a70f92774`; CI run `39094525532` checked out merge commit `9e7a0346c37a7510b188db182a56ae3ed2e8f21e`.
+- Python 3.11: **FAIL — 15 failed / 952 passed / 0 errors / 18 warnings**. Python 3.12 job cancelled after test failure. Import Graph `39094525533`: PASS. CodeQL `39094525557`: in progress at check. Dependency Review `39094525535`: FAIL.
+- SEQ 163 targeted fixes are confirmed in this run: `test_a08_rejected_candidate_survives_close_reopen_without_head_advance` and `test_a28_noop_transition_remains_valid_on_persistence_path` are absent from the failure list.
+- New narrow test-only correction commit: `a2da1aefa5e084a50caafd07f05c1e6cfb039062`. `test_a29_rejected_candidate_cannot_become_head_after_close_reopen` and `test_a48_rollback_reopen_restores_prior_chain` now use the existing explicit test recovery authorization helper. The latter expects two events after recovery (creation + authorized recovery). No production authorization or recovery behavior changed.
+- Exact-head workflow lookup for `a2da1aefa5e084a50caafd07f05c1e6cfb039062` has not yet been checked; this commit is IMPLEMENTED, not CI_PROVEN.
+- Critical security failure remains: `test_tampered_policy_is_rejected_before_consumption` reports DID NOT RAISE PermissionError. Other failures include authority check ordering/stale-head, federation trusted-gate expectation, Engine API mismatch, duplicate audit evidence ordering, conflicting audit replay across instances, rejected-transition audit count, reflection gate call contract, and execution-adapter contract.
+- Next: poll exact-head CI; if the two recovery tests pass, address the repeated `conflicting audit replay` across distinct instance operations by tracing audit event-key construction and uniqueness contract. Do not weaken trusted policy validation.
