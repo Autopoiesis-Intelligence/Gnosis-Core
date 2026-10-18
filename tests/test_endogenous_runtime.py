@@ -204,11 +204,15 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
-    from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory
+    from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory, save_instance
+    from gnosis.storage.repositories import _persist_transition
+    from gnosis.instances.instance import Instance
+    from gnosis.reflection.endogenous import commit_endogenous_candidates
     from gnosis.reflection.runtime import reflect_with_history
     db = tmp_path / "e9.sqlite"
     state = State(elements={"a": 1})
-    engine = Engine(state=state, budget=Budget(total=3))
+    instance = Instance.create_root("e9-instance", state, budget=Budget(total=3))
+    engine = instance.engine
     proposal1 = RuleProposal(proposal_id="p-e9-1", finding_id="f-e9-1", target="r-e9-1", hypothesis="cycle-1", evidence_refs=("f-e9-1",), expected_effect="bounded improvement", regression_risk="low", required_test="e9-cycle-1", rule_id="r-e9-1", current_version=1, proposed_version=2)
     report1 = ReflectionReport(proposals=(proposal1,))
     cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
@@ -216,10 +220,12 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     sandbox1, evaluation1 = evaluate_candidate_in_sandbox(engine, candidate1, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable-1"})
     governance1 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
     provenance1 = build_endogenous_provenance(candidate1, sandbox1, evaluation1, governance1, parent_state_digest=state.content_id)
-    conn = connect(db); ensure_reflection_schema(conn)
+    conn = connect(db); ensure_reflection_schema(conn); save_instance(conn, instance)
     tx1 = persist_evolution_transaction(conn, provenance1, event_type="PROVENANCE", payload={"status":"RECORDED","cycle":1})
     report1_id = save_reflection_report(conn, report1, created_at="2026-10-18T00:01:01Z")
-    memory1 = append_evolution_memory(conn, instance_id="e9-instance", candidate_id=candidate1.candidate_id, transition_id=tx1.audit_record.record_digest, state_id=candidate1.parent_state_id, proposal_id=proposal1.proposal_id, proposal_report_id=report1_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
+    transition1 = commit_endogenous_candidates(engine, report1, (candidate1,))
+    _persist_transition(conn, instance, candidate1, transition1, actor="e9")
+    memory1 = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=candidate1.candidate_id, transition_id=transition1.transition_id, state_id=transition1.to_state_id, proposal_id=proposal1.proposal_id, proposal_report_id=report1_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
     conn.close()
     conn = connect(db)
     restored = load_evolution_memory(conn, "e9-instance")
@@ -242,10 +248,15 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     from gnosis.evolution.chain_verifier import verify_persisted_chain
     from gnosis.evolution.replay import replay_complete
     from gnosis.storage import connect, ensure_reflection_schema, append_evolution_memory, load_evolution_memory
+    from gnosis.storage import save_instance
+    from gnosis.storage.repositories import _persist_transition
+    from gnosis.instances.instance import Instance
+    from gnosis.reflection.endogenous import commit_endogenous_candidates
     db = tmp_path / "e9-cycle2.sqlite"
     state = State(elements={"a": 1})
-    engine = Engine(state=state, budget=Budget(total=3))
-    conn = connect(db); ensure_reflection_schema(conn)
+    instance = Instance.create_root("e9-full", state, budget=Budget(total=3))
+    engine = instance.engine
+    conn = connect(db); ensure_reflection_schema(conn); save_instance(conn, instance)
     previous = None
     for cycle in (1, 2):
         proposal = RuleProposal(proposal_id=f"p-e9-full-{cycle}", finding_id=f"f-e9-full-{cycle}", target=f"r-e9-full-{cycle}", hypothesis=f"cycle-{cycle}", evidence_refs=(f"f-e9-full-{cycle}",), expected_effect="bounded improvement", regression_risk="low", required_test=f"e9-cycle-{cycle}", rule_id=f"r-e9-full-{cycle}", current_version=1, proposed_version=2)
@@ -256,14 +267,16 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         candidate = generate_from_cumulative_reflection(engine, cumulative).candidates[0]
         sandbox, evaluation = evaluate_candidate_in_sandbox(engine, candidate, lambda state, candidate: {"candidate_id": candidate.candidate_id, "cycle": cycle})
         governance = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
-        provenance = build_endogenous_provenance(candidate, sandbox, evaluation, governance, parent_state_digest=state.content_id)
+        provenance = build_endogenous_provenance(candidate, sandbox, evaluation, governance, parent_state_digest=engine.state.content_id)
         tx = persist_evolution_transaction(conn, provenance, event_type="PROVENANCE", payload={"cycle":cycle})
         rows = conn.execute("SELECT sequence,event_type,candidate_id,execution_id,provenance_id,parent_state_digest,proposed_state_digest,evidence_digest,payload_digest,previous_digest,record_digest FROM evolution_audit ORDER BY sequence").fetchall()
         vr = verify_persisted_chain({"candidate_id": provenance.candidate_id, "execution_id": provenance.execution_id, "provenance_id": provenance.provenance_id, "parent_state_id": provenance.parent_state_id, "parent_state_digest": provenance.parent_state_digest, "proposed_state_digest": provenance.proposed_state_digest, "evidence_digest": provenance.evidence_digest, "evaluation_status": provenance.evaluation_status, "shadow_status": provenance.shadow_status, "invariant_status": provenance.invariant_status, "governance_decision": provenance.governance_decision, "proposed_state_content_id": provenance.proposed_state_content_id, "candidate_binding_digest": provenance.candidate_binding_digest, "evaluator_identity_ref": provenance.evaluator_identity_ref, "evaluator_identity_version": provenance.evaluator_identity_version, "evolution_identity": provenance.evolution_identity}, [dict(zip(["sequence","event_type","candidate_id","execution_id","provenance_id","parent_state_digest","proposed_state_digest","evidence_digest","payload_digest","previous_digest","record_digest"], row)) for row in rows], observations=sandbox.execution.observations)
         assert vr.valid, vr.reasons
         rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
         assert rr.reproducible, rr.reasons
-        memory = append_evolution_memory(conn, instance_id="e9-full", candidate_id=candidate.candidate_id, transition_id=tx.audit_record.record_digest, state_id=candidate.parent_state_id, proposal_id=proposal.proposal_id, proposal_report_id=report_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
+        transition = commit_endogenous_candidates(engine, report, (candidate,))
+        _persist_transition(conn, instance, candidate, transition, actor="e9-full")
+        memory = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=candidate.candidate_id, transition_id=transition.transition_id, state_id=transition.to_state_id, proposal_id=proposal.proposal_id, proposal_report_id=report_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
         previous = provenance
     restored = load_evolution_memory(conn, "e9-full")
     assert len(restored) == 2
