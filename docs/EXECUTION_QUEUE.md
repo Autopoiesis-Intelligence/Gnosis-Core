@@ -201,3 +201,18 @@ For each task update, record:
 - Test-only correction committed to PR #249 branch as `8a30246be87f267681ef7a4046e86bf8fe6e0600`: reuse the canonical request helper where applicable and supply validity for the deliberately forged provenance case. Production authorization gate is unchanged.
 - Not yet proven: the three corrected tests pass; remaining 17 failures are resolved; full CI is green. The policy-tamper test remains a separate security-sensitive failure and is not masked.
 - Next SEQ 158: inspect CI for exact HEAD `8a30246be87f267681ef7a4046e86bf8fe6e0600`; use the next exact failure list to separate outdated contract tests from production defects. Keep PR #249 draft/unmerged.
+
+
+### SEQ 158 — Exact-head CI and policy-tamper root cause
+
+- Last checked: 2026-10-18.
+- PR #249 exact head: `8a30246be87f267681ef7a4046e86bf8fe6e0600`; PR remains open, Draft, unmerged. Reported base SHA remains `cf091b9f556de3f412f96dbf1a7744799b217c6e`.
+- CI run `39094145116`: **FAIL**, Python 3.11: 19 failed / 948 passed / 0 errors; Python 3.12 cancelled after the first test job failed. This is one fewer failure than the previous exact-head run `39094057416` (20 failed / 947 passed / 0 errors). Do not interpret this as green CI.
+- Import Graph run `39094132757`: PASS. CodeQL run `39094145465`: PASS. Dependency Review run `39094132743`: FAIL; repository Dependency Graph configuration remains a separate issue.
+- The three authority-boundary setup corrections are effective: those tests no longer appear in the failure summary. The canonical forged-provenance test now stops at `authorization validity identity mismatch` rather than reaching its intended canonical-identity assertion; the stale-head test reports `execution authorization already consumed`. These tests need a valid, isolated authorization fixture and a precise check-order contract; do not weaken the gate.
+- Confirmed security defect: `gnosis/reflection/trusted_execution_gate.py` passes `validity.policy_version` as its own `expected_policy_version` and `validity.validity_evidence_digest` as its own `expected_evidence_digest` to `require_valid()`. This is self-comparison, not independent trust validation. CI `39094145116` still reports `tests/test_trusted_execution_gate_tamper.py::test_tampered_policy_is_rejected_before_consumption` as **DID NOT RAISE PermissionError**.
+- The submitted validity object is not a valid source of expected policy/evidence. `issue_execution_authorization()` still raises `NotImplementedError`, and no production composition root supplies an independent trusted policy/evidence source. The queue's existing blocker GNOSIS-SELF-005 remains valid.
+- No production gate edits made in this SEQ. Rejected approaches: hard-code an expected policy version/digest without an authorized policy contract; derive expected values from the submitted validity object; suppress or relax the tamper test; claim the disconnected `TrustedOwnerIssuer` class is integrated.
+- Proven: exact-head CI outcome, Import Graph and CodeQL results, one-failure reduction, and the self-referential validation defect by source inspection.
+- Not proven: independent trusted-owner issuance, policy/tamper rejection, full CI, production-authorized execution, or an autonomous end-to-end learning cycle.
+- Next SEQ 159: inspect repository policy/configuration and documented authority contracts for an already-approved independent policy source. If none exists, preserve GNOSIS-SELF-005 as BLOCKED and proceed only on a separate non-authority defect with a focused regression test. Keep PR #249/#250 open and unmerged.
