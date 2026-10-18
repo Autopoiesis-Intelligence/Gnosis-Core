@@ -52,6 +52,10 @@ def replay_complete(
     evidence = replay_evidence(execution, observations)
     reasons.extend(evidence.reasons)
     if provenance is not None:
+        # SandboxExecution deliberately carries only observations and state/evidence
+        # identity. The richer evaluation/governance metadata lives in the separately
+        # persisted provenance record, whose deterministic provenance_id is checked
+        # by crosscheck_provenance. Do not pretend those fields came from the sandbox.
         check = crosscheck_provenance(
             provenance=provenance,
             candidate_id=execution.candidate_id,
@@ -60,11 +64,19 @@ def replay_complete(
             proposed_state_digest=execution.proposed_state_digest,
             observations=observations,
             evidence_digest=execution.evidence_digest,
-            execution_id_value=execution.execution_id,
-            evaluation_status=execution.evaluation_status,
-            shadow_status=execution.shadow_status,
-            invariant_status=execution.invariant_status,
-            governance_decision=execution.governance_decision,
+            execution_id_value=execution_id(
+                execution.candidate_id,
+                execution.parent_state_id,
+                execution.evidence_digest,
+                execution.parent_state_digest,
+                execution.proposed_state_digest,
+            ),
+            evaluation_status=provenance.evaluation_status,
+            shadow_status=provenance.shadow_status,
+            invariant_status=provenance.invariant_status,
+            governance_decision=provenance.governance_decision,
+            proposed_state_content_id=provenance.proposed_state_content_id,
+            candidate_binding_digest=provenance.candidate_binding_digest,
             evaluator_identity_ref=provenance.evaluator_identity_ref,
             evaluator_identity_version=provenance.evaluator_identity_version,
         )
@@ -77,7 +89,16 @@ def replay_complete(
         for field in ("parent_state_digest", "proposed_state_digest", "evidence_digest"):
             if getattr(audit_record, field, None) != getattr(execution, field, None):
                 reasons.append(f"audit {field} mismatch")
-        if audit_record.execution_id != getattr(execution, "execution_id", execution.candidate_id):
+        expected_execution_id = (
+            provenance.execution_id if provenance is not None else execution_id(
+                execution.candidate_id,
+                execution.parent_state_id,
+                execution.evidence_digest,
+                execution.parent_state_digest,
+                execution.proposed_state_digest,
+            )
+        )
+        if audit_record.execution_id != expected_execution_id:
             reasons.append("audit execution mismatch")
         if provenance is not None:
             link = crosscheck_provenance_audit(provenance, audit_record)
