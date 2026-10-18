@@ -315,3 +315,12 @@ For each task update, record:
 - Correction imports `Candidate` inside `test_evolution_memory_survives_database_restart_and_returns_to_reflection`. This exact new commit has not yet been run through CI.
 - Status: IMPLEMENTED, CI pending. PR #249 remains Draft/unmerged.
 - Still blocked: independent trusted-owner policy/evidence; policy-tamper rejection; full CI; production-authorized execution; autonomous end-to-end self-evolution. Do not weaken the trusted gate.
+
+
+### SEQ 168 — Align persistence graph expectations with authorized recovery audit
+
+- Exact source commit: `7bc4144e774cbe3522cc42e540c17abfd0b59947` on PR #249 branch.
+- The completed CI run `39094749193` for HEAD `806d154b883c1fbb3e93e640e11652cbb9ecd380` showed 12 failures / 955 passes on Python 3.12; Python 3.11 was cancelled after failure. The memory restart test failed due to a missing local `Candidate` import, corrected in SEQ167 (commit `49e0046dbd9f6a8361ddade988de9bf273e8e435`).
+- Three persistence-hardening assertions expected counts before accounting for `_authorized_recover()` appending a durable recovery audit event. Adjusted expected graph counts: fork/restart scenario 5→7, interleaved instances 6→8, rejected transition recovery 2→3. These are test expectation changes only; production persistence/audit logic was not modified.
+- Status: IMPLEMENTED, awaiting CI on the newest branch head. These assertions must remain consistent with actual graph-verifier semantics; revert or revise if exact CI evidence contradicts the audit-count explanation.
+- Security blocker remains unchanged: independent trusted policy/issuer absent and policy-tamper test still fails. PR #249 stays Draft/unmerged.
