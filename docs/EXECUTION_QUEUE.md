@@ -193,3 +193,11 @@ For each task update, record:
 - Corrected the fixture to pass `canonical_digest(observations)` in commit `fa468eb5ae75da7ae1c7e9e27f6f4efbb985b4e1`.
 - The other 20 failures are unchanged in this run and remain unclassified/failing as listed in SEQ 154; do not treat the overall test suite as passing.
 - Next: inspect CI for exact HEAD `fa468eb5ae75da7ae1c7e9e27f6f4efbb985b4e1`, confirm both rollback tests reach assertions, then isolate the next security-sensitive failure. PR #249 stays draft/unmerged.
+
+
+### SEQ 157 — Authority tests now reach the intended checks
+- CI run `39094057416` on HEAD `fa468eb5ae75da7ae1c7e9e27f6f4efbb985b4e1`: Python 3.12 FAIL, Python 3.11 cancelled; **20 failed, 947 passed, 0 errors**, coverage 90%. The two rollback fixture errors are resolved; both tests now execute to assertions.
+- Three authority-boundary tests had requests missing a valid approval identity and/or `AuthorizationValidity`, so the gate rejected them during mandatory preflight before they could test candidate substitution, canonical provenance rejection, or stale-head rejection.
+- Test-only correction committed to PR #249 branch as `8a30246be87f267681ef7a4046e86bf8fe6e0600`: reuse the canonical request helper where applicable and supply validity for the deliberately forged provenance case. Production authorization gate is unchanged.
+- Not yet proven: the three corrected tests pass; remaining 17 failures are resolved; full CI is green. The policy-tamper test remains a separate security-sensitive failure and is not masked.
+- Next SEQ 158: inspect CI for exact HEAD `8a30246be87f267681ef7a4046e86bf8fe6e0600`; use the next exact failure list to separate outdated contract tests from production defects. Keep PR #249 draft/unmerged.
