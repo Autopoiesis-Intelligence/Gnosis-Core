@@ -193,9 +193,12 @@ def test_a31_fork_creation_failure_rolls_back_child(monkeypatch):
     def fail_audit(*args, **kwargs):
         raise RuntimeError("injected fork audit failure")
 
-    monkeypatch.setattr("gnosis.storage.repositories.append_audit", fail_audit)
-    with pytest.raises(RuntimeError, match="injected fork audit failure"):
-        save_instance(conn, child)
+    # Keep the injected failure scoped to child creation. Recovery below
+    # must exercise the real audit writer, not the deliberately failing stub.
+    with monkeypatch.context() as scoped:
+        scoped.setattr("gnosis.storage.repositories.append_audit", fail_audit)
+        with pytest.raises(RuntimeError, match="injected fork audit failure"):
+            save_instance(conn, child)
     assert conn.execute("SELECT 1 FROM instances WHERE instance_id=?", (child.instance_id,)).fetchone() is None
     assert _authorized_recover(conn, parent.instance_id).instance_id == parent.instance_id
 
