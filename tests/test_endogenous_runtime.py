@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 from gnosis.core import Budget, Engine, State
-from gnosis.reflection.analyzer import ReflectionReport
+from gnosis.reflection.analyzer import ReflectionReport, RuleProposal
 from gnosis.reflection.endogenous_runtime import generate_from_cumulative_reflection
 from gnosis.reflection.runtime import CumulativeReflectionReport
 from gnosis.reflection.memory_evidence import EvolutionEvidence
@@ -76,7 +76,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     instance = Instance.create_root("e8c", State(elements={"a": 1}))
     save_instance(conn, instance)
 
-    proposal1 = type("P", (), {"proposal_id":"p1","finding_id":"f1","rule_id":"r1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f1",)})()
+    proposal1 = RuleProposal(proposal_id="p1", finding_id="f1", target="r1", hypothesis="cycle-1", evidence_refs=("f1",), expected_effect="bounded improvement", regression_risk="low", required_test="cycle-1-test", rule_id="r1", current_version=1, proposed_version=2)
     report1 = ReflectionReport(proposals=(proposal1,))
     report1_id = save_reflection_report(conn, report1, created_at="2026-10-18T00:00:01Z")
     cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
@@ -90,7 +90,7 @@ def test_two_evolution_cycles_preserve_memory_causality_across_restart(tmp_path)
     restored = load_evolution_memory(conn, instance.instance_id)
     assert [m.memory_id for m in restored] == [mem1.memory_id]
     history = reflect_with_history(instance.engine, conn, instance_id=instance.instance_id)
-    proposal2 = type("P", (), {"proposal_id":"p2","finding_id":"f2","rule_id":"r2","current_version":1,"proposed_version":2,"hypothesis":"cycle-2","evidence_refs":("f2",)})()
+    proposal2 = RuleProposal(proposal_id="p2", finding_id="f2", target="r2", hypothesis="cycle-2", evidence_refs=("f2",), expected_effect="bounded improvement", regression_risk="low", required_test="cycle-2-test", rule_id="r2", current_version=1, proposed_version=2)
     report2 = ReflectionReport(proposals=(proposal2,))
     report2_id = save_reflection_report(conn, report2, created_at="2026-10-18T00:00:02Z")
     cumulative2 = CumulativeReflectionReport(current=report2, history=history.history, recurring_unresolved=(), evolution_evidence=history.evolution_evidence)
