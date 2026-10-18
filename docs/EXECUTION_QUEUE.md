@@ -467,3 +467,15 @@ For each task update, record:
 - Proven: current PR heads/base, exact workflow IDs/conclusions, full failure count from CI log, and queue PR's one-file diff. Not proven: all-CI PASS, trusted owner issuer/root, policy-tamper rejection, production execution, a persisted two-cycle learning run, or automatic queue consumption.
 - Rejected: treating CodeQL/Import Graph success as CI success; attributing inherited runtime failures to a documentation-only diff; treating a durable Markdown queue as an executing scheduler.
 - Next SEQ: inspect the exact PR #249 source diff and one deterministic non-security failure, then implement only if the current source contract supports the fix; rerun CI on the resulting exact head.
+
+
+### SEQ 183 — Confirmed self-referential trusted-policy check; no unsafe patch
+
+- Inspected exact PR #249 head `3e3fba135b202353932082b4cc7b1b2799fcdb1f`, source file `gnosis/reflection/trusted_execution_gate.py` (blob `90e1e479dc693d1f63a8bf6f468650829e91f4ff`) and test `tests/test_trusted_execution_gate_tamper.py` (blob `9ac4ccfa030e3d6702c09aca9ac9ceb486a3cde9`).
+- Confirmed defect: `require_trusted_execution()` calls `validity.require_valid(expected_policy_version=validity.policy_version, expected_evidence_digest=validity.validity_evidence_digest)`. Both expected values are read from the same request-supplied object being validated. Thus the comparison is tautological for policy version and evidence digest; a forged `AuthorizationValidity("auth-t", "policy-forged", "ev-1")` is not rejected by this check, matching the exact-head CI failure in `test_tampered_policy_is_rejected_before_consumption`.
+- Related source evidence: `issue_execution_authorization()` still raises `NotImplementedError("trusted owner-authority issuer is not implemented")` after request matching. There is no confirmed independent production trust-root/configuration provider in the inspected path.
+- Security decision: do not patch this by hardcoding a policy version/digest, deriving expected values from the request, changing the test expectation, or treating caller-provided metadata as trusted. A valid fix requires an independently provisioned trusted policy/evidence source and an explicit contract for how the gate receives it. This is an architecture/authority decision, not a routine local constant.
+- No source/runtime change made. PR #249 and #250 remain Draft/unmerged. The queue branch is a documentation-only branch based on main and does not contain PR #249 source fixes.
+- Proven: the exact self-reference in the gate, the failing regression's intent, the issuer's explicit unimplemented status, and current CI failure. Not proven: an independent trusted policy source, production owner issuer, secure end-to-end execution, or autonomous queue consumption.
+- Rejected: self-validation; hardcoded trust policy; weakening tests; merge based on CodeQL/Import Graph alone.
+- Next SEQ: define the minimum independent trust-provider interface and provenance contract as a design-only proposal (no runtime/schema/migration changes), then inspect current architecture boundaries and tests before implementation.
