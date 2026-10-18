@@ -278,7 +278,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         _persist_transition(conn, instance, candidate, transition, actor="e9-full")
         memory = append_evolution_memory(conn, instance_id=instance.instance_id, candidate_id=candidate.candidate_id, transition_id=transition.transition_id, state_id=transition.to_state_id, proposal_id=proposal.proposal_id, proposal_report_id=report_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
         previous = provenance
-    restored = load_evolution_memory(conn, "e9-full")
+    restored = load_evolution_memory(conn, instance.instance_id)
     assert len(restored) == 2
     assert restored[-1].transition_id
     assert restored[-1].memory_id != restored[0].memory_id
