@@ -1,4 +1,5 @@
 import pytest
+from gnosis.storage import connect
 from gnosis.self_learning.bridge import CoreMutationProposal, approve_core_mutation, create_core_mutation_proposal
 from gnosis.self_learning.integration import IntegrationRecord
 from gnosis.self_learning.execution import execute_approved_core_proposal
@@ -25,8 +26,13 @@ def test_execution_adapter_fails_closed_without_owner_authorization():
         proposed_state_content_id="sha256:content",
     )
     request=ExecutionCommitRequest(auth,snapshot,"p","e",object())
-    with pytest.raises(PermissionError):
-        execute_approved_core_proposal(
-            proposal,request,conn=object(),instance=object(),
-            candidate=object(),record=object(),actor="test"
-        )
+    conn = connect()
+    try:
+        with pytest.raises(PermissionError):
+            execute_approved_core_proposal(
+                proposal, request, conn=conn, instance=object(),
+                candidate=object(), record=object(), actor="test"
+            )
+        assert conn.execute("SELECT count(*) FROM audit_events").fetchone()[0] == 0
+    finally:
+        conn.close()
