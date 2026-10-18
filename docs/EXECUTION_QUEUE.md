@@ -117,3 +117,10 @@ For each task update, record:
 - **Proven:** exact claims supported by evidence
 - **Not proven:** remaining gaps
 - **Next action:** one concrete action
+
+
+### SEQ 145 — Replay/Sandbox contract correction (CI pending)
+- On PR #249 branch `work/self-evolution-unblock-identity`, commit `dcd6f23d87aa7e8e0fe9bed7d1b484e1aeeaa22e` updates `gnosis/evolution/replay.py` to compute the deterministic execution identity from the sandbox's actual candidate/state/evidence fields, compare it to provenance, and use provenance's own evaluation/shadow/invariant/governance metadata only as provenance-owned fields. The audit execution identity is checked against the provenance identity (or the deterministic fallback if provenance is absent).
+- CI triggered for this exact commit: run `39093201261` (CI), `39093201257` (CodeQL), `39093201264` (Import Graph), `39093201258` (Dependency Review). At last check CI job `117574109424` (Python 3.11) was in progress and `117574109593` (Python 3.12) queued; no PASS/FAIL conclusion yet.
+- Scope: no schema/migration or authorization changes. This corrects interface consistency but does not prove independent authenticity of evaluation/governance statuses because SandboxExecution does not carry them; they remain provenance-owned and the replay result is consistency evidence, not authority/execution proof.
+- Still outstanding: required `proposal_report_id` and canonical transition/state IDs in memory tests; broader CI failures and trusted authority boundary remain unresolved. Do not merge while CI is red or pending.
