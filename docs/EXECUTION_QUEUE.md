@@ -36,7 +36,7 @@ Make the Self-Learning / Self-Evolution path execute a real, bounded learning cy
 
 ### GNOSIS-SELF-002 — Reproduce and classify the current Self-Evolution failure set
 - **Priority:** P0
-- **Status:** READY
+- **Status:** IN_PROGRESS
 - **Objective:** Run the current test/CI suite at an exact SHA and map each failure to a production path, stale test/API contract, or environment/fixture issue.
 - **Dependencies:** GNOSIS-SELF-001 current-head reconciliation can run in parallel with failure classification, but do not merge unverified changes.
 - **Acceptance criteria:**
@@ -44,7 +44,9 @@ Make the Self-Learning / Self-Evolution path execute a real, bounded learning cy
   2. Group failures by root cause and identify the smallest reproducible test for each group.
   3. Keep security, persistence, recovery, and replay failures visible; do not relax assertions merely to obtain green CI.
   4. Publish a prioritized fix list in this file.
-- **Evidence:** Historical baseline only: main at `cf091b9f556de3f412f96dbf1a7744799b217c6e`, observer run `39080280460`, Python 3.12: 931 passed / 33 failed / 2 errors (FAIL). Must be refreshed on current SHA.
+- **Evidence:** PR #249 merge-test commit `15231f667f351306bdb916b303b71651bfa4b99b` (merge of `783d3b9875115148a6b6d5a04766829b5705c7b6` into base `cf091b9f556de3f412f96dbf1a7744799b217c6e`); CI run `39090976202`, Python 3.11: **936 passed / 29 failed / 2 errors (FAIL)**; Python 3.12 job cancelled. Import Graph `39090976197` PASS; CodeQL `39090976198` PASS. Dependency Review `39090976235` failed because dependency review is unsupported while repository Dependency Graph is disabled (configuration issue, not a test failure). This is a PR merge-commit result, not a fresh green main result.
+- **Failure clusters observed:** (1) canonical provenance/authorization binding and tamper rejection; (2) endogenous candidate-to-proposal binding and evolution-memory contract mismatch; (3) persistence/recovery/replay and audit-key collisions; (4) stale or mismatched APIs in reflection/recovery tests; (5) real-commit failure-injection errors. Keep these separate and identify the owning implementation/test contract before edits.
+- **Next action:** Fix the smallest high-impact production-path defect from cluster (1), then rerun targeted tests and exact-head CI; do not batch unrelated changes.
 
 ### GNOSIS-SELF-003 — Demonstrate a bounded end-to-end learning cycle in an isolated runtime
 - **Priority:** P0
