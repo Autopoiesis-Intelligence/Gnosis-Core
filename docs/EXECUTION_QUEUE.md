@@ -494,3 +494,22 @@ For each task update, record:
   6. Production root/key provisioning, secret storage, key rotation and cryptographic signature verification remain separately governed; no schema/migration or production trust-root change until explicit architecture authorization.
 - Acceptance remains BLOCKED. The current pure `TrustedOwnerIssuer` helper is useful boundary scaffolding, not evidence of a complete trusted issuer or end-to-end authority.
 - Next SEQ: inspect the main-branch issuer/gate tests and composition boundaries against this design; prepare a narrowly scoped implementation plan and identify exact files/callers before changing runtime code.
+
+
+### SEQ 185 — Map trusted-policy contract to actual gate and call sites
+
+- Exact main snapshot observed: base `cf091b9f556de3f412f96dbf1a7744799b217c6e`. Gate blob `90e1e479dc693d1f63a8bf6f468650829e91f4ff`; validity model blob `c79b534797842db417e4af913d1debb7a163dca87`; execution adapter blob `ce9e4ccbedd2c15589023eef86fbdea53c439175`; trusted issuer blob `e804192b62ec05c92f8f5b0151bcaf9539f91853`; consumption helper blob `4bc55d8d23b0aa5e70424fcc3574448fcf6d19fa`.
+- Call-site search found the production adapter as the single direct production caller of `require_trusted_execution`; two focused gate tests and the federation E2E test also call it directly. Therefore explicit provider injection can be narrow in source scope but requires updating direct test callers and the adapter constructor/call contract consistently.
+- `issue_execution_authorization()` in `gnosis/reflection/authority.py` validates that the opaque `OwnerApproval` fields match, then intentionally raises `NotImplementedError`. This is a deliberate fail-closed production boundary, not an accidental missing return.
+- `TrustedOwnerIssuer.issue()` returns `ExecutionAuthorization(owner_approved=True,...)` after comparing root/scope/policy fields and checking a non-empty evidence digest. The helper's own configured root/policy are ordinary dataclass strings; inspected code does not prove those values are authenticated/provisioned as a root of trust. It is not safe to wire it into production as-is and treat it as cryptographic authority.
+- The consumption helper durably appends `execution-authorization:{authorization_id}` inside the caller transaction and rejects duplicate consumption. This establishes a single-use ledger check for that ID, but does not authenticate the issuer or make request-supplied policy metadata trustworthy.
+- Proposed minimal implementation boundary, still design-only:
+  - Add a typed explicit `TrustedPolicyVerifier`/provider protocol at the adapter boundary; its verification result must supply independently trusted expected policy version and evidence digest plus a positive provenance/issuer verification result.
+  - `require_trusted_execution` must require this dependency and reject absent/unverified provider output before calling consumption.
+  - Do not let `TrustedOwnerIssuer` itself become trusted merely because it is instantiated; provisioning/authentication of root/key and signature validation need a separate governed implementation.
+  - Preserve one transaction for verification + consumption + commit, and ensure any failure rolls back consumption and state mutation.
+  - Add adversarial tests for altered policy/digest, missing provider, fake provider result, mismatched scope/evolution/parent, duplicate consumption, and rollback; then run exact-head CI.
+- No runtime code changed. PR #249/#250 remain Draft/unmerged. Queue commit `fcd3196111573c00989208ddfd450cca9d874fbc` had no workflow runs returned at last query; exact-head CI is not verified.
+- Proven: file contents/blob identities on main, call-site search results, issuer's explicit fail-closed implementation, adapter's gate invocation, and durable consumption event behavior.
+- Not proven: authenticated root provisioning, cryptographic signature verification, independent trusted policy/evidence source, successful production authorization, or persisted autonomous learning.
+- Next SEQ: inspect available governance/credential/key-lifecycle implementation and existing test-only authority bridge. If no authenticated provider exists, keep implementation blocked and produce a file-level patch plan without runtime edits; no schema/migration changes.
