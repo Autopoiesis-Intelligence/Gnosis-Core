@@ -479,3 +479,18 @@ For each task update, record:
 - Proven: the exact self-reference in the gate, the failing regression's intent, the issuer's explicit unimplemented status, and current CI failure. Not proven: an independent trusted policy source, production owner issuer, secure end-to-end execution, or autonomous queue consumption.
 - Rejected: self-validation; hardcoded trust policy; weakening tests; merge based on CodeQL/Import Graph alone.
 - Next SEQ: define the minimum independent trust-provider interface and provenance contract as a design-only proposal (no runtime/schema/migration changes), then inspect current architecture boundaries and tests before implementation.
+
+
+### SEQ 184 — Minimum design contract for independent trusted-policy verification
+
+- Repository search found an existing `gnosis/reflection/trusted_issuer.py` on main (blob `e804192b62ec05c92f8f5b0151bcaf9539f91853`) and E5.05–E5.09 contracts in `docs/architecture/TRANSACTION_CONTRACT.md`. The issuer compares supplied root/scope/policy against its configured values and checks a non-empty evidence digest, but the reviewed path does not establish cryptographic root authenticity, and `require_trusted_execution` does not receive or consult the issuer.
+- Existing issuer tests establish field mismatch rejection in the pure issuer helper only; they do not prove the production execution adapter uses that issuer or verifies the validity evidence against an independent source.
+- Design-only minimum (not implementation authorization):
+  1. Gate receives an explicit trusted-policy verifier/provider dependency through the composition/adapter boundary; no global selector, hidden clock or implicit environment lookup.
+  2. Provider's expected policy version and expected evidence digest are derived from independently provisioned, authenticated authority configuration/records—not from `request.authorization_validity`.
+  3. Gate rejects missing provider, unknown policy, unverifiable evidence, scope mismatch, revoked/expired/consumed authorization and exact-intent mismatch before durable mutation.
+  4. Authorization issuance and verification remain separate operations; a plain `owner_approved=True`, a non-empty digest, an audit-chain hash, or persisted metadata alone never establish authority.
+  5. Tests must include attacker-controlled policy and digest substitution, provider absence, provider configuration mismatch, cross-evolution/parent replay, single-use consumption, rollback on failure, and successful authorized test-path execution. Tests must not hardcode a trusted expected value inside the submitted request.
+  6. Production root/key provisioning, secret storage, key rotation and cryptographic signature verification remain separately governed; no schema/migration or production trust-root change until explicit architecture authorization.
+- Acceptance remains BLOCKED. The current pure `TrustedOwnerIssuer` helper is useful boundary scaffolding, not evidence of a complete trusted issuer or end-to-end authority.
+- Next SEQ: inspect the main-branch issuer/gate tests and composition boundaries against this design; prepare a narrowly scoped implementation plan and identify exact files/callers before changing runtime code.
