@@ -200,6 +200,7 @@ def test_endogenous_provenance_persists_and_replays_after_restart(tmp_path):
 
 
 def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
+    from gnosis.reflection.persistence import save_reflection_report
     from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
@@ -209,14 +210,16 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
     state = State(elements={"a": 1})
     engine = Engine(state=state, budget=Budget(total=3))
     proposal1 = type("P", (), {"proposal_id":"p-e9-1","finding_id":"f-e9-1","rule_id":"r-e9-1","current_version":1,"proposed_version":2,"hypothesis":"cycle-1","evidence_refs":("f-e9-1",)})()
-    cumulative1 = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal1,)), history=None, recurring_unresolved=(), evolution_evidence=())
+    report1 = ReflectionReport(proposals=(proposal1,))
+    cumulative1 = CumulativeReflectionReport(current=report1, history=None, recurring_unresolved=(), evolution_evidence=())
     candidate1 = generate_from_cumulative_reflection(engine, cumulative1).candidates[0]
     sandbox1, evaluation1 = evaluate_candidate_in_sandbox(engine, candidate1, lambda state, candidate: {"candidate_id": candidate.candidate_id, "observation": "stable-1"})
     governance1 = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
     provenance1 = build_endogenous_provenance(candidate1, sandbox1, evaluation1, governance1, parent_state_digest=state.content_id)
     conn = connect(db); ensure_reflection_schema(conn)
     tx1 = persist_evolution_transaction(conn, provenance1, event_type="PROVENANCE", payload={"status":"RECORDED","cycle":1})
-    memory1 = append_evolution_memory(conn, instance_id="e9-instance", candidate_id=candidate1.candidate_id, transition_id=tx1.audit_record.record_digest, state_id=candidate1.parent_state_id, proposal_id=proposal1.proposal_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
+    report1_id = save_reflection_report(conn, report1, created_at="2026-10-18T00:01:01Z")
+    memory1 = append_evolution_memory(conn, instance_id="e9-instance", candidate_id=candidate1.candidate_id, transition_id=tx1.audit_record.record_digest, state_id=candidate1.parent_state_id, proposal_id=proposal1.proposal_id, proposal_report_id=report1_id, outcome="accepted", evidence=(provenance1.provenance_id, provenance1.evidence_digest))
     conn.close()
     conn = connect(db)
     restored = load_evolution_memory(conn, "e9-instance")
@@ -232,6 +235,7 @@ def test_e9_restart_reflection_consumes_persisted_endogenous_memory(tmp_path):
 
 
 def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
+    from gnosis.reflection.persistence import save_reflection_report
     from gnosis.reflection.endogenous_runtime import evaluate_candidate_in_sandbox, build_endogenous_provenance
     from gnosis.reflection.governance import GovernanceDecision
     from gnosis.evolution.transaction import persist_evolution_transaction
@@ -246,7 +250,9 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
     for cycle in (1, 2):
         proposal = type("P", (), {"proposal_id":f"p-e9-full-{cycle}","finding_id":f"f-e9-full-{cycle}","rule_id":f"r-e9-full-{cycle}","current_version":1,"proposed_version":2,"hypothesis":f"cycle-{cycle}","evidence_refs":(f"f-e9-full-{cycle}",)})()
         evidence = () if previous is None else (previous.provenance_id, previous.evidence_digest)
-        cumulative = CumulativeReflectionReport(current=ReflectionReport(proposals=(proposal,)), history=None, recurring_unresolved=(), evolution_evidence=())
+        report = ReflectionReport(proposals=(proposal,))
+        report_id = save_reflection_report(conn, report, created_at=f"2026-10-18T00:02:0{cycle}Z")
+        cumulative = CumulativeReflectionReport(current=report, history=None, recurring_unresolved=(), evolution_evidence=())
         candidate = generate_from_cumulative_reflection(engine, cumulative).candidates[0]
         sandbox, evaluation = evaluate_candidate_in_sandbox(engine, candidate, lambda state, candidate: {"candidate_id": candidate.candidate_id, "cycle": cycle})
         governance = GovernanceDecision("REVIEW", "BEHAVIOR_CHANGED", "PRESERVED", ("review required",))
@@ -257,7 +263,7 @@ def test_e9_second_cycle_completes_persistent_transaction_and_memory(tmp_path):
         assert vr.valid, vr.reasons
         rr = replay_complete(sandbox.execution, provenance, tx.audit_record, observations=sandbox.execution.observations)
         assert rr.reproducible, rr.reasons
-        memory = append_evolution_memory(conn, instance_id="e9-full", candidate_id=candidate.candidate_id, transition_id=tx.audit_record.record_digest, state_id=candidate.parent_state_id, proposal_id=proposal.proposal_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
+        memory = append_evolution_memory(conn, instance_id="e9-full", candidate_id=candidate.candidate_id, transition_id=tx.audit_record.record_digest, state_id=candidate.parent_state_id, proposal_id=proposal.proposal_id, proposal_report_id=report_id, outcome="accepted", evidence=(provenance.provenance_id, provenance.evidence_digest, *evidence))
         previous = provenance
     restored = load_evolution_memory(conn, "e9-full")
     assert len(restored) == 2
