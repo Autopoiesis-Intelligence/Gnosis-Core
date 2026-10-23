@@ -195,7 +195,7 @@ When the project owner explicitly authorizes implementation:
 
 ```text
 Primary implementer: Claude
-Independent reviewer: Manus
+Independent reviewer: GPT/Codex
 Final integration gate: ChatGPT
 Phase: R1 only
 ```

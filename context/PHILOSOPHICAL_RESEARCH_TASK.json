@@ -132,7 +132,7 @@
   "migration_rule": "No philosophical result migrates into Core because it is elegant, ancient, widespread or intuitively compelling. Migration requires explicit formalization, falsifiable consequences, architectural mapping, counterexample resistance and independent acceptance.",
   "handoff": {
     "primary_researcher": "AI agent under task registry",
-    "independent_reviewer": "Manus when available",
+    "independent_reviewer": "GPT/Codex",
     "integration_gate": "ChatGPT under project-owner authorization",
     "implementation_agent": "Claude only after an accepted engineering task exists"
   }

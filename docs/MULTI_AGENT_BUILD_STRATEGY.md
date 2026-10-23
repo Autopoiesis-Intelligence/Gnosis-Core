@@ -196,15 +196,6 @@ Primary implementation engineer for large bounded tasks unless explicitly reassi
 - reports implementation and limitations without overstating verification;
 - does not silently expand the architecture beyond the task.
 
-### Manus
-
-Independent engineer and adversarial reviewer:
-
-- reviews the actual artifact rather than accepting implementation reports as proof;
-- executes independent tests where possible;
-- searches for boundary violations, hidden coupling, incomplete invariants, and unsupported claims;
-- may perform explicitly assigned corrective work;
-- does not grant final acceptance.
 
 ### Gemini and other connected AI systems
 
@@ -377,9 +368,9 @@ Until capability, identity, authorization, auditability, rollback, and proof/inv
 For the current Gnozis-V2 work:
 
 - Claude performs the main implementation task;
-- Manus independently attacks and verifies the resulting artifact;
-- Claude performs corrective passes when Manus identifies defects;
-- Manus re-audits corrective work;
+- GPT/Codex independently audits the exact SHA of the resulting artifact;
+- Claude performs corrective passes when the audit identifies defects;
+- GPT/Codex re-audits corrective work;
 - ChatGPT performs the final integration gate;
 - verified findings are written into project documentation;
 - the next task is then defined from the verified state.

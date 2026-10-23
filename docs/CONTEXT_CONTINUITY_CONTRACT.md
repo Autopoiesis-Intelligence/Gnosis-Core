@@ -4,7 +4,7 @@
 
 This contract defines the product-independent interface for restoring project context when a user connects to Gnozis Core from a different AI product, terminal, connector, or session.
 
-The contract is intentionally independent of Google Drive, GitHub, Claude, Manus, ChatGPT, Gemini, or any other provider.
+The contract is intentionally independent of Google Drive, GitHub, Claude, ChatGPT, Gemini, or any other provider.
 
 The objective is not to reproduce a conversation. The objective is to reconstruct the **current project state and the next permitted action** from durable evidence.
 

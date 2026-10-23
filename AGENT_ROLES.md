@@ -2,20 +2,18 @@
 
 ## Current operating model
 
-ChatGPT is the active implementation, integration, and audit assistant for the current project workflow. Other AI services are not assumed to be active participants or independent reviewers unless the project owner explicitly reactivates them for a specific task.
+The owner's target stack (2026-10-23) applies to all Autopoiesis-Intelligence repositories:
+
+- **Claude** is the main engineer: implementation, code and CI fixes, tests, pull requests and review follow-up.
+- **ChatGPT / GPT-Codex** provide architecture control and independent audit of exact SHAs, tests, CI and execution evidence.
+- **Copilot** is the self-update executor inside the autopoiesis-core protocol.
+- **GitHub** is the canonical state of code, tasks, PRs and history; GitHub Actions results are the evidence that automation ran.
+
+No agent merges to `main` without the owner's explicit permission. The canonical description of roles is `docs/OPERATING_MODEL.md` in autopoiesis-core. Other AI services are not active participants unless the owner explicitly reactivates them.
 
 Access to repository data is not the same as authority to change protected state. A tool connection, generated patch, test result, or recommendation does not independently grant execution authority.
 
 ## Responsibilities
-
-### ChatGPT — implementation, integration, and audit
-
-- inspect current repository state before acting;
-- make bounded code and documentation changes within the user's granted scope;
-- run or inspect available tests and CI;
-- distinguish implementation from reachability, runtime behavior, persistence, audit, and CI proof;
-- record exact commits, failures, unresolved questions, and next steps;
-- never certify a change solely from its own narrative or a synthetic test.
 
 ### Project owner
 
