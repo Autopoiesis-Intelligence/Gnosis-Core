@@ -10,7 +10,7 @@ Current operating mode: **single owner / single account / single canonical proje
 
 ```text
 Primary implementer: Claude when explicitly assigned
-Independent reviewer: Manus when available
+Independent reviewer: GPT/Codex
 Final integration gate: ChatGPT
 ```
 

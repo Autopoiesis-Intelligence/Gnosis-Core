@@ -67,7 +67,7 @@
     "R7 cooperative self-reflection network - future multi-user strategy"
   ],
   "primary_implementer": "Claude when explicitly assigned",
-  "independent_reviewer": "Manus when available",
+  "independent_reviewer": "GPT/Codex",
   "integration_gate": "ChatGPT under project-owner authorization",
   "forbidden_scope": [
     "autonomous rule activation",
