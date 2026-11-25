@@ -1,7 +1,7 @@
 {
   "schema": "gnozis.project-context/v5",
   "context_id": "gnozis-core-canonical-project",
-  "repository": "Mikhail-Kucheriavyi-23/Gnozis-V2",
+  "repository": "Autopoiesis-Intelligence/Gnosis-Core",
   "branch": "main",
   "snapshot_of_canonical_source_head": "722e3df0639b21155733ec9850ae1402dd62bc59",
   "current_operating_scope": "SINGLE OWNER / SINGLE ACCOUNT / SINGLE CANONICAL PROJECT",
