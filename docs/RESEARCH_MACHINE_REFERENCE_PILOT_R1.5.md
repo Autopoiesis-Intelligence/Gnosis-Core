@@ -20,7 +20,7 @@ The contract independently requires that evidence verification scope be explicit
 
 ```yaml
 research_ref:
-  repository: Mikhail-Kucheriavyi-23/Gnozis
+  repository: Autopoiesis-Intelligence/Gnosis
   record_id: C-0004
   source_commit: 7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c
   relation: TEST_RATIONALE
@@ -73,7 +73,7 @@ The remaining R1.5 acceptance step is a navigation/reference audit: verify that 
 
 The pinned reference was independently resolved against the canonical repository:
 
-- repository: `Mikhail-Kucheriavyi-23/Gnozis`
+- repository: `Autopoiesis-Intelligence/Gnosis`
 - record: `C-0004`
 - pinned commit: `7eb7caeb6a82e09e3bf40feef515b4db25b3eb0c`
 - file: `archive/records/C-0004.yaml`
