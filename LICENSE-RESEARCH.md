@@ -1,6 +1,6 @@
 # Gnosis Research Use and Copyright Notice
 
-Copyright © 2026 Mikhail Kucheriavyi. All rights reserved.
+Copyright © 2026 The GNOSIS Project. All rights reserved.
 
 ## Purpose
 
