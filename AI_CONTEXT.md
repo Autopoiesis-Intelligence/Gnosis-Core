@@ -5,7 +5,7 @@
 This file is the operational handoff and research context for AI agents working on Gnozis Core.
 
 Repository:
-- GitHub: Mikhail-Kucheriavyi-23/Gnozis-V2
+- GitHub: Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
 
 Rules:
