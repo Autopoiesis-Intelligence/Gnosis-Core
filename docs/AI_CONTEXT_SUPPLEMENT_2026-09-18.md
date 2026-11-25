@@ -5,7 +5,7 @@
 This is an append-only supplement to the main `AI_CONTEXT.md`. It records the work completed today and the repository gaps identified after closing the mathematical specification.
 
 Repository checked:
-- Mikhail-Kucheriavyi-23/Gnozis-V2
+- Autopoiesis-Intelligence/Gnosis-Core
 - default branch: main
 - repository is currently indexed and accessible
 - current tree was inspected directly from GitHub
